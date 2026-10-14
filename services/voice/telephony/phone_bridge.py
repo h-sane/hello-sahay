@@ -18,8 +18,9 @@ from fastapi import FastAPI, Request, Response, WebSocket
 
 from pipeline.session import CallSession
 
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("sahay.bridge")
-LANGS = {"en", "hi", "ta"}
+LANGS = {"en", "hi", "ta", "auto"}
 RATE = 8000  # both carriers; Transcribe and Polly accept 8 kHz directly
 TWILIO_FRAME = 160  # 20 ms of mu-law
 EXOTEL_CHUNK = 320  # 20 ms of 8 kHz 16-bit mono; outbound frames must be a multiple of this

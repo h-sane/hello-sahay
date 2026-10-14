@@ -16,7 +16,7 @@ from .session import CallSession
 
 logging.basicConfig(level=logging.INFO)
 STATIC = Path(__file__).resolve().parents[1] / "static"
-LANGS = {"en", "hi", "ta"}
+LANGS = {"en", "hi", "ta", "auto"}
 
 app = FastAPI(title="Hello Sahay voice")
 

@@ -1,5 +1,10 @@
 LANG_NAME = {"en": "English", "hi": "Hindi", "ta": "Tamil"}
 
+AUTO_LINES = {
+    "hi": "आप हिंदी में बात कर सकते हैं। आपकी बातचीत लिखी जाती है।",
+    "ta": "நீங்கள் தமிழில் பேசலாம். உங்கள் அழைப்பு எழுத்தாக பதிவு செய்யப்படுகிறது.",
+}
+
 GREETING = {
     "en": ("Hello, this is Hello Sahay, a free health helpline. Your call is transcribed to help book your visit. "
            "I cannot give medical advice. How can I help you today?"),

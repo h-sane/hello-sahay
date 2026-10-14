@@ -32,11 +32,13 @@ class CallSession:
     def __init__(self, lang: str, send_audio: Callable[[bytes], Awaitable[None]],
                  send_event: Callable[[dict], Awaitable[None]], in_rate: int = 16000, out_rate: int = 16000,
                  *, stt=None, agent=run_agent, tts=synthesize, http: httpx.AsyncClient | None = None):
+        self.auto = lang == "auto"  # language is detected per utterance and may change mid-call
+        lang = "en" if self.auto else lang
         self.lang, self.in_rate, self.out_rate = lang, in_rate, out_rate
         self._send_audio, self._send_event = send_audio, send_event
-        self._stt = stt or (SarvamStt if lang == "ta" else TranscribeStt)(lang, in_rate)
+        self._stt = stt or (SarvamStt if lang == "ta" or self.auto else TranscribeStt)("auto" if self.auto else lang, in_rate)
         self._agent = agent
-        self._tts = synthesize_ta if lang == "ta" and tts is synthesize else tts
+        self._tts_override = tts if tts is not synthesize else None
         self._end_silence = getattr(self._stt, "end_silence", END_SILENCE_S)
         self._http = http or httpx.AsyncClient(base_url=config.API_BASE_URL, timeout=10)
         self.state: dict = {}
@@ -61,6 +63,9 @@ class CallSession:
     async def run(self) -> None:
         self._tasks = [asyncio.create_task(self._stt_task()), asyncio.create_task(self._turn_loop())]
         await self._say(prompts.GREETING[self.lang])
+        if self.auto:
+            for code, line in prompts.AUTO_LINES.items():
+                await self._say(line, lang=code)
         await self._done.wait()
         await self.close()
 
@@ -91,9 +96,22 @@ class CallSession:
             log.exception("speech-to-text failed")
             await self._finish()
 
+    def _tts(self, sentence: str, lang: str, rate: int):
+        if self._tts_override:
+            return self._tts_override(sentence, lang, rate)
+        return (synthesize_ta if lang == "ta" else synthesize)(sentence, lang, rate)
+
+    def _switch_language(self, lang: str) -> None:
+        log.info("language switched %s -> %s", self.lang, lang)
+        self.lang, self._tools.lang = lang, lang
+        self._system = prompts.SYSTEM.format(language=prompts.LANG_NAME[lang], greeting=prompts.GREETING[lang])
+
     async def _on_result(self, text: str, final: bool) -> None:
         self._last_result = time.monotonic()
         if final:
+            detected = getattr(self._stt, "detected", None)
+            if self.auto and detected in prompts.LANG_NAME and detected != self.lang:
+                self._switch_language(detected)
             self._pending.append(text)
         await self._send_event({"type": "heard", "text": text, "final": final})
 
@@ -111,16 +129,22 @@ class CallSession:
     async def _turn(self, text: str) -> None:
         t0 = time.perf_counter()
         await self._record("user", text)
-        gate = check(text, self.lang)
+        gate, gate_lang = check(text, self.lang), self.lang
+        if self.auto and gate.flag != "emergency":
+            for other in prompts.LANG_NAME:  # a code-switched sentence can hide the emergency words from the detected language
+                alt = check(text, other)
+                if alt.flag == "emergency":
+                    gate, gate_lang = alt, other
+                    break
         lat = {"gate": gate.flag}
         if gate.flag == "emergency":
             self.state.update(emergency=True, handoff=True)
-            await self._say(gate.reply, lat, t0)
+            await self._say(gate.reply, lat, t0, lang=gate_lang)
             await self._finish()
             return
         note = ""
         if gate.flag == "symptom":
-            await self._say(gate.reply, lat, t0)
+            await self._say(gate.reply, lat, t0, lang=gate_lang)
             note = ("\n[System note: the caller asked a symptom question and was already given the fixed safe reply. "
                     "Give no medical information; continue with the booking steps.]")
         self._messages.append({"role": "user", "content": [{"text": text + note}]})
@@ -155,11 +179,11 @@ class CallSession:
         self.state.update(handoff=True, handoff_reason="an unverified answer was blocked")
         return prompts.UNVERIFIED[self.lang]
 
-    async def _say(self, text: str, lat: dict | None = None, t0: float | None = None) -> None:
+    async def _say(self, text: str, lat: dict | None = None, t0: float | None = None, lang: str | None = None) -> None:
         await self._record("assistant", text)
         first = True
         for sentence in filter(None, _SENTENCE.split(text)):
-            audio = await self._tts(sentence, self.lang, self.out_rate)
+            audio = await self._tts(sentence, lang or self.lang, self.out_rate)
             if first and lat is not None and t0 is not None and "first_audio_ms" not in lat:
                 lat["first_audio_ms"] = round((time.perf_counter() - t0) * 1000)
             first = False

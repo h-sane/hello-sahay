@@ -39,6 +39,8 @@ class SarvamStt:
 
     def __init__(self, lang: str, sample_rate: int):
         self.rate = sample_rate
+        self.code = "unknown" if lang == "auto" else "ta-IN"  # "unknown" lets Sarvam detect en/hi/ta per utterance
+        self.detected: str | None = None
 
     async def run(self, audio_q: "asyncio.Queue[bytes | None]", on_result: Callable[[str, bool], Awaitable[None]]) -> None:
         buf, quiet, spoke = bytearray(), 0.0, False
@@ -63,6 +65,8 @@ class SarvamStt:
         async with httpx.AsyncClient(timeout=20) as c:
             r = await c.post(f"{BASE}/speech-to-text", headers=_headers(),
                              files={"file": ("a.wav", out.getvalue(), "audio/wav")},
-                             data={"model": "saarika:v2.5", "language_code": "ta-IN"})
+                             data={"model": "saarika:v2.5", "language_code": self.code})
             r.raise_for_status()
-        return r.json().get("transcript", "").strip()
+        body = r.json()
+        self.detected = (body.get("language_code") or "").split("-")[0] or None
+        return body.get("transcript", "").strip()
