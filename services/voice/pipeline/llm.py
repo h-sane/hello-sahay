@@ -1,13 +1,17 @@
 """Bedrock Converse with tools (Nova). One call may loop through several tool rounds."""
 import asyncio
+import json
 import re
+import time
 
 from botocore.exceptions import ClientError
 
 from . import aws, config
+from .hedge import hedged
 from .tools import TOOL_SPECS, Tools
 
 MAX_ROUNDS = 6
+HEDGE_S = 4.0  # a Nova round normally takes about a second
 FALLBACK = {"en": "Sorry, I am having trouble. Please say that again.",
             "hi": "माफ़ कीजिए, कुछ गड़बड़ हो गई। कृपया फिर से कहें।",
             "ta": "மன்னிக்கவும், ஒரு சிக்கல் ஏற்பட்டது. தயவுசெய்து மீண்டும் சொல்லுங்கள்."}
@@ -21,18 +25,29 @@ def _converse(system: str, messages: list) -> dict:
 
 async def run_agent(system: str, messages: list, tools: Tools) -> str:
     """Appends the assistant and tool turns to `messages` and returns the text to speak."""
-    for _ in range(MAX_ROUNDS):
+    trace = getattr(tools, "trace", None) or (lambda *a, **k: None)
+    for n in range(MAX_ROUNDS):
+        t0 = time.perf_counter()
         try:
-            out = await asyncio.to_thread(_converse, system, messages)
-        except ClientError:  # Nova now and then emits a malformed tool call; a second attempt almost always works
+            out = await hedged(lambda: asyncio.to_thread(_converse, system, messages), HEDGE_S, "bedrock")
+        except ClientError as e:  # Nova now and then emits a malformed tool call; a second attempt almost always works
+            trace("llm_retry", round=n, error=str(e)[:200])
             out = await asyncio.to_thread(_converse, system, messages)
         msg = out["output"]["message"]
         messages.append(msg)
         uses = [b["toolUse"] for b in msg["content"] if "toolUse" in b]
+        trace("llm_round", round=n, ms=round((time.perf_counter() - t0) * 1000), tools=[u["name"] for u in uses],
+              tokens=out.get("usage", {}).get("totalTokens"), stop=out.get("stopReason"))
         if not uses:
             text = " ".join(b["text"] for b in msg["content"] if "text" in b)
             return re.sub(r"<thinking>.*?</thinking>", "", text, flags=re.S).strip()
-        results = [{"toolResult": {"toolUseId": u["toolUseId"],
-                                   "content": [{"json": await tools.call(u["name"], u["input"])}]}} for u in uses]
+        results = []
+        for u in uses:
+            t1 = time.perf_counter()
+            result = await tools.call(u["name"], u["input"])
+            trace("tool", name=u["name"], args=u["input"], ms=round((time.perf_counter() - t1) * 1000),
+                  result=json.dumps(result, ensure_ascii=False)[:400])
+            results.append({"toolResult": {"toolUseId": u["toolUseId"], "content": [{"json": result}]}})
         messages.append({"role": "user", "content": results})
+    trace("llm_gave_up", rounds=MAX_ROUNDS)
     return FALLBACK[tools.lang]

@@ -21,6 +21,21 @@ UNVERIFIED = {"en": "I don't have verified information on that. Please ask at yo
               "ta": "இதைப் பற்றி என்னிடம் சரிபார்க்கப்பட்ட தகவல் இல்லை. அருகிலுள்ள PHC-யில் கேளுங்கள் அல்லது 104 எண்ணை அழைக்கவும். "
                     "எங்கள் குழுவினர் ஒருவர் உங்களைத் திரும்ப அழைப்பார்."}
 
+FILLER = {"en": "One moment please.", "hi": "एक क्षण रुकिए।", "ta": "ஒரு நிமிடம் காத்திருங்கள்."}
+
+# Said when the caller's words were noise, a stray word in another script, or only our own voice coming back.
+UNCLEAR = {"en": ["Sorry, I could not hear that. Please say it again.",
+                  "The line is not clear. Please speak slowly, close to the phone."],
+           "hi": ["माफ़ कीजिए, मैं सुन नहीं पाई। कृपया फिर से बोलिए।",
+                  "आवाज़ साफ़ नहीं आ रही। कृपया फ़ोन के पास आकर धीरे बोलिए।"],
+           "ta": ["மன்னிக்கவும், எனக்குக் கேட்கவில்லை. தயவுசெய்து மீண்டும் சொல்லுங்கள்.",
+                  "குரல் தெளிவாக இல்லை. தொலைபேசிக்கு அருகில் மெதுவாகப் பேசுங்கள்."]}
+
+# The third unanswered question or unclear sentence in a row ends the call instead of looping.
+GIVE_UP = {"en": "I am sorry, I am not able to understand. A person from our team will call you back. Thank you.",
+           "hi": "माफ़ कीजिए, मैं समझ नहीं पा रही। हमारी टीम का कोई व्यक्ति आपको वापस कॉल करेगा। धन्यवाद।",
+           "ta": "மன்னிக்கவும், எனக்குப் புரியவில்லை. எங்கள் குழுவினர் ஒருவர் உங்களைத் திரும்ப அழைப்பார். நன்றி."}
+
 GREETING_FALLBACK = {"en": "Sorry, I had a problem. Could you say that again?",
                      "hi": "माफ़ कीजिए, कुछ गड़बड़ हो गई। क्या आप फिर से कह सकते हैं?",
                      "ta": "மன்னிக்கவும், ஒரு சிக்கல் ஏற்பட்டது. மீண்டும் சொல்ல முடியுமா?"}
@@ -30,6 +45,8 @@ You are on a phone call. Reply only in {language}, in one or two short sentences
 Ask one question at a time and never list more than two choices. The caller was already greeted: "{greeting}"
 If the caller only chose a language or said hello, answer "How can I help you?" in their language and wait.
 If the caller asks to switch language, call set_language, then answer in that language.
+If the caller's last words did not answer your question, never repeat the question word for word: say briefly that you
+did not catch it and ask for just the one missing detail in different words.
 
 Hard rules:
 - Never diagnose, never name a likely illness, never suggest medicines, doses or treatment, and never comment on symptoms.

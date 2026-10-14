@@ -112,6 +112,7 @@ class Call(Base):
     callback_done: Mapped[bool] = mapped_column(Boolean, default=False)  # a person rang the caller back
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     duration_s: Mapped[int | None] = mapped_column(Integer)
+    trace: Mapped[list | None] = mapped_column(JSON)  # timestamped events from the voice service: what was heard, said, called and how long it took
 
 
 class AdvisoryChunk(Base):

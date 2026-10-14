@@ -10,6 +10,7 @@ from typing import Awaitable, Callable
 import httpx
 
 from . import config
+from .hedge import hedged
 
 log = logging.getLogger("sahay.sarvam")
 BASE = "https://api.sarvam.ai"
@@ -25,10 +26,14 @@ def _headers() -> dict:
 
 
 async def synthesize(text: str, lang: str, rate: int) -> bytes:
-    async with httpx.AsyncClient(timeout=20) as c:
-        r = await c.post(f"{BASE}/text-to-speech", headers=_headers(), json={
-            "text": text, "target_language_code": "ta-IN", "model": "bulbul:v3", "speech_sample_rate": rate})
-        r.raise_for_status()
+    async def post() -> httpx.Response:
+        async with httpx.AsyncClient(timeout=20) as c:
+            r = await c.post(f"{BASE}/text-to-speech", headers=_headers(), json={
+                "text": text, "target_language_code": "ta-IN", "model": "bulbul:v3", "speech_sample_rate": rate})
+            r.raise_for_status()
+            return r
+
+    r = await hedged(post, 4.0, "sarvam tts")
     with wave.open(io.BytesIO(base64.b64decode(r.json()["audios"][0]))) as w:
         pcm, src = w.readframes(w.getnframes()), w.getframerate()
     return pcm if src == rate else audioop.ratecv(pcm, 2, 1, src, rate, None)[0]
@@ -62,11 +67,14 @@ class SarvamStt:
         out = io.BytesIO()
         with wave.open(out, "wb") as w:
             w.setnchannels(1), w.setsampwidth(2), w.setframerate(self.rate), w.writeframes(pcm)
-        async with httpx.AsyncClient(timeout=20) as c:
-            r = await c.post(f"{BASE}/speech-to-text", headers=_headers(),
-                             files={"file": ("a.wav", out.getvalue(), "audio/wav")},
-                             data={"model": "saarika:v2.5", "language_code": self.code})
-            r.raise_for_status()
-        body = r.json()
+        async def post() -> httpx.Response:
+            async with httpx.AsyncClient(timeout=20) as c:
+                r = await c.post(f"{BASE}/speech-to-text", headers=_headers(),
+                                 files={"file": ("a.wav", out.getvalue(), "audio/wav")},
+                                 data={"model": "saarika:v2.5", "language_code": self.code})
+                r.raise_for_status()
+                return r
+
+        body = (await hedged(post, 4.0, "sarvam stt")).json()
         self.detected = (body.get("language_code") or "").split("-")[0] or None
         return body.get("transcript", "").strip()

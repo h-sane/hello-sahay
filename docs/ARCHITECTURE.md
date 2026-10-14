@@ -117,7 +117,8 @@ All under `/api/v1`. JSON in and out. Implementers: keep these names so the voic
 | `GET /medicines/{id}/equivalents` | Same salts + strength + form, cheapest first, Jan Aushadhi flagged |
 | `GET /medicines/{id}/prices` | Prices with source and date |
 | `POST /reminders`, `GET /reminders`, `POST /doses/{id}` | Care plan (premium-gated) |
-| `POST /calls`, `GET /calls?facility_id` | Call log + transcripts |
+| `POST /calls`, `GET /calls?facility_id` | Call log + transcripts; `POST` also takes `trace` (the voice service's timestamped event list) |
+| `GET /calls/{id}/trace` | Call record plus its `trace` (Desk or admin login); read it with `scripts/call_trace.py` |
 | `GET /handoffs` | Human-handoff queue |
 | `POST /payments/checkout`, `POST /payments/webhook` | Razorpay test mode |
 | `GET /admin/analytics`, `GET/POST /admin/hospitals` | Admin console |

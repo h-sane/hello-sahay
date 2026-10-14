@@ -54,10 +54,18 @@ async def _no_event(_: dict) -> None:
 class _Call:
     """One CallSession whose lifetime follows the carrier's websocket."""
 
-    def __init__(self, lang: str, send_audio):
+    def __init__(self, lang: str, send_audio, on_end=None):
+        self.on_end = on_end  # the session ended itself (emergency, give-up): hang up on the carrier
         self.session = CallSession(lang, send_audio, _no_event, in_rate=RATE, out_rate=RATE)
         self.task = asyncio.create_task(self.session.run())
-        self.task.add_done_callback(lambda t: t.cancelled() or t.exception() and log.error("call session failed", exc_info=t.exception()))
+        self.task.add_done_callback(self._done)
+
+    def _done(self, t: asyncio.Task) -> None:
+        if not t.cancelled() and t.exception():
+            log.error("call session failed", exc_info=t.exception())
+            self.session.trace.add("error", where="session", error=repr(t.exception()))
+        if not t.cancelled() and self.on_end:
+            self.on_end()
 
     def feed(self, pcm: bytes) -> None:
         self.session.feed_audio(pcm)
@@ -100,8 +108,10 @@ async def media(ws: WebSocket) -> None:
             if msg["event"] == "start":
                 stream_sid = msg["start"]["streamSid"]
                 params = msg["start"].get("customParameters", {})
-                call = _Call(_lang(params.get("lang") or ws.query_params.get("lang") or "auto"), send_audio)
+                call = _Call(_lang(params.get("lang") or ws.query_params.get("lang") or "auto"), send_audio,
+                             on_end=lambda: asyncio.create_task(ws.close()))
                 call.session.state["phone"] = params.get("from") or None
+                call.session.trace.add("carrier_start", carrier="twilio", params=params)
             elif msg["event"] == "media" and call:
                 call.feed(mulaw_to_pcm16(base64.b64decode(msg["media"]["payload"])))
             elif msg["event"] == "stop":
@@ -115,7 +125,7 @@ async def media(ws: WebSocket) -> None:
 @app.websocket("/exotel")
 async def exotel(ws: WebSocket) -> None:
     await ws.accept()
-    stream_sid, call, seq = None, None, 0
+    stream_sid, call, seq, event = None, None, 0, None
 
     closed = False
 
@@ -137,9 +147,10 @@ async def exotel(ws: WebSocket) -> None:
         start = msg.get("start") or {}
         params = start.get("custom_parameters") or start.get("customParameters") or {}
         lang = _lang(params.get("lang") or ws.query_params.get("lang") or "auto")
-        c = _Call(lang, send_audio)
+        c = _Call(lang, send_audio, on_end=lambda: asyncio.create_task(ws.close()))
         c.session.state["phone"] = start.get("from") or start.get("From")
         log.info("exotel call open lang=%s from=%s", lang, c.session.state["phone"])
+        c.session.trace.add("carrier_start", carrier="exotel", lang=lang, start=json.dumps(start)[:500])
         return c
 
     try:
@@ -157,10 +168,14 @@ async def exotel(ws: WebSocket) -> None:
                 call.feed(base64.b64decode(msg["media"]["payload"]))
             elif event == "stop":
                 break
-    except Exception:
+    except Exception as e:
         log.exception("exotel websocket failed")
+        if call:
+            call.session.trace.add("error", where="exotel_ws", error=repr(e))
     finally:
         closed = True
         log.info("exotel websocket closed, %d audio frames sent", seq)
+        if call:
+            call.session.trace.add("carrier_closed", frames_sent=seq, last_event=event)
         if call:
             await call.close()

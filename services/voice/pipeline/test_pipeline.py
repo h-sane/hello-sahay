@@ -287,3 +287,162 @@ def test_dictated_digit_words_become_digits_but_ordinary_speech_is_left_alone():
     assert d("मेरा नंबर नौ आठ सात छह पाँच चार तीन दो एक शून्य है") == "मेरा नंबर 9876543210 है"
     assert d("my number is nine eight seven six five four three two one zero") == "my number is 9876543210"
     assert d("one or two days") == "one or two days"
+
+
+def test_letters_of_scripts_we_do_not_speak_are_dropped_from_what_was_heard():
+    from pipeline.session import _clean
+
+    assert _clean("ਕੀ ਆ। હા. ਅੱਛਾ। It didn't take this much time") == "। . । It didn't take this much time"
+    assert _clean("मुझे बुखार है, 2 दिन से") == "मुझे बुखार है, 2 दिन से"
+    assert _clean("வணக்கம் doctor") == "வணக்கம் doctor"
+
+
+def test_the_same_question_three_times_is_rephrased_once_then_the_call_is_handed_to_a_person():
+    from pipeline.prompts import GIVE_UP
+
+    asked = []
+
+    async def agent(system, messages, tools):
+        asked.append(messages[-1]["content"][-1]["text"])
+        messages.append({"role": "assistant", "content": [{"text": "x"}]})
+        return "Which village are you from?"
+
+    async def go():
+        s, _, events = make_session(agent, [])
+        for word in ("Time", "Sign", "Second issue"):
+            await s._turn(word)
+        await s.close()
+        return s, events
+
+    s, events = asyncio.run(go())
+    q = "Which village are you from?"
+    assert spoken(s) == [q, q, GIVE_UP["en"]]  # this fake model never rephrases; a real one would
+    assert sum("System note" in a for a in asked) == 2
+    assert s.state["handoff"] and any(e["type"] == "ended" for e in events)
+    assert any(e["ev"] == "give_up" for e in s.trace.events)
+
+
+def test_noise_gets_a_short_prompt_and_the_third_in_a_row_ends_the_call():
+    from pipeline.prompts import GIVE_UP, UNCLEAR
+
+    async def agent(*_):
+        raise AssertionError("noise must not reach the model")
+
+    async def go():
+        s, _, events = make_session(agent, [])
+        for _ in range(3):
+            await s._on_result("ਕੀ ਆ।", True)
+            s._last_result = 0
+            text, s._pending = " ".join(p for p in s._pending if p), []
+            assert text == ""
+            await s._unclear()
+        return s, events
+
+    s, events = asyncio.run(go())
+    assert spoken(s) == [UNCLEAR["en"][0], UNCLEAR["en"][1], GIVE_UP["en"]]
+    assert s.state["handoff"]
+
+
+def test_a_short_utterance_never_switches_the_language_but_a_sentence_does():
+    async def go():
+        s, _, _ = make_session(None, [], lang="auto")
+        s._stt.detected = "hi"
+        await s._on_result("मैं अभी।", True)
+        kept = s.lang
+        await s._on_result("मुझे बहुत बुखार है", True)
+        return kept, s.lang
+
+    assert asyncio.run(go()) == ("en", "hi")
+
+
+def test_our_own_words_coming_back_on_the_line_are_dropped_not_answered():
+    async def go():
+        s, _, _ = make_session(None, [])
+        await s._record("assistant", "Please tell me your village or town.")
+        await s._on_result("please tell me your village or town", True)
+        return s._pending
+
+    assert asyncio.run(go()) == []
+
+
+def test_a_slow_turn_gets_a_spoken_one_moment_before_the_reply(monkeypatch):
+    from pipeline import session as sess
+    from pipeline.prompts import FILLER
+
+    async def agent(system, messages, tools):
+        await asyncio.sleep(0.3)
+        return "Which village are you from?"
+
+    async def go():
+        monkeypatch.setattr(sess, "FILLER_AFTER_S", 0.05)
+        s, _, _ = make_session(agent, [])
+        await s._turn("I have a fever")
+        return s
+
+    s = asyncio.run(go())
+    assert spoken(s) == [FILLER["en"], "Which village are you from?"]
+
+
+def test_a_silent_caller_is_prompted_and_the_third_silence_ends_the_call(monkeypatch):
+    import time
+
+    from pipeline import session as sess
+    from pipeline.prompts import GIVE_UP, UNCLEAR
+
+    async def go():
+        monkeypatch.setattr(sess, "NO_INPUT_S", 0.05)
+        s, _, events = make_session(None, [])
+        s._listening_since = time.monotonic()
+        loop = asyncio.create_task(s._turn_loop())
+        for _ in range(100):
+            await asyncio.sleep(0.1)
+            if s._done.is_set():
+                break
+        loop.cancel()
+        return s, events
+
+    s, events = asyncio.run(go())
+    assert spoken(s) == [UNCLEAR["en"][0], UNCLEAR["en"][1], GIVE_UP["en"]]
+    assert s.state["handoff"] and any(e["type"] == "ended" for e in events)
+
+
+def test_our_own_sentence_glued_to_the_callers_words_is_cut_out_of_what_was_heard():
+    async def go():
+        s, _, _ = make_session(None, [])
+        await s._record("assistant", "Please say it again. Which village are you from?")
+        await s._on_result("Please say it again. I am from Chengalpattu.", True)
+        return s._pending
+
+    assert asyncio.run(go()) == ["I am from Chengalpattu."]
+
+
+def test_a_stuck_request_is_hedged_with_a_second_attempt_and_the_first_result_wins():
+    from pipeline.hedge import hedged
+
+    attempts = []
+
+    async def make():
+        attempts.append(1)
+        await asyncio.sleep(5 if len(attempts) == 1 else 0.01)  # the first attempt hangs, the second answers
+        return len(attempts)
+
+    async def go():
+        return await hedged(make, 0.05)
+
+    assert asyncio.run(go()) == 2 and len(attempts) == 2
+
+
+def test_a_failed_first_attempt_does_not_hide_a_good_second_one():
+    from pipeline.hedge import hedged
+
+    n = []
+
+    async def make():
+        n.append(1)
+        if len(n) == 1:
+            await asyncio.sleep(0.1)
+            raise RuntimeError("connection reset")
+        await asyncio.sleep(0.2)
+        return "ok"
+
+    assert asyncio.run(hedged(make, 0.05)) == "ok"

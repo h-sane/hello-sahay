@@ -59,3 +59,40 @@ Twilio: Console → Home → Make a voice call → Receive a call → Custom. Ex
    on the appointment as `hospital_label`. The booking shows in the patient app (`/patients/{phone}/appointments`), in the
    demo hospital's Sahay Desk and in the assigned doctor's own login (for example `harini@sunrise.demo`, password
    `demo1234`). Every call log lands on the same Desk, with "hospital: <name told>" in its summary.
+
+## Call logging and monitoring (2026-10-15)
+
+Every call keeps a timestamped trace (`call.trace`, saved with the call record when the call ends). Read it after any call:
+
+```bash
+python scripts/call_trace.py latest                       # newest call, local API on :8001
+python scripts/call_trace.py 41 --base https://13-127-85-246.sslip.io/api/v1
+```
+
+It prints the whole timeline and a FINDINGS list: `LOOP` (the agent or the caller repeated a sentence), `ECHO` (the
+transcriber heard our own voice, or the line carried sound while we spoke), `PAUSE` (a turn silent for over 4 s, with the
+model's share), `SLOW` (a model round, tool call or speech synthesis over 3 s), `ERROR`, `SAVE_FAILED`, `BLOCKED_REPLY`.
+The same events go to the service log (`docker logs` on the box, logger `sahay.trace`, one JSON line each).
+API: `GET /api/v1/calls/{id}/trace` (Desk or admin login).
+
+Events: `call_start`, `carrier_start`, `audio_in` (caller audio level every 2 s, and how much arrived while we were
+speaking), `stt_result`, `noise`, `echo_stripped`, `language_kept`, `turn_start`, `gate`, `llm_round`, `llm_retry`, `tool`
+(arguments, result, ms), `tts` (ms, cached), `blocked_reply`, `said`, `latency` (`first_audio_ms`), `filler`, `unclear`,
+`no_input`, `repeat_reply`, `give_up`, `listening`, `error`, `save_failed`, `carrier_closed`, `call_end`.
+`said` is stamped after the audio has been played out; use `latency` and `tts` for timing.
+
+`scripts/sim_call.py` places a synthetic call through the Exotel bridge (Polly speaks scripted sentences; `--echo 0.5`
+adds line echo, no `--say` gives a silent caller). Run the bridge on another port with `API_BASE_URL` pointing at a
+local API, then read the call with `call_trace.py latest --base <that API>`.
+
+### Guards against a stuck call
+
+- Letters of scripts we do not speak (Gurmukhi, Gujarati, ... that the detector emits for noise) are dropped; an
+  utterance with nothing left is noise and gets "I could not hear that".
+- Our own sentences coming back on the line are cut out of what was heard (`echo_stripped`).
+- A one or two word utterance never switches the language; a sentence does (`language_kept` otherwise).
+- The same reply twice in a row is re-asked once with a note to rephrase. Three strikes in a row (noise, silence for
+  12 s after the beep, or a repeated question) play a goodbye, queue a human callback (`handoff`) and hang up on the
+  carrier.
+- A turn slower than 3 s says "one moment please". Polly, Bedrock and Sarvam requests that stall start a second attempt
+  (`hedge.py`); boto3 requests time out in 15 s.
