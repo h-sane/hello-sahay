@@ -497,3 +497,19 @@ def test_a_second_slot_choice_moves_the_booking_instead_of_making_another():
 
     out = asyncio.run(go())
     assert calls == [("PATCH", "/appointments/9")] and out["appointment_id"] == 9
+
+
+def test_after_the_first_sentence_only_a_whole_sentence_in_another_language_moves_the_call():
+    async def go():
+        s, _, _ = make_session(None, [], lang="auto")
+        s._stt.detected = "en"
+        await s._on_result("I have fever since two days", True)
+        s._stt.detected = "ta"
+        await s._on_result("சென்னை மதுரவாயல் பஸ்", True)  # a place named in Tamil letters: three words, still English
+        a = s.lang
+        await s._on_result("Maduravoyal near the bus stand please", True)  # detector says Tamil, the words are English
+        b = s.lang
+        await s._on_result("எனக்கு ரொம்ப காய்ச்சல் இருக்கு டாக்டர்", True)
+        return a, b, s.lang
+
+    assert asyncio.run(go()) == ("en", "en", "ta")

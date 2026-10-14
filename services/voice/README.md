@@ -27,7 +27,7 @@ Twilio: Console → Home → Make a voice call → Receive a call → Custom. Ex
   (and to the shared trial ExoPhone 095-138-86363, which asks callers for the account PIN: use the landline).
 - Voicebot applet URL: `wss://<host>/exotel?sample-rate=8000&lang=auto`. Exotel strips the query string from the
   connection and delivers it in `start.custom_parameters`; the bridge reads `lang` and the caller's number (`start.from`)
-  from there. `lang=auto` detects en/hi/ta per sentence (Sarvam) and switches voice and replies mid-call.
+  from there. `lang=auto` detects en/hi/ta (Sarvam); the first sentence sets the language and only a whole sentence in another one changes it later.
 - Exotel parses every message field as a string: outbound audio must be exactly
   `{"event":"media","stream_sid":..,"media":{"payload":..}}` (a numeric `sequence_number` or `chunk` ends the call).
   Audio is paced in real time; greeting audio is cached at start-up.
@@ -93,7 +93,9 @@ local API, then read the call with `call_trace.py latest --base <that API>`.
 - Letters of scripts we do not speak (Gurmukhi, Gujarati, ... that the detector emits for noise) are dropped; an
   utterance with nothing left is noise and gets "I could not hear that".
 - Our own sentences coming back on the line are cut out of what was heard (`echo_stripped`).
-- A one or two word utterance never switches the language; a sentence does (`language_kept` otherwise).
+- The caller's first sentence (three words or more) sets the language. After that it only moves for a whole sentence of five
+  words or more written in the other language's script (`session.MIN_WORDS_TO_SWITCH_LATER`, `_in_script`); a village or
+  hospital name, or a short answer, never switches it (`language_kept` in the trace).
 - The same reply twice in a row is re-asked once with a note to rephrase. Three strikes in a row (noise, silence for
   12 s after the beep, or a repeated question) play a goodbye, queue a human callback (`handoff`) and hang up on the
   carrier.

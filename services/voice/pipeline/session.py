@@ -39,6 +39,8 @@ _AUDIO_CACHE: dict[tuple[str, str, int], bytes] = {}
 _SENTENCE = re.compile(r"(?<=[.!?।])\s+")
 KEPT_SCRIPTS = ("LATIN", "DEVANAGARI", "TAMIL")  # the three languages the helpline speaks; the detector also emits Gurmukhi etc. for noise
 MIN_WORDS_TO_SWITCH = 3  # a one or two word utterance is too short to trust its detected language
+MIN_WORDS_TO_SWITCH_LATER = 5  # after the caller's first sentence the language is theirs: only a whole sentence in another one moves it
+_SCRIPT = {"en": "LATIN", "hi": "DEVANAGARI", "ta": "TAMIL"}
 STRIKES_TO_HANG_UP = 3  # unclear sentences or repeated questions in a row before the call is handed to a person
 NO_INPUT_S = 12.0  # silence after the beep before the caller is prompted again
 FILLER_AFTER_S = 3.0  # a turn this slow gets a spoken "one moment" so the caller does not sit in silence
@@ -59,6 +61,12 @@ def _clean(text: str) -> str:
     return " ".join("".join(c for c in text if keep(c)).split())
 
 
+def _in_script(text: str, lang: str) -> bool:
+    """Is the sentence written (almost) entirely in the detected language's script, not a name or place spelled in it?"""
+    letters = [c for c in text if c.isalpha()]
+    return bool(letters) and sum(unicodedata.name(c, "").startswith(_SCRIPT[lang]) for c in letters) >= 0.8 * len(letters)
+
+
 def _norm(text: str) -> str:
     return "".join(c for c in text.lower() if c.isalnum())
 
@@ -72,6 +80,7 @@ class CallSession:
     def __init__(self, lang: str, send_audio: Callable[[bytes], Awaitable[None]],
                  send_event: Callable[[dict], Awaitable[None]], in_rate: int = 16000, out_rate: int = 16000,
                  *, stt=None, agent=run_agent, tts=synthesize, http: httpx.AsyncClient | None = None):
+        self._spoke_once = False  # the caller has had their first sentence heard; the language is settled by it
         self.auto = lang == "auto"  # language is detected per utterance and may change mid-call
         lang = "en" if self.auto else lang
         self.lang, self.in_rate, self.out_rate = lang, in_rate, out_rate
@@ -278,11 +287,15 @@ class CallSession:
                 self._pending.append("")
             else:
                 if self.auto and detected in prompts.LANG_NAME and detected != self.lang:
-                    if len(kept.split()) >= MIN_WORDS_TO_SWITCH:
+                    later = self._spoke_once
+                    if (len(kept.split()) >= (MIN_WORDS_TO_SWITCH_LATER if later else MIN_WORDS_TO_SWITCH)
+                            and (not later or _in_script(kept, detected))):
                         self._switch_language(detected)
+                        self._spoke_once = True
                     else:
                         self.trace.add("language_kept", detected=detected, words=len(kept.split()))
                 self._pending.append(kept)
+                self._spoke_once = self._spoke_once or detected == self.lang or detected not in prompts.LANG_NAME
         await self._send_event({"type": "heard", "text": text, "final": final})
 
     async def _turn_loop(self) -> None:
