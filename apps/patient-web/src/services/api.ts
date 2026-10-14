@@ -75,7 +75,7 @@ export interface ApiPatient {
 
 export interface ApiChatReply {
   answer: string;
-  citations: { issuer: string | null; title: string | null; url: string | null; published: string | null }[];
+  citations: { issuer: string | null; title: string | null; url: string | null; published: string | null; live?: boolean }[];
   safety_flag: 'ok' | 'emergency' | 'symptom';
   grounded: boolean;
 }
@@ -101,7 +101,7 @@ function authHeaders(): Record<string, string> {
   }
 }
 
-async function request<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
+export async function request<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
   let res: Response;
   try {
     res = await fetch(BASE + path, {

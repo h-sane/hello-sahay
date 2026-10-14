@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { PhoneCall, PhoneOff, X, AlertTriangle, Mic } from 'lucide-react';
+import { PhoneOff, AlertTriangle, Mic } from 'lucide-react';
 import { Language } from '../types';
+import { BigButton, Notice, Sheet, pick } from '../components/ui';
 
 // Browser client for the voice service (services/voice, WS /call): 16 kHz mono PCM16 both ways,
 // JSON events heard / transcript / latency / ended.
@@ -184,82 +185,48 @@ export const VoiceCallView: React.FC<VoiceCallViewProps> = ({ currentLang, onClo
   const inCall = state === 'connecting' || state === 'live';
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs overflow-y-auto"
-      role="dialog"
-      aria-modal="true"
+    <Sheet
+      title={c.title}
+      closeLabel={pick(currentLang, { en: 'Close', hi: 'बंद करें', ta: 'மூடு' })}
+      onClose={() => {
+        cleanup(true);
+        onClose();
+      }}
     >
-      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto flex flex-col max-h-[95vh]">
-        <div className="p-5 sm:p-6 bg-gradient-to-r from-teal-900 to-teal-800 text-white flex items-start justify-between">
-          <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-              <PhoneCall className="w-6 h-6" />
-              {c.title}
-            </h2>
-            <p className="text-sm text-teal-100">{c.lead}</p>
-          </div>
-          <button
-            onClick={() => {
-              cleanup(true);
-              onClose();
-            }}
-            className="p-2 rounded-xl text-teal-200 hover:text-white hover:bg-white/10"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+      <div className="space-y-4">
+        <p className="text-xl text-slate-800">{c.lead}</p>
 
-        <div className="p-5 sm:p-6 space-y-4 overflow-y-auto">
-          <div className="flex gap-3">
-            <button
-              onClick={() => (inCall ? (cleanup(true), setState('idle')) : start())}
-              className={`flex-1 h-14 rounded-2xl font-black text-base text-white flex items-center justify-center gap-2 ${
-                inCall ? 'bg-red-700 hover:bg-red-800' : 'bg-teal-800 hover:bg-teal-900'
+        <BigButton
+          variant={inCall ? 'danger' : 'primary'}
+          onClick={() => (inCall ? (cleanup(true), setState('idle')) : start())}
+          icon={inCall ? <PhoneOff className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
+        >
+          {inCall ? c.end : c.start}
+        </BigButton>
+
+        <p role="status" className="text-xl font-bold text-slate-900">{stateText}</p>
+        {error && <Notice tone="error">{error}</Notice>}
+        {heard && <p aria-live="polite" className="text-lg italic text-slate-600">{heard}</p>}
+
+        <ol className="grid gap-3">
+          {lines.map((l, i) => (
+            <li
+              key={i}
+              className={`rounded-2xl border-2 border-l-8 bg-slate-50 p-3 ${
+                l.role === 'assistant' ? 'border-teal-700 border-l-teal-700' : 'border-slate-300 border-l-slate-800'
               }`}
             >
-              {inCall ? <PhoneOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              {inCall ? c.end : c.start}
-            </button>
-            <button
-              onClick={onOpenEmergency}
-              className="h-14 px-4 rounded-2xl border-2 border-red-300 text-red-800 font-bold text-sm flex items-center gap-2 hover:bg-red-50"
-            >
-              <AlertTriangle className="w-5 h-5" />
-              <span>{c.emergency}</span>
-            </button>
-          </div>
+              <b className="block text-base text-slate-600">{l.role === 'assistant' ? c.sahay : c.you}</b>
+              <span className="text-xl text-slate-900">{l.text}</span>
+            </li>
+          ))}
+        </ol>
+        <div ref={endRef} />
 
-          <p role="status" className="font-bold text-slate-800">
-            {stateText}
-          </p>
-          {error && (
-            <p role="alert" className="font-bold text-red-700">
-              {error}
-            </p>
-          )}
-          {heard && <p aria-live="polite" className="italic text-slate-500">{heard}</p>}
-
-          <ol className="grid gap-2.5">
-            {lines.map((l, i) => (
-              <li
-                key={i}
-                className={`p-3 rounded-xl bg-slate-50 border border-slate-200 border-l-[6px] ${
-                  l.role === 'assistant' ? 'border-l-teal-700' : 'border-l-slate-800'
-                }`}
-              >
-                <b className="block text-xs text-slate-500">{l.role === 'assistant' ? c.sahay : c.you}</b>
-                <span className="text-base">{l.text}</span>
-              </li>
-            ))}
-          </ol>
-          <div ref={endRef} />
-
-          {latencies.length > 0 && (
-            <p className="text-xs text-slate-500">Time to first audio per turn (ms): {latencies.join(', ')}</p>
-          )}
-        </div>
+        <BigButton variant="secondary" onClick={onOpenEmergency} icon={<AlertTriangle className="w-6 h-6" />}>
+          {c.emergency}
+        </BigButton>
       </div>
-    </div>
+    </Sheet>
   );
 };

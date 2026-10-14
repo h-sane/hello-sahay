@@ -18,6 +18,8 @@ import { VoiceCallView } from './views/VoiceCallView';
 import { MedicinesView } from './views/MedicinesView';
 import { MyHealthView } from './views/MyHealthView';
 import { EmergencyView } from './views/EmergencyView';
+import { AppDataProvider } from './components/AppData';
+import { AlertBanner } from './components/AlertBanner';
 
 export default function App() {
   const [settings, setSettings] = useState<UserSettings>(() => {
@@ -52,6 +54,8 @@ export default function App() {
   const [selectedHospitalForBooking, setSelectedHospitalForBooking] = useState<Hospital | null>(null);
   const [showVoiceCallModal, setShowVoiceCallModal] = useState<boolean>(false);
   const [showEmergencyModal, setShowEmergencyModal] = useState<boolean>(false);
+
+  useEffect(() => { window.scrollTo(0, 0); }, [currentTab]);
 
   // Load facilities from the API, nearest first, whenever the location changes
   useEffect(() => {
@@ -144,6 +148,7 @@ export default function App() {
   };
 
   return (
+    <AppDataProvider signedIn={!!(settings.phoneVerified && settings.profileComplete)} phone={settings.userPhone}>
     <div className="min-h-screen bg-[#FBFBFA] flex flex-col font-sans text-slate-900 selection:bg-teal-100 selection:text-teal-900">
       {/* Main Top Header */}
       <Header
@@ -156,8 +161,10 @@ export default function App() {
         onNavigateHome={() => setCurrentTab('home')}
       />
 
+      <AlertBanner lang={settings.language} />
+
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 pt-5 pb-24">
+      <main className="flex-1 max-w-xl w-full mx-auto px-5 pt-6 pb-32">
         {hospitalError && (
           <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-800">
             {hospitalError} Hospital list may be out of date. In an emergency, call 108.
@@ -205,9 +212,8 @@ export default function App() {
             currentLang={settings.language}
             userSettings={settings}
             onUpdateSettings={handleUpdateSettings}
-            onOpenBookingForFamily={(name) => {
-              setCurrentTab('hospitals');
-            }}
+            onNavigate={(tab) => setCurrentTab(tab)}
+            onOpenLocationSelector={() => setShowLocationModal(true)}
           />
         )}
       </main>
@@ -262,7 +268,7 @@ export default function App() {
           currentLang={settings.language}
           isOnline={isOnline}
           onClose={() => setSelectedHospitalForBooking(null)}
-          onBookingComplete={() => {}}
+          onBookingComplete={() => window.dispatchEvent(new Event('sahay:appointments'))}
         />
       )}
 
@@ -282,9 +288,11 @@ export default function App() {
       {showEmergencyModal && (
         <EmergencyView
           currentLang={settings.language}
+          userCoordinates={userCoordinates}
           onClose={() => setShowEmergencyModal(false)}
         />
       )}
     </div>
+    </AppDataProvider>
   );
 }

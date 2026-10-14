@@ -6,7 +6,7 @@ import { locationService } from './locationService';
 export interface DoctorAdviceResponse {
   reply: string;
   emergency: boolean;
-  sources: string[];
+  sources: { label: string; host: string | null; url: string | null; live: boolean }[];
   doctorConsultation?: {
     assessment: string;
     homeCare: string;
@@ -69,9 +69,12 @@ export const sahayAiService = {
     customCoords?: UserCoordinates
   ): Promise<DoctorAdviceResponse> {
     const res = await api.chat(userMessage, apiLang(lang));
-    const sources = res.citations.map((c) =>
-      [c.issuer, c.title, c.published].filter(Boolean).join(' · ')
-    );
+    const sources = res.citations.map((c) => ({
+      label: c.live ? c.title || c.issuer || 'Official website' : [c.issuer, c.title].filter(Boolean).join(' · '),
+      host: c.live ? c.issuer : null,
+      url: c.url,
+      live: !!c.live,
+    }));
     const out: DoctorAdviceResponse = {
       reply: res.answer,
       emergency: res.safety_flag === 'emergency',

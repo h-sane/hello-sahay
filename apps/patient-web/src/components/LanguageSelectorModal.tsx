@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Globe, ShieldCheck, MapPin, Mic, CheckCircle2, X } from 'lucide-react';
 import { Language, UserSettings } from '../types';
-import { languageMeta, t } from '../translations';
 import { speechService } from '../services/speechService';
+import { BigButton, pick } from './ui';
 
 interface LanguageSelectorModalProps {
   isOpen: boolean;
@@ -16,134 +15,85 @@ interface LanguageSelectorModalProps {
   onClose?: () => void;
 }
 
+const LANGUAGES: { code: Language; label: string }[] = [
+  { code: 'ta', label: 'தமிழ்' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'en', label: 'English' },
+];
+
+const Toggle: React.FC<{ on: boolean; onChange: (v: boolean) => void; children: React.ReactNode }> = ({ on, onChange, children }) => (
+  <button
+    type="button" role="switch" aria-checked={on} onClick={() => onChange(!on)}
+    className="flex min-h-16 w-full items-center justify-between gap-4 rounded-2xl border-2 border-slate-300 bg-white px-4 py-2 text-left"
+  >
+    <span className="text-xl font-semibold text-slate-900">{children}</span>
+    <span className={`flex h-9 w-16 shrink-0 items-center rounded-full px-1 ${on ? 'justify-end bg-teal-800' : 'justify-start bg-slate-400'}`}>
+      <span className="h-7 w-7 rounded-full bg-white" />
+    </span>
+  </button>
+);
+
 export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
-  isOpen,
-  isFirstTime,
-  currentSettings,
-  onSave,
-  onClose,
+  isOpen, isFirstTime, currentSettings, onSave, onClose,
 }) => {
-  const [selectedLang, setSelectedLang] = useState<Language>(currentSettings.language);
-  const [allowLocation, setAllowLocation] = useState<boolean>(currentSettings.locationPermission);
-  const [allowMic, setAllowMic] = useState<boolean>(currentSettings.microphonePermission);
+  const [lang, setLang] = useState<Language>(['ta', 'hi', 'en'].includes(currentSettings.language) ? currentSettings.language : 'ta');
+  const [allowLocation, setAllowLocation] = useState<boolean>(isFirstTime ? true : currentSettings.locationPermission);
+  const [allowMic, setAllowMic] = useState<boolean>(isFirstTime ? true : currentSettings.microphonePermission);
 
   if (!isOpen) return null;
-
-  const handleLanguageSelect = (lang: Language) => {
-    setSelectedLang(lang);
-    speechService.playAudioChime(600, 0.1);
-  };
-
-  const handleContinue = () => {
-    speechService.playAudioChime(750, 0.15);
-    onSave({
-      language: selectedLang,
-      locationPermission: allowLocation,
-      microphonePermission: allowMic,
-    });
-  };
-
-  const languageList: { code: Language; label: string; subLabel: string; prompt: string }[] = [
-    { code: 'hi', label: 'हिन्दी', subLabel: 'Hindi', prompt: 'ग्रामीण नागरिकों का सरल व सुलभ स्वास्थ्य साथी' },
-    { code: 'ta', label: 'தமிழ்', subLabel: 'Tamil', prompt: 'கிராமப்புற மக்களுக்கான எளிய மருத்துவ துணை' },
-    { code: 'en', label: 'English', subLabel: 'English', prompt: 'Patient-first rural healthcare companion' },
-  ];
+  const L = (o: { en: string; hi: string; ta: string }) => pick(lang, o);
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-xs animate-in fade-in"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-language-title"
-    >
-      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden max-h-[94vh] flex flex-col">
-        {/* Header */}
-        <div className="p-5 sm:p-6 bg-gradient-to-b from-teal-50 to-white border-b border-slate-100 flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-teal-800 text-white flex items-center justify-center shrink-0 shadow-sm">
-              <Globe className="w-6 h-6 text-teal-200" />
-            </div>
-            <div>
-              <h2 id="modal-language-title" className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
-                {t('chooseLanguage', selectedLang)}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                Choose your language: Tamil, Hindi or English
-              </p>
-            </div>
-          </div>
-          {!isFirstTime && onClose && (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/70 sm:items-center" role="dialog" aria-modal="true">
+      <div className="max-h-[96vh] w-full max-w-xl overflow-y-auto rounded-t-3xl bg-white p-5 pb-8 sm:rounded-3xl">
+        <h2 className="text-[30px] font-extrabold leading-tight text-slate-900">
+          {L({ en: 'Choose your language', hi: 'अपनी भाषा चुनें', ta: 'உங்கள் மொழியைத் தேர்ந்தெடுங்கள்' })}
+        </h2>
+
+        <div className="mt-5 space-y-3">
+          {LANGUAGES.map((l) => (
             <button
-              onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-              aria-label="Close"
+              key={l.code}
+              onClick={() => { setLang(l.code); speechService.playAudioChime(600, 0.1); }}
+              aria-pressed={lang === l.code}
+              className={`min-h-20 w-full rounded-2xl border-2 px-5 text-left text-3xl font-extrabold ${
+                lang === l.code ? 'border-teal-800 bg-teal-800 text-white' : 'border-slate-400 bg-white text-slate-900'
+              }`}
             >
-              <X className="w-5 h-5" />
+              {lang === l.code ? '✓ ' : ''}{l.label}
             </button>
-          )}
+          ))}
         </div>
 
-        {/* Scrollable Language Grid */}
-        <div className="p-5 sm:p-6 overflow-y-auto space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {languageList.map((item) => {
-              const isSelected = selectedLang === item.code;
-              return (
-                <button
-                  key={item.code}
-                  type="button"
-                  onClick={() => handleLanguageSelect(item.code)}
-                  className={`w-full text-left p-3.5 rounded-2xl border-2 transition-all flex items-center justify-between min-h-[58px] touch-target ${
-                    isSelected
-                      ? 'border-teal-700 bg-teal-50/70 shadow-xs ring-1 ring-teal-700'
-                      : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  <div className="min-w-0 pr-2">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-xl font-bold text-slate-900 tracking-tight truncate">
-                        {item.label}
-                      </span>
-                      <span className="text-xs font-semibold text-slate-500">
-                        {item.subLabel}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                      {item.prompt}
-                    </p>
-                  </div>
-                  {isSelected ? (
-                    <CheckCircle2 className="w-6 h-6 text-teal-800 shrink-0" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-slate-300 shrink-0" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Privacy & Location note */}
-          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-slate-700 space-y-2">
-            <div className="flex items-center gap-2 text-teal-900 font-bold text-sm">
-              <ShieldCheck className="w-4 h-4 text-teal-700" />
-              <span>Privacy & Immediate Hospital Geolocation</span>
-            </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              When you enter the app, your location is automatically matched against nearby public health centres to show your closest emergency facility. All data remains private on your device.
-            </p>
-          </div>
+        <div className="mt-6 space-y-3">
+          <Toggle on={allowLocation} onChange={setAllowLocation}>
+            {L({ en: 'Use my location to find nearby hospitals', hi: 'पास के अस्पताल खोजने के लिए मेरी लोकेशन इस्तेमाल करें', ta: 'அருகிலுள்ள மருத்துவமனைகளைக் காண என் இருப்பிடத்தைப் பயன்படுத்து' })}
+          </Toggle>
+          <Toggle on={allowMic} onChange={setAllowMic}>
+            {L({ en: 'Use the microphone to talk to Sahay', hi: 'सहाय से बात करने के लिए माइक्रोफ़ोन इस्तेमाल करें', ta: 'சஹாயுடன் பேச மைக்ரோஃபோனைப் பயன்படுத்து' })}
+          </Toggle>
         </div>
 
-        {/* Footer */}
-        <div className="p-4 sm:p-5 bg-white border-t border-slate-100 flex items-center justify-end gap-3">
-          <button
-            type="button"
-            onClick={handleContinue}
-            className="w-full sm:w-auto min-w-[220px] h-13 px-6 rounded-2xl bg-teal-800 hover:bg-teal-900 active:scale-98 text-white font-bold text-base shadow-md transition-all flex items-center justify-center gap-2"
+        <p className="mt-4 text-lg text-slate-700">
+          {L({
+            en: 'Your details stay private. We only keep what is needed to book visits and help you.',
+            hi: 'आपकी जानकारी निजी रहती है। हम केवल वही रखते हैं जो मुलाक़ात बुक करने और मदद के लिए ज़रूरी है।',
+            ta: 'உங்கள் விவரங்கள் தனிப்பட்டவை. வருகை பதிவு மற்றும் உதவிக்குத் தேவையானவை மட்டுமே சேமிக்கப்படும்.',
+          })}
+        </p>
+
+        <div className="mt-6 space-y-3">
+          <BigButton
+            onClick={() => {
+              speechService.playAudioChime(750, 0.15);
+              onSave({ language: lang, locationPermission: allowLocation, microphonePermission: allowMic });
+            }}
           >
-            <span>{t('continueBtn', selectedLang)}</span>
-            <span className="text-lg">→</span>
-          </button>
+            {L({ en: 'Continue', hi: 'आगे बढ़ें', ta: 'தொடரவும்' })}
+          </BigButton>
+          {!isFirstTime && onClose && (
+            <BigButton variant="secondary" onClick={onClose}>{L({ en: 'Cancel', hi: 'रद्द करें', ta: 'ரத்து' })}</BigButton>
+          )}
         </div>
       </div>
     </div>

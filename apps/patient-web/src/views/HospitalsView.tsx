@@ -1,25 +1,21 @@
 import React, { useCallback, useState } from 'react';
 import {
-  Search,
-  Building2,
-  MapPin,
-  Phone,
-  Navigation,
-  Calendar,
   Bookmark,
   BookmarkCheck,
-  ShieldCheck,
-  Activity,
-  Info,
+  Calendar,
   Map as MapIcon,
   List as ListIcon,
-  X,
+  MapPin,
+  Navigation,
+  Phone,
 } from 'lucide-react';
 import { Hospital, Language, UserCoordinates } from '../types';
 import { t } from '../translations';
 import { hospitalService } from '../services/hospitalService';
 import { storageService } from '../services/storageService';
 import { HospitalMap } from '../components/HospitalMap';
+import { BigButton, Card, Notice, Title, inputCls, pick } from '../components/ui';
+import { useAppData } from '../components/AppData';
 
 interface HospitalsViewProps {
   currentLang: Language;
@@ -71,97 +67,73 @@ interface CardProps {
 }
 
 const HospitalCard: React.FC<CardProps> = ({ hospital, lang, copy, saved, onToggleSave, onBook }) => {
+  const { contacts } = useAppData();
   const kind = hospital.kindLabel ?? KIND_BY_CATEGORY[hospital.category];
   const address = hospital.address[lang] || hospital.address.en;
   const schemes = hospital.schemesSupported.join(' · ');
   const showUnconfirmed = hospital.schemesSupported.length === 0 && !!hospital.schemeChecked;
-
-  const secondary =
-    'h-12 rounded-xl border border-slate-200 bg-white hover:border-teal-700 text-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-colors';
+  const callNumber = contacts?.hospital_call || hospital.contactPhone;
 
   return (
-    <article className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
+    <Card>
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 space-y-0.5">
-          <p className="text-sm text-slate-600">
-            {kind} <span aria-hidden="true">·</span>{' '}
-            <span className="font-bold text-teal-900 tabular-nums">
-              {hospital.distanceKm} {t('kmAway', lang)}
-            </span>
+        <div className="min-w-0">
+          <p className="text-lg text-slate-700">
+            {kind} · <span className="font-bold text-teal-900">{hospital.distanceKm} {t('kmAway', lang)}</span>
           </p>
-          <h3 className="text-lg font-extrabold text-slate-900 leading-snug break-words">
+          <h3 className="mt-1 text-2xl font-extrabold leading-snug text-slate-900 [overflow-wrap:anywhere]">
             {hospital.nativeNames[lang] || hospital.name}
           </h3>
           {address && (
-            <p className="text-sm text-slate-600 flex items-start gap-1.5">
-              <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-1" />
-              <span className="line-clamp-2">{address}</span>
+            <p className="mt-1 flex items-start gap-2 text-lg text-slate-700">
+              <MapPin className="mt-1 h-5 w-5 shrink-0" aria-hidden />
+              <span>{address}</span>
             </p>
           )}
         </div>
         <button
           onClick={() => onToggleSave(hospital.id)}
-          className="w-11 h-11 shrink-0 rounded-xl border border-slate-200 hover:border-teal-700 flex items-center justify-center text-slate-600"
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-slate-300"
           aria-label={saved ? 'Remove from saved' : 'Save hospital'}
         >
-          {saved ? <BookmarkCheck className="w-5 h-5 text-teal-700" /> : <Bookmark className="w-5 h-5" />}
+          {saved ? <BookmarkCheck className="h-7 w-7 text-teal-800" /> : <Bookmark className="h-7 w-7 text-slate-700" />}
         </button>
       </div>
 
       {(hospital.emergency24x7 || schemes) && (
-        <div className="flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           {hospital.emergency24x7 && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-sm font-bold bg-red-50 text-red-700 border border-red-200">
-              <Activity className="w-4 h-4" />
-              <span>24x7 Emergency</span>
+            <span className="rounded-xl border-2 border-red-300 bg-red-50 px-3 py-1 text-lg font-bold text-red-800">
+              {pick(lang, { en: 'Open 24 hours', hi: '24 घंटे खुला', ta: '24 மணி நேரமும் திறந்திருக்கும்' })}
             </span>
           )}
           {schemes && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-sm font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-              <ShieldCheck className="w-4 h-4" />
-              <span>{schemes}</span>
-            </span>
+            <span className="rounded-xl border-2 border-emerald-400 bg-emerald-50 px-3 py-1 text-lg font-bold text-emerald-900">{schemes}</span>
           )}
         </div>
       )}
-      {showUnconfirmed && (
-        <p className="text-sm text-slate-500 flex items-start gap-1.5">
-          <Info className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>{copy.unconfirmed}</span>
-        </p>
-      )}
+      {showUnconfirmed && <p className="mt-3 text-lg text-slate-700">{copy.unconfirmed}</p>}
 
-      <button
-        onClick={() => onBook(hospital)}
-        className="w-full h-12 rounded-xl bg-teal-800 hover:bg-teal-900 active:scale-[0.99] text-white font-bold text-base flex items-center justify-center gap-2 transition-all"
-      >
-        <Calendar className="w-5 h-5" />
-        <span>{t('bookDoctor', lang)}</span>
-      </button>
-
-      <div className="grid grid-cols-2 gap-2">
-        {hospital.contactPhone ? (
-          <a href={`tel:${hospital.contactPhone}`} className={secondary}>
-            <Phone className="w-4 h-4 text-teal-700" />
-            <span>{t('callHospital', lang)}</span>
-          </a>
-        ) : (
-          <span className={`${secondary} opacity-50`}>
-            <Phone className="w-4 h-4" />
-            <span>{t('callHospital', lang)}</span>
-          </span>
-        )}
-        <a
-          href={`https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}`}
-          target="_blank"
-          rel="noreferrer"
-          className={secondary}
-        >
-          <Navigation className="w-4 h-4 text-teal-700" />
-          <span>{t('getDirections', lang)}</span>
-        </a>
+      <div className="mt-4 space-y-3">
+        <BigButton onClick={() => onBook(hospital)} icon={<Calendar className="w-7 h-7" />}>
+          {pick(lang, { en: 'Book a visit', hi: 'समय बुक करें', ta: 'நேரம் பதிவு செய்' })}
+        </BigButton>
+        <div className="grid grid-cols-2 gap-3">
+          {callNumber && (
+            <BigButton small variant="secondary" href={`tel:${callNumber}`} icon={<Phone className="w-5 h-5" />}>
+              {pick(lang, { en: 'Call', hi: 'कॉल', ta: 'அழை' })}
+            </BigButton>
+          )}
+          <BigButton
+            small variant="secondary"
+            href={`https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}`}
+            icon={<Navigation className="w-5 h-5" />}
+          >
+            {pick(lang, { en: 'Directions', hi: 'रास्ता', ta: 'வழி' })}
+          </BigButton>
+        </div>
       </div>
-    </article>
+    </Card>
   );
 };
 
@@ -193,15 +165,14 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
   const chip = (value: Filter, label: string, danger = false) => {
     const on = activeFilter === value;
     const tone = on
-      ? danger
-        ? 'bg-red-700 text-white'
-        : 'bg-teal-800 text-white'
-      : `bg-white border border-slate-200 ${danger ? 'text-red-800' : 'text-slate-700'}`;
+      ? danger ? 'border-red-700 bg-red-700 text-white' : 'border-teal-800 bg-teal-800 text-white'
+      : `border-slate-400 bg-white ${danger ? 'text-red-800' : 'text-slate-900'}`;
     return (
       <button
         key={value}
         onClick={() => setActiveFilter(value)}
-        className={`h-11 px-4 rounded-xl text-sm font-bold whitespace-nowrap shrink-0 transition-colors ${tone}`}
+        aria-pressed={on}
+        className={`min-h-14 rounded-2xl border-2 px-3 text-lg font-bold ${tone}`}
       >
         {label}
       </button>
@@ -211,8 +182,9 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
   const segment = (mode: 'list' | 'map', icon: React.ReactNode, label: string) => (
     <button
       onClick={() => setViewMode(mode)}
-      className={`flex-1 h-11 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors ${
-        viewMode === mode ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+      aria-pressed={viewMode === mode}
+      className={`flex min-h-14 flex-1 items-center justify-center gap-2 rounded-xl text-xl font-bold ${
+        viewMode === mode ? 'bg-teal-800 text-white' : 'text-slate-900'
       }`}
     >
       {icon}
@@ -233,84 +205,57 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
   );
 
   return (
-    <div className="space-y-4 pb-12">
-      <div>
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">{t('hospitalsTitle', currentLang)}</h1>
-        <p className="text-base text-slate-600 mt-1">{copy.subtitle}</p>
+    <div>
+      <Title sub={copy.subtitle}>{t('hospitalsTitle', currentLang)}</Title>
+
+      <input
+        type="search"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder={pick(currentLang, { en: 'Search by name or town', hi: 'नाम या शहर से खोजें', ta: 'பெயர் அல்லது ஊர் மூலம் தேடு' })}
+        aria-label={t('searchPlaceholder', currentLang)}
+        className={inputCls}
+      />
+
+      <div className="mt-4 flex gap-1 rounded-2xl border-2 border-slate-300 bg-white p-1">
+        {segment('list', <ListIcon className="h-6 w-6" />, t('viewList', currentLang))}
+        {segment('map', <MapIcon className="h-6 w-6" />, t('viewMap', currentLang))}
       </div>
 
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={t('searchPlaceholder', currentLang)}
-          className="w-full h-12 pl-12 pr-11 rounded-xl bg-white border border-slate-200 focus:border-teal-700 text-slate-900 text-base placeholder:text-slate-400"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery('')}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center text-slate-400"
-            aria-label="Clear search"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-
-      <div className="flex gap-1 p-1 bg-slate-100 rounded-xl">
-        {segment('list', <ListIcon className="w-4 h-4" />, t('viewList', currentLang))}
-        {segment('map', <MapIcon className="w-4 h-4" />, t('viewMap', currentLang))}
-      </div>
-
-      <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-none">
+      <div className="mt-4 grid grid-cols-2 gap-3">
         {chip('all', t('filterAll', currentLang))}
         {chip('government', t('filterGovt', currentLang))}
         {chip('scheme', 'CMCHIS · PM-JAY')}
-        {chip('emergency', t('filterEmergency24x7', currentLang), true)}
+        {chip('emergency', pick(currentLang, { en: 'Open 24 hours', hi: '24 घंटे खुला', ta: '24 மணி நேரம்' }), true)}
       </div>
 
-      {hospitals.length === 0 ? (
-        <div className="p-6 text-center bg-white rounded-2xl border border-slate-200 space-y-3">
-          <Building2 className="w-10 h-10 text-slate-300 mx-auto" />
-          <h3 className="text-lg font-bold text-slate-800">
-            {loadError ? copy.loadFailed : t('noHospitalsFound', currentLang)}
-          </h3>
-          {!loadError && (
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setActiveFilter('all');
-              }}
-              className="h-11 px-5 rounded-xl bg-teal-800 text-white text-sm font-bold"
-            >
-              {t('clearFilters', currentLang)}
-            </button>
-          )}
-        </div>
-      ) : viewMode === 'map' ? (
-        <div className="space-y-3">
-          <HospitalMap hospitals={hospitals} user={userCoordinates} selectedId={selected?.id ?? null} onSelect={onPick} />
-          <p className="text-sm text-slate-600 flex flex-wrap gap-x-4 gap-y-1">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-teal-700" /> Government
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-slate-600" /> Private
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-blue-600" /> You
-            </span>
-          </p>
-          {selected && cardFor(selected)}
-        </div>
-      ) : (
-        <div className="space-y-3">{hospitals.map(cardFor)}</div>
-      )}
+      <div className="mt-6">
+        {hospitals.length === 0 ? (
+          <Card>
+            <Notice tone={loadError ? 'error' : 'info'}>{loadError ? copy.loadFailed : t('noHospitalsFound', currentLang)}</Notice>
+            {!loadError && (
+              <div className="mt-4">
+                <BigButton onClick={() => { setSearchQuery(''); setActiveFilter('all'); }}>{t('clearFilters', currentLang)}</BigButton>
+              </div>
+            )}
+          </Card>
+        ) : viewMode === 'map' ? (
+          <div className="space-y-4">
+            <HospitalMap hospitals={hospitals} user={userCoordinates} selectedId={selected?.id ?? null} onSelect={onPick} />
+            <p className="flex flex-wrap gap-x-5 gap-y-1 text-lg text-slate-800">
+              <span className="inline-flex items-center gap-2"><span className="h-4 w-4 rounded-full bg-teal-700" />{pick(currentLang, { en: 'Government', hi: 'सरकारी', ta: 'அரசு' })}</span>
+              <span className="inline-flex items-center gap-2"><span className="h-4 w-4 rounded-full bg-slate-600" />{pick(currentLang, { en: 'Private', hi: 'निजी', ta: 'தனியார்' })}</span>
+              <span className="inline-flex items-center gap-2"><span className="h-4 w-4 rounded-full bg-blue-600" />{pick(currentLang, { en: 'You', hi: 'आप', ta: 'நீங்கள்' })}</span>
+            </p>
+            {selected && cardFor(selected)}
+          </div>
+        ) : (
+          <div className="space-y-4">{hospitals.map(cardFor)}</div>
+        )}
+      </div>
 
       {hospitals.length > 0 && (
-        <p className="text-xs text-slate-500 pt-1">{isDemoData ? copy.sourceDemo : copy.sourceReal}</p>
+        <p className="mt-6 text-base text-slate-700">{isDemoData ? copy.sourceDemo : copy.sourceReal}</p>
       )}
     </div>
   );

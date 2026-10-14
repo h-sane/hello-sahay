@@ -192,10 +192,10 @@ export const ProfileSetupModal: React.FC<ProfileSetupModalProps> = ({ currentLan
   };
 
   const input =
-    'w-full h-14 px-4 rounded-2xl border-2 border-slate-200 focus:border-teal-700 focus:outline-none text-lg font-semibold text-slate-900 placeholder:text-slate-400 placeholder:font-normal';
-  const label = 'block text-base font-bold text-slate-800 mb-1.5';
+    'w-full h-16 px-4 rounded-2xl border-2 border-slate-400 focus:border-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-800/20 text-xl font-semibold text-slate-900 placeholder:text-slate-500 placeholder:font-normal';
+  const label = 'block text-lg font-bold text-slate-900 mb-2';
   const primary =
-    'w-full h-14 rounded-2xl bg-teal-800 hover:bg-teal-900 disabled:opacity-60 text-white font-bold text-lg flex items-center justify-center gap-2 shadow-md';
+    'w-full min-h-16 rounded-2xl bg-teal-800 active:bg-teal-900 disabled:opacity-60 text-white font-bold text-xl flex items-center justify-center gap-2';
 
   const errorBox = error ? (
     <div role="alert" className="p-4 rounded-2xl bg-red-50 border-2 border-red-200 text-base font-semibold text-red-900">
@@ -213,7 +213,7 @@ export const ProfileSetupModal: React.FC<ProfileSetupModalProps> = ({ currentLan
       <div className="max-w-md mx-auto min-h-full flex flex-col px-5 pt-6 pb-8">
         <div className="flex items-center justify-between mb-6">
           <span className="text-lg font-black text-teal-900">Hello Sahay</span>
-          <span className="text-sm font-bold text-slate-500">
+          <span className="text-lg font-bold text-slate-700">
             {c.step} {stepNumber} {c.of}
           </span>
         </div>
@@ -227,17 +227,17 @@ export const ProfileSetupModal: React.FC<ProfileSetupModalProps> = ({ currentLan
             }}
           >
             <div>
-              <h2 id="profile-title" className="text-2xl font-black text-slate-900">
+              <h2 id="profile-title" className="text-[30px] leading-tight font-extrabold text-slate-900">
                 {c.phoneTitle}
               </h2>
-              <p className="text-base text-slate-600 mt-1">{c.phoneHelp}</p>
+              <p className="text-lg text-slate-700 mt-1">{c.phoneHelp}</p>
             </div>
             <div>
               <label htmlFor="phone" className={label}>
                 {c.phoneLabel}
               </label>
               <div className="flex gap-2">
-                <span className="h-14 px-4 rounded-2xl bg-slate-100 flex items-center gap-1.5 text-lg font-bold text-slate-700 shrink-0">
+                <span className="h-16 px-4 rounded-2xl bg-slate-100 flex items-center gap-1.5 text-xl font-bold text-slate-800 shrink-0">
                   <Phone className="w-4 h-4" /> +91
                 </span>
                 <input
@@ -272,10 +272,10 @@ export const ProfileSetupModal: React.FC<ProfileSetupModalProps> = ({ currentLan
             }}
           >
             <div>
-              <h2 id="profile-title" className="text-2xl font-black text-slate-900">
+              <h2 id="profile-title" className="text-[30px] leading-tight font-extrabold text-slate-900">
                 {c.codeTitle}
               </h2>
-              <p className="text-base text-slate-600 mt-1">
+              <p className="text-lg text-slate-700 mt-1">
                 {c.codeFor} <span className="font-bold text-slate-900">+91 {phone}</span>
               </p>
             </div>
@@ -283,13 +283,13 @@ export const ProfileSetupModal: React.FC<ProfileSetupModalProps> = ({ currentLan
             {demoCode && (
               <div className="rounded-2xl bg-amber-50 border-2 border-amber-300 p-4 flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm text-amber-950">{c.demoNote}</p>
+                  <p className="text-base text-amber-950">{c.demoNote}</p>
                   <p className="text-3xl font-black font-mono tracking-[0.25em] text-amber-950">{demoCode}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setCode(demoCode)}
-                  className="h-12 px-4 rounded-xl bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold shrink-0"
+                  className="min-h-14 px-4 rounded-xl bg-amber-200 active:bg-amber-300 text-amber-950 text-lg font-bold shrink-0"
                 >
                   {c.useCode}
                 </button>
@@ -321,14 +321,14 @@ export const ProfileSetupModal: React.FC<ProfileSetupModalProps> = ({ currentLan
             </button>
 
             <div className="flex items-center justify-between text-base font-bold">
-              <button type="button" onClick={() => setStage('phone')} className="text-slate-600 underline h-11">
+              <button type="button" onClick={() => setStage('phone')} className="text-slate-800 underline min-h-14 text-lg">
                 {c.change}
               </button>
               <button
                 type="button"
                 disabled={wait > 0 || busy}
                 onClick={sendCode}
-                className="text-teal-800 underline h-11 disabled:text-slate-400 disabled:no-underline"
+                className="text-teal-900 underline min-h-14 text-lg disabled:text-slate-500 disabled:no-underline"
               >
                 {wait > 0 ? `${c.resendIn} ${wait}s` : c.resend}
               </button>
@@ -345,10 +345,10 @@ export const ProfileSetupModal: React.FC<ProfileSetupModalProps> = ({ currentLan
             }}
           >
             <div>
-              <h2 id="profile-title" className="text-2xl font-black text-slate-900">
+              <h2 id="profile-title" className="text-[30px] leading-tight font-extrabold text-slate-900">
                 {c.detailsTitle}
               </h2>
-              <p className="text-base text-slate-600 mt-1">{c.detailsHelp}</p>
+              <p className="text-lg text-slate-700 mt-1">{c.detailsHelp}</p>
             </div>
 
             <div>
@@ -390,10 +390,10 @@ export const ProfileSetupModal: React.FC<ProfileSetupModalProps> = ({ currentLan
                     role="radio"
                     aria-checked={gender === g}
                     onClick={() => setGender(g)}
-                    className={`h-14 rounded-2xl border-2 text-lg font-bold ${
+                    className={`min-h-16 rounded-2xl border-2 text-xl font-bold ${
                       gender === g
                         ? 'border-teal-700 bg-teal-800 text-white'
-                        : 'border-slate-200 text-slate-800 hover:border-slate-300'
+                        : 'border-slate-400 text-slate-900'
                     }`}
                   >
                     {c[g]}
@@ -423,7 +423,7 @@ export const ProfileSetupModal: React.FC<ProfileSetupModalProps> = ({ currentLan
               {!busy && <ArrowRight className="w-5 h-5" />}
             </button>
 
-            <p className="flex items-start gap-2 text-sm text-slate-600">
+            <p className="flex items-start gap-2 text-base text-slate-700">
               <ShieldCheck className="w-4 h-4 text-teal-700 mt-0.5 shrink-0" />
               <span>{c.privacy}</span>
             </p>

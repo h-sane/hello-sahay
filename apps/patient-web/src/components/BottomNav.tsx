@@ -1,7 +1,7 @@
 import React from 'react';
 import { Home, Building2, MessageSquareHeart, Pill, UserCheck } from 'lucide-react';
 import { Language } from '../types';
-import { t } from '../translations';
+import { pick } from './ui';
 
 export type NavTab = 'home' | 'hospitals' | 'ask-sahay' | 'medicines' | 'my-health';
 
@@ -15,37 +15,37 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab, c
   const tabs = [
     {
       id: 'home' as NavTab,
-      label: t('navHome', currentLang),
+      label: pick(currentLang, { en: 'Home', hi: 'होम', ta: 'முகப்பு' }),
       icon: Home,
     },
     {
       id: 'hospitals' as NavTab,
-      label: t('navHospitals', currentLang),
+      label: pick(currentLang, { en: 'Hospitals', hi: 'अस्पताल', ta: 'மருத்துவ​மனை' }),
       icon: Building2,
     },
     {
       id: 'ask-sahay' as NavTab,
-      label: t('navAskSahay', currentLang),
+      label: pick(currentLang, { en: 'Ask', hi: 'पूछें', ta: 'கேளுங்கள்' }),
       icon: MessageSquareHeart,
     },
     {
       id: 'medicines' as NavTab,
-      label: t('navMedicines', currentLang),
+      label: pick(currentLang, { en: 'Medicine', hi: 'दवाएँ', ta: 'மருந்து' }),
       icon: Pill,
     },
     {
       id: 'my-health' as NavTab,
-      label: t('navMyHealth', currentLang),
+      label: pick(currentLang, { en: 'My Health', hi: 'मेरा', ta: 'என் நலம்' }),
       icon: UserCheck,
     },
   ];
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg safe-bottom"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t-2 border-slate-300 safe-bottom"
       aria-label="Main Navigation"
     >
-      <div className="max-w-md md:max-w-xl mx-auto grid grid-cols-5 h-16 sm:h-18 items-center px-1">
+      <div className="mx-auto grid h-20 max-w-xl grid-cols-5 items-stretch gap-1 px-1 py-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = currentTab === tab.id;
@@ -53,25 +53,14 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab, c
             <button
               key={tab.id}
               onClick={() => onSelectTab(tab.id)}
-              className={`flex flex-col items-center justify-center h-full py-1 min-h-[48px] rounded-lg transition-colors focus:outline-hidden ${
-                isActive
-                  ? 'text-teal-900 font-bold bg-teal-50/70'
-                  : 'text-slate-600 hover:text-slate-900'
+              className={`flex flex-col items-center justify-center gap-1 rounded-2xl ${
+                isActive ? 'bg-teal-800 text-white' : 'text-slate-800 active:bg-slate-100'
               }`}
               aria-current={isActive ? 'page' : undefined}
             >
-              <Icon
-                className={`w-6 h-6 transition-transform ${
-                  isActive ? 'scale-110 text-teal-800' : 'text-slate-500'
-                }`}
-                strokeWidth={isActive ? 2.4 : 1.9}
-              />
-              <span
-                className={`text-[11px] sm:text-xs tracking-tight mt-1 truncate max-w-[68px] sm:max-w-[85px] leading-tight ${
-                  isActive ? 'font-bold text-teal-950' : 'font-medium text-slate-600'
-                }`}
-              >
-                {tab.label}
+              <Icon className="h-7 w-7" strokeWidth={2.2} aria-hidden />
+              <span className="px-0.5 text-center text-[14px] font-bold leading-[1.1]">
+              {tab.label}
               </span>
             </button>
           );

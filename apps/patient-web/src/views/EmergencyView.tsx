@@ -1,225 +1,82 @@
 import React, { useState } from 'react';
-import {
-  PhoneCall,
-  AlertOctagon,
-  MapPin,
-  Copy,
-  Check,
-  Building2,
-  Navigation,
-  ShieldAlert,
-  X,
-  Phone,
-  UserCheck,
-} from 'lucide-react';
-import { Hospital, Language } from '../types';
-import { t } from '../translations';
+import { MapPin, Phone, PhoneCall, Share2, UserRound } from 'lucide-react';
+import { Language, UserCoordinates } from '../types';
 import { hospitalService } from '../services/hospitalService';
+import { useAppData } from '../components/AppData';
+import { BigButton, Card, Sheet, pick } from '../components/ui';
 
 interface EmergencyViewProps {
   currentLang: Language;
+  userCoordinates?: UserCoordinates;
   onClose: () => void;
 }
 
-export const EmergencyView: React.FC<EmergencyViewProps> = ({ currentLang, onClose }) => {
-  const [copiedLocation, setCopiedLocation] = useState(false);
-  const [trustedContactName, setTrustedContactName] = useState('கார்த்திக் (மகன் / Son)');
-  const [trustedContactPhone, setTrustedContactPhone] = useState('9840199999');
+export const EmergencyView: React.FC<EmergencyViewProps> = ({ currentLang, userCoordinates, onClose }) => {
+  const L = (o: { en: string; hi: string; ta: string }) => pick(currentLang, o);
+  const { contacts, family } = useAppData();
+  const [shared, setShared] = useState(false);
 
-  // Realistic sample GPS location coordinates in Tamil Nadu rural belt
-  const gpsCoordinates = '12.6841° N, 79.9836° E (Maduranthakam, Chengalpattu District)';
+  const contact = family.find((f) => f.phone);
+  const hospital = hospitalService.getAll().find((h) => h.emergency24x7) || hospitalService.getAll()[0];
+  const mapLink = userCoordinates ? `https://maps.google.com/?q=${userCoordinates.latitude},${userCoordinates.longitude}` : null;
 
-  // Nearest 24x7 emergency facilities
-  const emergencyHospitals: Hospital[] = hospitalService
-    .getAll()
-    .filter((h) => h.emergency24x7)
-    .slice(0, 3);
-
-  const handleCopyLocation = () => {
-    navigator.clipboard.writeText(gpsCoordinates);
-    setCopiedLocation(true);
-    setTimeout(() => setCopiedLocation(false), 3000);
+  const shareLocation = async () => {
+    if (!mapLink) return;
+    try {
+      if (navigator.share) await navigator.share({ title: 'My location', url: mapLink });
+      else await navigator.clipboard.writeText(mapLink);
+      setShared(true);
+    } catch {
+      /* the person closed the share sheet */
+    }
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-red-950/80 backdrop-blur-md overflow-y-auto animate-in fade-in"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border-4 border-red-600 overflow-hidden my-auto flex flex-col max-h-[95vh]">
-        {/* Urgent Header */}
-        <div className="p-6 bg-red-600 text-white flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-white text-red-600 flex items-center justify-center shrink-0 shadow-lg animate-pulse">
-              <AlertOctagon className="w-8 h-8" />
-            </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
-                {t('emergencyTitle', currentLang)}
-              </h2>
-              <p className="text-xs sm:text-sm text-red-100 font-medium pt-0.5">
-                {t('emergencySubtitle', currentLang)}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl text-white/80 hover:text-white hover:bg-white/20 transition-colors"
-            aria-label="Close emergency screen"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+    <Sheet title={L({ en: 'Emergency', hi: 'आपातकाल', ta: 'அவசரம்' })} closeLabel={L({ en: 'Close', hi: 'बंद करें', ta: 'மூடு' })} onClose={onClose}>
+      <div className="space-y-4">
+        <p className="text-xl font-semibold text-slate-900">
+          {L({ en: 'If someone is in danger, call now.', hi: 'अगर किसी की जान को ख़तरा है तो अभी कॉल करें।', ta: 'யாருக்காவது ஆபத்து என்றால் உடனே அழையுங்கள்.' })}
+        </p>
+        <BigButton variant="danger" href="tel:108" icon={<PhoneCall className="w-8 h-8" />}>
+          {L({ en: 'Call 108 ambulance', hi: '108 एम्बुलेंस बुलाएँ', ta: '108 ஆம்புலன்ஸ் அழை' })}
+        </BigButton>
+        {contacts?.emergency && (
+          <BigButton variant="danger" href={`tel:${contacts.emergency}`} icon={<Phone className="w-7 h-7" />}>
+            {L({ en: 'Call Sahay emergency help', hi: 'सहाय आपातकालीन मदद', ta: 'சஹாய் அவசர உதவி' })}
+          </BigButton>
+        )}
+        <BigButton variant="secondary" href="tel:112" icon={<Phone className="w-7 h-7" />}>
+          {L({ en: 'Call 112', hi: '112 पर कॉल करें', ta: '112 அழை' })}
+        </BigButton>
 
-        {/* Scrollable Content */}
-        <div className="p-6 overflow-y-auto space-y-6">
-          {/* Two Primary Action Emergency Buttons (108 & 112) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* 108 Ambulance */}
-            <a
-              href="tel:108"
-              className="p-5 rounded-2xl bg-red-700 hover:bg-red-800 text-white shadow-lg active:scale-98 transition-all flex items-center gap-4 group border-2 border-red-600"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-white text-red-700 flex items-center justify-center shrink-0 shadow-md">
-                <PhoneCall className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-2xl sm:text-3xl font-black tracking-wider block font-mono">
-                  108
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-red-100 leading-tight block">
-                  {t('call108Ambulance', currentLang)}
-                </span>
-              </div>
-            </a>
+        {contact && (
+          <BigButton variant="soft" href={`tel:${contact.phone}`} icon={<UserRound className="w-7 h-7" />}>
+            {L({ en: `Call ${contact.name}`, hi: `${contact.name} को कॉल करें`, ta: `${contact.name} அவரை அழை` })}
+          </BigButton>
+        )}
 
-            {/* 112 National Helpline */}
-            <a
-              href="tel:112"
-              className="p-5 rounded-2xl bg-slate-900 hover:bg-black text-white shadow-lg active:scale-98 transition-all flex items-center gap-4 group border-2 border-slate-800"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-white text-slate-900 flex items-center justify-center shrink-0 shadow-md">
-                <PhoneCall className="w-7 h-7" />
-              </div>
-              <div>
-                <span className="text-2xl sm:text-3xl font-black tracking-wider block font-mono">
-                  112
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-slate-200 leading-tight block">
-                  {t('call112Emergency', currentLang)}
-                </span>
-              </div>
-            </a>
-          </div>
-
-          {/* Trusted Family Contact Card */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                <UserCheck className="w-4 h-4 text-teal-700" />
-                Trusted Family Emergency Contact
-              </span>
-              <span className="text-[11px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md font-bold">
-                Configured
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <span className="text-base font-extrabold text-slate-900 block">
-                  {trustedContactName}
-                </span>
-                <span className="text-xs text-slate-500 font-mono">
-                  +91 {trustedContactPhone}
-                </span>
-              </div>
-
-              <a
-                href={`tel:${trustedContactPhone}`}
-                className="h-11 px-4 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm shrink-0"
+        {hospital && (
+          <Card>
+            <p className="flex items-center gap-2 text-lg font-bold text-slate-700"><MapPin className="w-6 h-6" aria-hidden />{L({ en: 'Nearest emergency hospital', hi: 'नज़दीकी आपातकालीन अस्पताल', ta: 'அருகிலுள்ள அவசர மருத்துவமனை' })}</p>
+            <p className="text-2xl font-extrabold text-slate-900">{hospital.name}</p>
+            {hospital.distanceKm > 0 && <p className="text-xl text-slate-700">{hospital.distanceKm.toFixed(1)} km</p>}
+            <div className="mt-3">
+              <BigButton
+                small variant="secondary"
+                href={`https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}`}
               >
-                <Phone className="w-4 h-4" />
-                <span>Call Contact</span>
-              </a>
+                {L({ en: 'Show the way', hi: 'रास्ता देखें', ta: 'வழியைக் காட்டு' })}
+              </BigButton>
             </div>
-          </div>
+          </Card>
+        )}
 
-          {/* GPS Location Sharing */}
-          <div className="p-4.5 rounded-2xl bg-amber-50/80 border border-amber-300 space-y-2">
-            <div className="flex items-center gap-2 text-amber-950 font-bold text-sm">
-              <MapPin className="w-4 h-4 text-amber-800 shrink-0" />
-              <span>{t('shareGpsLocation', currentLang)}</span>
-            </div>
-
-            <p className="text-xs sm:text-sm font-mono font-bold text-slate-800 bg-white p-2.5 rounded-xl border border-amber-200">
-              {gpsCoordinates}
-            </p>
-
-            <button
-              onClick={handleCopyLocation}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold text-xs transition-colors"
-            >
-              {copiedLocation ? <Check className="w-4 h-4 text-emerald-700" /> : <Copy className="w-4 h-4" />}
-              <span>{copiedLocation ? 'Coordinates Copied!' : t('copyLocationBtn', currentLang)}</span>
-            </button>
-          </div>
-
-          {/* Nearest 24x7 Emergency Facilities List */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-              {t('nearestEmergencyCentres', currentLang)}
-            </h3>
-
-            <div className="space-y-2.5">
-              {emergencyHospitals.map((h) => (
-                <div
-                  key={h.id}
-                  className="p-3.5 rounded-2xl bg-white border border-slate-200 flex items-center justify-between gap-3 shadow-2xs"
-                >
-                  <div className="space-y-0.5 min-w-0">
-                    <span className="text-sm font-bold text-slate-900 block truncate">
-                      {h.nativeNames[currentLang] || h.name}
-                    </span>
-                    <p className="text-xs text-slate-500">
-                      {h.district} ·{' '}
-                      <span className="font-bold text-red-700 tabular-nums">
-                        {h.distanceKm} km away
-                      </span>
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <a
-                      href={`tel:${h.contactPhone}`}
-                      className="p-2.5 rounded-xl bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
-                      title="Call hospital casualty"
-                    >
-                      <Phone className="w-4 h-4" />
-                    </a>
-                    <a
-                      href={`https://maps.google.com/?q=${h.latitude},${h.longitude}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
-                      title="Directions"
-                    >
-                      <Navigation className="w-4 h-4" />
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer Notice */}
-        <div className="p-4 bg-slate-100 border-t border-slate-200 text-center">
-          <p className="text-xs text-slate-600 font-medium">
-            Emergency services (108/112) operate 24x7 nationwide across all states of India.
-          </p>
-        </div>
+        {mapLink && (
+          <BigButton variant="quiet" onClick={shareLocation} icon={<Share2 className="w-6 h-6" />}>
+            {shared ? L({ en: 'Location shared', hi: 'लोकेशन भेज दी', ta: 'இருப்பிடம் பகிரப்பட்டது' }) : L({ en: 'Share my location', hi: 'मेरी लोकेशन भेजें', ta: 'என் இருப்பிடத்தைப் பகிர்' })}
+          </BigButton>
+        )}
       </div>
-    </div>
+    </Sheet>
   );
 };

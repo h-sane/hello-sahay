@@ -1,700 +1,325 @@
 import React, { useState } from 'react';
-import {
-  Calendar,
-  Users,
-  ShieldCheck,
-  Settings,
-  Plus,
-  Trash2,
-  Phone,
-  ExternalLink,
-  QrCode,
-  CheckCircle2,
-  X,
-  AlertCircle,
-  Sparkles,
-} from 'lucide-react';
-import { Appointment, FamilyProfile, Language, UserSettings } from '../types';
-import { t } from '../translations';
+import { ArrowLeft, BellPlus, CalendarCheck, CalendarPlus, HeartHandshake, Pencil, Pill, Settings, Trash2, UserPlus, Users } from 'lucide-react';
+import { Appointment, Language, UserSettings } from '../types';
 import { appointmentService } from '../services/appointmentService';
-import { api } from '../services/api';
-import { storageService } from '../services/storageService';
-import { speechService } from '../services/speechService';
+import { FamilyMemberRow, ReminderRow, patientApi } from '../services/patientApi';
+import { useAppData } from '../components/AppData';
+import { ReminderSheet } from '../components/ReminderSheet';
+import { DetailsSheet, FamilySheet, PaySheet, relationLabel } from '../components/MyHealthSheets';
+import { BigButton, Card, Notice, SectionTitle, Sheet, Title, pick } from '../components/ui';
+import type { NavTab } from '../components/BottomNav';
 
 interface MyHealthViewProps {
   currentLang: Language;
   userSettings: UserSettings;
-  onUpdateSettings: (settings: Partial<UserSettings>) => void;
-  onOpenBookingForFamily?: (familyMemberName: string) => void;
+  onUpdateSettings: (updated: Partial<UserSettings>) => void;
+  onNavigate: (tab: NavTab) => void;
+  onOpenLocationSelector: () => void;
 }
 
-export const MyHealthView: React.FC<MyHealthViewProps> = ({
-  currentLang,
-  userSettings,
-  onUpdateSettings,
-  onOpenBookingForFamily,
-}) => {
-  const [activeTab, setActiveTab] = useState<'appointments' | 'family' | 'schemes' | 'settings'>('appointments');
-  const [appointments, setAppointments] = useState<Appointment[]>(storageService.getAppointments());
-  const [lookupPhone, setLookupPhone] = useState('');
-  const [lookupCode, setLookupCode] = useState('');
-  const [codeSent, setCodeSent] = useState(false);
-  const [lookupBusy, setLookupBusy] = useState(false);
-  const [lookupError, setLookupError] = useState('');
-  const [familyProfiles, setFamilyProfiles] = useState<FamilyProfile[]>(storageService.getFamilyProfiles());
+type Section = null | 'visits' | 'medicines' | 'family' | 'care' | 'more';
 
-  // Add Family Member Modal
-  const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
-  const [famName, setFamName] = useState('');
-  const [famRelation, setFamRelation] = useState<'Father' | 'Mother' | 'Spouse' | 'Child' | 'Grandparent' | 'Other'>('Mother');
-  const [famAge, setFamAge] = useState(55);
-  const [famGender, setFamGender] = useState<'male' | 'female' | 'other'>('female');
-  const [famBlood, setFamBlood] = useState('O+');
-  const [famNotes, setFamNotes] = useState('');
+const todayIso = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+const clock = (hhmm: string) => `${Number(hhmm.slice(0, 2)) % 12 || 12}:${hhmm.slice(3)} ${Number(hhmm.slice(0, 2)) < 12 ? 'AM' : 'PM'}`;
 
-  // Settings
-  const [userName, setUserName] = useState(userSettings.userName || '');
-  const [villageTown, setVillageTown] = useState(userSettings.villageTown || '');
-  const [saveSettingsSuccess, setSaveSettingsSuccess] = useState(false);
+export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSettings, onUpdateSettings, onNavigate, onOpenLocationSelector }) => {
+  const L = (o: { en: string; hi: string; ta: string }) => pick(currentLang, o);
+  const { care, appointments, reminders, family, refresh, refreshAppointments, refreshReminders, refreshFamily } = useAppData();
+  const [cancelling, setCancelling] = useState<Appointment | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [reminderSheet, setReminderSheet] = useState<{ editing?: ReminderRow } | null>(null);
+  const [familySheet, setFamilySheet] = useState<{ member?: FamilyMemberRow } | null>(null);
+  const [paySheet, setPaySheet] = useState<{ phone?: string; name?: string } | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [section, setSection] = useState<Section>(null);
+  const [parents, setParents] = useState<Awaited<ReturnType<typeof patientApi.parents>>>([]);
 
-  const reloadData = () => {
-    setAppointments(storageService.getAppointments());
-    setFamilyProfiles(storageService.getFamilyProfiles());
-  };
+  React.useEffect(() => { window.scrollTo(0, 0); }, [section]);
 
-  const handleCancelAppointment = async (id: string) => {
-    if (!confirm('Cancel this appointment? The slot will be released for other patients.')) return;
-    try {
-      await appointmentService.cancel(id);
-      reloadData();
-      speechService.playAudioChime(420, 0.15);
-    } catch (e) {
-      setLookupError(e instanceof Error ? e.message : 'Could not cancel. Please try again.');
-    }
-  };
+  React.useEffect(() => {
+    refreshAppointments();
+    if ((care?.paying_for.length ?? 0) > 0) patientApi.parents().then(setParents).catch(() => {});
+    else setParents([]);
+  }, [care?.paying_for.length, refreshAppointments]);
 
-  const handleSendCode = async () => {
-    setLookupError('');
-    setLookupBusy(true);
-    try {
-      await api.requestOtp(lookupPhone);
-      setCodeSent(true);
-    } catch (e) {
-      setLookupError(e instanceof Error ? e.message : 'Could not send the code.');
-    } finally {
-      setLookupBusy(false);
-    }
-  };
+  const upcoming = appointments.filter((a) => a.status === 'booked' && a.date >= todayIso()).sort((a, b) => a.date.localeCompare(b.date));
+  const earlier = appointments.filter((a) => !upcoming.includes(a));
+  const [showEarlier, setShowEarlier] = useState(false);
 
-  const handleVerifyCode = async () => {
-    setLookupError('');
-    setLookupBusy(true);
-    try {
-      const res = await api.verifyOtp(lookupPhone, lookupCode);
-      onUpdateSettings({ userPhone: res.patient.phone });
-      await appointmentService.refresh(res.patient.phone);
-      reloadData();
-    } catch (e) {
-      setLookupError(e instanceof Error ? e.message : 'Could not verify the code.');
-    } finally {
-      setLookupBusy(false);
-    }
-  };
-
-  const handleSaveFamilyMember = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!famName.trim()) return;
-
-    const newMember: FamilyProfile = {
-      id: `fam-${Date.now()}`,
-      fullName: famName.trim(),
-      relationship: famRelation,
-      age: Number(famAge) || 40,
-      gender: famGender,
-      bloodGroup: famBlood,
-      healthConditions: famNotes.trim(),
-    };
-
-    storageService.saveFamilyProfile(newMember);
-    reloadData();
-    setShowAddFamilyModal(false);
-    setFamName('');
-    speechService.playAudioChime(750, 0.15);
-  };
-
-  const handleDeleteFamilyMember = (id: string) => {
-    storageService.deleteFamilyProfile(id);
-    reloadData();
-  };
-
-  const handleSaveProfileSettings = () => {
-    onUpdateSettings({
-      userName: userName.trim(),
-      villageTown: villageTown.trim(),
+  const dateLabel = (iso: string) =>
+    new Date(`${iso}T00:00:00+05:30`).toLocaleDateString(currentLang === 'ta' ? 'ta-IN' : currentLang === 'hi' ? 'hi-IN' : 'en-IN', {
+      weekday: 'long', day: 'numeric', month: 'long',
     });
-    setSaveSettingsSuccess(true);
-    speechService.playAudioChime(800, 0.15);
-    setTimeout(() => setSaveSettingsSuccess(false), 3000);
-  };
+  const statusWord = (s: Appointment['status']) =>
+    ({
+      booked: L({ en: 'Booked', hi: 'बुक है', ta: 'பதிவாகியுள்ளது' }),
+      arrived: L({ en: 'Visited', hi: 'आ चुके', ta: 'வந்தீர்கள்' }),
+      completed: L({ en: 'Visited', hi: 'आ चुके', ta: 'வந்தீர்கள்' }),
+      cancelled: L({ en: 'Cancelled', hi: 'रद्द', ta: 'ரத்து செய்யப்பட்டது' }),
+      no_show: L({ en: 'Missed', hi: 'छूट गया', ta: 'தவறியது' }),
+    })[s];
 
-  const handleClearDemoData = () => {
-    if (confirm('Clear all local demo bookings and reminders?')) {
-      storageService.clearAllData();
-      reloadData();
-      window.location.reload();
+  const confirmCancel = async () => {
+    if (!cancelling) return;
+    setBusy(true);
+    setError('');
+    try {
+      await appointmentService.cancel(cancelling.id);
+      await refreshAppointments();
+      setCancelling(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not cancel');
+    } finally {
+      setBusy(false);
     }
   };
+
+  const removeReminder = async (id: number) => { await patientApi.deleteReminder(id).catch(() => {}); await refreshReminders(); };
+  const removeFamily = async (id: number) => { await patientApi.deleteFamily(id).catch(() => {}); await refreshFamily(); };
+  const stopPlan = async (id: number) => { await patientApi.stopCarePlan(id).catch(() => {}); await refresh(); };
+  const markTaken = async (id: number, t: string) => { await patientApi.markTaken(id, t).catch(() => {}); await refreshReminders(); };
+
+  const nameFor = (phone: string, given: string | null) =>
+    given || family.find((f) => f.phone === phone)?.name || L({ en: 'Your family member', hi: 'आपके परिवार का सदस्य', ta: 'உங்கள் குடும்ப உறுப்பினர்' });
+
+  const apptCard = (a: Appointment, canCancel: boolean) => (
+    <Card key={a.id}>
+      <p className="text-xl font-extrabold text-slate-900">{dateLabel(a.date)}</p>
+      <p className="text-2xl font-extrabold text-teal-900">{a.timeSlot}</p>
+      <p className="mt-1 text-xl text-slate-900">{a.hospitalName}</p>
+      {a.department && <p className="text-lg text-slate-700">{a.department}{a.doctorName ? ` · ${a.doctorName}` : ''}</p>}
+      <p className="mt-2 inline-block rounded-full bg-slate-100 px-3 py-1 text-lg font-bold text-slate-800">{statusWord(a.status)}</p>
+      {canCancel && (
+        <div className="mt-3">
+          <BigButton variant="secondary" small onClick={() => setCancelling(a)}>{L({ en: 'Cancel this visit', hi: 'यह मुलाक़ात रद्द करें', ta: 'இந்த வருகையை ரத்து செய்' })}</BigButton>
+        </div>
+      )}
+    </Card>
+  );
 
   return (
-    <div className="space-y-6 pb-12 animate-in fade-in duration-200">
-      {/* Page Title */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          {t('myHealthTitle', currentLang)}
-        </h1>
-        <p className="text-sm sm:text-base text-slate-600 mt-1">
-          Manage your hospital vouchers, family caregiver records, and government health schemes.
-        </p>
-      </div>
+    <div>
+      {section === null && (
+        <>
+      <Title sub={userSettings.userPhone}>
+        {userSettings.userName
+          ? L({ en: `Hello, ${userSettings.userName}`, hi: `नमस्ते, ${userSettings.userName}`, ta: `வணக்கம், ${userSettings.userName}` })
+          : L({ en: 'My Health', hi: 'मेरा स्वास्थ्य', ta: 'என் ஆரோக்கியம்' })}
+      </Title>
 
-      {/* Internal Tabs (Buttons - accessible anti-pill discipline) */}
-      <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl overflow-x-auto scrollbar-none">
-        <button
-          onClick={() => setActiveTab('appointments')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-colors touch-target ${
-            activeTab === 'appointments'
-              ? 'bg-white text-teal-950 shadow-xs'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Calendar className="w-4 h-4 text-teal-700" />
-          <span>{t('tabAppointments', currentLang)}</span>
-          <span className="text-[11px] font-mono font-bold bg-teal-50 text-teal-800 px-1.5 py-0.2 rounded-md">
-            {appointments.length}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('family')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-colors touch-target ${
-            activeTab === 'family'
-              ? 'bg-white text-teal-950 shadow-xs'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Users className="w-4 h-4 text-purple-700" />
-          <span>{t('tabFamily', currentLang)}</span>
-          <span className="text-[11px] font-mono font-bold bg-purple-50 text-purple-800 px-1.5 py-0.2 rounded-md">
-            {familyProfiles.length}
-          </span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('schemes')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-colors touch-target ${
-            activeTab === 'schemes'
-              ? 'bg-white text-teal-950 shadow-xs'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <ShieldCheck className="w-4 h-4 text-emerald-700" />
-          <span>{t('tabSchemes', currentLang)}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-colors touch-target ${
-            activeTab === 'settings'
-              ? 'bg-white text-teal-950 shadow-xs'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Settings className="w-4 h-4 text-slate-700" />
-          <span>{t('tabSettings', currentLang)}</span>
-        </button>
-      </div>
-
-      {/* TAB 1: APPOINTMENTS */}
-      {activeTab === 'appointments' && (
-        <div className="space-y-4">
-          {!userSettings.userPhone && (
-            <div className="p-4 bg-teal-50 border border-teal-200 rounded-2xl space-y-3">
-              <p className="text-sm font-bold text-teal-950">
-                Enter your mobile number to see all your appointments.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <input
-                  type="tel"
-                  value={lookupPhone}
-                  onChange={(e) => setLookupPhone(e.target.value)}
-                  disabled={codeSent}
-                  placeholder="10-digit mobile number"
-                  className="h-11 px-3.5 rounded-xl border border-slate-300 text-sm font-semibold font-mono flex-1 bg-white"
-                />
-                {codeSent && (
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={lookupCode}
-                    onChange={(e) => setLookupCode(e.target.value)}
-                    placeholder="6-digit code"
-                    className="h-11 px-3.5 rounded-xl border border-slate-300 text-sm font-semibold font-mono sm:w-40 bg-white"
-                  />
-                )}
-                <button
-                  onClick={codeSent ? handleVerifyCode : handleSendCode}
-                  disabled={lookupBusy || !lookupPhone.trim() || (codeSent && !lookupCode.trim())}
-                  className="h-11 px-5 rounded-xl bg-teal-800 hover:bg-teal-900 disabled:opacity-50 text-white font-bold text-sm"
-                >
-                  {lookupBusy ? 'Please wait…' : codeSent ? 'Verify and show' : 'Send code'}
-                </button>
-              </div>
-            </div>
-          )}
-          {lookupError && (
-            <div role="alert" className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800">
-              {lookupError}
-            </div>
-          )}
-          {appointments.length === 0 ? (
-            <div className="p-10 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
-              <Calendar className="w-12 h-12 text-slate-300 mx-auto" />
-              <h3 className="text-lg font-bold text-slate-800">
-                No appointments yet.
-              </h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Open the Hospitals tab to pick a clinic and book a slot.
-              </p>
-            </div>
-          ) : (
-            appointments.map((apt) => {
-              const isCancelled = apt.status === 'cancelled';
-              return (
-                <article
-                  key={apt.id}
-                  className={`bg-white rounded-3xl border p-5 sm:p-6 shadow-xs space-y-4 ${
-                    isCancelled
-                      ? 'border-slate-200 opacity-60 bg-slate-50'
-                      : 'border-slate-200 hover:border-teal-700/60'
-                  }`}
-                >
-                  {/* Voucher Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-slate-100 pb-3">
-                    <div>
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="font-bold text-teal-800 font-mono text-sm">
-                          {apt.referenceCode}
-                        </span>
-                        <span aria-hidden="true">·</span>
-                        <span
-                          className={`font-bold px-2 py-0.5 rounded-full text-[10px] ${
-                            isCancelled
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-emerald-100 text-emerald-800'
-                          }`}
-                        >
-                          {isCancelled ? 'Cancelled' : apt.status === 'arrived' || apt.status === 'completed' ? 'Visited' : apt.status === 'no_show' ? 'Missed' : 'Booked'}
-                        </span>
-                      </div>
-                      <h3 className="text-lg sm:text-xl font-black text-slate-900 mt-1 leading-snug">
-                        {apt.hospitalName}
-                      </h3>
-                      <p className="text-xs text-slate-500 font-medium">
-                        {apt.department} · {apt.doctorName}
-                      </p>
-                    </div>
-
-                    <div className="w-10 h-10 bg-slate-100 rounded-xl p-1 flex items-center justify-center shrink-0">
-                      <QrCode className="w-7 h-7 text-slate-700" />
-                    </div>
-                  </div>
-
-                  {/* Patient & Slot details */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
-                    <div>
-                      <span className="text-slate-500 block">Patient Name:</span>
-                      <span className="font-bold text-slate-900">{apt.patientName}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 block">Appointment Date:</span>
-                      <span className="font-bold text-teal-900 font-mono">{apt.date}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 block">OPD Token Slot:</span>
-                      <span className="font-bold text-teal-900 font-mono">{apt.timeSlot}</span>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  {apt.status === 'booked' && (
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-3">
-                      <button
-                        onClick={() => handleCancelAppointment(apt.id)}
-                        className="text-xs font-bold text-red-700 hover:text-red-900 px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50 transition-colors"
-                      >
-                        {t('cancelAppointmentBtn', currentLang)}
-                      </button>
-                    </div>
-                  )}
-                </article>
-              );
-            })
-          )}
-        </div>
-      )}
-
-      {/* TAB 2: FAMILY & CAREGIVER */}
-      {activeTab === 'family' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-xs sm:text-sm text-slate-600">
-              Manage family member profiles to quickly book visits and schedule medicine reminders for parents or children.
-            </p>
-            <button
-              onClick={() => setShowAddFamilyModal(true)}
-              className="h-10 px-4 rounded-xl bg-purple-800 hover:bg-purple-900 text-white font-bold text-xs flex items-center gap-1.5 shrink-0 shadow-xs"
-            >
-              <Plus className="w-4 h-4" />
-              <span>{t('addFamilyMember', currentLang)}</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {familyProfiles.map((member) => (
-              <div
-                key={member.id}
-                className="bg-white rounded-3xl border border-slate-200 p-5 shadow-xs space-y-3"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <span className="text-[11px] font-bold text-purple-800 uppercase tracking-wide">
-                      {member.relationship}
-                    </span>
-                    <h3 className="text-lg font-bold text-slate-900">
-                      {member.fullName}
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      {member.age} yrs · {member.gender} · Blood Group: {member.bloodGroup || 'N/A'}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => handleDeleteFamilyMember(member.id)}
-                    className="p-2 text-slate-400 hover:text-red-700 transition-colors"
-                    title="Delete member"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {member.healthConditions && (
-                  <p className="text-xs text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                    <span className="font-bold">Conditions:</span> {member.healthConditions}
-                  </p>
-                )}
-
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs text-slate-400">Authorized Caregiver Managed</span>
-                  <button
-                    onClick={() => onOpenBookingForFamily?.(member.fullName)}
-                    className="text-xs font-bold text-teal-800 hover:underline"
-                  >
-                    Book for this member →
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: GOVERNMENT HEALTH SCHEMES */}
-      {activeTab === 'schemes' && (
-        <div className="space-y-4">
-          <p className="text-xs sm:text-sm text-slate-600">
-            Verified Indian public healthcare schemes and official state portals. Note: Official enrollment must be validated via authorized CSC or government portals.
+      {care?.monitored_by && (
+        <Card tone="teal" className="mb-4">
+          <p className="flex items-center gap-3 text-xl font-extrabold text-teal-950">
+            <HeartHandshake className="w-8 h-8 shrink-0" aria-hidden />
+            {L({
+              en: `${nameFor(care.monitored_by.payer_phone, care.monitored_by.payer_name)} is looking after your health`,
+              hi: `${nameFor(care.monitored_by.payer_phone, care.monitored_by.payer_name)} आपके स्वास्थ्य का ध्यान रख रहे हैं`,
+              ta: `${nameFor(care.monitored_by.payer_phone, care.monitored_by.payer_name)} உங்கள் ஆரோக்கியத்தைக் கவனித்துக் கொள்கிறார்`,
+            })}
           </p>
+          <p className="mt-2 text-lg text-teal-950">
+            {L({
+              en: 'They can see your medicine reminders and your appointments. You have the Care plan.',
+              hi: 'वे आपके दवा रिमाइंडर और अपॉइंटमेंट देख सकते हैं। आपके पास केयर प्लान है।',
+              ta: 'அவர் உங்கள் மருந்து நினைவூட்டல்கள் மற்றும் முன்பதிவுகளைப் பார்க்கலாம். உங்களிடம் கேர் திட்டம் உள்ளது.',
+            })}
+          </p>
+        </Card>
+      )}
+        </>
+      )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* PM-JAY */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-3 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-teal-800 bg-teal-50 px-2.5 py-1 rounded-md">
-                  Central Government Scheme
-                </span>
-                <span className="text-xs font-mono font-bold text-slate-500">
-                  Toll-Free: 14555
-                </span>
-              </div>
-              <h3 className="text-lg font-black text-slate-900">
-                Ayushman Bharat (PM-JAY)
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Offers cashless secondary and tertiary hospital treatment up to ₹5,00,000 per family per year for over 12 crore vulnerable and rural beneficiary families.
-              </p>
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-500">National Health Authority (NHA)</span>
-                <a
-                  href="https://pmjay.gov.in"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-bold text-teal-800 flex items-center gap-1 hover:underline"
-                >
-                  <span>pmjay.gov.in</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-
-            {/* Tamil Nadu CMCHIS */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-3 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md">
-                  Tamil Nadu State Scheme
-                </span>
-                <span className="text-xs font-mono font-bold text-slate-500">
-                  Toll-Free: 1800-425-3993
-                </span>
-              </div>
-              <h3 className="text-lg font-black text-slate-900">
-                Chief Minister's Comprehensive Health Insurance (CMCHIS)
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Provides cashless treatment up to ₹5,00,000 per year for 1,090+ medical and surgical procedures across empaneled government and private hospitals in Tamil Nadu.
-              </p>
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-500">Govt of Tamil Nadu</span>
-                <a
-                  href="https://cmchistn.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-bold text-teal-800 flex items-center gap-1 hover:underline"
-                >
-                  <span>cmchistn.com</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-
-            {/* Jan Aushadhi */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-3 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-sky-800 bg-sky-50 px-2.5 py-1 rounded-md">
-                  Affordable Medicines (PMBJP)
-                </span>
-                <span className="text-xs font-mono font-bold text-slate-500">
-                  Toll-Free: 1800-180-8080
-                </span>
-              </div>
-              <h3 className="text-lg font-black text-slate-900">
-                Pradhan Mantri Bhartiya Janaushadhi Pariyojana
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Over 10,000+ Jan Aushadhi Kendras operating across India offering generic medicines, surgical items, and nutraceuticals at 50% to 90% discount compared to private branded drugs.
-              </p>
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-500">Pharmaceuticals & Medical Devices Bureau</span>
-                <a
-                  href="https://janaushadhi.gov.in"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-bold text-teal-800 flex items-center gap-1 hover:underline"
-                >
-                  <span>janaushadhi.gov.in</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-
-            {/* eSanjeevani */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 space-y-3 shadow-xs">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-purple-800 bg-purple-50 px-2.5 py-1 rounded-md">
-                  National Teleconsultation
-                </span>
-                <span className="text-xs font-mono font-bold text-slate-500">
-                  Toll-Free: 1075
-                </span>
-              </div>
-              <h3 className="text-lg font-black text-slate-900">
-                eSanjeevani National Telemedicine Service
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Connects rural patients and community health officers to doctors and specialists via free digital video consultation from home or the local Ayushman Arogya Mandir.
-              </p>
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="text-slate-500">Ministry of Health & Family Welfare</span>
-                <a
-                  href="https://esanjeevani.mohfw.gov.in"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-bold text-teal-800 flex items-center gap-1 hover:underline"
-                >
-                  <span>esanjeevani.mohfw.gov.in</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </div>
-            </div>
-          </div>
+      {section === null && (
+        <div className="space-y-3">
+          {[
+            { key: 'visits', Icon: CalendarCheck, label: L({ en: 'My visits', hi: 'मेरी मुलाक़ातें', ta: 'என் வருகைகள்' }), note: upcoming.length ? L({ en: `${upcoming.length} booked`, hi: `${upcoming.length} बुक`, ta: `${upcoming.length} பதிவு` }) : '' },
+            { key: 'medicines', Icon: Pill, label: L({ en: 'My medicines', hi: 'मेरी दवाएँ', ta: 'என் மருந்துகள்' }), note: reminders.length ? L({ en: `${reminders.length} reminders`, hi: `${reminders.length} रिमाइंडर`, ta: `${reminders.length} நினைவூட்டல்` }) : '' },
+            { key: 'family', Icon: Users, label: L({ en: 'My family', hi: 'मेरा परिवार', ta: 'என் குடும்பம்' }), note: family.length ? String(family.length) : '' },
+            { key: 'care', Icon: HeartHandshake, label: L({ en: 'Care plan', hi: 'केयर प्लान', ta: 'கேர் திட்டம்' }), note: care?.is_pro ? L({ en: 'Active', hi: 'चालू', ta: 'செயலில்' }) : '' },
+            { key: 'more', Icon: Settings, label: L({ en: 'My details and more', hi: 'मेरी जानकारी और अन्य', ta: 'என் விவரங்கள் மற்றும் பல' }), note: '' },
+          ].map(({ key, Icon, label, note }) => (
+            <button
+              key={key}
+              onClick={() => setSection(key as Section)}
+              className="flex min-h-20 w-full items-center gap-4 rounded-3xl border-2 border-slate-300 bg-white px-5 py-3 text-left active:bg-teal-50"
+            >
+              <Icon className="h-9 w-9 shrink-0 text-teal-800" aria-hidden />
+              <span className="flex-1 text-2xl font-extrabold text-slate-900">{label}</span>
+              {note && <span className="rounded-full bg-teal-100 px-3 py-1 text-lg font-bold text-teal-950">{note}</span>}
+            </button>
+          ))}
         </div>
       )}
 
-      {/* TAB 4: SETTINGS & PRIVACY */}
-      {activeTab === 'settings' && (
-        <div className="space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
-            <h3 className="text-lg font-bold text-slate-900">Patient Profile Details</h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Patient Name</label>
-                <input
-                  type="text"
-                  value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-200 text-sm font-semibold"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Village / Town / District</label>
-                <input
-                  type="text"
-                  value={villageTown}
-                  onChange={(e) => setVillageTown(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-200 text-sm font-semibold"
-                />
-              </div>
-            </div>
-
-            <button
-              onClick={handleSaveProfileSettings}
-              className="h-11 px-5 rounded-xl bg-teal-800 text-white font-bold text-sm shadow-xs"
-            >
-              Save Profile Updates
-            </button>
-
-            {saveSettingsSuccess && (
-              <span className="text-xs font-bold text-emerald-800 block">
-                Profile details saved successfully!
-              </span>
-            )}
-          </div>
-
-          {/* Reset / Clear Demo Data */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-3">
-            <h3 className="text-lg font-bold text-slate-900">Privacy & Local Storage</h3>
-            <p className="text-xs text-slate-600">
-              Hello Sahay stores all appointments, reminders, and family records locally on your device. Clearing data will reset demo records to initial state.
-            </p>
-            <button
-              onClick={handleClearDemoData}
-              className="h-11 px-4 rounded-xl border border-red-300 text-red-700 hover:bg-red-50 font-bold text-xs flex items-center gap-2"
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>{t('clearLocalDataBtn', currentLang)}</span>
-            </button>
-          </div>
+      {section !== null && (
+        <div className="mb-2">
+          <BigButton variant="secondary" small onClick={() => setSection(null)} icon={<ArrowLeft className="w-6 h-6" />}>
+            {L({ en: 'Back', hi: 'वापस', ta: 'பின்னே' })}
+          </BigButton>
         </div>
       )}
 
-      {/* ADD FAMILY MEMBER MODAL */}
-      {showAddFamilyModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
-            <div className="p-5 bg-purple-900 text-white flex items-center justify-between">
-              <h3 className="text-lg font-bold">{t('addFamilyMember', currentLang)}</h3>
-              <button
-                onClick={() => setShowAddFamilyModal(false)}
-                className="p-1.5 rounded-xl text-purple-200 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
+      {section === 'visits' && (
+        <>
+      <SectionTitle>{L({ en: 'My visits', hi: 'मेरी मुलाक़ातें', ta: 'என் வருகைகள்' })}</SectionTitle>
+      <div className="space-y-4">
+        {upcoming.length === 0 && (
+          <Card>
+            <p className="text-xl text-slate-900">{L({ en: 'You have no visit booked.', hi: 'कोई मुलाक़ात बुक नहीं है।', ta: 'முன்பதிவு எதுவும் இல்லை.' })}</p>
+            <div className="mt-3">
+              <BigButton onClick={() => onNavigate('hospitals')} icon={<CalendarPlus className="w-7 h-7" />}>{L({ en: 'Find a hospital', hi: 'अस्पताल खोजें', ta: 'மருத்துவமனையைத் தேடு' })}</BigButton>
             </div>
+          </Card>
+        )}
+        {upcoming.map((a) => apptCard(a, true))}
+        {earlier.length > 0 && (
+          <>
+            <BigButton variant="quiet" onClick={() => setShowEarlier(!showEarlier)}>
+              {showEarlier ? L({ en: 'Hide earlier visits', hi: 'पुरानी मुलाक़ातें छिपाएँ', ta: 'பழைய வருகைகளை மறை' }) : L({ en: `Show earlier visits (${earlier.length})`, hi: `पुरानी मुलाक़ातें देखें (${earlier.length})`, ta: `பழைய வருகைகளைக் காட்டு (${earlier.length})` })}
+            </BigButton>
+            {showEarlier && earlier.map((a) => apptCard(a, false))}
+          </>
+        )}
+      </div>
+        </>
+      )}
 
-            <form onSubmit={handleSaveFamilyMember} className="p-5 space-y-3.5">
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">
-                  {t('memberNameLabel', currentLang)} *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={famName}
-                  onChange={(e) => setFamName(e.target.value)}
-                  placeholder="e.g. லட்சுமி அம்மாள்"
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-200 text-sm font-semibold"
-                />
-              </div>
+      {section === 'medicines' && (
+        <>
+      <SectionTitle>{L({ en: 'My medicines', hi: 'मेरी दवाएँ', ta: 'என் மருந்துகள்' })}</SectionTitle>
+      <div className="space-y-4">
+        {reminders.length === 0 && (
+          <Card><p className="text-xl text-slate-900">{L({ en: 'No medicine reminders yet.', hi: 'अभी कोई दवा रिमाइंडर नहीं है।', ta: 'மருந்து நினைவூட்டல்கள் இல்லை.' })}</p></Card>
+        )}
+        {reminders.map((r) => (
+          <Card key={r.id}>
+            <p className="flex items-center gap-2 text-2xl font-extrabold text-slate-900"><Pill className="w-7 h-7 shrink-0" aria-hidden />{r.medicine_name}</p>
+            <ul className="mt-3 space-y-2">
+              {r.times.map((t) => {
+                const taken = r.taken_today.includes(t);
+                return (
+                  <li key={t} className="flex items-center justify-between gap-3">
+                    <span className="text-xl font-bold text-slate-900">{clock(t)}</span>
+                    {taken ? (
+                      <span className="rounded-full bg-emerald-100 px-4 py-2 text-lg font-bold text-emerald-900">✓ {L({ en: 'Taken', hi: 'ले ली', ta: 'சாப்பிட்டேன்' })}</span>
+                    ) : (
+                      <button onClick={() => markTaken(r.id, t)} className="min-h-14 rounded-2xl border-2 border-teal-800 px-5 text-lg font-bold text-teal-900 active:bg-teal-50">
+                        {L({ en: 'I took it', hi: 'ले ली', ta: 'சாப்பிட்டேன்' })}
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <BigButton variant="secondary" small icon={<Pencil className="w-5 h-5" />} onClick={() => setReminderSheet({ editing: r })}>{L({ en: 'Change', hi: 'बदलें', ta: 'மாற்று' })}</BigButton>
+              <BigButton variant="secondary" small icon={<Trash2 className="w-5 h-5" />} onClick={() => removeReminder(r.id)}>{L({ en: 'Remove', hi: 'हटाएँ', ta: 'நீக்கு' })}</BigButton>
+            </div>
+          </Card>
+        ))}
+        <BigButton onClick={() => setReminderSheet({})} icon={<BellPlus className="w-7 h-7" />}>{L({ en: 'Add a medicine reminder', hi: 'दवा रिमाइंडर जोड़ें', ta: 'மருந்து நினைவூட்டலைச் சேர்' })}</BigButton>
+      </div>
+        </>
+      )}
 
+      {section === 'family' && (
+        <>
+      <SectionTitle>{L({ en: 'My family', hi: 'मेरा परिवार', ta: 'என் குடும்பம்' })}</SectionTitle>
+      <div className="space-y-4">
+        {family.map((m) => (
+          <Card key={m.id}>
+            <p className="text-2xl font-extrabold text-slate-900">{m.name}</p>
+            <p className="text-lg text-slate-700">{[relationLabel(currentLang, m.relation), m.phone].filter(Boolean).join(' · ')}</p>
+            <div className="mt-3 space-y-3">
+              {m.phone && (
+                <BigButton small icon={<HeartHandshake className="w-6 h-6" />} onClick={() => setPaySheet({ phone: m.phone ?? undefined, name: m.name })}>
+                  {L({ en: 'Care plan for them', hi: 'उनके लिए केयर प्लान', ta: 'அவர்களுக்கு கேர் திட்டம்' })}
+                </BigButton>
+              )}
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    {t('memberRelationLabel', currentLang)}
-                  </label>
-                  <select
-                    value={famRelation}
-                    onChange={(e) => setFamRelation(e.target.value as any)}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 text-sm font-semibold bg-white"
-                  >
-                    <option value="Father">Father (தந்தை)</option>
-                    <option value="Mother">Mother (தாய்)</option>
-                    <option value="Spouse">Spouse (மனைவி/கணவன்)</option>
-                    <option value="Child">Child (மகன்/மகள்)</option>
-                    <option value="Grandparent">Grandparent (தாத்தா/பாட்டி)</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    {t('memberAgeLabel', currentLang)}
-                  </label>
-                  <input
-                    type="number"
-                    value={famAge}
-                    onChange={(e) => setFamAge(parseInt(e.target.value, 10) || 0)}
-                    className="w-full h-11 px-3 rounded-xl border border-slate-200 text-sm font-semibold"
-                  />
-                </div>
+                <BigButton variant="secondary" small icon={<Pencil className="w-5 h-5" />} onClick={() => setFamilySheet({ member: m })}>{L({ en: 'Change', hi: 'बदलें', ta: 'மாற்று' })}</BigButton>
+                <BigButton variant="secondary" small icon={<Trash2 className="w-5 h-5" />} onClick={() => removeFamily(m.id)}>{L({ en: 'Remove', hi: 'हटाएँ', ta: 'நீக்கு' })}</BigButton>
               </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">
-                  Health Conditions (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={famNotes}
-                  onChange={(e) => setFamNotes(e.target.value)}
-                  placeholder="e.g. Diabetes, BP, Joint pain"
-                  className="w-full h-11 px-3.5 rounded-xl border border-slate-200 text-sm font-semibold"
-                />
-              </div>
-
-              <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setShowAddFamilyModal(false)}
-                  className="h-10 px-4 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="h-10 px-5 rounded-xl bg-purple-800 text-white font-bold text-xs shadow-md"
-                >
-                  {t('saveMemberBtn', currentLang)}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            </div>
+          </Card>
+        ))}
+        <BigButton variant="secondary" onClick={() => setFamilySheet({})} icon={<UserPlus className="w-7 h-7" />}>{L({ en: 'Add family member', hi: 'परिवार का सदस्य जोड़ें', ta: 'குடும்ப உறுப்பினரைச் சேர்' })}</BigButton>
+      </div>
+        </>
       )}
+
+      {section === 'care' && (
+        <>
+      <SectionTitle>{L({ en: 'Care plan', hi: 'केयर प्लान', ta: 'கேர் திட்டம்' })}</SectionTitle>
+      <div className="space-y-4">
+        <Card tone="teal">
+          <p className="text-xl text-teal-950">
+            {L({
+              en: 'Living far from your parents? Pay the Care plan for them and see their medicine reminders and visits.',
+              hi: 'माता-पिता से दूर रहते हैं? उनके लिए केयर प्लान लें और उनके दवा रिमाइंडर और मुलाक़ातें देखें।',
+              ta: 'பெற்றோரைப் பிரிந்து வாழ்கிறீர்களா? அவர்களுக்கு கேர் திட்டம் வாங்கி அவர்களின் மருந்து நினைவூட்டல்கள், வருகைகளைப் பாருங்கள்.',
+            })}
+          </p>
+          <div className="mt-4">
+            <BigButton onClick={() => setPaySheet({})} icon={<HeartHandshake className="w-7 h-7" />}>
+              {L({ en: `Pay ₹${care?.plan_price_rs ?? 149} for a parent`, hi: `माता-पिता के लिए ₹${care?.plan_price_rs ?? 149}`, ta: `பெற்றோருக்கு ₹${care?.plan_price_rs ?? 149}` })}
+            </BigButton>
+          </div>
+        </Card>
+        {care?.paying_for.map((p) => {
+          const status = parents.find((x) => x.plan_id === p.id);
+          return (
+            <Card key={p.id}>
+              <p className="text-2xl font-extrabold text-slate-900">{nameFor(p.parent_phone, status?.name ?? p.parent_name)}</p>
+              <p className="text-lg font-semibold text-emerald-800">{L({ en: 'On the Care plan', hi: 'केयर प्लान पर', ta: 'கேர் திட்டத்தில்' })}</p>
+              {status && !status.signed_in && (
+                <p className="mt-2 text-lg text-slate-800">{L({ en: 'They have not opened Sahay yet.', hi: 'उन्होंने अभी सहाय नहीं खोला है।', ta: 'அவர்கள் இன்னும் சஹாயைத் திறக்கவில்லை.' })}</p>
+              )}
+              {status && status.doses_today > 0 && (
+                <p className="mt-2 text-xl font-bold text-slate-900">
+                  {L({ en: `Took ${status.taken_today} of ${status.doses_today} medicines today`, hi: `आज ${status.doses_today} में से ${status.taken_today} दवाएँ लीं`, ta: `இன்று ${status.doses_today} மருந்தில் ${status.taken_today} சாப்பிட்டார்` })}
+                </p>
+              )}
+              {status?.next_appointment && (
+                <p className="mt-1 text-lg text-slate-800">
+                  {L({ en: 'Next visit', hi: 'अगली मुलाक़ात', ta: 'அடுத்த வருகை' })}:{' '}
+                  {new Date(status.next_appointment.start).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' })}
+                </p>
+              )}
+              <div className="mt-3"><BigButton variant="secondary" small onClick={() => stopPlan(p.id)}>{L({ en: 'Stop Care plan', hi: 'केयर प्लान बंद करें', ta: 'கேர் திட்டத்தை நிறுத்து' })}</BigButton></div>
+            </Card>
+          );
+        })}
+      </div>
+        </>
+      )}
+
+      {section === 'more' && (
+        <>
+      <SectionTitle>{L({ en: 'More', hi: 'और', ta: 'மேலும்' })}</SectionTitle>
+      <div className="space-y-3">
+        <BigButton variant="secondary" onClick={() => setShowDetails(true)} icon={<Pencil className="w-7 h-7" />}>{L({ en: 'My details', hi: 'मेरी जानकारी', ta: 'என் விவரங்கள்' })}</BigButton>
+        <BigButton variant="secondary" onClick={onOpenLocationSelector}>{L({ en: 'Change my area', hi: 'मेरा क्षेत्र बदलें', ta: 'என் பகுதியை மாற்று' })}</BigButton>
+        <BigButton variant="secondary" onClick={() => onNavigate('ask-sahay')}>{L({ en: 'Ask about health schemes', hi: 'स्वास्थ्य योजनाओं के बारे में पूछें', ta: 'சுகாதாரத் திட்டங்கள் பற்றி கேள்' })}</BigButton>
+      </div>
+        </>
+      )}
+
+      {cancelling && (
+        <Sheet title={L({ en: 'Cancel this visit?', hi: 'यह मुलाक़ात रद्द करें?', ta: 'இந்த வருகையை ரத்து செய்யவா?' })} closeLabel={L({ en: 'Close', hi: 'बंद करें', ta: 'மூடு' })} onClose={() => setCancelling(null)}>
+          <div className="space-y-4">
+            <p className="text-xl text-slate-900">{cancelling.hospitalName} · {dateLabel(cancelling.date)} · {cancelling.timeSlot}</p>
+            {error && <Notice tone="error">{error}</Notice>}
+            <BigButton variant="danger" busy={busy} onClick={confirmCancel}>{L({ en: 'Yes, cancel it', hi: 'हाँ, रद्द करें', ta: 'ஆம், ரத்து செய்' })}</BigButton>
+            <BigButton variant="secondary" onClick={() => setCancelling(null)}>{L({ en: 'No, keep it', hi: 'नहीं, रखें', ta: 'வேண்டாம், வைத்திரு' })}</BigButton>
+          </div>
+        </Sheet>
+      )}
+      {reminderSheet && <ReminderSheet lang={currentLang} editing={reminderSheet.editing} onClose={() => setReminderSheet(null)} />}
+      {familySheet && <FamilySheet lang={currentLang} member={familySheet.member} onClose={() => setFamilySheet(null)} />}
+      {paySheet && <PaySheet lang={currentLang} price={care?.plan_price_rs ?? 149} phone={paySheet.phone} name={paySheet.name} onClose={() => setPaySheet(null)} />}
+      {showDetails && <DetailsSheet lang={currentLang} settings={userSettings} onUpdateSettings={onUpdateSettings} onClose={() => setShowDetails(false)} />}
     </div>
   );
 };
