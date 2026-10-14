@@ -36,6 +36,8 @@ def init_db() -> None:
         for ddl in ("ALTER TABLE patient ADD COLUMN IF NOT EXISTS lat double precision",
                     "ALTER TABLE patient ADD COLUMN IF NOT EXISTS lng double precision",
                     "ALTER TABLE patient ADD COLUMN IF NOT EXISTS location_at timestamptz",
+                    "ALTER TABLE patient ADD COLUMN IF NOT EXISTS age integer",
+                    "ALTER TABLE patient ADD COLUMN IF NOT EXISTS gender varchar(10)",
                     "ALTER TABLE desk_user ADD COLUMN IF NOT EXISTS doctor_id integer REFERENCES doctor(id)",
                     "ALTER TABLE desk_user ADD COLUMN IF NOT EXISTS name varchar(200)",
                     "ALTER TABLE desk_user ADD COLUMN IF NOT EXISTS active boolean NOT NULL DEFAULT true",

@@ -123,7 +123,7 @@ All under `/api/v1`. JSON in and out. Implementers: keep these names so the voic
 | `GET /admin/analytics`, `GET/POST /admin/hospitals` | Admin console |
 | `WS /live/desk/{facility_id}` | Live push of new bookings and calls to the Desk |
 | `POST /auth/login` | Desk/admin `{email, password}` → `{token, role, facility_id}` (demo users seeded) |
-| `POST /auth/otp/request`, `POST /auth/otp/verify` | Patient `{phone}` then `{phone, code}` (code = `DEMO_OTP`) → `{token, patient}` |
+| `POST /auth/otp/request`, `POST /auth/otp/verify` | Patient `{phone}` then `{phone, code}` (random 6-digit code, shown on screen while `OTP_SHOW_CODE=1`) → `{token, patient}` |
 | `GET /appointments?date` | Desk list for the token's facility (`facility_id` from the JWT) |
 
 **As built (9945460):**

@@ -163,4 +163,8 @@ export interface UserSettings {
   userName?: string;
   villageTown?: string;
   userPhone?: string;
+  userAge?: number;
+  userGender?: 'female' | 'male' | 'other';
+  phoneVerified?: boolean;
+  profileComplete?: boolean;
 }

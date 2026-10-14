@@ -11,7 +11,7 @@ pip install fastapi uvicorn sqlalchemy psycopg2-binary pgvector pydantic httpx p
 uvicorn app.main:app --app-dir services/api --port 8001
 ```
 
-Reads `DATABASE_URL`, `JWT_SECRET`, `DEMO_OTP` and optional `CORS_ORIGINS` (comma list, default `http://localhost:3000`) from the root `.env`. Tables and demo logins are created on startup. Interactive docs: `http://localhost:8001/docs`.
+Reads `DATABASE_URL`, `JWT_SECRET`, `OTP_SHOW_CODE` and optional `CORS_ORIGINS` (comma list, default `http://localhost:3000`) from the root `.env`. Tables and demo logins are created on startup. Interactive docs: `http://localhost:8001/docs`.
 
 ## Demo logins (`POST /api/v1/auth/login`)
 
@@ -26,7 +26,7 @@ Roles: `admin` (Hello Sahay), then per hospital `hospital_admin`, `receptionist`
 hospital's admin login; that admin creates the other three from the Users tab (`POST /users`). A switched-off login (`active=false`)
 cannot sign in, but a token already issued keeps working until it expires (12 h).
 
-Patient OTP login: `POST /auth/otp/request {phone}` then `POST /auth/otp/verify {phone, code}` with `code = DEMO_OTP` (default `123456`). No SMS is sent.
+Patient OTP login: `POST /auth/otp/request {phone}` then `POST /auth/otp/verify {phone, code}` The code is random per request, valid 5 minutes, 5 tries, one resend per 30 s. No SMS route exists (India needs DLT registration), so while `OTP_SHOW_CODE=1` (default) the request response carries `demo_code` and the app shows it on screen. The patient token lasts 30 days. `PUT /patients/me` (patient token) saves name, age, gender, village.
 
 Send the token as `Authorization: Bearer <token>`.
 

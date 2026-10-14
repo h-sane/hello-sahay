@@ -73,6 +73,8 @@ class Patient(Base):
     phone: Mapped[str] = mapped_column(String(20), unique=True, index=True)
     language: Mapped[str | None] = mapped_column(String(10))
     village: Mapped[str | None] = mapped_column(String(200))
+    age: Mapped[int | None] = mapped_column(Integer)
+    gender: Mapped[str | None] = mapped_column(String(10))  # female / male / other
     consent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     is_premium: Mapped[bool] = mapped_column(Boolean, default=False)
     family_phone: Mapped[str | None] = mapped_column(String(20))

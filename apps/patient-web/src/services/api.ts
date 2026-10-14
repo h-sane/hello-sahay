@@ -63,6 +63,15 @@ export interface ApiAppointment {
   facility: { id: number; name: string; address: string | null; phone: string | null };
 }
 
+export interface ApiPatient {
+  phone: string;
+  name: string | null;
+  age?: number | null;
+  gender?: 'female' | 'male' | 'other' | null;
+  village?: string | null;
+  language?: string | null;
+}
+
 export interface ApiChatReply {
   answer: string;
   citations: { issuer: string | null; title: string | null; url: string | null; published: string | null }[];
@@ -133,9 +142,14 @@ export const api = {
   chat: (message: string, lang: string) =>
     request<ApiChatReply>('/chat', { method: 'POST', body: { message, lang } }),
   advisories: (lang: string) => request<ApiAdvisory[]>(`/advisories?lang=${lang}`),
-  requestOtp: (phone: string) => request<{ sent: boolean }>('/auth/otp/request', { method: 'POST', body: { phone } }),
+  // demo_code is present while the server has no SMS route; the app shows it on screen.
+  requestOtp: (phone: string) =>
+    request<{ sent: boolean; delivery: 'screen' | 'none'; demo_code?: string }>('/auth/otp/request', {
+      method: 'POST',
+      body: { phone },
+    }),
   verifyOtp: (phone: string, code: string) =>
-    request<{ token: string; patient: { phone: string; name: string | null } }>('/auth/otp/verify', {
+    request<{ token: string; patient: ApiPatient }>('/auth/otp/verify', {
       method: 'POST',
       body: { phone, code },
     }).then((r) => {
@@ -146,6 +160,8 @@ export const api = {
       }
       return r;
     }),
+  saveProfile: (p: { name: string; age: number; gender: 'female' | 'male' | 'other'; village: string; language?: string }) =>
+    request<ApiPatient>('/patients/me', { method: 'PUT', body: p }),
   // The helpline reads this when the same number calls, so it can confirm the live location instead of asking.
   pushLocation: (phone: string, coords: { latitude: number; longitude: number }) =>
     request<{ ok: boolean }>(`/patients/${encodeURIComponent(phone)}/location`, {

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -19,11 +20,36 @@ class LocationIn(BaseModel):
     lng: float = Field(ge=-180, le=180)
 
 
+class ProfileIn(BaseModel):
+    name: str = Field(min_length=2, max_length=200)
+    age: int = Field(ge=0, le=120)
+    gender: Literal["female", "male", "other"]
+    village: str = Field(min_length=2, max_length=200)
+    language: Literal["ta", "hi", "en"] | None = None
+
+
 def _phone(raw: str) -> str:
     try:
         return normalize_phone(raw)
     except ValueError:
         raise HTTPException(422, "invalid phone number")
+
+
+@router.put("/patients/me")
+def save_profile(body: ProfileIn, session: Session = Depends(get_session),
+                 claims: dict | None = Depends(optional_claims)):
+    """The signed-in patient saves their own details; the phone comes from the token, never the body."""
+    if claims is None or claims.get("role") != "patient":
+        raise HTTPException(401, "patient login required")
+    p = session.scalar(select(Patient).where(Patient.phone == claims["sub"]))
+    if p is None:
+        raise HTTPException(404, "patient not found")
+    p.name, p.age, p.gender, p.village = body.name.strip(), body.age, body.gender, body.village.strip()
+    p.language = body.language or p.language
+    p.consent_at = p.consent_at or datetime.now(IST)
+    session.commit()
+    return {"id": p.id, "name": p.name, "phone": p.phone, "age": p.age, "gender": p.gender,
+            "village": p.village, "language": p.language}
 
 
 @router.get("/patients/{phone}")

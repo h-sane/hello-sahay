@@ -29,9 +29,13 @@ def verify_password(password: str, stored: str) -> bool:
     return hmac.compare_digest(digest, bytes.fromhex(digest_hex))
 
 
-def make_token(sub: str, role: str, facility_id: int | None = None, doctor_id: int | None = None) -> str:
+PATIENT_TOKEN_HOURS = 30 * 24  # a patient signs in once per phone, not every 12 hours
+
+
+def make_token(sub: str, role: str, facility_id: int | None = None, doctor_id: int | None = None,
+               hours: int = TOKEN_HOURS) -> str:
     claims = {"sub": sub, "role": role, "facility_id": facility_id, "doctor_id": doctor_id,
-              "exp": int(time.time()) + TOKEN_HOURS * 3600}
+              "exp": int(time.time()) + hours * 3600}
     return jwt.encode(claims, JWT_SECRET, algorithm="HS256")
 
 

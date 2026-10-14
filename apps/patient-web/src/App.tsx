@@ -9,6 +9,7 @@ import { Header } from './components/Header';
 import { BottomNav, NavTab } from './components/BottomNav';
 import { LanguageSelectorModal } from './components/LanguageSelectorModal';
 import { LocationSelectorModal } from './components/LocationSelectorModal';
+import { ProfileSetupModal } from './components/ProfileSetupModal';
 import { HomeView } from './views/HomeView';
 import { HospitalsView } from './views/HospitalsView';
 import { BookingModal } from './views/BookingModal';
@@ -107,6 +108,9 @@ export default function App() {
     const newSettings = storageService.saveSettings(updated);
     setSettings(newSettings);
   };
+
+  // Mobile number, code and profile details are required before anything else is shown.
+  const needsProfile = settings.hasConsented && !(settings.phoneVerified && settings.profileComplete);
 
   const handleSaveLanguageAndConsent = (data: {
     language: Language;
@@ -228,9 +232,21 @@ export default function App() {
         }}
       />
 
+      {/* First open: mobile number, 6-digit code, patient details */}
+      {needsProfile && !showLanguageModal && (
+        <ProfileSetupModal
+          currentLang={settings.language}
+          settings={settings}
+          onDone={(update) => {
+            handleUpdateSettings(update);
+            if (update.profileComplete && !locationService.getSavedLocation()) setShowLocationModal(true);
+          }}
+        />
+      )}
+
       {/* Location Detection & Selection Popup Before Entering Main App */}
       <LocationSelectorModal
-        isOpen={showLocationModal && !showLanguageModal}
+        isOpen={showLocationModal && !showLanguageModal && !needsProfile}
         isInitialPopup={!locationService.getSavedLocation()}
         currentCoords={userCoordinates}
         currentLang={settings.language}

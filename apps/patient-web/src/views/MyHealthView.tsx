@@ -249,11 +249,6 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({
                   {lookupBusy ? 'Please wait…' : codeSent ? 'Verify and show' : 'Send code'}
                 </button>
               </div>
-              {codeSent && (
-                <p className="text-xs text-slate-600">
-                  Demo build: no SMS is sent. Use the demo code 123456.
-                </p>
-              )}
             </div>
           )}
           {lookupError && (
