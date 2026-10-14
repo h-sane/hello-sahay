@@ -88,7 +88,8 @@ Rules enforced in code, not just the prompt:
 | `slot` | id, doctor_id, start, end, status (open/booked/blocked) |
 | `patient` | id, name, phone, language, village, consent_at, is_premium, family_phone |
 | `appointment` | id, patient_id, slot_id, source (helpline/app/desk), reason_text, status (booked/arrived/no_show/cancelled), arrived_at |
-| `call` | id, patient_id, language, transcript, summary, outcome, emergency, handoff, started_at, duration_s |
+| `desk_user` | id, email, password_hash, role (hospital/admin), facility_id |
+| `call` | id, patient_id, facility_id (nullable), language, transcript, summary, outcome, emergency, handoff, started_at, duration_s |
 | `advisory_chunk` | id, doc_id, text, lang, embedding, issuer, title, url, published |
 | `medicine` | id, brand, salts (normalized, sorted), strength, form, manufacturer, source |
 | `medicine_price` | id, medicine_id, mrp, pack, source, fetched_at |
