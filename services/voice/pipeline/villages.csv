@@ -1,0 +1,12 @@
+# DEMO DATA - rough coordinates for demo-district towns; unknown places fall back to the Chengalpattu town centre.
+name,lat,lng
+Chengalpattu,12.6830,79.9770
+Paranur,12.7280,79.9680
+Singaperumal Koil,12.7010,79.9890
+Kolambakkam,12.5600,79.9300
+Pudupattu,12.6200,80.0300
+Madurantakam,12.5120,79.8850
+Thirukazhukundram,12.6100,80.0510
+Maraimalai Nagar,12.7936,80.0250
+Guduvancheri,12.8450,80.0600
+Padalam,12.5500,79.9000
