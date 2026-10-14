@@ -82,6 +82,13 @@ export default function App() {
     return () => clearInterval(timer);
   }, [settings.userPhone, settings.locationPermission, userCoordinates.latitude, userCoordinates.longitude]);
 
+  // Attempt live GPS detection on startup if the user has not yet saved a location
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && 'geolocation' in navigator && !locationService.getSavedLocation()) {
+      locationService.detectUserLocation().then(setUserCoordinates).catch(() => {});
+    }
+  }, []);
+
   // Online / Offline listener
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);

@@ -550,28 +550,29 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <div className="pt-2 flex flex-wrap items-center gap-2.5">
                   <a
                     href={`tel:${nearestHospital.contactPhone}`}
-                    className="flex-1 sm:flex-none h-12 px-4 rounded-xl bg-white text-teal-950 font-extrabold text-sm flex items-center justify-center gap-2 hover:bg-teal-50 shadow-md active:scale-98 transition-all"
+                    className="flex-1 sm:flex-none h-12 px-3 sm:px-4 rounded-xl bg-white text-teal-950 font-extrabold text-sm flex items-center justify-center gap-2 hover:bg-teal-50 shadow-md active:scale-98 transition-all"
                   >
-                    <Phone className="w-4 h-4 text-teal-800" />
-                    <span>{ht.callHospital} ({nearestHospital.contactPhone})</span>
+                    <Phone className="w-4 h-4 text-teal-800 shrink-0" />
+                    <span className="whitespace-nowrap">{ht.callHospital}</span>
+                    <span className="hidden md:inline font-mono text-xs text-teal-700 font-normal">({nearestHospital.contactPhone})</span>
                   </a>
 
                   <a
                     href={`https://maps.google.com/?q=${nearestHospital.latitude},${nearestHospital.longitude}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex-1 sm:flex-none h-12 px-4 rounded-xl bg-teal-800/80 hover:bg-teal-800 text-white font-bold text-sm flex items-center justify-center gap-2 border border-teal-600 transition-colors"
+                    className="flex-1 sm:flex-none h-12 px-3 sm:px-4 rounded-xl bg-teal-800/80 hover:bg-teal-800 text-white font-bold text-sm flex items-center justify-center gap-2 border border-teal-600 transition-colors"
                   >
-                    <Navigation className="w-4 h-4 text-emerald-300" />
-                    <span>{ht.getDirections}</span>
+                    <Navigation className="w-4 h-4 text-emerald-300 shrink-0" />
+                    <span className="whitespace-nowrap">{ht.getDirections}</span>
                   </a>
 
                   <button
                     onClick={() => onSelectHospitalForBooking(nearestHospital)}
                     className="w-full sm:w-auto h-12 px-5 rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-98 text-teal-950 font-black text-sm flex items-center justify-center gap-2 shadow-md transition-all"
                   >
-                    <Calendar className="w-4 h-4" />
-                    <span>{ht.bookToken}</span>
+                    <Calendar className="w-4 h-4 shrink-0" />
+                    <span className="whitespace-nowrap">{ht.bookToken}</span>
                   </button>
                 </div>
               </div>

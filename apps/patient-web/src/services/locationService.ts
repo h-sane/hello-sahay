@@ -13,6 +13,33 @@ export interface LocationPreset {
 export const INDIAN_LOCATION_PRESETS: LocationPreset[] = [
   // 1. Tamil Nadu
   {
+    id: 'loc-tn-maduravoyal',
+    name: 'Maduravoyal (West Chennai)',
+    district: 'Chennai',
+    state: 'Tamil Nadu',
+    latitude: 13.0673,
+    longitude: 80.1607,
+    isRuralHub: false,
+  },
+  {
+    id: 'loc-tn-udumalaipettai',
+    name: 'Udumalaippettai (Tiruppur)',
+    district: 'Tiruppur',
+    state: 'Tamil Nadu',
+    latitude: 10.5847,
+    longitude: 77.2479,
+    isRuralHub: true,
+  },
+  {
+    id: 'loc-tn-chennai-central',
+    name: 'Chennai Central (Kilpauk / Egmore)',
+    district: 'Chennai',
+    state: 'Tamil Nadu',
+    latitude: 13.0784,
+    longitude: 80.2437,
+    isRuralHub: false,
+  },
+  {
     id: 'loc-tn-chengalpattu',
     name: 'Chengalpattu Rural (Maduranthakam)',
     district: 'Chengalpattu',
@@ -32,7 +59,7 @@ export const INDIAN_LOCATION_PRESETS: LocationPreset[] = [
   },
   {
     id: 'loc-tn-chennai',
-    name: 'Chennai Suburban (Tambaram / Guindy)',
+    name: 'Chennai South (Tambaram / Guindy)',
     district: 'Chennai',
     state: 'Tamil Nadu',
     latitude: 12.9249,
@@ -438,12 +465,12 @@ export const locationService = {
   async reverseGeocode(lat: number, lon: number): Promise<string> {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
 
       const resp = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`,
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`,
         {
-          headers: { 'Accept-Language': 'en' },
+          headers: { 'Accept-Language': 'en', 'User-Agent': 'HelloSahayApp/1.0' },
           signal: controller.signal,
         }
       );
@@ -453,15 +480,33 @@ export const locationService = {
         const data = await resp.json();
         const addr = data.address;
         if (addr) {
-          const locality =
-            addr.city || addr.town || addr.village || addr.county || addr.state_district || addr.suburb;
-          const state = addr.state;
-          if (locality && state) {
-            return `${locality}, ${state}`;
-          } else if (locality) {
-            return `${locality}, India`;
+          const sub = addr.suburb || addr.neighbourhood || addr.residential || addr.city_district || addr.subdistrict;
+          const city = addr.city || addr.town || addr.village || addr.county;
+          const state = addr.state || 'Tamil Nadu';
+          if (sub && city && sub.toLowerCase() !== city.toLowerCase()) {
+            return `${sub}, ${city}, ${state}`;
           }
+          const locality = sub || city || addr.state_district || 'India';
+          return `${locality}, ${state}`;
         }
+      }
+    } catch {
+      // Try secondary reverse geocoder
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const resp = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
+        { signal: controller.signal }
+      );
+      clearTimeout(timeoutId);
+      if (resp.ok) {
+        const data = await resp.json();
+        const locality = data.locality || data.city || data.principalSubdivision;
+        const state = data.principalSubdivision || 'Tamil Nadu';
+        if (locality) return `${locality}, ${state}`;
       }
     } catch {
       // Fallback to closest preset calculation
@@ -585,7 +630,7 @@ export const locationService = {
     }
   },
 
-  // Complete robust location detection: Browser Geolocation (low-accuracy, fast) -> IP Geolocation -> Default Indian preset
+  // Complete robust location detection: Phone High-Accuracy GPS -> Low-Accuracy Network -> IP Geolocation -> Default Indian preset
   async detectUserLocation(): Promise<UserCoordinates> {
     return new Promise((resolve) => {
       let hasResolved = false;
@@ -597,7 +642,7 @@ export const locationService = {
         resolve(result);
       };
 
-      // Race with 3.5s timeout: if browser GPS hangs, fallback to IP detection or closest preset immediately
+      // Global safety timeout
       const timeoutId = setTimeout(async () => {
         if (!hasResolved) {
           const ipCoords = await locationService.detectLocationViaIp();
@@ -613,7 +658,7 @@ export const locationService = {
             finishWithCoordinates(fallback);
           }
         }
-      }, 3500);
+      }, 7000);
 
       // Check if browser geolocation exists
       if (typeof window === 'undefined' || !navigator.geolocation) {
@@ -633,7 +678,7 @@ export const locationService = {
         return;
       }
 
-      // Important: enableHighAccuracy must be FALSE so browser can return quick WiFi/cell network location without waiting for GPS hardware
+      // First try real hardware GPS (high accuracy) on phone
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           clearTimeout(timeoutId);
@@ -641,8 +686,6 @@ export const locationService = {
 
           const lat = position.coords.latitude;
           const lon = position.coords.longitude;
-
-          // Quick reverse geocode
           const resolvedName = await locationService.reverseGeocode(lat, lon);
 
           finishWithCoordinates({
@@ -653,29 +696,42 @@ export const locationService = {
             isLocating: false,
           });
         },
-        async (err) => {
-          console.warn('Browser GPS returned error, falling back to IP detection:', err.message);
-          clearTimeout(timeoutId);
-          if (hasResolved) return;
-
-          const ipCoords = await locationService.detectLocationViaIp();
-          if (ipCoords) {
-            finishWithCoordinates(ipCoords);
-          } else {
-            finishWithCoordinates({
-              latitude: 12.5113,
-              longitude: 79.8837,
-              districtDetected: 'Chengalpattu Rural, Tamil Nadu',
-              error: err.message,
-              isLocating: false,
-            });
-          }
+        async () => {
+          // If high accuracy GPS times out/errors, fallback to network location
+          navigator.geolocation.getCurrentPosition(
+            async (pos2) => {
+              clearTimeout(timeoutId);
+              if (hasResolved) return;
+              const lat = pos2.coords.latitude;
+              const lon = pos2.coords.longitude;
+              const resolvedName = await locationService.reverseGeocode(lat, lon);
+              finishWithCoordinates({
+                latitude: lat,
+                longitude: lon,
+                accuracy: pos2.coords.accuracy,
+                districtDetected: resolvedName,
+                isLocating: false,
+              });
+            },
+            async () => {
+              clearTimeout(timeoutId);
+              if (hasResolved) return;
+              const ipCoords = await locationService.detectLocationViaIp();
+              if (ipCoords) {
+                finishWithCoordinates(ipCoords);
+              } else {
+                finishWithCoordinates({
+                  latitude: 12.5113,
+                  longitude: 79.8837,
+                  districtDetected: 'Chengalpattu Rural, Tamil Nadu',
+                  isLocating: false,
+                });
+              }
+            },
+            { enableHighAccuracy: false, timeout: 3000, maximumAge: 60000 }
+          );
         },
-        {
-          enableHighAccuracy: false, // Prevents hanging on non-GPS devices
-          timeout: 3000,
-          maximumAge: 60000,
-        }
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 30000 }
       );
     });
   },
