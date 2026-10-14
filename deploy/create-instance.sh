@@ -6,7 +6,7 @@
 set -euo pipefail
 export AWS_PROFILE=personal-bedrock AWS_DEFAULT_REGION=ap-south-1
 NAME=${NAME:-sahay}
-BUNDLE=${BUNDLE:-small_3_0}   # 2 GB RAM, 2 vCPU
+BUNDLE=${BUNDLE:-small_3_1}   # 2 GB RAM, 2 vCPU
 BRANCH=${DEPLOY_BRANCH:-main}
 
 envval() { grep -E "^$1=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d "\"'\r" || true; }
