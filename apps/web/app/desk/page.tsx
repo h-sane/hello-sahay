@@ -44,7 +44,12 @@ export default function DeskPage() {
 function Desk({ session, tab, setTab, signOut }: { session: Session; tab: Tab; setTab: (t: Tab) => void; signOut: () => void }) {
   const { token } = session;
   const facilityId = session.facility_id as number;
-  const [today, setToday] = useState(todayIST);
+  // ?date=YYYY-MM-DD shows another day and turns off the midnight rollover.
+  const [pinned] = useState(() => {
+    const d = new URLSearchParams(location.search).get("date");
+    return d && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : null;
+  });
+  const [today, setToday] = useState(pinned ?? todayIST());
 
   const appts = useLoad(() => listAppointments(token, today), signOut);
   const calls = useLoad(() => listCalls(token, facilityId), signOut);
@@ -85,12 +90,13 @@ function Desk({ session, tab, setTab, signOut }: { session: Session; tab: Tab; s
 
   // Midnight rollover: switch to the new day without a reload.
   useEffect(() => {
+    if (pinned) return;
     const t = setInterval(() => {
       const d = todayIST();
       if (d !== today) setToday(d);
     }, 60_000);
     return () => clearInterval(t);
-  }, [today]);
+  }, [today, pinned]);
   const first = useRef(true);
   useEffect(() => {
     if (first.current) first.current = false;

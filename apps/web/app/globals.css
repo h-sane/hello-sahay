@@ -117,7 +117,7 @@ h1, h2, h3, p { margin: 0; }
 .row {
   background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--teal);
   border-radius: var(--radius); padding: 14px 16px;
-  display: grid; grid-template-columns: 96px minmax(0, 1fr) auto auto; gap: 8px 18px; align-items: center;
+  display: grid; grid-template-columns: 118px minmax(0, 1fr) auto auto; gap: 8px 18px; align-items: center;
 }
 .row.arrived { border-left-color: var(--green); }
 .row.no_show { border-left-color: var(--red); }
@@ -125,7 +125,7 @@ h1, h2, h3, p { margin: 0; }
 .row.fresh { animation: fresh 4s ease-out; }
 @keyframes fresh { 0%, 60% { background: var(--amber-wash); } 100% { background: var(--card); } }
 
-.time { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.time { white-space: nowrap; font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .who { min-width: 0; }
 .who .name { font-weight: 700; font-size: 1.15rem; overflow-wrap: anywhere; }
 .who .phone { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 8px; font-weight: 500; font-size: 0.95rem; }
