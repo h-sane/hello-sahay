@@ -5,7 +5,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import SessionLocal, init_db
-from .routers import auth, booking, calls, chat, facilities, live, admin
+from .routers import admin, auth, booking, calls, chat, facilities, live, patients, places
 
 
 @asynccontextmanager
@@ -27,7 +27,7 @@ app.add_middleware(
 )
 
 api = APIRouter(prefix="/api/v1")
-for module in (facilities, booking, auth, live, calls, chat, admin):
+for module in (facilities, booking, auth, live, calls, chat, patients, places, admin):
     api.include_router(module.router)
 
 

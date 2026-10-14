@@ -36,6 +36,10 @@ Device only (no backend): language and consent, location, medicine comparison (d
 
 Removed because they break the guardrails or have no backend: the "Dr. Sahay" persona and clinical advice text, symptom-to-department routing, seeded fake appointments, reminders and family members, six of the nine languages (only Tamil, Hindi, English remain).
 
+### Home: nearest hospital
+
+`GET /places/nearby-hospitals?lat&lng` returns real hospitals from OpenStreetMap (Nominatim), nearest first, with distance, kind and speciality when OSM has them. Per-hospital scheme data does not exist, so PM-JAY and CMCHIS show on every one. Demo wiring: `phone` is `DEMO_CALL_NUMBER` (falls back to `DEMO_EMERGENCY_NUMBER`) and `book_facility_id` is the first partner facility, so every booking from the home card lands on one Sahay Desk. Results are cached for an hour per ~1 km cell.
+
 ## Sahay Desk: screen to endpoint
 
 | Screen | Backend | Notes |

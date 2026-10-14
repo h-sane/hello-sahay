@@ -1,5 +1,5 @@
 import { Hospital, UserCoordinates } from '../types';
-import { api, ApiFacility } from './api';
+import { api, ApiFacility, ApiNearbyHospital } from './api';
 
 // Facilities come from GET /facilities and are cached here so the views can keep
 // reading them synchronously. App calls load() on start and when the location changes.
@@ -44,7 +44,55 @@ function toHospital(f: ApiFacility): Hospital {
   };
 }
 
+const KIND_LABEL: Record<ApiNearbyHospital['kind'], string> = {
+  government: 'Government hospital',
+  phc: 'Primary health centre',
+  private: 'Private hospital',
+  hospital: 'Hospital',
+};
+
+// A real hospital from OpenStreetMap. Booking and calls are the demo wiring: the id is the one
+// partner facility so every booking lands on its Sahay Desk, and the phone is the demo number.
+function fromNearby(n: ApiNearbyHospital): Hospital {
+  const address = n.address || '';
+  return {
+    id: String(n.book_facility_id ?? ''),
+    name: n.name,
+    nativeNames: { en: n.name, hi: n.name, ta: n.name },
+    category: n.kind === 'hospital' ? 'private' : n.kind,
+    district: '',
+    state: 'Tamil Nadu',
+    pinCode: address.match(/\d{6}/)?.[0] ?? '',
+    address: { en: address, hi: address, ta: address },
+    distanceKm: n.distance_km,
+    departments: [],
+    emergency24x7: n.emergency,
+    schemesSupported: [...(n.pmjay ? (['PM-JAY'] as const) : []), ...(n.cmchis ? (['CMCHIS'] as const) : [])],
+    contactPhone: n.phone || '',
+    openingHours: '',
+    diagnosticServices: [],
+    accessibilityInfo: '',
+    verifiedDate: '',
+    isDemo: false,
+    latitude: n.lat,
+    longitude: n.lng,
+    isPartner: n.book_facility_id != null,
+    speciality: n.speciality ?? undefined,
+    kindLabel: KIND_LABEL[n.kind],
+  };
+}
+
 export const hospitalService = {
+  // Nearest real hospital to the user, or null when the lookup fails.
+  async nearestReal(coords: UserCoordinates): Promise<Hospital | null> {
+    try {
+      const list = await api.nearbyHospitals(coords);
+      return list.length ? fromNearby(list[0]) : null;
+    } catch {
+      return null;
+    }
+  },
+
   async load(coords?: UserCoordinates): Promise<void> {
     try {
       hospitals = (await api.facilities(coords)).map(toHospital);

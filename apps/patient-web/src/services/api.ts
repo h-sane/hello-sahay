@@ -36,6 +36,21 @@ export interface ApiSlot {
   department: string;
 }
 
+export interface ApiNearbyHospital {
+  name: string;
+  lat: number;
+  lng: number;
+  distance_km: number;
+  kind: 'government' | 'phc' | 'private' | 'hospital';
+  speciality: string | null;
+  address: string | null;
+  emergency: boolean;
+  pmjay: boolean;
+  cmchis: boolean;
+  phone: string | null;
+  book_facility_id: number | null;
+}
+
 export interface ApiAppointment {
   id: number;
   status: 'booked' | 'arrived' | 'no_show' | 'cancelled';
@@ -64,12 +79,23 @@ export interface ApiAdvisory {
   summary: string;
 }
 
+const TOKEN_KEY = 'sahay.patient.token';
+
+function authHeaders(): Record<string, string> {
+  try {
+    const token = localStorage.getItem(TOKEN_KEY);
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  } catch {
+    return {};
+  }
+}
+
 async function request<T>(path: string, init?: { method?: string; body?: unknown }): Promise<T> {
   let res: Response;
   try {
     res = await fetch(BASE + path, {
       method: init?.method,
-      headers: init?.body ? { 'Content-Type': 'application/json' } : undefined,
+      headers: { ...(init?.body ? { 'Content-Type': 'application/json' } : {}), ...authHeaders() },
       body: init?.body ? JSON.stringify(init.body) : undefined,
     });
   } catch {
@@ -87,6 +113,8 @@ export const api = {
     request<ApiFacility[]>(
       `/facilities?limit=100${coords ? `&lat=${coords.latitude}&lng=${coords.longitude}` : ''}`
     ),
+  nearbyHospitals: (coords: { latitude: number; longitude: number }) =>
+    request<ApiNearbyHospital[]>(`/places/nearby-hospitals?lat=${coords.latitude}&lng=${coords.longitude}`),
   slots: (facilityId: number, date: string) =>
     request<ApiSlot[]>(`/facilities/${facilityId}/slots?date=${date}`),
   book: (body: {
@@ -106,5 +134,18 @@ export const api = {
     request<{ token: string; patient: { phone: string; name: string | null } }>('/auth/otp/verify', {
       method: 'POST',
       body: { phone, code },
+    }).then((r) => {
+      try {
+        localStorage.setItem(TOKEN_KEY, r.token);
+      } catch {
+        /* storage blocked: location sharing is simply skipped */
+      }
+      return r;
+    }),
+  // The helpline reads this when the same number calls, so it can confirm the live location instead of asking.
+  pushLocation: (phone: string, coords: { latitude: number; longitude: number }) =>
+    request<{ ok: boolean }>(`/patients/${encodeURIComponent(phone)}/location`, {
+      method: 'PUT',
+      body: { lat: coords.latitude, lng: coords.longitude },
     }),
 };

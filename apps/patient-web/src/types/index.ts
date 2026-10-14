@@ -31,6 +31,8 @@ export interface Hospital {
   latitude: number;
   longitude: number;
   isPartner?: boolean;
+  speciality?: string;
+  kindLabel?: string;
 }
 
 export interface Doctor {

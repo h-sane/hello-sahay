@@ -502,7 +502,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs font-bold text-teal-300 uppercase tracking-wide">
-                        {nearestHospital.category.toUpperCase()} · {nearestHospital.district}
+                        {nearestHospital.kindLabel ?? nearestHospital.category.toUpperCase()}
+                        {nearestHospital.speciality ? ` · ${nearestHospital.speciality}` : ''}
                       </span>
                       {nearestHospital.emergency24x7 && (
                         <span className="inline-flex items-center gap-1 text-[11px] font-extrabold bg-red-600 text-white px-2 py-0.5 rounded-full">
@@ -519,6 +520,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <p className="text-xs sm:text-sm text-teal-100/90 pt-1">
                       {nearestHospital.address[currentLang] || nearestHospital.address.en}
                     </p>
+
+                    {nearestHospital.schemesSupported.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-2">
+                        {nearestHospital.schemesSupported.map((scheme) => (
+                          <span
+                            key={scheme}
+                            className="text-[11px] font-extrabold bg-emerald-400/20 text-emerald-200 border border-emerald-300/40 px-2 py-0.5 rounded-full"
+                          >
+                            {scheme}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Distance Callout Badge */}

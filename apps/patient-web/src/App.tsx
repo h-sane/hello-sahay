@@ -4,6 +4,7 @@ import { storageService } from './services/storageService';
 import { locationService } from './services/locationService';
 import { hospitalService } from './services/hospitalService';
 import { appointmentService } from './services/appointmentService';
+import { api } from './services/api';
 import { Header } from './components/Header';
 import { BottomNav, NavTab } from './components/BottomNav';
 import { LanguageSelectorModal } from './components/LanguageSelectorModal';
@@ -57,13 +58,10 @@ export default function App() {
     hospitalService.load(userCoordinates).then(() => {
       if (cancelled) return;
       setHospitalError(hospitalService.getError());
-      setNearestHospital(
-        locationService.getNearestHospital(
-          hospitalService.getAll().filter((h) => h.category !== 'private'),
-          userCoordinates
-        )
-      );
       setHospitalsVersion((v) => v + 1);
+    });
+    hospitalService.nearestReal(userCoordinates).then((h) => {
+      if (!cancelled) setNearestHospital(h);
     });
     return () => {
       cancelled = true;
@@ -74,6 +72,15 @@ export default function App() {
   useEffect(() => {
     if (settings.userPhone) appointmentService.refresh(settings.userPhone).catch(() => {});
   }, [settings.userPhone]);
+
+  // Keep the helpline's view of this patient's location fresh while the app is open
+  useEffect(() => {
+    if (!settings.userPhone || !settings.locationPermission) return;
+    const push = () => api.pushLocation(settings.userPhone!, userCoordinates).catch(() => {});
+    push();
+    const timer = setInterval(push, 5 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, [settings.userPhone, settings.locationPermission, userCoordinates.latitude, userCoordinates.longitude]);
 
   // Online / Offline listener
   useEffect(() => {
