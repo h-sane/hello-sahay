@@ -1,0 +1,6 @@
+{
+  "appId": "in.hellosahay.patient",
+  "appName": "Hello Sahay",
+  "webDir": "dist",
+  "android": { "allowMixedContent": false }
+}
