@@ -10,3 +10,11 @@ Sunrise Nursing Home,private,"Railway Feeder Road, Chengalpattu 603001",12.6900,
 Amudha Multispeciality Hospital,private,"Bazaar Street, Madurantakam 603306",12.5080,79.8920,044-0000-0202,Mon-Sat 09:00-18:00,General Medicine|Ophthalmology|Dental|Orthopaedics,false,true,true,sahay_desk
 Kavya Mother and Child Clinic,private,"Main Road, Thirukazhukundram 603109",12.6100,80.0510,044-0000-0203,Mon-Sat 09:00-18:00,General Medicine|Obstetrics|Paediatrics,true,false,true,sahay_desk
 Lotus Family Hospital,private,"OMR Link Road, Singaperumal Koil 603204",12.7060,79.9960,044-0000-0204,Mon-Sat 09:00-18:00,General Medicine|Paediatrics|Dental|Orthopaedics,false,false,true,sahay_desk
+Primary Health Centre Maduravoyal,PHC,"Alapakkam Main Road, Maduravoyal, Chennai 600095",13.0658,80.1632,044-2476-0101,Mon-Sat 08:00-16:00,General Medicine|Obstetrics|Paediatrics,true,true,false,
+Urban Community Health Centre Koyambedu,CHC,"Chinna Nolambur Road, Koyambedu, Chennai 600107",13.0712,80.1850,044-2479-0102,Daily 08:00-20:00,General Medicine|Obstetrics|Paediatrics|Dental,true,true,false,
+Government Kilpauk Medical College Hospital,GH,"Poonamallee High Road, Kilpauk, Chennai 600010",13.0784,80.2437,044-2836-0103,Open 24 hours,General Medicine|Obstetrics|Paediatrics|Ophthalmology|Dental|Orthopaedics,true,true,false,
+Government Taluk Hospital Poonamallee,GH,"Trunk Road, Poonamallee, Chennai 600056",13.0489,80.0984,044-2627-0104,Open 24 hours,General Medicine|Obstetrics|Paediatrics|Orthopaedics,true,true,false,
+Apollo Speciality Hospital Vanagaram,private,"Vanagaram-Ambattur Main Road, Vanagaram, Chennai 600095",13.0642,80.1472,044-2653-0201,Mon-Sat 09:00-18:00,General Medicine|Obstetrics|Paediatrics|Orthopaedics,true,true,true,sahay_desk
+MGM Malar Clinic West Chennai,private,"Poonamallee High Road, Maduravoyal, Chennai 600095",13.0690,80.1700,044-2476-0202,Mon-Sat 09:00-18:00,General Medicine|Paediatrics|Dental,false,true,true,sahay_desk
+Government Headquarters Hospital Udumalpet,GH,"Dhali Road, Udumalaipettai, Tiruppur 642126",10.5872,77.2494,04252-220101,Open 24 hours,General Medicine|Obstetrics|Paediatrics|Ophthalmology|Orthopaedics,true,true,false,
+Primary Health Centre Kaniyur,PHC,"Dharapuram Main Road, Kaniyur, Udumalpet Taluk 642203",10.6850,77.3620,04252-240102,Mon-Sat 08:00-16:00,General Medicine|Obstetrics|Paediatrics,true,true,false,

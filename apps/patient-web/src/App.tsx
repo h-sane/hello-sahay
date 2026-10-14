@@ -33,9 +33,9 @@ export default function App() {
     const saved = locationService.getSavedLocation();
     if (saved) return saved;
     return {
-      latitude: 12.5113,
-      longitude: 79.8837,
-      districtDetected: 'Chengalpattu Rural, Tamil Nadu',
+      latitude: 13.0673,
+      longitude: 80.1607,
+      districtDetected: 'Maduravoyal, Chennai',
       isLocating: false,
     };
   });
@@ -74,6 +74,20 @@ export default function App() {
   useEffect(() => {
     if (settings.userPhone) appointmentService.refresh(settings.userPhone).catch(() => {});
   }, [settings.userPhone]);
+
+  // Attempt live GPS detection on startup if user has not yet saved a location
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+      if (!locationService.getSavedLocation()) {
+        locationService
+          .detectUserLocation()
+          .then((coords) => {
+            setUserCoordinates(coords);
+          })
+          .catch(() => {});
+      }
+    }
+  }, []);
 
   // Online / Offline listener
   useEffect(() => {
