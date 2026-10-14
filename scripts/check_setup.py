@@ -1,13 +1,17 @@
 """Phase 0 setup check: database, Bedrock, embeddings, Polly, Transcribe.
 
-Run: uv run --with boto3 --with "psycopg[binary]" python scripts/check_setup.py
+Run: python scripts/check_setup.py   (needs boto3 and psycopg or psycopg2)
 Reads AWS_PROFILE / AWS_REGION / model IDs from the environment (see .env.example).
 """
 import os
 import sys
 
 import boto3
-import psycopg
+
+try:
+    import psycopg
+except ImportError:  # psycopg2 works too for this check
+    import psycopg2 as psycopg
 
 PROFILE = os.getenv("AWS_PROFILE", "personal-bedrock")
 REGION = os.getenv("AWS_REGION", "ap-south-1")
@@ -19,10 +23,15 @@ session = boto3.Session(profile_name=PROFILE, region_name=REGION)
 
 
 def check_db():
-    with psycopg.connect(DB) as conn:
-        row = conn.execute("SELECT extversion FROM pg_extension WHERE extname = 'vector'").fetchone()
-        assert row, "pgvector extension missing"
-        return f"pgvector {row[0]}"
+    conn = psycopg.connect(DB, connect_timeout=5)
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT extversion FROM pg_extension WHERE extname = 'vector'")
+        row = cur.fetchone()
+    finally:
+        conn.close()
+    assert row, "pgvector extension missing"
+    return f"pgvector {row[0]}"
 
 
 def check_identity():

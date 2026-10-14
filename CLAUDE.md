@@ -20,8 +20,20 @@ patient app.
 
 ## Current state
 
-Repository created 2026-10-14 at the start of the event. Docs only so far; no
-application code yet. Update this section as the code lands.
+Phase 0 done 2026-10-14: folder skeleton (each folder's README names its task
+cards), local Postgres + pgvector, `.env.example`, GitHub milestones and one
+issue per task card. No application code yet. Update this section as code lands.
+
+**Local setup:** `docker compose up -d` (Postgres on host port **5433**), copy
+`.env.example` to `.env`, then `python scripts/check_setup.py` (needs boto3 and
+psycopg or psycopg2) to confirm DB, Bedrock, embeddings, Polly and Transcribe.
+
+**AWS: personal account only.** Use `AWS_PROFILE=personal-bedrock` (account
+654780359658, `ap-south-1`). The machine's default profile is the Nirmaan
+company account and must never be used here. On the personal account, Amazon
+Nova (`apac.amazon.nova-lite-v1:0`, `apac.amazon.nova-pro-v1:0`) and Titan
+embeddings v2 work on credits; Claude models on Bedrock fail with
+INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
 
 ## Planning docs (read before building)
 
@@ -94,8 +106,8 @@ application code yet. Update this section as the code lands.
 FastAPI + PostgreSQL/pgvector · Next.js · Expo · AWS Bedrock (LLM) · Amazon
 Transcribe (speech-to-text) · Amazon Polly (Hindi/English speech) · Sarvam or
 Google TTS (Tamil) · WhatsApp Cloud API · AWS Mumbai region. Secrets live in
-`.env` files that are never committed; keep a `.env.example` next to each
-service.
+`.env` files that are never committed; one shared `.env.example` at the
+root lists every variable.
 
 ## Git workflow (Claude manages this, no confirmation needed)
 
