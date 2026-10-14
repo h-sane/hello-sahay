@@ -124,6 +124,14 @@ All under `/api/v1`. JSON in and out. Implementers: keep these names so the voic
 | `POST /auth/otp/request`, `POST /auth/otp/verify` | Patient `{phone}` then `{phone, code}` (code = `DEMO_OTP`) → `{token, patient}` |
 | `GET /appointments?date` | Desk list for the token's facility (`facility_id` from the JWT) |
 
+**As built (9945460):**
+- Appointment JSON everywhere: `{id, status, source, reason_text, arrived_at, patient{id,name,phone,language,village}, slot{id,start,end}, doctor{id,name,department}, facility{id,name,address,phone}}`.
+- WS pushes `{type:"appointment", appointment}` and `{type:"call", call}`.
+- Slots: `[{slot_id, start, end, doctor_id, doctor_name, department}]`, optional `&department=`; a non-partner facility returns 404.
+- Phones are normalised to `+91XXXXXXXXXX`; `language` is `ta|hi|en`; `source` is `helpline|app|desk`.
+- Auth: `PATCH action=arrived` (it triggers the ₹40 fee), `GET /appointments`, `GET /calls` and `GET /handoffs` need a desk/admin Bearer token scoped to its facility. `WS /live/desk/{id}?token=` is optional. `POST /appointments`, `POST /calls`, reschedule/cancel and `GET /patients/{phone}/appointments` are open, because voice has no token. ponytail: add a service key before real use.
+- Demo logins: `desk<facility_id>@sahay.demo`, `admin@sahay.demo`, password `demo1234`.
+
 Local ports: API **8001** (`uvicorn app.main:app --app-dir services/api --port 8001`), voice **8002**, phone bridge **8000**, web **3000**. DB driver is psycopg2 (`postgresql+psycopg2://…`) because psycopg 3 is not installed and PyPI is slow here.
 
 **Voice tool names** (Bedrock tool definitions) map 1:1 onto these: `find_facilities`, `get_slots`, `book_appointment`, `reschedule_appointment`, `cancel_appointment`, `check_scheme_coverage`, `search_advisories`, `send_whatsapp`, `handoff_to_human`, `emergency_redirect`.

@@ -12,7 +12,7 @@ EMERGENCY = {
         "snake bite", "snakebite", "bitten by a snake", "snake bit", "snake has bitten",
         "heavy bleeding", "bleeding heavily", "bleeding a lot", "bleeding wont stop",
         "blood wont stop", "wont stop bleeding", "losing a lot of blood",
-        "poison", "swallowed pesticide", "drank pesticide", "drunk pesticide",
+        r"(?<!food )poison", "swallowed pesticide", "drank pesticide", "drunk pesticide",
         "swallowed something", "overdose",
         "labour pain", "labor pain", "in labour", "in labor", "water broke",
         "waters broke", "water has broken", "contractions",
@@ -21,7 +21,7 @@ EMERGENCY = {
         "seizure", "convulsion", r"(has|have|having|got|gets|get|with|had) fits", "having a fit",
         "severe burn", "burnt badly", "badly burnt", "badly burned", "caught fire",
         "accident", "head injury", "hit his head", "hit her head", "hit my head",
-        "stroke", "face drooping", "face is drooping", "cant speak", "cannot speak",
+        r"(?<!heat )stroke", "face drooping", "face is drooping", "cant speak", "cannot speak",
         "slurred speech",
     ],
     "hi": [

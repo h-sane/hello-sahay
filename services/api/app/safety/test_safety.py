@@ -18,6 +18,8 @@ EMERGENCY_CASES = [
     ("en", "he has a severe burn on his arm"),
     ("en", "there was an accident, he hit his head"),
     ("en", "her face is drooping and she can't speak"),
+    ("en", "my father had a stroke"),
+    ("en", "the child drank poison"),
     # Hindi, Devanagari
     ("hi", "मुझे सीने में दर्द हो रहा है"),
     ("hi", "मेरी माँ को साँस नहीं आ रही"),
@@ -99,6 +101,8 @@ OK_CASES = [
     ("en", "Find a government hospital near Tambaram"),
     ("en", "Does PM-JAY cover knee surgery?"),
     ("en", "Reschedule my appointment to Friday morning"),
+    ("en", "heat stroke precautions"),
+    ("en", "food poisoning symptoms"),
     ("hi", "mujhe bukhar ke liye doctor se milna hai"),
     ("hi", "गर्भावस्था की जांच के लिए अपॉइंटमेंट बुक करें"),
     ("hi", "aankh ki jaanch karwani hai"),
