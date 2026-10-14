@@ -1,0 +1,32 @@
+About Pradhan Mantri Jan Arogya Yojana (PM-JAY) - National Health Authority
+
+Ayushman Bharat PM-JAY is the largest health assurance scheme in the world which aims at providing a health cover of Rs. 5 lakhs per family per year for secondary and tertiary care hospitalization to over 12 crores poor and vulnerable families (approximately 55 crore beneficiaries) that form the bottom 40% of the Indian population. The households included are based on the deprivation and occupational criteria of Socio-Economic Caste Census 2011 (SECC 2011) for rural and urban areas respectively. PM-JAY was earlier known as the National Health Protection Scheme (NHPS). It subsumed the then existing Rashtriya Swasthya Bima Yojana (RSBY). The coverage under PM-JAY therefore also includes families that were covered in RSBY but are not present in the SECC 2011 database. PM-JAY is fully funded by the Government and cost of implementation is shared between the Central and State Governments.
+
+Key features of PM-JAY
+- It provides a cover of Rs. 5 lakhs per family per year for secondary and tertiary care hospitalization across public and private empanelled hospitals in India.
+- PM-JAY provides cashless access to health care services for the beneficiary at the point of service, that is, the hospital.
+- It covers up to 3 days of pre-hospitalization and 15 days post-hospitalization expenses such as diagnostics and medicines.
+- There is no restriction on the family size, age or gender.
+- All pre-existing conditions are covered from day one.
+- Benefits of the scheme are portable across the country, i.e. a beneficiary can visit any empanelled public or private hospital in India to avail cashless treatment.
+- Services include approximately 1,929 procedures covering all the costs related to treatment, including but not limited to drugs, supplies, diagnostic services, physician's fees, room charges, surgeon charges, OT and ICU charges.
+- Public hospitals are reimbursed for the healthcare services at par with the private hospitals.
+
+Benefit cover under PM-JAY
+PM-JAY provides cashless cover of up to INR 5,00,000 to each eligible family per annum for listed secondary and tertiary care conditions. The cover includes: medical examination, treatment and consultation; pre-hospitalization; medicine and medical consumables; non-intensive and intensive care services; diagnostic and laboratory investigations; medical implantation services (where necessary); accommodation benefits; food services; complications arising during treatment; post-hospitalization follow-up care up to 15 days.
+The benefit of INR 5,00,000 is on a family floater basis, which means that it can be used by one or all members of the family. There is no cap on family size or age of members. Pre-existing diseases are covered from the very first day.
+
+Coverage: rural beneficiaries
+PM-JAY covers all families who fall into at least one of the following deprivation criteria (D1 to D5 and D7) and the automatic inclusion criteria (destitute / living on alms, manual scavenger households, primitive tribal group, legally released bonded labour):
+- D1: Only one room with kucha walls and kucha roof
+- D2: No adult member between ages 16 to 59
+- D3: Households with no adult male member between ages 16 to 59
+- D4: Disabled member and no able-bodied adult member
+- D5: SC/ST households
+- D7: Landless households deriving a major part of their income from manual casual labour
+
+Coverage: urban beneficiaries
+11 occupational categories of workers are eligible: ragpicker; beggar; domestic worker; street vendor / cobbler / hawker / other service provider working on streets; construction worker / plumber / mason / labour / painter / welder / security guard / coolie and other head-load worker; sweeper / sanitation worker / mali; home-based worker / artisan / handicrafts worker / tailor; transport worker / driver / conductor / helper to drivers and conductors / cart puller / rickshaw puller; shop worker / assistant / peon in small establishment / helper / delivery assistant / attendant / waiter; electrician / mechanic / assembler / repair worker; washer-man / chowkidar.
+
+State flexibility
+Many States already implement their own health insurance schemes with beneficiaries already identified. States have been given flexibility to use their own database for PM-JAY, but must ensure that all families eligible based on the SECC database are also covered. States can cover more families than those defined by SECC data, at their own cost.

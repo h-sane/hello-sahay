@@ -1,0 +1,2838 @@
+sTANDARD TREATMENT GuiDEliNEs                                     12
+                                             NATION
+                                                   ManageMent of
+
+                                                   Snake Bite
+
+                                                     AL HEALTH M        AUGUST 2017
+
+                                                     ISSION       Ministry of Health & family Welfare
+                                                                          government of india
+
+NATION                                                               AL HEALTHMISSION
+
+sTANDARD TREATMENT GuiDEliNEs
+
+          ManageMent of
+
+      Snake Bite
+
+                           AUGUST 2017
+
+                   Ministry of Health & Family Welfare
+                            Government of India
+
+©2017
+
+Ministry of Health and Family Welfare
+Government of India, Nirman Bhawan
+New Delhi-110 011
+Reproduction of any excerpts from this documents does not require permission from
+the publisher so long it is verbatim, is meant for free distribution and the source is
+acknowledged.
+
+ISBN: 978-93-82655-21-3
+
+Design by: Macro Graphics Pvt. Ltd. (www.macrographics.com)
+
+                 Table of ConTenT
+
+Introduction                                                      1
+
+Incidence of Snake Bite in India                                  3
+
+When to Suspect/Recognize Snakebite                               5
+
+Recommendations                                                   7
+
+First AID Measures                                                7
+
+Sign & Symptoms                                                   10
+
+Assessment                                                        18
+
+Lab Investigations                                                21
+
+Anti Snake Venom (ASV) Therapy                                    27
+
+Anti snake venom (ASV)                                            27
+
+Anti snake venom (ASV) DOSE                                       28
+
+Monitoring of Patients and Precautions During ASV Administration  29
+
+ASV Dose in Pregnancy                                             30
+
+ASV Dose in Children                                              30
+
+ASV Dosage in Victims Requiring Life Saving Surgery               30
+
+Repeat Dose of ASV                                                30
+
+Victims who Arrive Late                                           31
+
+ASV Reaction                                                      31
+
+                                                                  Table of Content iii
+
+Premedication with Adrenaline (Epinephrine)                                                                                                    32
+
+PPrTerrememaetedmdiceiacntatitooionfnEwwaitrihltyhAAAdSdrVerenRnaelaialnicnetei(oE(nEppinineepphhrirnine)e)                                    332322
+
+MTaTrneraeagtaemtmmeeennnttoNof fEeEaurarlroyltyAoAxSSiVcVR(NReeaucatcriotoiponanralytic) Envenomation                                         332325
+
+MMaannaAagtgeremompeiennntetNNNeeeuoursortotiogtomxxiicinc(eN(N(eAeuNuro)roDppaoarsaraalgyleytitSci)chE) Eendnvuveenlenoommaatitoionn          335356
+
+MAaAntratorgopepimnineeenNNteoeofosVtsitagisgmcmiunilneoet(Ao(AxNiNc) D)SDnoaosaksgaegebeiStScehcheedduulele                                   336367
+
+MMaannaVagogelemummeenentRtoeofpfVlVacasecsucmuloelontotoxinxiciScSnSnanakakekeBebibittieete                                                   337377
+
+VVoFoloulrumcmeedeRARelepkplallcainecemmDeeniuntrtienisnSisSnn(aFkaAekDeB)Bitiete                                                              337378
+
+FFoDorecrectedcdAtiAloklnkalaailninedeDMDiuaiunreraesgisesims(F(eAFnADtD)o)f Hyperkalemia                                                      338388
+
+DDMeetaetnectcaitgoieonmnaenanddtMoMfasnaenavgaegerememeaencntidtooofsfHisHyyppeerkrkalaelemmiaia                                              338389
+
+MMIannadnaicgaagetemiomenensntftoofrfsdesievaevlyerseriesacaicdidoosissis                                                                      339399
+
+InIIndndicciacatasiteoiononsf sSfohforordcdikai,lamylysyissoiscardial damage                                                                   339490
+
+MIanInncaacgsaeesmeoeofnfStShohofocSkcek, mv, meyroyeocLacoradcrdiaaillaEdlndavmaemangaogemeing                                                440401
+
+MMRaeancnaoagvgeeemrmyeenPnthtoaofsfSeSeevveerereLoLocacal El Ennvveennoomminingg                                                              441413
+
+RReOectochovevererMyryPePhahasuaserses                                                                                                         443435
+
+OOththeerSrMuMregeaicasauslurPerresoscedures in Snakebite                                                                                      445455
+
+DiSsSuchurgargircigacelaPl ProrocecedduureressininSSnnakaekebbitiete                                                                           445459
+
+DDisicshcFhaoarglrlgeoew-up                                                                                                                    449499
+
+FFoRollelolhowaw-bu-ilupitpation                                                                                                               449499
+
+ReRfReerhrhaabalbiCliltriaitttaeitorionian                                                                                                     449591
+
+RReefeferIrrnarsaltClrCuricrtitetioerirnaisaWhile Referring                                                                                    551512
+
+GuIniIdnsetsrltiurnucetciDtoionensvseWlWohphilmieleeRnRetefePferrrroirncingegss                                                                552525
+
+GGuRuiedifdeeelrilneineecDeDesevveeloloppmmeennt tPProrocecesss                                                                                55557
+
+RReAefnefnererenxncuecress1: Snake Bite Examination Performa                                                                                   557671
+
+AAnAnnnenxeexuxuruerre1e1:2S::SnSnanakakekeBeBiBtieitteEeExMxaammningineamatitoeionnntPDPeerifrfofeorrmremnaat Levels of Healthcare            661615
+
+AAnQnuneaxelxiuturyerSe2t2:aS:nSndnaaakrkedesBfBiotierteMMananaggeemmeennttDoDififfSefnerearenknet tbLeLiteveveelslsoof fHHeeaaltlhthcacarere  665751
+
+QQuuaaliltiytySStatannddaardrdssfofor rMMaannaaggeemmeennt toof fSSnnaakkeebbitiete                                                            7711
+
+iv Management of Snake Bite
+
+iviv MManaangaegmemenetnotfoSfnSankaekeBiBteite
+
+               InTroduCTIon
+
+Snakebite is an acute life threatening time limiting medical emergency. It is a preventable
+    public health hazard often faced by rural population in tropical and subtropical
+countries with heavy rainfall and humid climate. There are more than 2000 species of
+snakes in the world and about 300 species are found in India out of which 52 are venomous.
+The venomous snakes found in India belong to three families Elapidae, Viperidae and
+hydrophinae (Sea Snakes). The most common Indian elapids are Naja naja (Indian Cobra)
+and Bungarus caeruleus (Indian Krait), Daboia russalii (Russells’ Viper) and Echis carinatus
+(Saw scaled viper) (Alirol et al 2010). Clinical effects of envenoming by same species of
+snake are almost similar except a few regional variations. Kraits are active during night
+hours, often biting a person sleeping on floor bed. Maximum Viper and Cobra bites occur
+during the day or early darkness, while watering the plantation or walking bare foot in
+grown grass or soybean crops.
+
+Although total number of bites may be more than 5-6 lakhs but only 30% are venomous
+bites. On the basis of Million Death Study), non-fatal bites may be as high as 1.4 million per
+year. Though snakebite is a life threatening centuries old condition, it was included in the
+list of neglected tropical diseases (Warrell and WHO 2009; Bawaskar HS 2014). With its
+triad of high mortality, high disability, and substantial psychological morbidity, snake bite
+warrants high priority research (lancet 2015).
+
+Currently, treatment quality is highly varied, ranging from good quality in some
+areas, to very poor quality treatment in others. The high fatality due to Krait
+bite is attributed to the non-availability of anti snake venom (ASV), delayed and
+inappropriate administration of ASV, lack of standard protocol for management
+and inexperienced doctors and non-availability of ventilator or bag and valve
+(Bawaskar et al 2008). In India, there has always been a crisis of antivenom
+
+                                                                                                                         Introduction 1
+
+supply (Bawaskar HS and Bawaskar PH 2001). On one hand there is shortage of
+ASV but on the other hand scarce ASV is being wasted due to excessive dosage
+of ASV in the absence of a Standard Treatment Guideline. Victims are not only
+misdiagnosed as - abdominal colic, and vomiting due to indigestion, appendicitis,
+stroke, head injury, ischemic heart disease, food poisoning, trismus, hysteria
+and Guillain-Barre´ syndrome but also subjected to unnecessary investigations
+including MRI scans of the brain and lumbar puncture thus causing undue delay
+in ASV therapy. Delayed administration of ASV or waiting until victim develops
+systemic manifestations i.e., a 6 h wait results in systemic envenoming and high
+fatality (Bawaskar et al 2008). Morbidity and mortality depends on the age and
+size of victim (children receive larger envenomation relative to body size), co-
+morbid conditions (elderly patients succumb more easily to snake venom) as well
+as nature of first aid given. Factors not contributing to outcome are size of the
+snake and time of bite (day/night)
+
+ 2 Management of Snake Bite
+
+ InCIdenCe of Snake bITe In IndIa
+
+There is a huge gap between the number of snakebite deaths reported from direct
+     survey and official data. Only 7.23% snakebite deaths were officially reported
+(Majumdar, 2014 and Mohapatra 2011). Earlier hospital based reports estimated about
+1,300 to 50,000 annual deaths from snakebites per year in India. Mohapatra et al, 2011,
+reported direct estimates from a national mortality survey of 1.1 million homes in 2001–
+03. The study found 562 deaths (0.47% of total deaths) were assigned to snakebites,
+mostly in rural areas, and more commonly among males than females and peaking at ages
+15–29. This proportion represents about 45,900 annual snakebite deaths nationally or
+an annual age-standardized rate of 4.1/100,000, with higher rates in rural areas (5.4) and
+with the highest rate in the state of Andhra Pradesh (6.2). Annual snakebite deaths were
+greatest in the states of Uttar Pradesh (8,700), Andhra Pradesh (5,200), and Bihar (4,500).
+Other Indian states with high incidence of snakebites cases are Tamil Nadu, West Bengal,
+Maharashtra and Kerala. Because a large proportion of global totals of snakebites arise
+from India, global snakebite totals might also be underestimated (Mohapatra et al 2011).
+
+In a retrospective study conducted in one district of West Bengal only 22.19% of the
+snakebite victims attended the hospitals (Majumder et al, 2014). This is because even
+today most of the victims initially approach traditional healers for treatment and many
+are not even registered in the hospital. Singh et al reported among the snakebite victims,
+about 60.76% received first aid at the site of incident, and 20.25% of them sought hospital
+care after consulting the traditional healers (ozhas, or mantrik and tandrik). Time lapsed
+for seeking hospital treatment was less than 4 h in 55.69% of the cases and more than
+12 h in 7.59% of the cases. Most (41.79%) patients were frightened, but no local or systemic
+symptoms had appeared when they reported the emergency (Singh A et al 2015).
+
+                                                                                                    Incidence of Snake Bite in India 3
+
+    When To SuSpeCT/reCognIze
+                  SnakebITe
+
+CLINICAL PRESENTATION
+
+Clinical presentation of snakebite victim depends upon species of snake, amount of venom
+injected, season of the bite, whether snake is fed or unfed, site of bite, area covered or
+uncovered, dry or incomplete bite, multiple bites, venom injection in vessel, weight of the
+victim and time elapsed between the bite and administration of ASV. Venom concentration
+and constitution depends on environmental conditions as well as snake’s maturity and
+darkness of colour of snake (Bawaskar HS et al 2014).
+Patient can present in any of the four clinical syndromes or with overlapping syndrome i.e.
+progressive weakness (neuroparalytic/neurotoxic), bleeding (vasculotoxic/haemotoxic),
+myotoxic and painful progressive Swelling (Figure 1).
+
+                                                                                            When to Suspect/Recognize Snakebite 5
+
+Figure 1. Four presenting clinical syndromes of snakebite i.e. progressive weakness
+            (neuroparalytic/neurotoxic), bleeding (vasculotoxic/haemotoxic), myotoxic
+            and painful progressive Swelling and its management.
+
+                            Suspected snake bite
+
+            Overt bite             Occult bite     Krait                 • Neuroparalytic
+History of bite Nonvenomous    No history of bite                          symptoms with
+                                                                           no local signs
+   (70%) / venomous (30%)
+                                                                         • Severe abdominal
+                                                                           pain, vomiting
+
+Asymptomatic Dry bite                       Symptomatic*                 1. ASV
+                             Predominant symptom manifestation           2. AN***
+  Anxiety, palpitations,                                                 3. Ventilation
+tachycardia, Paraesthesia
+
+Observe for    Progressive     Neuroparalytic Vasculotoxic               Myotoxic
+  24 hours   painful swelling
+
+             Viper             Cobra Krait         Russel’s viper        Flat tailed Sea snake
+                                                  Saw Scale viper
+
+• Local necrosis • Ptosis                   • Bleeding                   • Muscle ache
+                                            • Demonstrable coagulopathy  • Muscle swelling
+• Ecchymosis                • Diplopia                                   • Involuntary
+                                              (20WBCT incoagulable)
+• Blistering                • Dysarthia                                    contractions of
+                                            • Shock                        muscles
+• Painful swelling • Dysphonia              • Acute kidney injury
+                                                                         • Compartment
+• Compartment • Dyspnoea                      (not seen with Saw           syndrome
+                                              scale viper)
+syndrome                    • Dysphagia
+
+                            • Paralysis
+
+             ASV#           1. ASV**        1. ASV**¥                    1. ASV**¥
+                            2. AN***        2. Supportive treatment      2. Supportive
+                            3. Ventilation  3. Dialysis
+                                            4. Blood transfusion            treatment
+                                                                         3. Dialysis
+
+* Even though present as predominant manifestation but there may be overlap of syndrome as well.
+
+# ASV indicated in rapidly developing swelling only. Purely localized swelling with or without bite marks is not an indication of ASV.
+
+** For reaction to anti snake venom (ASV) Dose of Adrenaline 0.5 mg IM (in children 0.01 mg/kg).
+
+¥ Specific ASV for sea snake and Pit viper bite is not available in India. However, available ASV may have some advantage
+    by cross reaction.
+
+*** ‘AN’ injection Atropine 0.6 mg followed by neostigmine(1.5mg) IV stat (In children Inj. Atropine 0.05 mg/kg followed by Inj.
+    Neostigmine0.04 mg/kg IV.)Repeat neostigmine0.5 mg (in children 0.01mg/kg) with atropine every 30 minutes for 5 doses.
+    Thereafter taper dose at 1 hour, 2 hour, 6 hours and 12 hour. Positive response is measured as 50% or more recovery of
+    the ptosis in one hour. If no response after 3rddose stop AN injection. No AN injection in confirmed krait bite
+
+• The snake specie shown above are indicative only. Russell’s viper envenoming in Tamil Nadu andsome other areas
+    commonly causes paralysis –the venom of this species varies considerably across its range in India.
+
+6 Management of Snake Bite
+
+           reCommendaTIonS
+
+FIRST AID MEASURES
+
+By bystander or victim
+
+Immediately transfer after providing first aid to a health facility where optimal medical
+care with anti snake venom (ASV) is available, close observation and definite treatment
+can be provided.
+
+At The Community or Village Level
+
+    • Check history of snakebite and look for obvious evidence of a bite (fang puncture
+         marks, bleeding, swelling of the bitten part etc.). However, in krait bite no local
+         marks may be seen. It can be noted by magnifying lens as a pin head bleeding spot
+         with surrounding rash.
+
+    • Reassure the patient as around 70% of all snakebites are from non-venomous
+         species.
+
+                                                                                                                  Recommendations 7
+
+    • Immobilize the limb in the same way as a fractured limb (Apply splint extending to
+         the entire length of the limb, immobilizing all of the joints of the limb) in the recovery
+         position (prone, on the left side) with his/her airway protected to minimize the risk
+         of aspiration of vomitus. Use any rigid object as a splint e.g. spade, piece of wood
+         or tree branch, rolled up newspapers etc.), but do NOT block the blood supply or
+         apply pressure.
+
+    • Nil by mouth till victim reaches a medical health facility.
+
+    • Shift the victim to the nearest health facility (PHC or hospital) immediately.
+
+    • Arrange transport of the patient to medical care as quickly, safely and passively as
+         possible by vehicle ambulance (toll free no. 102/108/etc.), boat, bicycle, motorbike,
+         stretcher etc. Motorbike may be a feasible alternative for rural India where no
+         other transport is available but third person must sit behind the patient.
+
+    • Victim must not run or drive himself to reach a Health facility.
+
+    • Remove shoes, rings, watches, jewellary and tight clothing from the bitten area as
+         they can act as a tourniquet when swelling occurs.
+
+    • Leave the blisters undisturbed.
+
+    • Inform the doctor of any symptoms such
+         as progress of swelling, ptosis or new
+         symptoms that manifest on the way to
+         hospital.
+
+    • If patient is being referred if possible
+         medical officer can accompany
+         with patient to know the progress,
+         manifestation of the new symptoms
+         (such as progress of swelling, ptosis or new symptoms) and management and
+         treatment of shock and cardiopulmonary resuscitation (CPR) on the way.
+
+Important don’ts
+
+    • Do not attempt to kill or catch the snake as this may be dangerous.
+
+    • Traditional remedies have NO PROVEN benefit in treating snakebite. Some of
+         them may produce confusing signs and symptoms.
+
+ 8 Management of Snake Bite
+
+    • Discard traditional first aid methods (black stones, scarification) and alternative
+         medical/herbal therapy as they have no role and do more harm than good by
+         delaying treatment.
+
+    • Do not wash the wound or interfere with the bite wound (incisions, suction,
+         rubbing, tattooing, vigorous cleaning, massage, application of herbs or chemicals,
+         cryotherapy, cautery) as this may introduce infection, increase absorption of the
+         venom and increase local bleeding.
+
+    • Do NOT apply or inject anti snake venom (ASV) locally.
+    • Do not tie tourniquets as it may cause gangrenous limbs.
+    • If victim is expected to reach the hospital in more than 30 minutes but less than 3
+
+         hours crepe bandage may be applied by qualified medical personnel only till the
+         patient is shifted to the hospital. The bandage is wrapped over the bitten area as well
+         as the entire limb with the limb placed in a splint. It should be capable of admitting a
+         finger beneath it See Figure 2.) If trained personnel is not present , Do NOT try).
+
+Figure 2: Pressure immobilization (Sutherland method) modified (Sutherland 1979)
+
+                                                                                                                  Recommendations 9
+
+At A Health Care Facility
+
+    • Secure IV line in PHC itself and use normal saline to keep IV access open.
+    • Start fluids, if patient is in shock.
+    • Admit all victims of snakebite confirmed or suspected and keep under observation
+
+         for 24 hours.
+    • Provide first-aid measures and supportive measures immediately.
+    • Observe for signs of envenomation.
+    • Administer ASV therapy as soon as there is evidence of envenomation.
+
+SIGN & SyMPTOMS
+
+The clinical presentation of a snakebite victim varies with the age and size of the patient,
+the species of snake, the number and location of the bites, and the quantity and toxicity of
+the venom.
+
+See figure 1 for presenting clinical syndromes of venomous snakebite. There may be
+
+considerable overlap of clinical features.
+
+Victims of snakebite may suffer any or all of the following (WHO 2015 adopted):
+
+    1. No physical effects other than the fang/tooth puncture due to bites by non-
+         venomous snakes, animals other than snakes (lizards, fish, rodent, spiders), dry
+         bite by venomous snake.
+
+         Examination of the bite site
+
+         Examine the bite site and look for fang marks, or any signs of local envenomation.
+         Fang mark or their patterns have no role to determine whether the biting
+         species was venomous or non venomous or amount of venom injected, severity
+         of systemic poisoning and nature of poisoning – Elapidae or viperidae venom
+         etc. Some species like Krait may leave no bite marks.
+
+    2. Local envenoming confined to the bitten part of the body. These effects may
+         be transient, resolving in hours or a few days; may persist for few weeks or
+         debilitating, some time permanently due to local necrotic effects of venom and
+         complicating infections.
+
+10 Management of Snake Bite
+
+    3. Systemic envenoming involving organs and tissues distant from the bitten part
+         of the body. These effects may be transient, persistent, life threatening and
+         debilitating, sometimes permanently.
+
+    4. Effects of anxiety prompted by frightening experience of being bitten (real or
+         imagined) and by exaggerated beliefs about the potency and speed of action of
+         snake venoms. The symptoms may mislead the treated personnel.
+
+    5. Effects of first-aid and other pre-hospital treatments that may cause misleading
+         clinical features.
+
+Asymptomatic (i.e., non Venom related symptoms)
+
+Patients many a times present with nonspecific symptoms related to anxiety. Common
+symptoms in these patients are:
+
+    • Palpitations, sweating, tremulousness, tachycardia, tachypnoea, elevated blood
+         pressure, cold extremities and paraesthesia (pins and needles pricking sensation of
+         the extremities). These patients may have dilated pupils suggestive of sympathetic
+         over activity. Other may develop vasovagal shock (faintness and collapse with
+         profound slowing of heart) after the bite or suspected bite.
+
+    • Differentiate from symptoms and signs of envenomation listed below.
+    • Redness, increased temperature, persistent bleeding and tenderness locally.
+
+         However, local swelling can be present in these patients due to tight ligature.
+
+Dry Bite
+
+Bites by nonvenomous snakes are common and bites by venomous species are not always
+accompanied by the injection of venom (dry bites).
+
+    • The percentage of dry bites ranges from 10–80% for various venomous snakes.
+    • Even in case of dry bite, symptoms due to anxiety and sympathetic over-activity
+
+         (as above) may be present. As symptoms associated with panic or stress sometimes
+         mimic early envenoming symptoms, clinicians may have difficulties in determining
+         whether envenoming occurred or not.
+    • Some people who are bitten by snakes (or suspect or imagine that they have been
+         bitten) or have doubts regarding bite may develop quite striking symptoms and
+
+                                                                                                                  Recommendations 11
+
+         signs, even when no venom has been injected due to understandable fear of the
+         consequences of a real venomous bite.
+
+Neuroparalytic (Progressive weakness; Elapid envenomation)
+
+    • Neuroparalytic snakebite patients present with typical symptoms within 30 min–
+         6 hours in case of Cobra bite Many species, particularly the Krait and the hump-
+         nosed pit viper are known for delayed appearance of symptoms which can develop
+         after 6–12 hours; however, ptosis in Krait bite have been recorded as late as 36
+         hours after hospitalization.
+
+    • These symptoms can be remembered as 5 Ds and 2 Ps.
+         i. 5 Ds – dyspnea, dysphonia, dysarthria, diplopia, dysphagia
+         ii. 2 Ps – ptosis, paralysis
+
+    • In chronological order of appearance of symptoms – furrowing of forehead, Ptosis
+         (drooping of eyelids) occurs first (Figure 3), followed by Diplopia (double vision), then
+         Dysarthria (speech difficulty), then Dysphonia (pitch of voice becomes less) followed
+         by Dyspnoea (breathlessness) and Dysphagia (Inability to swallow) occurs. All these
+         symptoms are related to 3rd, 4th, 6th and lower cranial nerve paralysis. Finally,
+         paralysis of intercostal and skeletal muscles occurs in descending manner.
+
+    • Other signs of impending respiratory failure are diminished or absent deep tendon
+         reflexes and head lag.
+
+    • Additional features like stridor, ataxia may also be seen.
+    • Associated hypertension and tachycardia may be present due to hypoxia.
+Figure 3: Ptosis with neuroparalytic snakebite
+
+12 Management of Snake Bite
+
+    • To identify impending respiratory failure bedside lung function test in adults viz.
+         i. Single breath count – number of digits counted in one exhalation - normal >30
+         ii. Breath holding time – breath held in inspiration – normal > 45 sec
+         iii. Ability to complete one sentence in one breath.
+
+    • Cry in a child whether loud or husky can help in identifying impending respiratory
+         failure.
+
+    • Bilateral dilated, poorly or a non-reacting pupil is not the sign of brain dead in
+         elapid envenoming (Figure 3).
+
+    • Refer patients presenting with neuroparalytic symptoms immediately to a higher
+         facility for intensive monitoring after giving Atropine Neostigmine (AN) injection
+         (schedule of AN injection described below).
+
+Vasculotoxic (haemotoxic or Bleeding)
+
+General signs and symptoms of Viperine envenomation (Vasculotoxic bites are due to
+Viper species. They can have local manifestations as well as systemic manifestations.
+
+Local manifestations – These are more prominent in Russel’s viper bite followed by Saw
+scaled viper and least in Pit viper bite. Local manifestations are in form of:
+
+    • Local swelling, bleeding, blistering, and necrosis.
+    • Pain at bite site and severe swelling leading to compartment syndrome. Pain on
+
+         passive movement. Absence of peripheral pulses and hypoesthesia over the
+         fuels of nerve passing through the compartment helps to diagnose compartment
+         syndrome.
+    • Tender enlargement of local draining lymph node.
+
+Systemic manifestations
+
+    • Visible systemic bleeding from the action of haemorrhagins (Figure 4) e.g. gingival
+         bleeding, epistaxis, ecchymotic patches, vomiting, hematemesis, hemoptysis,
+         bleeding per rectum, subconjunctival hemorrhages, continuous bleeding from the
+         bite site, bleeding from pre-existing conditions e.g. haemorrhoids, bleeding from
+         freshly healed wounds.
+
+                                                                                                                  Recommendations 13
+
+Figure 4: Local and systemic Vasculotoxic (haemotoxic or Bleeding) manifestations of
+            Viperine envenomation
+
+    • Bleeding or ecchymosis at the injection site is a common finding in Viper bites.
+    • The skin and mucous membranes may show evidence of petechiae, purpura
+
+         ecchymoses, blebs and gangrene.
+    • Swelling and local pain.
+    • Acute abdominal tenderness may suggest gastro-intestinal or retro peritoneal
+
+         bleeding.
+    • Lateralizing neurological symptoms such as asymmetrical pupils may be indicative
+
+         of intra-cranial bleeding.
+    • Consumption coagulopathy detectable by 20WBCT, develops as early as within 30
+
+         minutes from time of bite but may be delayed.
+
+Locked in syndrome (LIS)
+
+Locked in syndrome (LIS) is defined as quadriplegia and anarthria with preserved
+consciousness. Patients retain vertical eye movement, facilitating non-verbal
+communication. In complete locked in syndrome (LIS) patient cannot communicate
+in any form. Central LIS is seen commonly due to lesions in the ventral pons (Smith and
+Delargy 2005; Prakash 2008; Poovazhagi 2013). Peripheral causes of LIS are severe acute
+polyneuropathies, neuromuscular junction blockade due to myasthenia gravis toxins and
+snakebite (Prakash 2008). Knowing the peripheral causes are very important as one may
+
+14 Management of Snake Bite
+
+make a wrong diagnosis of brain death and is treatable and complete recovery can be
+possible with timely intervention. Confirmatory tests like EEG, cerebral blood flow, nerve
+conduction velocities are recommended to avoid misdiagnosis of coma or brain death.
+
+Peripheral LIS usually occurs in Elapidae bites, especially Krait bite and hence increasing
+ones suspicion rate is important as they can be referred to a centre with ventilator
+support.
+
+Life threatening complications
+
+    • Acute Kidney Injury (AKI) e.g. declining or no urine output, deteriorating renal signs
+         such as rising serum creatinine, urea or potassium. Some species e.g. Russell’s viper
+         (Daboia sp) frequently cause acute Kidney Injury. Patient presents with bilateral
+         renal angle tenderness, albuminuria, hematuria, hemoglobinuria, myoglobinuria
+         followed by oliguria and anuria with AKI.
+
+    • Hypotension due to hypovolaemia or direct vasodilatation or direct cardiotoxicity
+         aggravates acute kidney injury.
+
+    • Parotid swelling, conjunctiva oedema, sub-conjunctival haemorrhage, renal failure,
+         acute respiratory distress syndrome [leaking syndrome] and refractory shock.
+
+    • Long term sequelae e.g. pituitary insufficiency with Russell’s viper (Daboia sp),
+         Sheehan’s syndrome or amenorrhea in females.
+
+Systemic Capillary Leak Syndrome (SCLS)
+
+Idiopathic systemic capillary leak syndrome (ISCLS) is a rare disorder characterized
+by episodes of severe hypotension, hypoalbuminemia, hemoconcentration without
+albuminuria due to profound derangement of the vascular endothelium resulting in
+leakage of plasma and proteins into the interstitial compartment. Capillary leak syndrome
+is a sinister complication of Daboia russelii bite as it is beset with an excess of morbidity and
+mortality. Manifestations like parotid swelling, conjunctival chemosis, myalgia, thirst and
+systemic hypotension observed in patients of Daboia russelii bite indicate capillary leak
+syndrome. It is seen in more commonly in males as compared to females.
+
+Hemoconcentration, increased HCT, leukocytosis, pleural effusion are early laboratory
+and radiological markers of capillary leak syndrome and should alert the clinician to seek
+urgent interventions in Daboia russelii bite.
+
+                                                                                                                  Recommendations 15
+
+Figure: A) 17 year old patient with viper bite at admission. B) & C) Same patient with
+          Periorbital swelling, Conjunctival chemosis and icterus 24 hours later. D) Another
+          patient with viper bite developing parotid swelling 24 hours later.
+
+AB                           C  D
+
+Painful Progressive Swelling (PPS)
+
+Progressive painful swelling is indicative of local venom toxicity. It is prominent in Russel’s
+viper bite, Saw scaled viper bite and Cobra bite. This is associated with:
+
+    • Local necrosis which often has a rancid smell. Limb is swollen and the skin is taut
+         and shiny. Blistering with reddish black fluid at and around the bite site. Skip lesions
+         around main lesion are also seen. (Figure 5).
+
+    • Ecchymoses due to venom action destroying blood vessel wall.
+    • Significant painful swelling potentially involving the whole limb and extending onto
+
+         the trunk.
+    • Compartment syndrome will present invariably.
+    • Regional tender enlarged lymphadenopathy.
+
+Figure 5: Snakebite marks and local swelling and necrosis
+
+16 Management of Snake Bite
+
+Myotoxic
+
+This presentation is common in Sea snakebite. Patient presents with:
+    • Muscle aches, muscle swelling, involuntary contractions of muscles.
+    • Passage of dark brown urine.
+    • Compartment syndrome, cardiac arrhythmias due to hyperkalaemia, acute kidney
+         injury due to myoglobinuria, and subtle neuroparalytic signs.
+
+Occult snakebite
+
+    • Krait bite victims often present in the early morning with paralysis with no local
+         signs with no bite marks.
+
+    • Snakebite victim gets up in the morning with severe epigastric/umbilical pain
+         with vomiting persisting for 3 – 4 hours and followed by typical neuroparalytic
+         symptoms within next 4- 6 hours. There is no history of snakebite.
+
+    • Unexplained respiratory distress in children in the presence of ptosis or sudden
+         onset of acute flaccid paralysis in a child (locked-in syndrome) is highly suspicious
+         symptoms in endemic areas particularly of Krait bite envenomation. Sometimes
+         patients may present with throat, chest or joint pain.
+
+Early morning symptoms of acute pain abdomen with or without neuroparalysis can be
+mistaken for a acute appendicitis, acute abdomen, stroke, GB syndrome, myasthenia
+gravis and hysteria (Bawaskar 2002). Krait bite envenoming is diagnosed by developing
+descending neuroparalysis while GB syndrome is by ascending paralysis.
+
+Strong clinical suspicion and careful examination can avoid not only costly and unnecessary
+investigations such as CT scan, MRI, nerve conduction studies, CSF studies and many
+others but also help in avoiding undue delay in initiation of a specific treatment with ASV.
+Atropine neostigmine (AN) test helps to rule out myasthenia gravis.
+
+Snakebite is a medical emergency, history, symptoms and signs must be obtained
+rapidly.
+
+ON PRESENTATION, PATIENTS CAN BE CRITICAL OR NON CRITICAL
+(See FIGURE 1).
+
+                                                                                                                  Recommendations 17
+
+ASSESSMENT
+
+Critical Arrival: Patient assessment on arrival
+
+    1. Assess circulation, airway and breathing and deal with any life threatening
+         symptoms on presentation.
+
+         Vasculotoxic patients presenting with bleeding from multiple orifices with
+         hypotension, reduced urine output, obtunded mentation (drowsy, confused),
+         cold extremities need urgent attention and ICU care for volume replacement,
+         pressor support, dialysis and infusion of blood and blood products (See
+         following sections).
+
+         Neuroparalytic patients presenting with respiratory paralysis, tachypnoea
+         or bradypnoea or paradoxical respiration (only moving abdomen), obtunded
+         mentation, and peripheral skeletal muscle paralysis need urgent ventilator
+         management with endotracheal intubation, ventilation bag or ventilator
+         assistance.
+
+         Other patients can be evaluated to decide severity of their illness (see non-critical
+         arrival below).
+
+    2. Establish large bore intravenous access and start normal saline slow infusion.
+
+    3. Before removal of the tourniquet/ligatures, test for the presence of a pulse
+         distal to the tourniquet. If the pulse is absent ensure a doctor is present before
+         removal or ligatures.
+
+    4. In case of clinically confirmed venomous bite, remove tourniquet only
+         after starting of loading dose of ASV and keep Atropine Neostigmine
+         injection ready. In case of multiple ligatures, all the ligatures can be released
+         in Emergency Room EXCEPT the most proximal one; which should only be
+         released after admission and all preparations.
+
+    5. Carry out a simple medical assessment including history and physical examination
+         and record (see Annexure 2) and repeat all above, every 1-2 hourly – bite site
+         local swelling, painful tender and enlarged local lymph glands, persistent bleeding
+         from the bite wound, blood pressure, pulse rate, bleeding (gums, nose, vomit,
+         stool or urine), level of consciousness, drooping eyelids (ptosis) and other signs
+         of paralysis. The Glasgow Coma scale cannot be used to assess the level of
+         consciousness of patients paralyzed by neurotoxic venom.
+
+18 Management of Snake Bite
+
+    • Check for and monitor the following: Pulse rate, respiratory rate, blood pressure
+         and 20 minutes Whole Blood clotting test (20 WBCT) every hour for first 3 hours
+         and every 6 hours for remaining 24 hours.
+
+    • Check distal pulses and monitor, if there is presence of gross swelling. The presence
+         of a pulse does not rule out compartment syndrome. Pain on passive movement,
+         pallor, pulseless limb, hypoaesthesia over the sensory nerve passing through
+         the compartment are suggestive of compartment syndrome (see compartment
+         syndrome below for details).
+
+Patient assessment
+
+Non critical arrival and Critical patients after stabilization: patient
+assessment
+
+    • Determine the time elapsed since the snakebite and as to what the victim was
+         doing at the time of the bite, history of sleeping on floor bed in previous night.
+
+    • Determine if any traditional medicines have been used.
+
+    • Obtain a brief medical history (e.g., date of last tetanus immunization, use of any
+         medication, presence of any systemic disease, and history of allergy)
+
+Examination of pregnant women - Monitor uterine contractions and foetal heart rate.
+Lactating women who have been bitten by snakes should be encouraged to continue breast
+feeding.
+
+Differential identification of type of snakebite based on the
+symptoms and signs
+
+Though to a large extent the manifestation of snakebite depends upon the species of
+snake, unfortunately, in many cases the biting snake is not seen, and if it is, its description
+by the victim is often misleading (Harris et al 2010). Therefore identification of the type of
+snake should not hold the treatment. At times the bite mark might not be visible (e.g., in the
+case of Krait). The clinical manifestations of the patient may not correlate with the species
+of snake brought as evidence. Examine carefully the snake, if brought, and identified
+(Figure 6), if possible. Discourage bringing the killed snake into the emergency department.
+Identification of the species even if killed should be carried out carefully, since crotalids
+can envenomate even when dead.
+
+                                                                                                                  Recommendations 19
+
+If snake is not available for identification in such a situation showing specimens of snakes
+preserved in formalin in glass jars or pictures of snakes would help the patient or the witness
+to recognize the offending snake which facilitates the judgment of the clinician. One smart
+phone photograph of the snake, dead or alive, if can be taken safely, for confirmation by an
+expert would help in identifying the snake.
+Inspection of local bite site and bitten limb can also help to identify snake’s species.
+Local swelling, bleeding, blistering, necrosis suggests Cobra bite. Minimum local changes
+indicate Krait bite. Local bleeding suggests Nilgiri Russel’s viper. Pain in abdomen and
+hyper peristalsis indicates Krait bite.
+Figure 6: Snake identification by the patient
+
+Clues for severe snake envenomation are:
+
+    • Rapid early extension of local swelling from the site of the bite. In Cobra bite on
+         finger, necrosis may start in few minutes.
+
+    • Early tender enlargement of local lymph nodes, indicating spread of venom in the
+         lymphatic system
+
+    • Visible signs of neurological impairment such as ptosis, muscular weakness,
+         respiratory distress or respiratory arrest.
+
+    • Early spontaneous systemic bleeding especially bleeding from the gums, bite site,
+         haematuria, haemoptysis, epistaxis or ecchymoses.
+
+    • Unconsciousness either with or without respiratory arrest.
+    • Passage of dark brown urine
+    • Snake identified as a very venomous one i.e., Cobra, Russel’s viper.
+
+20 Management of Snake Bite
+
+LAB INVESTIGATIONS
+
+Bedside 20 minute whole blood clotting test (20 WBCT)
+
+Place 2 ml of freshly sampled venous blood in a small glass test tube and leave undisturbed
+for 20 minutes at ambient temperature. Gently tilt the test tube to see if the blood is still
+liquid; the patient has hypofibrinogenaemia (“incoagulable” blood or “not clotted”) as a
+result of venom-induced consumption coagulopathy (Figure 7). Caution: Use clean new
+dry glass test tube only to avoid false positive tests.
+If blood clot is formed and signs and symptoms of neurotoxic envenomation present,
+classify as neurotoxic envenomation. In case where the 20WBCT result is inconsistent
+with the patients’ clinical condition, repeat the test in duplicate, including a “control”
+(blood from a healthy person). If the blood is solid i.e. has clotted the patient has passed
+the coagulation test and no ASV is required at this stage. 20 WBCT may remain negative
+(clotting) in patients with evolving venom –induced DIC, therefore, the patient is re-tested
+every hour for the first three hours and then 6 hourly for 24 hours until either test result
+is not clotted or clinical evidence of envenomation to ascertain if dose of ASV is indicated.
+Antivenom treatment should not be delayed if there is other evidence of spontaneous
+systemic bleeding distant from the bite site. In case test is non-clotting, repeat 6 hour after
+administration of loading dose of ASV. In case of neurotoxic envenomation repeat clotting
+test after 6 hours. (Expert Consensus)
+
+Figure 7: 20 minute whole blood clotting test (20 WBCT).
+
+                                                                                                                  Recommendations 21
+
+Counsel patient and relatives in the beginning that, 20WBCT may be
+repeated several times before giving any medication.
+
+The first blood drawn from the patient should be typed and cross-matched, as the effects
+of both venom and ASV can interfere with later cross-matching.
+
+Other investigations that may assist in the management of snake bite at
+various levels of healthcare
+
+Other Lab tests at Primary health centre
+
+    • Peak flow meter in patients (adolescents and adults) presenting with neuroparalytic
+         syndrome.
+
+    • If Peak flow meter is not available in PHC then assess respiratory function using
+         bedside tests - single breath count, breath holding time and ability to complete one
+         sentence in one health as described earlier.
+
+    • Urine examination for albumin and blood by dipstick.
+
+Others lab test at District Hospital
+
+In addition to the above
+    • Prothrombin time
+    • Platelet count,
+    • Clot retraction time
+    • Liver function test (LFT)
+    • Renal Function test (RFT)
+    • Serum Amylase
+    • Blood sugar
+    • ECG
+    • Abdominal ultrasound
+    • 2D Echo (if available)
+
+22 Management of Snake Bite
+
+Others Lab test at Tertiary Health Care Centre
+
+In addition to the above
+    • In neuroparalytic envenomation
+          Arterial blood gases. Caution: Arterial puncture is contraindicated in patients
+            with haemostatic abnormalities.
+          Pulmonary function tests
+    • In Vasculotoxic venomation
+          For coagulopathy- BT, CT, PT, APTT, Platelet, Serum Fibrinogen, FDP D-Dimer
+            assay, LDH, peripheral blood smear
+          Hemolysis -Urine for myoglobin, Urine haemoglobin
+          For renal failure- Urine microscopy for RBC, casts, RFT, urinary proteins,
+            creatinine ratio
+          Hepatic injury – LFTs including SGOT, SGPT, Alkaline phosphatase, serum
+            proteins
+          Cardiotoxicity- CPK-MB, 2D Echo, BNP
+          Myotoxic – CPK, SGOT, Urine myoglobin, compartment pressure
+          Infection- Serum procalcitonin, culture (blood, urine, wound) and sensitivity
+    • Arterial blood gases and urine examination should be repeated at frequent intervals
+         during the acute phase to assess progressive systemic toxicity).
+
+Rationale and interpretation of the tests
+
+    1. Hemogram: The hemogram may show transient elevation of hemoglobin level
+         due to hemoconcentration (because of the increased capillary leak) or may show
+         anemia (due to hemolysis, especially in viper bites). Presence of neutrophilic
+         leucocytosis signifies systemic absorption of venom. Thrombocytopenia may be a
+         feature of viper envenomation.
+
+    2. Platelet count: This may be decreased in victims of envenoming by vipers.
+    3. White blood cell count: An early neutrophil leucocytosis is evidence of systemic
+
+         envenoming from any species.
+
+                                                                                                                  Recommendations 23
+
+    4. Blood film: Fragmented red cells (“helmet cell”, schistocytes) are seen when there
+         is microangiopathic haemolysis.
+
+    5. Plasma/serum: May be pinkish or brownish if there is gross haemoglobinaemia or
+         myoglobinaemia.
+
+    6. Serum creatinine: This is necessary to rule out acute kidney injury after viper and
+         sea snakebite.
+
+    7. Serum creatinine phosphokinase (CPK): Elevated levels of these markers
+         suggests muscle damage (caution for renal damage) and raised amylase suggests
+         pancreatic injury. In patients who develop capillary leak syndrome meticulous
+         monitoring of CPK and blood pressure control is necessary to avoid the inception
+         of renal failure.
+
+    8. Prothrombin time (PT) and activated partial thromboplastin time (aPTT):
+         Prolongation may be present in viper bite (to be repeated 6 hourly, if
+         abnormal).
+
+    9. Fibrinogen and fibrin degradation products (FDPs): Low fibrinogen with elevated
+         FDP is present when venom interferes with the clotting mechanism.
+
+    10. Urine examination for Proteinuria/ RBC/ Haemoglobinuria/ Myoglobinuria:
+         The colour of the urine (pink, red, brown, black) should be noted and the
+         urine should be tested by dipsticks for blood or haemoglobin or myoglobin.
+         Standard dipsticks do not distinguish blood, haemoglobin and myoglobin.
+         Haemoglobin and myoglobin can be separated by immunoassays but there
+         is no easy or reliable test. Microscopy will confirm whether there are
+         erythrocytes in the urine.
+
+    11. Electrocardiogram (ECG): Common electrocardiographic changes seen are
+         sinus tachycardia, sinus arrhythmia, sinus bradycardia, tall T-wave in V2,
+         pattern suggestive of acute anterior wall infarction with reciprocal changes,
+         myocardial ischemia, non-specific ST-T changes and atrioventricular block
+         (Nayak et al 1990).
+
+    12. Electroencephalogram (EEG): EEG changes have been noted in up to 96% of
+         patients bitten by snakes. However, rarely needed for patient management. These
+         changes start within hours of the bite but are not associated with any features
+         of encephalopathy. 62% showed grade I changes, 31% cases manifested grade II
+         changes (moderate to severe abnormality), and the remaining 4% showed severe
+
+24 Management of Snake Bite
+
+    abnormality (grade III). These abnormal EEG patterns were seen mainly in the
+    temporal lobes (Ramachandran S et al 1995).
+13. Pulse oximetry for oxygen in patients with respiratory failure or shock.
+14. Electrolyte determinations: These tests are necessary for patients with
+    respiratory paralysis and systemic symptoms.
+15. Arterial blood gases and pH may show evidence of respiratory failure (neurotoxic
+    envenoming) and acidaemia (respiratory or metabolic acidosis).
+
+16. X-Ray/ CT/ Ultrasound (The use of X-Ray and ultrasound are of unproven
+    benefit, apart from identification of bleeding in Viperine bites).
+
+                                                                                                            Recommendations 25
+
+ Anti SnAke Venom (ASV) therApy
+
+    1. If ASV is indicated i.e. signs and symptoms of envenomation with or without
+         evidence of laboratory tests, administer FULL dose without any delay. Do NOT
+         wait for any test report. In a patient with a history of Bite; known or unknown,
+         if there is spontaneous abnormal bleeding beyond 20 minutes from time of bite,
+         start ASV, do NOT wait for 20 WBCT report.
+
+    2. Carry out a more detailed clinical and laboratory assessment including
+         biochemical and haematological measurements, ECG or radiography, as indicated
+         to get a baseline data.
+
+    3. There are no absolute contraindications to ASV. However, do not routinely
+         administer ASV to any patient claiming to have bitten by a snake as ASV exposes
+         such patients to the risks of ASV reactions unnecessarily; besides wastage of
+         valuable and scarce stocks of ASV. However, at the same time do not delay or
+         withhold ASV on the grounds of anaphylactic reaction to a deserving case. Do
+         NOT give incomplete dose.
+
+    4. Purely local swelling, even if accompanied by a bite mark from an apparently
+         venomous snake, is not a ground for administering ASV. Swelling, a number of
+         hours old is also not a ground for giving ASV. However, rapid development of
+         swelling indicates bite with envenoming requiring ASV.
+
+ANTI SNAkE VENOM (ASV)
+
+    • Anti snake venom treatment is the only specific treatment, it should be given as soon
+         as it is indicated. It may reverse systemic envenomation abnormality even when this
+         has persisted for several days or, in the case of haemostatic abnormalities, persisting
+         for two or more weeks. The dosage required varies with the degree of envenomation.
+
+                                                                                                  Anti Snake Venom (ASV) Therapy 27
+
+    • In the presence of coagulopathy, Polyvalent ASV freeze-dried (heat stable; to be
+         stored at cool temperature; shelf life 3-5 years) or neat liquid ASV (heat labile; ready
+         to use; requires reliable cold chain (2-8oC and NOT frozen) with a refrigeration shelf
+         life of 2 years but costlier) whichever is available may be used before expiry date.
+         If integrity of the cold chain is not guaranteed use of lyophilized ASV is preferred.
+         However, in patients with severe envenoming recently expired antivenoms may be
+         used if there is no alternative (WHO 2015).
+
+ANTI SNAkE VENOM (ASV) DOSE
+
+Reconstitute ASV supplied in dry powder form by diluting in 10 ml of distilled water/
+normal saline. Mixing is done by swirling and not by vigorous shaking. Caution: Do not use,
+if reconstituted solution is opaque to any extent.
+
+Dose of ASV for neuroparalytic snakebite – ASV 10 vials stat as infusion over 30 minutes
+followed by 2nd dose of 10 vials after 1 hour if no improvement within 1st hour.
+
+Dose of ASV for vasculotoxic snakebite - Two regimens low dose infusion therapy
+and high dose intermittent bolus therapy can be used. Low dose infusion therapy is as
+effective as high dose intermittent bolus therapy and also saves scarce ASV doses (Expert
+Consensus):
+
+         Low Dose infusion therapy – 10 vials for Russel’s viper or 6 vials for Saw scaled
+         viper as stat as infusion over 30 minutes followed by 2 vials every 6 hours as
+         infusion in 100 ml of normal saline till clotting time normalizes or for 3 days
+         whichever is earlier.
+
+         OR
+
+         High dose intermittent bolus therapy - 10 vials of polyvalent ASV stat over 30
+         minutes as infusion, followed by 6 vials 6 hourly as bolus therapy till clotting time
+         normalizes and/or local swelling subsides.
+
+         No ASV for Sea snakebite, confirmed Green Pit snakebite even if with signs of
+         envenomation as available ASV do not contain antibodies against them.
+
+The range of venom injected is 5 mg-147 mg. The total required dose range is between
+10 and 30 vials as each vial neutralizes 6 mg of Russell’s Viper venom. Depending on the
+patient condition, additional vials can be considered.
+
+28 Management of Snake Bite
+
+Patients with capillary leak syndrome required higher dose of ASV compared to those
+without it. Early recognition and effective treatment like infusion of fresh frozen plasma
+and reduction of hemoconcentration may play a key role to reduce its gruesome mortality
+(Menon and Joseph 2014; Atkinson, et al 1977).
+
+MONITORING OF PATIENTS AND PRECAUTIONS DURING
+ASV ADMINISTRATION
+
+    • Give ASV only by the IV route, and slowly, with the physician at the bed side during
+         the initial period to intervene immediately at the first sign of any reaction. Observe all
+         patients carefully every 5 min for first 30 min, then at 15 min for 2 hours for manifestation
+         of a reaction. At the earliest sign of an adverse reaction suspend temporarily.
+
+    • The rate of infusion can be increased gradually in the absence of a reaction until
+         the full starting dose has been administered (over a period of ~1 hour).
+
+    • Give prophylactic epinephrine 0.25 mg of 0.1% solution by subcutaneous injection
+         (Children 0.005 mg/kg body weight of 0.1% solution) except in known hypertensive
+         or patients with cardiovascular disease and draw Epinephrine (adrenaline) in
+         readiness in two syringes before ASV is administered.
+
+Figure 8: ASV infusion and dosage schedule Each vial of AVS be dissolved in 10 ml of distilled water
+            and added to an infusion medium such as normal saline (i.e. 10 vials of AVS dissolved in
+            100 ml of distilled water and added to 400ml of normal saline). The volume of infusion is
+            reduced according to the body size and the state of hydration of the patient. In oliguric
+            patients restrict fluids and use infusion pump to give full dose of ASV over 30 minutes.
+
+                           ASV in
+                           syringe
+
+10 vials of AVS dissolved
+in 100 ml of distilled
+water and added to
+400ml of normal saline
+
+ Mention date and
+ time of starting
+ infusion
+
+                           Administer 10 vials of ASV in first hour.
+                           Maintain slow drip for 24 hours
+
+                                                                       Anti Snake Venom (ASV) Therapy 29
+
+    • NEVER give ASV by IM route and do NOT inject the ASV locally at the bite site.
+    • Take all aseptic precautions before starting ASV to prevent any pyrogenic
+
+         reactions to ASV.
+    • Maintain a strict intake output chart and note colour of urine to detect acute kidney
+
+         injury early.
+
+ASV DOSE IN PREGNANCy
+
+Pregnant women are treated in exactly the same way as other victims. The same dosage
+of ASV is given. Refer the victim to a gynecologist for assessment of any impact on the
+foetus.
+
+ASV DOSE IN CHILDREN
+
+Children also are given exactly the same dose of ASV as adults as snakes inject the same
+amount of venom into children and adult.
+Infusion: liquid or reconstituted ASV is diluted in 5-10 ml/kg body weight of normal saline.
+However, reduce amount of fluid in running bottle to 200 ml to avoid fluid over load.
+
+ASV DOSAGE IN VICTIMS REQUIRING LIFE SAVING
+SURGERy
+
+Rarely patient may develop intracranial bleeding for which a life saving surgery is required.
+In such cases, before surgery, coagulation must be restored to avoid catastrophic bleeding
+and higher initial dose of ASV (up to 30 vials) can be administered.
+
+REPEAT DOSE OF ASV
+
+Repeat dose: in Vasculotoxic or haemotoxic envenomation
+
+Repeat clotting test every 6 hours until coagulation is restored. Administer ASV every 6 h
+until coagulation is restored. In patients who continue to bleed briskly repeat ASV within
+1-2 hours (WHO 2015). Envenomation by the Hump-nosed Pit viper does not respond to
+normal Indian polyvalent ASV and coagulopathy may continue for up to 3 weeks. If 30 vials
+
+30 Management of Snake Bite
+
+of ASV have been administered reconsider whether continued administration of ASV is
+serving any purpose, particularly in the absence of proven systemic bleeding.
+
+If large doses have been administered and the coagulation abnormality persists, give fresh
+frozen plasma (FFP) or cryoprecipitate (fibrinogen, factor VIII), or give fresh whole blood,
+if both FFP and cryoprecipitate are not available.
+
+Repeat dose: neuroparalytic or neurotoxic envenomation
+
+Initial dose of ASV 10 vials stat as infusion to be followed by 2nd dose of 10 vials if no
+improvement within 1st hour. Repeat 2nd dose may be required even after 2-3 hours if
+relapse of signs of neurotoxicity are noted (may be due to delayed absorption). Maximum
+dose is 20 vials of ASV for neurotoxically envenomed patients.
+
+VICTIMS WHO ARRIVE LATE
+
+Sometimes victims arrive late after the bite, often after several days, usually with acute
+kidney injury. Determine current venom activity such as bleeding in case of viperine
+envenomation. Perform 20WBCT and determine if any coagulopathy is present then
+administer ASV. If no coagulopathy is evident, treat kidney injury, if any.
+
+ASV REACTION
+
+    • NO ASV TEST DOSE MUST BE ADMINISTERED.
+    • SkIN/CONJUNCTIVAL HyPERSENSITIVITy TESTING DOES NOT RELIABLy
+
+         PREDICT EARLy OR LATE ANTI SNAkE VENOM REACTIONS AND IS NOT
+         RECOMMENDED.
+    • Rarely patients may develop severe life-threatening anaphylaxis characterized
+         by hypotension, bronchospasm, and angioedema. However, 20%-60% patients
+         treated with ASV develop either early or late mild reactions (Deshpande et al.2013;
+         Deshmukh et al 2014.
+    • Early anaphylactic reactions occurs within 10–180 min of start of therapy and
+         is characterized by itching, urticaria, dry cough, nausea and vomiting, abdominal
+         colic, diarrhoea, tachycardia, and fever. A minority of these patients may develop
+         severe life-threatening anaphylaxis, hypotension, bronchospasm and angio-
+         oedema (WHO 2015)
+
+                                                                                                  Anti Snake Venom (ASV) Therapy 31
+
+    • Pyrogenic reactions usually develop 1–2 h after treatment. Symptoms include
+         chills and rigors, fever, and hypotension. These reactions are caused by
+         contamination of the ASV with pyrogens during the manufacturing process.
+
+    • Any new sign or symptom after starting the ASV in drip should be suspected as a
+         reaction to ASV.
+
+    • Late (serum sickness–type) reactions develop 1–12 (mean 7) days after treatment.
+         Clinical features include fever, nausea, vomiting, diarrhoea, itching, recurrent
+         urticaria, arthralgia, myalgia, lymphadenopathy, immune complex nephritis and,
+         rarely, encephalopathy.
+
+PREMEDICATION WITH ADRENALINE (EPINEPHRINE)
+
+Routine use of prophylactic adrenaline is recommended before ASV, except in known
+hypertensive, and if patient presents with blood pressure more than 140/90 in adult
+victims or if evidence of suspicion of underlying cardiovascular disease. The adult dose of
+adrenaline (epinephrine) is 0.25 mg of 0.1% solution by subcutaneous injection (Children
+0.005 mg/kg body weight of 0.1% solution).
+
+Use of histamine, anti-H1 and anti-H2 blockers, corticosteroids and the rate of intravenous
+infusion of antivenom between 10 and 120 minutes), do not affect the incidence or severity
+of early antivenom reactions. (de silva 2011)
+
+TREATMENT OF EARLy ASV REACTION
+
+    1. Stop ASV temporarily.
+
+    2. Oxygen
+
+    3. Start fresh IV normal saline infusion with a new IV set
+
+    4. Administer Epinephrine (adrenaline) (1 in 1,000 solution, 0.5 mg (i e 0.5 ml) in
+         adults intramuscular over deltoid or over thigh; In children 0.01 mg/kg body
+         weight) for early anaphylactic and pyrogenic ASV reactions.
+
+    5. Administer Chlorpheniramine maleate (adult dose 10 mg, in children 0.2 mg/kg)
+         intravenously.
+          Hydrocortisone can be given but it is unlikely to act for several hours.
+
+32 Management of Snake Bite
+
+     Once the patient has recovered, re-start ASV slowly for 10-15 minutes keeping
+      the patient under close observation. Then resume normal drip rate.
+
+For high risk patients
+
+In patients with history of hypersensitivity or exposure to animal serum such as
+equine ASV, tetanus-immune globulin or rabies-immune globulin in past, severe atopic
+conditions:
+
+    • Give ASV only if they have signs of systemic envenoming.
+
+    • Give Inj. Hydrocortisone 200 mg and Chlorpheniramine maleate 22.75 mg prior to
+         the administration of ASV.
+
+Treatment of Late (serum sickness–type) reactions
+
+    • Inj. Chlorpheniramine 2 mg in adults (In children 0.25 mg/kg/day) 6 hourly
+        for 5 days.
+
+    • In patients who fail to respond within 24–48 h give a 5-day course of Prednisolone
+        (5 mg 6 hourly in adults and 0.7 mg/kg/day in divided doses in children.
+
+Desensitization procedure only in case of severe anaphylaxis reaction to ASV with shock
+and generalised anasarca after injection of very few ml of ASV usually less than 5 ml of
+diluted ASV.
+
+    • Change the batch of ASV
+
+    • Pre-medication: Administer Inj. Hydrocortisone 100 mg I.V. and Inj. Adrenaline
+         0.5 ml subcutaneously/ intramuscularly (± Promethazine)
+
+Table 1: Steps of dilution of ASV
+
+Steps of  Instructions                         Total Solution Dilution
+dilution                                      Volume
+
+1.        Dilute 1 ml of ASV in a vial with 10 ml of normal saline 10 ml  A
+
+2.        1ml of solution A + 9 ml of saline  10 ml                       B  1: 10
+
+3.        1ml of solution B+ 9 ml of saline   10 ml                       C  1: 100
+
+4.        1ml of solution C + 9 ml of saline  10 ml                       D  1: 1000
+
+5.        1ml of solution D + 9 ml of saline  10 ml                       E 1: 10,000
+
+                                              Anti Snake Venom (ASV) Therapy 33
+
+After dilution and preparation of Solution E,
+
+                             Inject 0.1 ml of solution E IV
+
+Watch for anaphylaxis for 15 minutes                         If no reaction
+
+                             Inject 0.1 ml of solution E
+
+Watch for anaphylaxis for 15 minutes                         If no reaction
+
+                             Inject entire solution E
+
+Watch for anaphylaxis for 15 minutes                         If no reaction
+
+     After solution E is injected, continue the same process as follows for other
+solutions is the following sequence: Solution D followed by Solution C, Solution B,
+
+                                    Solution A and then full dose.
+
+34 Management of Snake Bite
+
+      managemenT neuroToxIC
+(neuropArAlytic) enVenomAtion
+
+Anti snake venom treatment alone cannot be relied upon to save the life of a patient with
+bulbar and respiratory paralysis. Administer following in addition:
+
+    1. Oxygen
+    2. Assisted ventilation. If the patient has evidence of bulbar or respiratory paralysis,
+
+         insert endotracheal tube with the help of the anesthesiologist, if available or
+         by a trained medical personnel or use laryngeal mask airway (LMA). If there is
+         evidence of respiratory failure, assist ventilation manually by anaesthetic bag or
+         mechanical ventilator. The duration of mechanical ventilation in snakebite victims
+         is usually short since neuroparalysis reverses quickly with prompt administration
+         of ASV. Manual ventilation (self ventilating anaesthetic bag) is also effective
+         if mechanical ventilator is not available. Prolonged assisted ventilation with
+         room air or oxygen is followed by complete recovery in case of Guillain-Barre
+         syndrome and delayed neuropathy following snakebite.
+    3. Administer ‘Atropine Neostigmine (AN)’ schedule described as below. Give
+         one dose of “AN” injection before transferring to the higher centre. Rapid
+         deterioration of Cobra bite neurotoxic syndrome may kill the patient on the way
+         during transfer. Some patients go into a deep coma state but recover completely.
+         Hence, diagnosis of brain death should not be considered. Do not give AN in
+         case of confirmed krait bite.
+    4. Initial dose of ASV is administered over 1 hour. If ASV not available refer to a
+         higher facility where ASV is available or if no improvement after initial dose.
+
+                                                                       Management Neurotoxic (Neuroparalytic) Envenomation 35
+
+ATROPINE NEOSTIGMINE (AN) DOSAGE SCHEDULE
+
+    • Atropine 0.6 mg followed by neostigmine (1.5mg) to be given IV stat and repeat
+         dose of neostigmine 0.5 mg with atropine every 30 minutes for 5 doses (In children,
+         Inj. Atropine 0.05 mg/kg followed by Inj. Neostigmine 0.04 mg/kg Intravenous and
+         repeat dose 0.01 mg/kg every 30 minutes for 5 doses). A fixed dose combination of
+         Neostigmine and glycopyrolate IV can also be used.
+
+    • Thereafter to be given as tapering dose at 1 hour, 2 hour, 6 hours and 12
+         hour. Majority of patients improve within first 5 doses. Observe the patient
+         closely observed for 1 hour to determine if the neostigmine is effective. After
+         30 minutes, any improvement should be visible by an improvement in ptosis.
+         Positive response to “AN” trial is measured as 50% or more recovery of the
+         ptosis in one hour.
+
+    • Stop Atropine neostigmine (AN) dosage schedule if:
+          Patient has complete recovery from neuroparalysis. Rarely patient can have
+            recurrence, carefully watch patients for recurrence.
+          Patient shows side effects in the form of fasciculations or bradycardia.
+          If there is no improvement after 3 doses.
+
+    • Improvement by atropine neostigmine indicates Cobra bite. A few Nilgiri Russel’s
+         viper bites victims also improve with this regimen.
+
+    • If there is no improvement after 3 doses of atropine neostigmine, this indicates
+         probable Krait bite. Krait affects pre-synaptic fibres where calcium ion acts as
+         neurotransmitter. Give Inj. Calcium gluconate 10ml IV (in children 1-2 ml/kg (1:1
+         dilution) slowly over 5-10 min every 6 hourly and continue till neuroparalysis
+         recovers which may last for 5-7 days.
+
+36 Management of Snake Bite
+
+             managemenT of
+       VaSCuloToxIC SnakebITe
+
+    1. Strict bed rest to avoid even minor trauma.
+    2. Screen for hematuria, hemoglobinuria, myoglobinuria by Dipstick method.
+
+         Dipstick test is positive in all three presentations listed above. Centrifuged urine
+         showing pink color indicates hemoglobinuria, clear supernatant (RBCs settle
+         down as deposit) indicates myoglobinuria.
+    3. Closely monitor urine output and maintain 1 ml/kg/h urine output.
+    4. If the patient is bleeding severely irrespective of full dose of ASV or is already
+         seriously anaemic give transfusion of blood or fresh frozen plasma or transfer
+         where facility is available.
+    5. Prompt recognition of organ dysfunction and immediate intervention may
+         reverse organ impairment and improve the outcome.
+
+VOLUME REPLACEMENT IN SNAkE BITE
+
+If the patient has intravascular volume depletion, indicated by supine or postural
+hypotension, or empty neck veins, proceed as follows:
+
+    1. Establish intravenous access.
+    2. Give fluid challenge: In adult patient 200 ml in saline in 5 minutes first, check BP
+
+         response, if positive additional fluid given over 30 min or until the jugular venous
+         pressure/central venous pressure has risen to 8-10 cm above the sterna angle
+         (with the patient propped up at 45º).
+
+                                                                                          Management of Vasculotoxic Snakebite 37
+
+    3. Observe the patient closely while this is being done. The fluid challenge must be
+         stopped immediately if pulmonary oedema develops.
+
+FORCED ALkALINE DIURESIS (FAD)
+
+If urine output does not improve or dipstick positive for blood give a trial of FAD within
+first 24 hours of the bite to avoid pigment nephropathy leading to acute tubular necrosis
+(ATN). Delayed FAD has no role. Sequence of FAD in adults is as follows:
+
+    i. Inj. Frusemide 40 mg IV stat
+    ii. Inj. Normal saline 500 ml + 20 ml of NaHCO3 over 20 minutes
+    iii. Inj. Ringer’s lactate 500 ml + 20 ml of NaHCO3 over 20 minutes
+    iv. Inj. 5% dextrose 500 ml + 10 ml of Potassium Chloride over 90 minutes
+    v. Inj. Mannitol 150 ml over 20 min
+
+          Whole cycle completes in 2 h 30 min and urine output of 3 ml/min is expected.
+          If patient responds to first cycle continue for 3 cycles. FAD converts oliguria
+
+            into polyuria and avoid ATN and acute kidney injury needing dialysis in more
+            than 75% patients.
+          If there is no response to furosemide discontinue FAD and refer patient
+            immediately to a higher center for dialysis.
+
+DETECTION AND MANAGEMENT OF HyPERkALEMIA
+
+Hyperkalaemia (>7 mmol/l or hyperkalaemic ECG changes- tall peaked T waves, prolonged
+P-R interval, absent P wave, wide QRS complexes):
+
+    1. Give 10 ml of 10% calcium gluconate intravenously over 2 minutes (with ECG
+         monitoring if possible) repeated up to 3 times.
+
+    2. Give 50 ml of 50% dextrose with 10 units of soluble insulin intravenously
+    3. Sodium bicarbonate 40 ml of 8.4% by slow intravenous infusion and Salbutamol
+
+         aerosol by inhaler may also be used.
+
+38 Management of Snake Bite
+
+MANAGEMENT OF SEVERE ACIDOSIS
+
+If the patient is hypotensive and profoundly acidotic (deep sighing “Kussmaul” respirations,
+very low plasma bicarbonate levels or very low pH <7.10, administer sodium bicarbonate:
+
+    1. Calculate bicarbonate deficit
+
+    2. Administer 2-3 ampoules (40 ml of 8.4% sodium bicarbonate equivalent to 1
+         mmol/ml) in 55 dextrose water or half of the calculated deficit can be replaced
+         in 3-4 hours. Caution: Intravenous bicarbonate may precipitate profound
+         hypocalcaemia and seizures, especially in patients with rhabdomyolysis.
+
+    3. Severe acidosis in snakebite is usually associated with acute renal failure.
+         Volume expansion by sodium bicarbonate can cause fluid overload. If no clinical
+         improvement dialysis is indicated.
+
+INDICATIONS FOR DIALySIS
+
+    • Absolute value of Blood urea >130 mg/dl (27 mmol/L) (BUN 100 mg/dl),
+         Sr. Creatinine > 4 mg/dl (500 μmol/L) OR evidence of hypercatabolism in the form of
+         daily rise in blood urea 30 mg/dl (BUN > 15), Sr. Creatinine > 1 mg/dl, Sr. Potassium
+         > 1 mEq/L and fall in bicarbonate >2 mmol/L
+
+    • Fluid overload leading to pulmonary oedema
+    • Hyperkalaemia (>7 mmol/l or hyperkalaemic ECG changes- tall peaked T waves,
+
+         prolonged P-R interval, absent P wave, wide QRS complexes)
+    • Unresponsive to conservative management.
+    • Uremic complications – encephalopathy, pericarditis.
+
+          Haemodialysis is preferable in cases of hypotension or hyperkalaemia. Peritoneal
+            dialysis can be performed at a secondary health care center. Continuous renal
+            replacement therapies and intermittent hemodialysis are equivalent in patients
+            with severe sepsis and acute renal failure because they achieve similar short-
+            term survival rates.
+
+          Continuous therapies are recommended to facilitate management of fluid
+            balance in hemodynamically unstable patients. An efficient dose for continuous
+            renal replacement therapy would be 20 to 25 mL/kg/h of effluent generation.
+
+                                                                                          Management of Vasculotoxic Snakebite 39
+
+IN CASE OF SHOCk, MyOCARDIAL DAMAGE
+
+    1. Correct hypovolaemia with colloid/crystalloids, controlled by observation of the
+         central venous pressure.
+
+    2. Infusion of isotonic crystalloids or albumin, with boluses of up to 20 ml/kg for
+         crystalloids (or albumin equivalent) over 5 to 10 min (in children over 30 min)
+         titrated to reversing hypotension, increasing urine output, and attaining normal
+         capillary refill, peripheral pulses and level of consciousness without inducing lung
+         crepitations or hepatomegaly.
+
+    3. If hepatomegaly or rales develop, initiate inotropic support with dopamine or
+         dobutamine. If patient doesn’t respond to fluid resuscitation, inotropic support
+         must be given.
+
+    4. In sepsis, noradrenaline is the inotropic agent of choice. Treat patients with
+         hypotension associated with bradycardia with atropine.
+
+    5. For coagulopathy – in case of prolonged CT, PT, aPTT administer fresh
+         frozen plasma (FFP) infusion. Associated low platelets indicates consumptive
+         coagulopathy and disseminated intravascular coagulopathy (DIC). To confirm
+         fibrinogen level FDP should be estimated. Low fibrinogen and high FDP will
+         require fibrinogen/FFP supplementation. Bleeding leads to anaemia, PCV of 30%
+         must be maintained, therefore, measure serial PCV every 4 – 6 h depending upon
+         bleeding severity of patients. If PCV is lower than 30 needs blood transfusion/
+         PCV transfusion.
+
+    6. Avoid intramuscular injections.
+
+    7. FFP administration after ASV administration results in more rapid restoration of
+         clotting function in most patients, but no decrease in discharge time. Early FFP
+         administration (< 6-8 h) post-bite is less likely to be effective. Administer 10-15
+         ml/kg of FFP within over 30–60 min within 4 hours of ASV administration. The
+         aim should be a return of coagulation function, as defined by an INR of < 2.0, at 6 h
+         after ASV administration was commenced. Non –response to FFP can occur with
+         use of FFP that has low activity of FV and FVIII, because of either poor storage or
+         premature thawing (> 24 hours) prior to administration.
+
+         Heparin is ineffective against venom-induced thrombosis and may cause bleeding
+         on its own account. It should never be used in cases of snakebite. Antifibrinolytic
+         agents are not effective and should not be used in victims of snakebite.
+
+40 Management of Snake Bite
+
+managemenT of SeVere loCal
+              enVenomIng
+
+1. Local necrosis, intracompartmental syndromes and even thrombosis of major
+    vessels is more likely in patients who cannot be treated with ASV.
+
+2. Surgical intervention may be needed but the risks of surgery in a patient with
+    consumption coagulopathy, thrombocytopenia and enhanced fibrinolysis must be
+    balanced against the life-threatening complications of local envenoming.
+
+3. Give prophylactic broad-spectrum antimicrobial treatment for cellulitis after
+    completion of first 10 vials of ASV) is as following:
+    Inj. Amoxiciilin+ clavulanic acid 1.2 g IV thrice daily for first 7 days then switch
+    to oral therapy Tab. Amoxiciilin+clavulanic acid 625 mg three times a day for
+    further 3-7 days; In children, the dose is 100 mg/Kg/day in three divided doses
+    intravenously; for oral therapy, the dose is 50 mg/kg/day in three divided doses.
+    Reduce dose of Amoxiciilin+ clavulanic acid and Ceftriaxone in case of acute
+    kidney injury due to Viper bites.
+    Alternatively Inj Ceftriaxone 1 g IV twice daily (in children the dose is 100 mg/kg/
+    day in two divided doses) for 7 days.
+     Inj. Metronidazole 400 mg IV infusion thrice daily for 7 days; in children- 30 mg/
+       kg/day in 3-4 divided doses.
+
+                                                                                  Management of Severe Local Envenoming 41
+
+              recoVery phASe
+
+Observation of the response to adequate dose of anti snake venom:
+    • Response to infusion of ASV is marked by normalization of blood pressure. Within
+         15–30 min bleeding stops, though coagulation disturbances may take up to 6 h to
+         normalize.
+    • Neurotoxic envenoming of the postsynaptic type (Cobra bites) begins to improve
+         within the first 30 min, but patients may require 24–48 h for full recovery.
+         Envenoming with presynaptic toxins (Kraits and sea snakes) do not respond in this
+         way usually takes a considerable time to improve. Recovery of respiratory muscles
+         is reflected by improvement of neck flexors where flexing the neck against gravity
+         indicates timing to wean off ventilation. Prophylactic antibiotics are unnecessary.
+    • Nausea, headache and generalized aches and pains may disappear very quickly.
+    • In shock patients, blood pressure may increase within the first 30-60 minutes and
+         arrhythmias such as sinus bradycardia may resolve.
+    • Active haemolysis and rhabdomyolysis may cease within a few hours and the urine
+         returns to its normal colour. However, red colour urine may persist for several days
+         in spite of adequate ASV treatment, does not require further ASV.
+    • Patient in deep coma recover fully provided there is no hypoxic brain damage.
+         Autonomic dysfunctions are transient and don’t need treatment. Sometimes
+         treatment might be harmful e.g. treating with antihypertensive drugs to lower the
+
+         increased blood pressure due to sympathetic hyperactivity.
+
+                                                                                                                     Recovery Phase 43
+
+             oTher meaSureS
+
+    1. Clean the bitten site with povidone-iodine solution, but do not apply any dressings.
+    2. Leave blisters alone. Allow them to break spontaneously and heal. If there is
+
+         local necrosis, excise and apply saline dressings. Surgical decompression may be
+         necessary in some cases.
+    3. Administer booster dose of Tetanus toxoid injection, if not vaccinated earlier or
+         vaccination history is not reliable after correction of coagulopathy.
+    4. For mild pain, in adults Paracetamol 500-1000 mg (in children 10-15 mg/kg) every
+         4-6 hourly orally. Do not use aspirin or other non steroidal anti-inflammatory
+         drugs (NSAIDs). In case of severe pain in adults, Tab. Tramadol 50 mg or Inj.
+         Tramadol 50 mg IV and in children Ibuprofen cautiously 5-10 mg/kg/dose every
+         8 hourly. Avoid drugs such as sedatives, pethidine, morphine and neuromuscular
+         blocking agents in neurotoxic envenomation. A deeply sedated patient may
+         create confusion regarding level of neuro-paralysis.
+    5. Maintain hydration and nutrition.
+    6. If there is local pain and spreading oedema, elevate the affected limb and allow it
+         to rest on a sand bag.
+
+SURGICAL PROCEDURES IN SNAkEBITE
+
+Debridement of necrotic tissue
+
+Wait for 5-7 days before commencing debridement of necrotic tissue in order to specify
+the line of demarcation between viable and non-viable tissue. Refer patients requiring
+
+                                                                                                                     Other Measures 45
+
+skin grafting and amputation of a necrotic digit/limb to a Surgeon after completion of
+ASV treatment.
+
+Compartmental syndrome
+
+Clinical features of a compartmental syndrome (5 ‘P’):
+
+    • Pain (severe)
+    • Pallor
+    • Paraesthesia
+    • Pulselessness
+    • Paralysis or weakness of compartment muscle.
+
+Criteria for fasciotomy in snakebite limb
+
+    • Clinical evidence of an intracompartmental syndrome
+    • Intra-compartmental pressure >40 mmHg of normal saline (in adults).
+
+         Compartment pressure can be measured bed side using 3 way cannula – 16 G
+         needle attached to one end, BP apparatus attached to 2nd end and saline infusion
+         on 3rd side.
+    • This can be confirmed by vascular Doppler and rising CPK in thousands. Timely
+         fasciotomy decreases the need for repeated dialysis.
+    • Haemostatic abnormalities have been corrected (with ASV or without clotting
+         factors), otherwise the patient may bleed to death.
+         Early treatment with anti snake venom (ASV) remains the best way of
+         preventing irreversible muscle damage. Anti snake venom may also be helpful
+         in reducing severe limb oedema (Rojnuckarin et al., 2006). Corticosteroids
+         should not be used as they are not effective in ameliorating local effects of
+         envenoming and carry the risk of side-effects (Reid et al., 1963; Nuchprayoon
+         et al., 2008). The limb can be raised in the initial stages to see if swelling is
+         reduced. However, this is controversial as there is no trial evidence to support
+         its effectiveness.
+
+46 Management of Snake Bite
+
+    • Persistent moderate swelling of the limb after viper bite can be successfully
+         managed by systemic broad spectrum antibiotics and repeated Magnesium
+         Sulphate compresses (in the layers of wet bandage, changed 2-3 times a day) for
+         5-7 days.
+
+Compartment pressure measurement procedure is shown in Figure 9.
+
+Figure 9: Compartment pressure measurement procedure.
+
+                                                                       Insert a 16 no. needle in the suspected
+                                                                       compartment at a depth of 1 cm and
+                                                                       connect to a simple tubing irrigated with
+                                                                       normal saline. Measure rise in the saline
+                                                                       column in the tubing. A rise more than
+                                                                       40 cm of saline corresponds to 30 mm
+                                                                       Hg of lymphatic/ capillary pressure and is
+                                                                       suggestive of compartment pressure. This
+                                                                       necessitates fasciotomy procedure.
+
+    • Refer the patient to a surgical specialist but it is worth the treating clinician ensuring
+         that objective criteria are used to assess the actual intracompartmental pressure
+         in the limb (A2).
+
+                                                                                                                     Other Measures 47
+
+                  dISCharge
+
+If no symptoms and signs develop after 24 hours the patient can be discharged. Keep the
+  patient under observation for 48 hours if ASV was infused.
+
+FOLLOW-UP
+
+    1. A snakebite victim discharged from the hospital should continue to be followed up.
+    2. At the time of discharge patient should be advised to return to the emergency, if
+
+         there is worsening of symptoms or signs such as evidence of bleeding, worsening
+         of pain and swelling at the site of bite, difficulty in breathing, altered sensorium,
+         reduced or increased urine output etc.
+    3. The patients should also be explained about the signs and symptoms of serum
+         sickness (fever, joint pain, joint swelling) which may manifest after 5-10 days.
+
+REHABILITATION
+
+    1. In patients with severe local envenoming, maintain limb in a functional position.
+         For example, in the leg, equinus deformity of the ankle should be prevented by
+         application of a back slab.
+
+    2. Start simple exercises while the patient is still in hospital for restoration of normal
+         function in the bitten part. Conventional physiotherapy after discharge from
+         hospital may accelerate functional recovery of the bitten limb. Give a time table of
+         rehabilitation activities.
+
+    3. Functional effects of local envenoming range from persistent stiffness and
+         induration to severe deformity, tissue loss, especially dermonecrosis, requiring
+         skin grafting and gangrene requiring debridement and amputation.
+
+                                                                                                                            Discharge 49
+
+referral CrITerIa
+
+Vasculotoxic envenomation                          Neurotoxic Envenomation
+If no ASV is available, transfer to a hospital     Progressive neuroparalysis - transfer with
+(where ASV availability is confirmed over the      life support in ambulance for mechanical
+phone).                                            ventilation (Battery operated Transport
+                                                   Ventilator) operated by qualified staff or ambu
+If 20 WBCT is “not clotted” after loading dose of  bag as a last resort to a hospital where facility
+10 vials of ASV as in case of Viper bite.          of a ventilator is available.
+
+If patient is continuing to bleed even after full  The key criteria to determine need for
+dose of ASV transfer to a tertiary care medical    mechanical ventilation is the ‘neck lift’ to
+college or higher level of health facility.        elicit broken neck sign.
+
+Progressive septicaemia                            Check frequently on patient’s ability to
+                                                   perform a neck lift.
+Signs of kidney injury or abnormal kidney
+function test transfer to a tertiary care medical  If they are able to carry out the neck lift
+college or higher level of health facility.        action continue treatment until recovery in
+                                                   the PHC.
+
+                                                   If patient cannot perform neck lift action,
+                                                   immediately refer the patient to a hospital
+                                                   with a mechanical ventilator.
+
+                                                   Very young children may not be able to
+                                                   follow commands for neck lift.
+
+                                                   Other tests which indicate descending
+                                                   paralysis are declining single breath count,
+                                                   pooling of saliva.
+
+                                                   Oxygen saturation <90% using pulse
+                                                   oximetry indicates requirement for ventilator
+                                                   support.
+
+                                                   Referral Criteria 51
+
+Figure 10: ‘‘Broken neck’’ sign observed in a 14-year-old girl bitten by a Russell’s viper in India.
+             Envenoming by cobras, kraits and—in some areas—by Russell’s viper frequently
+             leads to progressive descending paralysis. In this case, neuroparalysis persisted
+             for five days despite antivenom treatment, but without progression toward
+             respiratory failure. H. S. Bawaskar. doi:10.1371/journal.pntd.0000603.g002
+
+INSTRUCTIONS WHILE REFERRING
+
+    • Inform the need for referral to the patient and/caregiver (family member or the
+         accompanying attendant).
+
+    • Give prior intimation to the receiving centre using available communication facilities.
+    • Arrange for an ambulance. Call Emergency helpline 102/108 etc. Transport in an
+
+         ambulance equipped with transport ventilator. If ventilator is not available tight-
+         fitting face mask connected to an anaesthetic (Ambu) bag should be available.
+         However, do not waste time to get an ideal ambulance. Motorbike is a practical
+         alternative in rural areas for rapid transport but third person must sit behind the
+         patient to support on bike.
+    • If ASV is not available at First contact centre transfer to the nearest health facility
+         where ASV is available after confirmation by telephone.
+    • Transfer to a higher health facility (Secondary Care Hospital or Tertiary Care
+         Hospital) where facilities for mechanical ventilator and dialysis are available, if
+         required after completion of ASV infusion only.
+
+52 Management of Snake Bite
+
+    • During transfer, continue life-supporting measures and provide airway support
+         with the help of an accompanying staff, if required.
+
+    • Do not insert nasogastric tube routinely. It is indicated only if victim has obtunded
+         mentation and or gag reflex is poor. If this is not possible give head up position to
+         victim during transport to avoid aspiration of gastric contents.
+
+    • Send the referral note with details of treatment given clearly mentioning the
+         clinical status at the time of referral.
+
+See Annexure II for management of snakebite at various levels of healthcare.
+
+                                                                                                                      Referral Criteria 53
+
+guIdelIne deVelopmenT proCeSS
+
+An Indian guideline on the management of snakebite has been evolved through intensive
+discussions and workgroups amongst 12 invited experts from India, plus a review and
+discussion of relevant research publications and papers (list of experts enclosed).
+
+The invited experts comprised a select group of professionals drawn from the fields of
+clinical medicine, toxicology, & pharmacology. The participants came from a wide variety
+of leading institutions, States, representing different levels of healthcare in the public as
+well as private sector.
+
+Facilitator     Dr. Sangeeta Sharma,
+
+Co-Facilitator  Professor & Head, Department of
+Expert          Neuropsychopharmacology
+                Institute of Human Behaviour and Allied Sciences, Delhi
+
+                Dr. Ashoo Grover
+                Scientist , Indian Council for Medical Research , New Delhi
+
+                Dr. D. B. Kadam
+                Professor & Head, Dept. of Medicine, B. J. Medical
+                College, Pune
+
+                Dr. Himmat Bawaskar,
+                Bawaskar Hospital & Research Centre, Raigad,
+                Maharashtra
+
+                Dr. Dayal Bandhu Majumdar
+                Senior MO, National Medical College, Kolkata
+
+                Dr. S. Ragunanthanan
+                Professor & Head Poison Centre, Madras Medical
+                College
+
+                                                              Guideline Development Process 55
+
+                Dr. Arvind Mathur
+                Professor , Jhodhpur Medical College
+
+                Dr. Rakesh Lodha
+                Additional Professor, Paediatrics, AIIMS, New Delhi
+
+                Dr. Anurag Agrawal
+                Assistant Professor, Paediatrics, MAMC, New Delhi
+
+                Dr. J. N. Srivastava
+                Advisor, Quality Improvement, NHSRC
+
+Physician       Dr. Rajiv Kapil
+                Consultant Physician, Lal Bahadur Shastri Hospital, Delhi
+
+Private         Dr. Sadanand Raut
+Practitioner    Vighnahar Nursing Home, Narayangaon, Pune
+
+Paramedic/Nurse/ Mrs. Sunita Bisht,
+
+Rehabilitation  ICU Nurse, GTB Hospital Delhi
+
+Experts
+
+Primary Care    Dr. Sanjay Bajaj,
+Practitioners   SMO, State Health Services, Himachal Pradesh
+
+ASV             Dr. M.V. Khadilkar
+Manufacturer    Premium Laboratories, Pune
+
+Project         Dr. Nikhil Prakash
+
+Manager/Quality Senior Consultant, Quality Improvement, NHSRC
+
+Professional
+
+The guidelines have been reviewed by experts having ground experience of handling
+snakebite cases including those from Indian Society of Toxicology and manufacturer of the
+antisnake venom.
+Dr Jeevan Kuruvilla, Gandhi Health Centre, Bardwah
+Dr. U. B. Das, Directorate General of Health Services, MoHFW, GOI
+Dr Omesh Bharti, Government of Himachal Pradesh
+Dr DP Punde, Senior Physician, Punde Hospital, Nanded, Maharashtra
+Dr Joseph K Joseph, President Toxicological Society of India, Kochi
+Dr VK Himgire, Nanded
+
+56 Management of Snake Bite
+
+The guidelines have also been reviewed by Global Snakebite Initiative (GSI) group.
+The Global Snakebite Initiative is an internationally-active non-profit organisation,
+registered in Australia, and led by snakebite experts who are dedicated to improving
+access to good quality, robustly tested, safe, effective antivenoms in the world’s
+poorest communities.
+
+                                                                                                   Guideline Development Process 57
+
+                 referenCeS
+
+A. Module on the “Management of Snakebite Cases” For Medical Officers. Developed
+    By Public Health Branch of the Directorate of Health Services & Institute of Health
+    & Family Welfare Kolkata. Department of Health & Family Welfare. Government of
+    West Bengal.
+
+A2 Snakebite Management in Asia & Africa Guidelines produced by: Pakistan Medical
+    Research Council, Pakistan Medical Association; National Program for Family Planning
+    and Primary Health Care and Indian Journal of Emergency Pediatrics, 2011.
+
+    • Alirol E, Sharma SK, Bawaskar HS, Kuch U, Chappuis F. Snake Bite in South Asia: A
+
+         Review. PLoS Negl Trop Dis 2010; 4(1): e603. doi:10.1371/journal.pntd.0000603.
+    • Atkinson, JP, Waldmann, TA, Stein, SF, et al. Systemic capillary leak syndrome
+
+         and monoclonal IgG gammopathy; studies in a sixth patient and a review of the
+         literature. Medicine (Baltimore) 1977; 56:225.
+    • Bawaskar HS, Bawaskar PH and Bawaskar Parag H. Premonitory signs and
+         symptoms of envenoming by common krait (Bungarus caeruleus). Tropical Doctor
+         2014, Vol. 44(2) 82–85.
+    • Bawaskar HS, Bawaskar PH, Punde DP, Inamdar MK, Dongare RB and Bhoite RR.
+         Profile of snakebite envenoming in rural Maharashtra, India. J Assoc Physicians
+         India 2008; 56: 88–95.
+    • Bawaskar HS, Bawaskar PH. Call for a global snake-bite control and procurement
+         of funding [letter]. Lancet. 2001; 357:1132–1133.
+    • Bawaskar HS. Aphasia in a farmer after viper bite. Lancet Vol 360 November 23,
+         2002. www.thelancet.com
+
+                                                                                                                           References 59
+
+    • Bawaskar HS. Snake bite poisoning: A neglected life-threatening occupational
+         hazard. Indian J Crit Care Med 2014; 18: 123-4.
+
+    • de Silva HA, Pathmeswaran A, Ranasinha CD, Jayamanne S, Samarakoon SB,
+         Hittharage A, et al. Low-Dose Adrenaline, Promethazine, and Hydrocortisone in
+         the Prevention of Acute Adverse Reactions to Antivenom following Snakebite:
+         A Randomised, Double-Blind, Placebo-Controlled Trial. PLoS Med (2011) 8(5):
+         e1000435. doi:10.1371/journal.pmed.1000435.
+
+    • Deshmukh Vinod S, Motghare Vijay M, Gajbhiye Dharmendra, Birajdar SV,
+         Deshpande Rushikesh, Pise Harshal, Jaykare Swapnil. Study on acute adverse drug
+         reactions of anti snake venom in a rural tertiary care hospital Asian J Pharm Clin
+         Res, Vol 7, Issue 5, 2014, 13-15.
+
+    • Deshpande Prabhakar Rushikesh, Motghare Vijay Motiram, Padwal Sudhir
+         Laxman, Pore Rakesh Ramkrishna, Bhamare Chetanraj Ghanshyam, Deshmukh
+         Vinod Shivaji, Pise Harshal Nutan. Adverse drug reaction profile of anti-snake
+         venom in a rural tertiary care teaching hospital. Journal of Young Pharmacists 5
+         (2013) 41e45.
+
+    • Harris JB, Faiz MA, Rahman MR, Jalil MA, Ahsan MF, et al. Snakebite in Chittagong
+         Division, Bangladesh: a study of bitten patients who developed no signs of systemic
+         envenoming. Trans R Soc Trop Med Hyg.2010 May;104(5):320-7. doi: 10.1016/j.
+         trstmh.2009.12.006. Epub 2010 Jan 22.
+
+    • Jaideep C Menon and Joseph K Joseph. Complications of Hematotoxic snake bite
+         in India. Clinical Toxinology in Asia Pacific and Africa, Springer Reference edited by
+         P Gopalakrishna Kone 2015 p-209-232.
+
+    • Majumder D, Sinha A, Bhattacharya SK, Ram R, Dasgupta U, Ram A. Epidemiological
+         profile of snakebite in South 24 Parganas district of West Bengal with focus on
+         underreporting of snakebite deaths. Indian J Public Health 2014;58:17-21.
+
+    • Maurya PK, Kalita J, Paliwal VK, Misra UK. Manual AMBU ventilation is still relevant
+         in developing countries. QJM 2008; 101: 990-991.
+
+    • Mohapatra B, Warrell DA, Suraweera W, Bhatia P, Dhingra N, Jotkar RM
+         Rodriguez PS, Mishra K, Whitaker R, Jha P, for the Million Death Study Collaborators.
+         Snakebite Mortality in India: A Nationally Representative Mortality Survey. PLOS
+         Tropical Neglected Diseases. 2011. DOI: 10.1371/journal.pntd.0001018.
+
+60 Management of Snake Bite
+
+• Nayak KC, Jain AK, Sharda DP, Mishra SN. Profile of cardiac complications of
+    snakebite. Indian Heart J. 1990; 42:185–8.
+
+• Nuchprayoon I, Pongpan C, Sripaiboonkij N. The role of prednisolone in reducing
+    limb oedema in children bitten by green pit vipers: a randomized, controlled trial.
+    Ann Trop Med Parasitol. 2008; 102: 643-9.
+
+• Poovazhagi Varadarajan, Thankavelu Shankaerlingam et al. Peripheral Locked
+    in syndrome following snake envenomation. Pediatric on call July- Sept 2013
+    Vol 10 issue 3.
+
+• Prakash S .Mathew C, Bhagath S, Locked in syndrome in snake bite. J Assoc.
+    Physicians India 2008;56;121-122.
+
+• Ramachandran S, Ganaikabahu B, Pushparajan K, Wijesekara J.
+    Electroencephalographic abnormalities in patients with snakebites. Am J Trop
+    Med Hyg. 1995;52:25–8.
+
+• Reid HA, Chan KE & Thean PC. Prolonged coagulation defect (defibrination
+    syndrome) in Malayan viper bite. Lancet. 1963; i: 621-626.
+
+• Rojnuckarin P et al. A randomized, double-blind, placebo-controlled trial of
+    antivenom for local effects of green pit viper bites. Trans R Soc Trop Med Hyg. 2006;
+    100: 879-84.
+
+• Singh A, Goel S, Singh AA, Goel AK, Chhoker VK, Goel S, Naik SM, Kaur M. An
+    epidemiological study of snakebites from rural Haryana. Int J Adv Med Health Res
+    2015;2:39-43.
+
+• Smith E, Delargy M, Locked in syndrome. BMJ 2005; 330; 406-409
+
+• Snakebite- the neglected tropical diseases. Editorial. Lancet 2015; 386:1110
+
+• Suri V, Sharma N, Bhalla A, Mahi S. Ambu Bag - Basic Life Support Saves the Day.
+    Emergency Medicine 2006; 23: 23-25.
+
+• Sutherland SK, Coulter AR, Harris RD (1979) Rationalisation of first-aid measures
+    for elapid snakebite. Lancet 1: 183–185.
+
+• Warrell and WHO 2009 11-Http://www.who.int/neglected _diseases.EB132_R7_
+    en.pdf).
+
+• Warrell DA. Guideline for Management of Snakebite. World Health
+    Organization 2010.
+
+                                                                                                                     References 61
+
+                 ananaaennxennuxeeruxxeruu1err1ee11
+
+SnSnSaSnankakeakekbeebITbIbTeIITeTeexexeaexamxamaImnmInaIInanTaTIaoTITonIIoonnn
+           ppeprepreferofrofrfoormrmrammaaa
+
+NamNaemN…Nae…am……me……e……………………………………………………………………………………………………………….…..……..….…..….…..….....................................................A...g...eA....g.....e.A...A.g..ge.….e...…..….…...……..….….….……S…e…..…x…S…Me..x.S/. FMSeex/xFMM/F/F
+AddArdedAsArsded…dsdrs…er……ess……s……………………………………………………………………………….…..……..….…..….…..….................…....…..….…...……..….….……………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………….….…………..………....
+DatDea…tDeD…a……atet….e..……..….…..….….….…...…..….…...…..T….….…i…m. …T…ei…m.oT. feTimbiomifteeboi.of.t.ef.b..b.i.t.ie.t..e.…....…..….…...……..….….…………………….….……A……c..…t…Ai…vc..i.tA.iyAvciacttiyvitviaitmitytyteaimatottfeitmbiomifteeboi…oftefb…bi……tiet……e…………………………………………………………
+SleSepleiSenSplgelieonepngpifonilnoggofolronobnofelrfoldboo.eor..dr.b..b.e…..ed..d.Y.….e..s..Y/.….Ne.…soY/YNe..es.o./s..N/..N….o..o...C…...o..t.C…..…o...tC..C….o..o.t.….t…...Y..…e.….s.…Y/.…Ne.…soY/YNe…eso./s..N/…..N.o…..o.….….….…..M..…..o…..M…s…q…ouMsiMqtoouosinqsteoqutuintYieoteotsnY/neNeetsotY/YNeeso/sN/Noo
+SnaSkneaSSkSnenaeSaknekYeSenSeseY/NensnoY/YNeKesoi/slN/lKeNodilolKYeKedilsillYe/leNdsdoY/YNeSespo/seN/ScNpoimoeScSpeipmneecpecimhnimopetehnonopitnphohomiotnotombiniiolnembmYioleeobsbY/ilNeielseoY/YNeeso/sN/Noo
+IdeIndteifInidIctdeaifentincitoaitfnitifciiocafnatistoinofnanskonoefafsiknsenapiakhnkeopeithnoinosptphsohposoetsotcpoismesscpesipmneecaecismnim…aees…nn……aas……s…………………………………………………………………….…………..….…..…..…..…..….................…....…..….…...……..….….…………………….….…………..………....
+ConCfoirnCmCfoieronmdnfifseripmrdmesecpedimedscpesipmneecoecimfnimsoenefnanskonoefafs…knse…na…ak..k.e…..e.…..….…..…...............…....…..….…...……..….….………………………………………………………………………………………………………….…………….…………….…….………………………………………………………………………….…………….………. .
+
+LoLcoaLlcLsoaoilctcsaeailtlsesititee
+
+FanFgasnFmgFasanmrngkgsassmr…kmas…ar……krks…..s.……..….…..….…..…..…..….......….A.…..c.….…tA…iv.c..e.tA.ibAvclecteitbevivdleeeibenbdlgeliefnredgodimfnirngofgmfarfnorfgomasmnYfgaefsansYn/gNegsssoY/YNeBesol/soN/BoNoldooBcoBldolotcoolYdodetcsclY/olNeotsotY/YNeeso/sN/Noo
+
+TimTeimoTfeTimdiomefevedoeeoflovfdepdelmeovvepelmnoltopeopmnfmteeoendfnteetomdofeafeme…ddea…em……ma……a……………………………………………………………………………………………………………………………………………….…………….…………….…….………….…..……..….…..….…..…................…....…..….…...……..….….……………………
+
+ExtEexntsEeiExonxtnsetieonnfsiseoidofneneomdofeafeme…ddea…em……ma……a……………………………………………………………………………………………………………………………………………….…..……..….…..….…..…...............…....…..….…...……..….….……………………………………………………………………………………………………………………………….…………….………. .
+
+RegRioegnRiaRoelegnlgyiaoimlonlnypamahl layplnymhgmapintphigshaia…ntings…gi…t…iits…i…s……………….…..……..….…..….…..….................…....…..….…...……..….….……………………………………………………………….…………….…………….…….………….…………….…………….…….………….….…………..………………..….….………….…………….………. .
+
+PaiPnainiPnPaaibaninidnaiobnimndaoeabmnbddo…eomn…m…e…en……n………………………………………………………………………………………….…..……..….……..….….….….….…...……..….….……………V……o……mV……oi…tmVinVoigtomi…nmig…tiit…n…ing….g..…….……..….….….…....….....…...….…..…..…....…..….…...……..….….……………………………….…………….………. .
+
+BloBoldoBpoBlrdoleoposordsedupsrprseerue…srse…us…u…rer……e………………………………………………………………………………………….…..……..….…..….…..…...…......….P..u...l….Ps.…eu. .lrPsaPeutulerslaes…teer…ar……atet……e……………….…..……..….…..….…..….......…....…..….…...……..….….………………………………………………………………
+
+ActAivcetAibAvclecteitbevivdleeeibenbdlgelieGnedgudimGningu/gfmGrGou/mfumrmo/amf/brforaaombsmriaoaabnsbrisoar/ansisnoi/yoannos/styah/aonentyrhysoeiottrhtesheietrersistiete
+
+20W20BW2C20BT0WCWoBTnBCoaCTrnrToaivornarnailvararilrvivaal l  CloCttleoCdtCtl/eolNodtto/etNtedcdo/loNt/Ntcotloettdctcleolodttetedd                                           TimTeim…T…eTim…i…m…e…e……………….…………..….…….…..….….....
+
+                                                              AnneAxnunreAxAn1unSrennxea1uxkSrueenrBea1ik1tSenSBEanxikataekmeBEixBntaeiatmetEiixoEnanxamatPmiioenrnianfotPairoetmirnofanoPrePmre6faro3fromrm6a3a 6633
+
+Repeat 20WBCT                Clotted /Not clotted  Time…………….……
+Repeat 20WBCT                Clotted /Not clotted  Time………….………
+
+ASV administered …....…………………. Dose given ...…….......……… Vials Time.………..….…..…
+
+Repeat 20WBCT after ASV Clotted /Not clotted Time……..................…..........................……………
+
+Progress after ASV
+
+20WBCT at 1h …......…. 2h …......…. 3h …......…. 6h …......…. 12h ......…. 18h …......… 24h …......…
+Progress INR …………………………………… APTT …………….........………..……….............................…………
+Blood urea …………………………..........…… Serum creatinine ……………..........……..............……………..
+Urine ………………….....................………….. Haematuria /hemoglobinurea …………….……..............…
+Haemogram ………………………………...… Platelet count………..............................…………………………
+Blood transfusion, if any ………………………………………………………………………………
+Fresh Frozen Plasma (FFP), if any ………………………………………………………..………
+Dialysis, if any …………………………………………………………………………………....………..
+
+Compartment syndrome Present/Not present Neuroparalytic
+symptoms
+
+Bilatral Ptosis ………………....……………………. Opthalmoplegia ………….......………………………
+Bulbar palsy ………………………........................................................................................…….
+Respiratory rate ………….......……../min sPO …….………% One minute count ………….
+
+                                                                                       2
+
+Muscle power on arrival
+
+Upper limb ………………….....… lower limb ……………………....... Progress …………………………
+Pelvic girdle ………………………..............……………………………………………………………………………..
+Reflexes Planter on arrival ………………...........……. Progress ……………………………………….….
+
+64 Management of Snake Bite
+
+Voice on arrival ………………………………..............………………………………………………………………..
+Distance between Inter teeth margin ..……..…… On arrival ………….... Progress …………..
+Protrude of tongue in relation to teeth margin .……… On arrival …...…. Progress ……….
+Pupil size ……..............……. Reacting to light ………...........…… On arrival ….……......…….....
+Progress after ASV total dose ……................………. After Repeat dose …………..………………..
+Intubation time ……………….. Ambu bag ventilation/ Mechanical ventilator
+
+Follow up
+
+Recovery time in days………...……… Total ASV dose given……………………....
+
+Blood transfusion given/not given FFP given/not given
+Dialysis days ……….............. Ventilations total days ………….....…… Disability………………………….
+
+Hypoxic brain injury …….....……. Amputation of limb ……....…….. Plastic surgery ……...…..
+
+                                                                                    Annexure 1 Snake Bite Examination Performa 65
+
+                                                                         7. Clotting test ‘20WBCT’ in clean, new,
+
+                          aanaannnannennexeexnuxxueururxerreue2e2r22et2o diagnose vasculotoxic envenomatio
+                                                                              Clotted. Never write Positive/negative
+
+SSSnSnnnaSaankakkekaeeekbbbIebTIITIbTeTeeIemTmmemaamanannnagggnegeemgemmmeemenennnTe1TTsnTdt 3ddhTdIofIuIfrdIfsfffrfeIoffmeeretfrhreereetenimernennToefTThnTospTitaliz
+                                                                              neurotoxic snakebite is confirmed, clo
+         llelleeVeVlVeVeeeleVlSllSeSSolooSofffofhhhfheeeaheaalaelTllaTThThlhhnCToCtCahCclaoartaCtrerderaaeedermineister anti snake veno
+                                                                         8. Give analgesia by mouth if required: P
+                                                                              500 mg to 1 g maximum 4 g in 24 hour
+                                                                              100mg/kg/day). Do NOT give aspirin o
+                                                                              which can cause bleeding and renal dy
+
+AATAATATTAAPATPRPPRAIRMRIIMPIMAMRARAIAMRyRRyAyHyHREHHEyAEEALAHATLLETHLTATHHCHLCTACCHARAARECRRECAEECERCCENEENTNCNTETE9TER.ENERR(ATRP(sE(PsHP(eRPHsCHsH(Ct)PChCe)H)n)eCed) and feasibility of tran
+
+                                                                               health service (see A above).
+
+PaPPtaPaiteatinteiPeitneanAtntiAtreArAnrirrvtriarviAvilavra&lral&ilA&v&aAsAlsAs&essssesAessemssssmsememnesetnsenmtnttent                                        10. If the necessary skills, equipment, anti
+
+                                                                                                                                                                intravenous fluid to correct hypovolae
+1.11.1A. .sAsAs1eAs.ssesessAcesissrcsscireucircsilcruascutlcuailoaitlratincoit,ouinaonl,ain,rataw,iraoirawinwry,awayayinraydawnanbdandrybdebarabrenterahdeatiabthnhtrighnienaigangntaghdanaindnndegdadaeldenaweadlaliwtdlwhtiwetoiathihdtnlahwiyaananilgytinynfhleyiolfaitlsefinheeftyerthleohltriahcfretearaeelatnaahteientnrenedigniansigtnygesgntienmgic enveno
+sysmsyysmpymtmpoptsmptoyotmsomomspsntosopnomnrpnepsrspreoeersnesetespnaenrtnetaioatsatienoitn.oinotn.an.t.ion.
+                                                                                                                                                                intravenous injection, identify the earl
+
+2.22.2E. .sEtEsa2Estb.taslatbisabElhbilsilsthiaahsrlhbalgalrleiarsggrhbegeolbearborebogroireeneritebnirnoaitntrvraetearvniavenoventeunronasouvouaseucsanscacoeaccuscesscesaesanscasdcaneansdsndtssadstartastnatr1ndart1otrnstr.ntomInaorforrmattmrhlmansealoaalpslrlsiaamnasltiealainielnlsiennsleostaeslwlfolisuonlwiolwenfiwiflsnuislnifoscnufiwruofsiustinioeisn.oinrfoniu.an.s.fioorn.antiven
+
+3.33.3B. .eBBfe3oBefr.eofeofroBreereremfreoermoermvemoaovrloveaovamlfalotolfhovftefathhltehoeteuftotrotuhnoureiurnqnrtiunqoieqiuqtuer/uenltiet/igq/ltail/ugitlgaieugatratu/eultrisurge,erastese,t,stuste,tretsefestostsf,rtofttoferhoarstevrthahtfpehoierlpearprbstpreheleresenese,cesptnernrcanecoencsefsoeaoffneofpacrfaueptalpoouspueflausladsehlesipedsedutaidsaillsttlitheasatldfalailsctilaitly w
+
+tottohottoethhtehtoeoteutotrotuhnoureiurnqnrtiunqoieqiuqtuer.uenIteft.iq.ItfI.hufItefththpe.heuIpeflpustpuehlusleiselsespieasiubsialssabeabsnbsiestesneantnbtetseneuensnrnsuetusrueareenrdaes1aouda2cdrotd.eocoGoctarctoiviodtrsoeroiprscipsritpresoperspremeerisnseesetesdpnebnirtcnetbatsfbteoebeiforneofentofrorbewereremifretoehrmoermvAemoaodvrloveravaemlalnolavlianle 0
+oroloriogrlrailgitlgaiuogatratueultrisurge.erases.t.su.res.
+                                                                                                                                                                0.005 mg/kg body weight of 0.1% solu
+
+4.44.4I.n.IcnIn4aIcn.scaecasIasoenesfoeccofaloficsnfcleiclnciolnaifncilcacliycalilacnyllyoilcyncoacfonliolnryfmnifricfrmeiomrdnmeefvdiedervdmnvevoeenemndonomovomuemosnouooubsumsibtsbeoibti,uteitets,oe,tbuto, irotutnoueriuar,nqnrtniuonqidequiqtpureusanethettisqioteshuuhsnoehlotudtsoulsubdwlhdlebidotbrehuberlecmdreaermobremdvemoieoorvodvevevemadedsodcvueladr disea
+
+onolonyonlanylyflatyoaefnatfrteflsyetrterasrstfrtsataetrinarttirgsnittnoigangfroglotfoiofnlafolgdolaoiaodnadfigdnilnodigngaodgdsdoeidonsosoegesfodeAofoofSAsfAVeSASoVaSVfnVaAdananSkdnVdekdekaekpeneeAdpseptykAprAretoAietrnprotpgiorpneoApiespnitnoNrienoefeNe0pNoei.N5nseotemosiogstNgtsmigie(tg1miognm:s1mienti0niieg0neme0)infoer IM adm
+
+inijneinijcnejtecjieoctictinoitojirneonecrnatredieraoeyadn.adyIdryn.ey.IcnaI.naIdcnscyaeca.saIosenesfoecmofaofmusfmelmutuiolputlftillpemitplilepulieglletailgitlpgaiuglateratueultrisurge,erases,tl,slaua,tlrlhaleltleslth,htleiahegrlealielgitlagahiugcatertatueiultorisurgenceraseasatcsnupcarpcabneaneesbnabrecrbe.areIlnreferalsbelysealemeasrdasepesidltnedoidanminsiensddoinappea
+
+EmEEmeEmrmegereergEngremcgenyencnrcRygcyoReyRonoRmocoooymEomRXmEoECXoEXECmXCPECETPEPXtTPThCtTeEthhtmePheTmoemstmothospeostrtsmpotprxoproiosrmxotximaxpimlirmaoalnxaloielonmo;newnae;le;hwrow;iehcwnhahiehcci;cshitwchioshohshnuhsiochilosudhouldosudledhnlodaolonyluotnlblnywldyelbyiobtrehbnerelayreneralbeldsealeetasrdhaseeesdlenddarseecdomm
+
+afataefatfrtefaetredrarmafdatdmiedsmrsmisiaosidsinoismoainoninsandsanianaodndlnladaplalalrnlplelpdrppreaaerplreplapartarioaertatipnoitasoin.ornsans.t.sio. ns.  ASV reactions).
+
+5.55.5C. .aCCra5rCary.aroryCyruoyatouorautrutsyatiamosasiumpismtilmpeaplmepsleilmemdmpeiedlcedaidcimlcaiacalesaladslaseiascsseaseslsmesasmesmssnmeetenseintsnntmictnilneuicncnlducltiuldniudnigdnicnhiglnguihsgdhtihsioInstfirtosgytotrhhoaryeiyrnsaypdtanoaansdrtndiiymsdesianmpisnmtilmpedhplpaeslesihlmpeyephpsvhyihliycsedysaiecpislcnaihcalcyalesliocfarlespirato
+    exeaexmexaxaminammieanixtniaanoatmatinoitoi–inonal–no–tlci–olaolcnlocas–calwalslolsewwscllewaienlleligslnli,wlnigpnge,ag,plilp,naipnaifnauginif,lnufptufleaultniltendetnfenudnrdledtaereenranrdandanedendnredleanennrlnallgdaarlearrgedygrengneldloegdalcderolagoalcleolcaldmcaylalmlayolysmplcykmhampalpghliphyrlaghwmgnlaglapdanlyahsnd,(ndgLsds,lMa,sn,Ad)s, ,and intu
+    peprpesperiesrstsriseispstnietstetrnesbntinltsbetbelebeldeneleitdnedbigdnilnfeigrngeofgdrfmrofinormtogmhmtferthhotbehemibtebeitbtihwteietowewbuowinotuoedunu,nwdbnd,old,boub,lobonldolodoopd,odbrpdelporspreosersudfesorspureusr,tureprers,aue,psnlp,uusspurefluseelrsel,raesprtetruaoeartl,asatebet,hle,berib,gaelbelhtdeeleeidn,redbigfdnilaneigncgeigdlitinygaccomp
+    (g(ug(mg(ugumsum, msn(s,go,snusn,omenos,oseves,,one,vmv,ovosmiotem,mi,stivt,io,sts,tmotoslotiotool,rolsoluotroruiorunrlurieonir)nrie,nel)ue,e)r,vl)eil,enevlleveove)l,felolcelofovfcnefcoslconconsifnsoccsiuocisoiunnouAseusncmsniesonebs,uesdus,r,sndbod,eraodrosgporso,oio,apnodpdignpridnoeigingoytegiepeoyleiyniendyealgiselldieldeisydnsesdloidtsracheal tu
+    (p(tp(op(tsptoiotsso)si(sisaps)int)saod)ansanodinsdto)dhoateothnrhtedhserieorgsrtsnihgissgneignorsnsfsospoifgoafpnrfpasparloayrfarslyalpiysslay.sirsTissa.ih.sTlyeT.hsThGeihselG.eaGTslGahlgasleoasgwgsGogowlCoawwsoCgCmorCooemawomssmauCcassaocsclicsmeatcalacaeltealisceoncanncanaonl(neSntnoucnbotaroetbintbueenbetsoueeautsdulseb2estdeeo0dtdu0toso6teo;dMtaourya
+
+asasaseasssesesstesahsstessthhetleehsevlseeleetvllheveovelfelolcelofovfcnefcoslconconsifnsoccsiuocisoiunnouseusncsniesonesuoessfosnpofeoafpstfpasipeatoantieifttenipsentapntstsatipserpanparl1tayrsa3rzlyalpe.yzlDadyzerzeubdaedrylbdyibnnyzbygenyudntehnreuboeeuyrturojoonortxouetoiotrucxonxrivcxieoceiyvtcnvoetovexnhemnioecnomsevom.enmssn.d.soo.mtras.cheal t
+
+6.66.6T. .hTeTh6Thse.hneseasnTknsahenake,akeiksef,ne,bifi,arfbikofbreubro,goruiohfugubtgh,grhstoht,hu,stos,hguhsohhloutdou,lbsudldhelbdobceubeaclerdcaecarbfareueerfleulfcyuflaulleyrllyexleyafexumexalxalmiynammienixdnieaneadmedntadoidananliedednddfiedtdiandlienudtenidnenftigntiefditidcfieiof,eidniledfl,tad,pifpi,oifpiesfspeodspos,iaobsinfsilbedpisb.ilobrelesi.lges.hi.btlsei.de pne
+
+(O(On(O(enOnsenme(seOsmamsrnmataerpartshtrpmtophpanhohreontonpepnehhpeopohpthnoohoetgotorpotgaohgrpgoraharptapoohphgfohrtoafhofptefthhhtsehonesefasntknsahenake,akedkse,ene,dad,aedkeaeaoda,drdoaoertolraihrvadleeialvio,tlveiurvef,bea,aifeil,vfiaivabfaveieavla,aviainblfaialgliabelvabb,lbaeilstei,lhtle,saeos,hbnuhsol,hloeudaou,lmbsudldhelbodobeuubetlehd gbaeg sho
+
+tatktaeatknakekefneontfnarofkcofreorcnrncofcofniornfrmnifricfrmaiomrtnmaioatfaitnroitombinonyabnbtayibynoaynaenanxbenpeyxexparxpentpe)re.rtxt)r.)tp.)e. rt).    obstructed due to secretions or kinkin
+
+                                                             AnAnAnenAxunerxeneuxe2uArxerunSe2rne2eaS2kxnSuenaSrkanBeekai6t2ekBe8eSBiMtnieBtaeiMtnkeMegaMnaeBnmagitgneeemgnMmetemaenDnnteigftDnfeoDtimrffDifefeSefnierfnntefraetenLkrDenteevtiLnfeBeLftelievsLtreveoelvnsflestHolLosfeefHoavHlfeteHhealslacetalohatrhflcetaHchraecerae6rlte7h6c67a76re7 67
+
+    7. Clotting test ‘20WBCT’ in clean, new, dry, glass test tubes should be carried out
+         to diagnose vasculotoxic envenomation. Report should be given as Clotted or Not
+         Clotted. Never write Positive/negative. If clotted continue every 1 hour for the
+         1st 3 hours from the time of hospitalization and then 6 hourly for 24 hours. If a
+         neurotoxic snakebite is confirmed, clotting test can be repeated after 6 hours. If
+         not clotted administer anti snake venom (ASV).
+
+    8. Give analgesia by mouth if required: Paracetamol (acetaminophen) (adult dose
+         500 mg to 1 g maximum 4 g in 24 hours; children 10-15 mg/kg/dose (maximum
+         100mg/kg/day). Do NOT give aspirin or non-steroidal anti-inflammatory drugs
+         which can cause bleeding and renal dysfunction.
+
+    9. Assess the need and feasibility of transporting the patient to a higher level of the
+         health service (see A above).
+
+    10. If the necessary skills, equipment, antivenom and other drugs are available, give
+         intravenous fluid to correct hypovolaemic shock. These skills include ability
+         to diagnose local and systemic envenoming, set up intravenous infusion or
+         intravenous injection, identify the early signs of anaphylaxis.
+
+    11. If the patient fulfils criteria for antivenom treatment, give ASV. If no ASV is
+         available, transfer to a health facility where ASV is available.
+
+    12. Give premedication with Adrenaline 0.25 mg (0.1% solution) and in Children
+         0.005 mg/kg body weight of 0.1% solution subcutaneously except in hypertensive
+         and patients with cardiovascular disease. Adrenaline is made ready in two
+         syringes of 0.5mg (1:1000) for IM administration if symptoms of any adverse
+         reaction appear. If symptoms do appear, ASV is temporarily suspended while the
+         reaction is dealt with and then recommenced (for details see treatment of early
+         ASV reactions).
+
+         If the patient has evidence of respiratory paralysis, give oxygen by mask or
+         laryngeal mask airway (LMA), and intubate the patient and make arrangements
+         for transfer to a higher facility accompanied by a Medical Officer carrying an
+         Ambu bag, additional endotracheal tubes, oxygen, facemasks and basic drugs for
+         resuscitation (Suri et al 2006; Maurya et al. 2008)
+
+    13. During the journey the endotracheal tube may slip into right bronchus leading
+         to left lung collapse and right side pneumothorax may also occur. To prevent
+         the tube being bitten, a mouth gag should be inserted. The tube may get
+         obstructed due to secretions or kinking leading to cyanosis and resistance to
+
+68 Management of Snake Bite
+
+Ambu-ventAilmAatmbioubn-uv.-eTvnheteninltailtahioteinot.nuT.bhTeehnsehntohtuehldteutbbueebpseuhslohleuodludoldbuetbipemupmlu7lele.ldeddoiCauoltoteutiltmtyinmagnmedtdeAisdatmita‘e2btle0uylW -aynaBdnCdATmA’ imbnubc-ule-an, new,
+
+annexure 2 ventilationvcevoneutnlidltaibltaieotincooncnoctuoinluduldbedebcewocintohtniantiufnaeucdeedwmwitahistkha.faafcaecme masaks.k. to diagnose vasculotoxic envenomatio
+                                                                                                                                                                             Clotted. Never write Positive/negative
+Snake bITe mangemenT dIfferenT 14. Admini1s4t1e.4rA.AdAtmdrominpiinsntiestraeAnrdtArNtorpeoiopnsientiaegnmadnindNeNeboeesoftsoigtrimegmitnriaennbesebffeeorfroeinrtegrtatronas1anfssehtfroe3rsrinprhigiontuatgolrtsaoasfharoohmsopstipthaietlatalismase of hospitaliz
+recommenrdeercedocamobmomveene.dneddedabaobvoev.e.                                                                                                                           neurotoxic snakebite is confirmed, clo
+
+leVelS of healThCare 15. It is ass1u51m.5eI.tdIitsthiasasatssuasmsusmeisdetedthdtahvteaantstasisliastiseiotdendvoevtnehtneiltraitlahiotainonnobtoyhtaehrteitrghhtahtn-afnbitnybtoiayntgtacigfltoaihgctthte-eftmi-dtftiaatinsdtkigmnfgianfciasectmeermaasankstki snake veno
+connectedctocnoannenacentceatdesdttohtoaentainacn(aAanemasebtshute)htbeicatig(cAw(mAilmbl nubo)ubt)abbgeawgpowilslisnlliobn8tlo.ebtaeGbtpeitvohpesiossasilnbseialvbeleglaele.tastitahtibhsyilsemlveeovlue. tl.h if required: P
+
+16. Injectio1n61T.6eI.ntaIjnenjcuetsciotTinoxnToeTitedatntaounsbuTesoTgxoiovxeiodnidtaotftobeebrgeriugvlieivnnegnaofatuefttreorrrurcluionlrignreogcuottui5ot0nro0corofmcrcorgoreartceogtcui1otliongopnomafotachfxoycia.mogauuglmuolpo4apgtahitynh.y2.4 hour
+
+                                                                                                                                                                             100mg/kg/day). Do NOT give aspirin o
+
+17. Patient1s71h.7oP.uaPltdaietbinetnpstlhasochueoldudludbnebdpeelrpaolcaebcdseedurnvudanetdiroeonrbofsobersre2vr4avthaiotoinuornfsofr(oe2rv42ewn4hohihfuioctruhhsrec(seav(vniecevtcneiamniufsigtfehivtebhelveseievcdticiimtnigmgaigvniedvsersenal dy
+    a history ofaahanihsotisnotvroyernoyofomaf noaounnsovsnenvnaeoknemobmoituoesu. sTsnhsanekabekibetiebteivt.iecT.thTimehbebibetecitovemivceticismtismobefbrceiogcmhotmeesnesseodsofarnfigrdihgthetneendedanadnd
+
+   coAnfTuseAd iPmcoRmcnoefInudMfsiuaestAdedilmRyimayfmteedHeridaaEitabeAtiletyelLay,TfmatefHatrneayrCbaiAbtieimtR,eme,EmagniaCvyneaEys tfaNaimtlisTme9Egei.digvReieAnvste(sifPssfaeifclHsasaseltsCtiieohdnie)ednhnetiensifetiiodcfiaracytani)ot.dinofenhaihsstiisobtriolyirt)yy. )o. f tran
+
+    If no symptIofImnfonsosdyesmyvmepltopoptmoamsftdseedrve2ev4leohlpoopaufartseftrteh2re42p4haohtuioerunsrttshctaehnpebapetaiedtiniestnchchteaacanarlgntbheebdsde.eidrsvcisihccaehra(gsreegdee.dA. above).
+
+18. DiPscaotui1rea81ng.8eDt.tDiAhsciersocruuoisrvueaarogalefg&itenheteAhffueessucsetseioevsfeosifnaminendfeefefpnfcoetttcievtnievtaeianaldlnydphopatoremtnetfniuatlil1aldyl0rlhuy. agIhfrsatmshrumfeucfnhluedlacrdsuersgussgassruyscushckhailslass, equipment, anti
+
+cortico1s. teArcosocsirdeotssri,cstaoiccnsiortsiechtureiolsraitodtaiismod,nsain,,naaetnisirht,wiahsantiysdatmaahnmeindpienabserr,isean,an.atdnhdhinehgpeaapnraidnri.dne. al    intravenous fluid to correct hypovolae
+                                                                                                                                                                             wtitohdaiangynliofseethlorceaaltaenndinsgystemic enveno
+symptoms on presentation.
+                                                                                                                                                                             intravenous injection, identify the earl
+
+2. Establish large bore intravenous access and star1t1n.oIrfmthael psaaltiineenstlfouwlfiilnsfcursitioenri.a for antiven
+
+3. Before removal of the tourniquet/ligatures, test foratvhaeilparbelese, tnrcaensoffear ptoulasehedaisltthalfacility w
+
+to the tourniquet. If the pulse is absent ensure a1d2o.cGtoivreisppreremseednitcbateifoonrewriethmAodvrael naline 0
+or ligatures.
+                                                                                                                                                                             0.005 mg/kg body weight of 0.1% solu
+
+4. In case of clinically confirmed venomous bite, touranniqdupeattsiehnotusldwbitehrceamrdoiovveadscular disea
+
+only after starting of loading dose of ASV and keepsyArtirnogpeisnoefN0e.5omstgig(1m:1in0e00) for IM adm
+
+injection ready. In case of multiple ligatures, all the rliegaacttuiorensacpapnebaer.rIef lseyamsepdtoinms do appea
+
+Emergency Room EXCEPT the most proximal one; wrehaicchtioshnoisulddeoanltlywbitehraenledatsheedn recomm
+
+after admission and all preparations.                                                                                                                                        ASV reactions).
+
+nake BiStnSe5anM.kaekaeCxenaBargBmirteyiientmoaeuMtetiMoananstnai–magnlteopgclmteeahmlmeesewneDdtneiclitalsaintaltgart,sihptcseaehtisenHDsfmuDoielssitntseprttniirndcticeatclrlutHadHnoindsogepshnipiltsaIliatafrtortglayrheylnedgaplenoaadctlaisemlinmlaytspmhklaepashpirehgwvylaiasdnyiecd(naLslc,Me Aof),raensdpiirnattuo
+
+ oceed asPirnPorPcoHeceCep(dgeeaudarbmssaoiisssnvt,ieennPnioHPntsHCaebd,Claevdbeoaiotdbmivionientvg,ietnsfotirnaootdomahdldeiotdtfhriooteulinlorbointiwnotteeiotn)wh,gtleehos:vfeuoenfllodlool,lwfboclwiooniongndssg:cpsi:oreusAfssonmurertbsersu,a,pndbusrafolgseo,eraprtdiaondtgaiete,hiobyignleehaleielddersinfnadgcoitlirtaycahcecaolmtup
+
+  1. If ASV i1n.d1(.icpIfatIAotfesSAdiVsS)aViannidndidchoaiactdahetednerodastniagbdnnedhseahondafgdpnivaonertoanbltyaebslereisene.anTgdihgvyeievsnGteanlaarltsargewlroaeiwdtahydCoysuortseatmtsrataunrswstyccwiidatthilaeteotlhaicuooyatn,unadt(nnSoaouyntnrydboi eedtlteaualysal,ey2dd,0odt0on6on;tMotaurya
+
+wait for anawsyswateeiastssiftotrfhreoeaprnloaeyrnvtyte.eltsoetfsrtceorpenopsrcotir.otu. sness of patients par1a3ly.zDeudrbinygntehuerojotuorxniceyvetnhoemens.dotracheal t
+
+2. Carry 6o2.u.2tT.aChmaCeraorsrynrreayokduoeetu,taitafamiblermoodruoecgrleidhnetdi,ctesahtilaloeaiuldnelddcllbicanlebinccoaiarclaraetlonfaurdnylldlyalebsasxobearosmasrtamiontroeydrnyattaosainsnlsedecssfleiustdsmdlesuinmentngeiftniceiotndlicl,naliucfpldpsueiodnsaignsnigbdlrei.ght side pne
+
+biochemic(Oablinboaeicnohsdcmehhmeaamriectmaipclhaaalotnoandnleodhpgaihceoaametlomagtareoatalopslhguoirogceaifcmltahmelenmestaesns,auEskrCueeGr,medmoeranedrtnasot,dsrEti,ohaCEgleGiCrvtaGeoup,rbohiferyaa,brdvaeiadsoiinilgoagrbgabrlpeiath,ptsyehh,nyoa,suaalsmd boeuth gag sho
+
+indicated ttiaonkidgneiendctaifcatoaertbdecadotsonetfolginregmeteadttabiotabansa.ebslyeinlaiennedeadxtpaaet.ar.t).                                                           obstructed due to secretions or kinkin
+
+               Annexure 2 SnAaAnkneAneBnxeintuxeuereMxreu2ar2SnenSg2naeSkamnek6eaBn8kBiteietDBeMiftMfeaenaMrneagagnenetmgmLeeenvmnteetDlsnoDioftfiffeDSfHerniefreafenekantrelteLhBneLcitevtaevLreleslvsoeofl6sfH9oHefeaHlatlehtahclactrhaerceare667969
+
+    3. If the patient is bleeding severely irrespective of full dose of ASV or is already
+
+         seriously anaemic give transfusion of blood or fresh frozen plasma or transfer
+         where facility is available.
+
+    4. Reassess analgesia (see B above) and, if required, consider giving Tramadol 50 mg
+         orally. In case of severe pain administer Inj. Tramadol 50 mg IV. Avoid pethidine
+         or morphine in neurotoxic envenomation. A deeply sedated patient may create
+         confusion regarding level of neuro-paralysis.
+
+    5. Give tetanus toxoid booster (if not given already), to all snakebite victims
+         provided coagulation is restored.
+
+    6. In case of cellulitis consider antibiotics, and consider surgical debridement of
+         dead tissue.
+
+    7. If the patient has evidence of acute kidney injury (AKI), treat with dialysis.
+         If this is not available, transfer to a specialized hospital. For details see
+         Annexure.
+
+    8. If the patient has evidence of bulbar or respiratory paralysis, insert
+         endotracheal tube with the help of the anesthesiologist if available or by a
+
+        trained medical personnel or laryngeal mask airway (LMA). If there is evidence
+        of respiratory failure, assist ventilation manually by anaesthetic bag or
+        mechanical ventilator.
+
+    9. Initial dose of ASV is administered over 1 hour. The first blood drawn from the
+         patient should be typed and cross-matched, as the effects of both venom and
+         ASV can interfere with later cross-matching.
+
+    10. Atropine neostigmine “AN” challenge test is administered using 0.6mg of atropine
+         IV first followed by 1.5 mg of neostigmine IV (Schedule described above). Rarely,
+         if patient require more than 2nd dose of AN test. Stop after 3rd dose if there is no
+         response. In Krait bite practice of continuing Neostigmine drip till ptosis persists
+         beyond 24 h is not beneficial. Pre-synaptic blockage by Krait venom does not
+         respond to AN injection.
+
+    11. If after 2 hours from the end of the first dose of ASV, the patient’s symptoms
+         have worsened i.e. paralysis has descended further, a second full dose of ASV is
+         given over 1 hour.
+
+70 Management of Snake Bite
+
+ake BiStenSanMkaeakneBgBiteiemteMeMnatnaganetgmethmeeneDtnatistattrhitcehteTHeToretsriptaiiratyraylCCarae7r.eoroCrMloMtetidengidctiaecslatCl‘2Co0loWlellBgeCegTe’ in clean, new,
+
+                                annexure 2 to diagnose vasculotoxic envenomatio
+
+oceed asPinrPoPrcoHeceCedeadabsoaisvneinPinHPHaCdCadnaitdniodDnDisttoisrticrhtiechtfoohslolposipwtaitilnaaglbaso:bvoevieninadaddidtiotinontCotlothtttehefedo.floNlolelwovwienrignw:gr: ite Positive/negative
+
+SnakelbeIVTeelmS aonf gheemaleTnhTCdaIrfeferenT 1. wIf aAiStVfoir1n.ad1ni.ctIyanhItttentehehpdestethapaIteraCnieeItdpUCineo,tUhntrsa,ththtd.sehohnseuotolsaudtnladbbdneebadmereadnmrodpngorpiionvtroetiotornotecordaoecldforsoelhfrasoohadruloyalludplsllatdbpareaabrrtmfeaowmfeloltioetlelwhtoreosweruidsn1nentoeisdcnatultuducn3rcrludyouilnhoritdndigotonigetnuxagellgirsaedcassylvseisa,fsenrvddtiloseaemootmlkdfeoienncdvtfbooeihcvsitnnteoteestennticrilistaismiocaltcainuieoootstuionninosfsfenaninhrsneaamosdsnk.ssedep.divt,eacnlliozo
+
+ 2. CibniadoricrchyaeotemudtictaaoAoSlmofvASogamboofeovnrimbtroeddaeriaipedahndabriapdndeutaearietgdseumtaaesiengietllaastsehinsntutdstohsecgsuhlhcooscgdolhghaioiaunnoistacliituadncsasol.aetldnsoaldmeonaadadtneoteadbiatdveteesbieplveuacesepcro,bcesomncoo,mmosmronaimaedrsotpniesoadrhttrpressaeiyhtn,rtdaeieaEen.tdsCbeaes.Gnuebadtsnuosrdtnrmere8rnceaueo.ecdnrvuooite1G5rovmori00geinvmcu00rrceaosmlcumupmcaosgudhngmcp/liyauakntl,pelolrgggaalte/be1resdtsllbogaeyialy.clomyHk)b.c.iayHeDknxnigmeonicmnagoNecguu,aeOedmgt,nhTiedat4niiggsfat.gnirgsvoei.nensqoai2ussi4iprseihrdoin:uPor
+
+                     ReRceocvoevreyroyforfersepsiprairtaotroyrmy musucsleclseissirserfeleflcetcetdedbybiymimpwrphorivocehvmecmeannetncotafuonsfeencebkclefkleefdlxeionxrgosrasnd renal dy
+                     wwhehreerfeleflxeixnigntghtehneencAekncnakegxauagreian2isnStnsagtkregaBrviatievtMyitaiynngidnemidceaincttaeDtsiefftesirmetnimtinLeignvetglostoowf Hweeaaelntahncoafroeffvfe6vn9etniltailtaiotino.n.
+
+      AT A PPrRPorpIoMhpyhlyAalcatRcictyiacnaHtnibtEiboAitoictLsicTasrHaerueCnunnAencReecsEessasCrayr.Ey.NT9E. RA(sPseHss Cthe) need and feasibility of tran
+
+                2.2. MMulutilptilpeloerogragnanfafialuilruer.eM. Manaangaegmemenetnitsissuspuppoprotrivtiev,eha,enaadnltdphrpesrveeervvneitcnieotin(osnoefeoofArogarabgnoanve).
+
+       PatiendtadAmarmargaievgieanilnt&htohsAoessaestaertissrskismakraeerntehttehreerfeofroercercurcuiacila. Al.1gA0ggr.geIrfsestshivseievneeaecraelyrslsryaerrseyusssukcsiitcllaistt,aieotqinou,nip, ment, anti
+
+                     adaedqeuqautaetaenatnivtievneonmomthtehrearpayp,ye,xecxisciosinonofodfedveivtaitlaizleizidnetdtrisatsivsuesenuoaenuadsnfdtlruteiradetatmotmecnoetrnrotefocft hypovolae
+               1. Ainsisfnefcsetscioctinrocnauraleartiemioimpno,parotirawtnatan.ytP.arPnordmobmprtpertaertcheocingongginatinotdinodnoefoaoflrowgrtaigtonhadndaiyandsgyfnsuliofnfusecnetcihlotorincoeanaltnaaednnndidimnisgmysmetdeeimdaitiaecteenveno
+
+                    siynmitneptretvorevmnetsniotinonmprmaeysaeryenrvteaevtreisorensoe. rogragnanimimpapiarmirmenetnatnadndimiimnptrproravovevetenhotehuoesuointucjetoccmotimeo.ne,. identify the earl
+
+23. .3E. IhsfatIhtafehabtmeehlmiopesfahopiltfaltiiarelttarinregttanieothtibnaoho.snaIren.seIvdneiiinvddctiaeidrctnaaeicvotneinconsoenoffsoouaffrscoaudarcticudaectileaykslsiykdsisinadiaesnsyadedsiysnedtijsnauecrjrs1urtyci1rbnrpy.ieobeIpdrfermetidathrbaoiaetlonbopsveonaaeavelt.ileainoe.lernosthrlfaohuewalmfeiilmnosfdcouirdasiitlaoyelsnryii.saiosfororrantiven
+3. Before removal of the tourniquet/ligatures, test foratvhaeilparbelese, tnrcaensoffear ptoulasehedaisltthalfacility w
+ 4.4t. Mo Mtohroeertaeodauvdranvniaqcnuecedetds.uIsfrutgrhigceaicplaumllmsaenaainsgaaegbmesmeennettnoetfnolsfoulcoraeclaanl1edn2coe.rccGotrsooivirseii(ssep(.preger.gems.speselpdintliticstbkasteiknifoiongnrrgeawrfraitetifhnmtigAno)g.dv)ra.el naline 0
+ 5.5o. Mr Mloigroaertaeudraevdasv.nacnecdedinivnevsetsigtiagtaiotinosnisnicnluclduidnignbgabcatcetreiarilac0luc.l0ut0ultr5uermseagsn/akdngdimbiomadgayignwigne(gCig(TChTtscosafcna0sn.)1s%) solu
+
+4. Inascaiasnsidneidcoaifctacetldien.dic. ally confirmed venomous bite, touranniqdupeattsiehnotusldwbitehrceamrdoiovveadscular disea
+ 6.6o. CnNClyNSacSfotcemormpsltpiaclraicttaiinotginoonafnaldnodianditnirntargcardcaornasineailoablflbeAleeSdeVidnaignntgdotkobeebemepsmayAnratiarnngogaepegdisendaoecfaNc0coec.5rodmrsidtngiggn(1mtgo:1tinot0he0teh0e) for IM adm
+
+    instjseatcnatdnioadrnadrdperapadrcayt.cicItneic.ceNa. sNeeueoruofrsmousuruglrtiigcpaiclleaolpiogipanitnouinroenms,maayallbytehbereerlriqeegauaqcetutuseitorseentdseadcapacapncceocbaroerd.rirIdnefiglnseytgaomstoepdtoinms do appea
+    EimnitnertrargcaercanrncaiynaiRlapolaoptamhtohEloXlgCoygE.yHP. THowtohweeveemvreo, rhs,tahepamreomoxsiomtsatatailctoiacnbean;bownrreohmaricmcahtlaiiotslihnetoisiesumslddmueosautnlstbltywebbiceteohcroarernelrecdeatcteshtedeed.dn. recomm
+ 7.7a. CftoCemor maad,aam,uaitsuostniooonnmoamicniddcyadslylfsupfnruecntpciaotrinoasnt.isPo.anPtsai.etinetnitnidnedeepecpocmomAa rSaeVrceorcevoeavrcestrifosunflulsyl)l.pyrporvoivdieddetdhtehreere
+
+5. Cisainrsronyhooyhupytopaxoiscxiimbcrbparlienaimdnademadmaicgaaegl.eaA.suAsteuostnsoomnmoeminctidciyndscyflsuufnducinntcigotinhosinsIastfroaterhryteraatprnnadstniiesseininemttnapthnlaednspdehovdyniosd’tniecn’tnaenlceedeodf respirato
+    etxratermaetiamntametneiotn.nSt.o–Smolomecteaimtlismewseetsrllteirnaetgam,tpmeaneitnnmftumilgthigethnbtdebeheraharanmrdmfueflnuella.lgear.rggtyr.entedragelteoaiantcliganmlwglaywitsmhiktpahahniartngwihltaaiyhnypyde(pLsret,MretnAesn)i,vsaeivned intu
+    pderrdusrgiussgttesontlotoblwoleweeredtrhitnehgienficrnorcemraestaehsdeebdblbiotloeodowpdorpuernsesdsu,srbuelrodeouddeutpeortesoysfssomyurmprtaerpt,aahpnteuhstfleisecterihcrtyhaopytaeepr,heabricglatehcievteidrvtiyifnt.aygc. ility accomp
+
+ 8.8(.gUuUnmcnosc,monmmosmoen,ovncoocmmoimpt,lpsictliaoctoailotoinorsnusrusicnuhec)ha, slaehsveehpleaoptfaicctoidcnydssycfsiuofnuucnAstncimoteinbsos,un,p,dbapranaogcno,rcaperdaiendtagiittieistoy,insee,alnielddnesodncodrcoinrtiernaecheal tu
+    (pintisonussfiusfif)cfaiecnindecnoyctayhneadrnsdiegdenepsepovefvnpeoanruoasulytshstirhso.rmTohmbeobsGoislaissshgsohouowludCldboreebmsmeaumassnccaiaantglaaeetgidcoeadnanca(ncScoouctrrodbirieedntiugnastgleo2tdot0ht0toeh6e; Maurya
+
+    asstssaetnasdsnatdrhaderdplerpvarecatlcioctfeicc.eo.nsciousness of patients par1a3ly. zDeudrbinygntehuerojotuorxniceyvetnhoemens.dotracheal t
+
+69. .9T. IhmIempslpnelmaekmeene, tinfrtberrheoahubagiblhiittlai,ttsaihotoinounbldybbpyehpychsayiroseitofhutehllreyarpeaxipsatimst.sin. edtaonldefitdleunntgificeodll,aifppseosasnibdlrei.ght side pne
+
+(One smart phone photograph of the snake, dead orthaleivteu,bifeabveaiinlagbbleit,tsehno, ualmd boeuth gag sho
+
+taken for confirmation by an expert).  obstructed due to secretions or kinkin
+
+AAnnAnenxenuxuerexreu2r2SenS2naSkanek6eaB8kBiteietBeMitMeanaMnagagenemgmeeenmnt etDnoDiftfiffeDSferniefrafenekntreetLBneLitevtevLelslvsoeoflsfHoHefeaHlatlehtahclactrhaerceare67171
+
+           QuAlity StAndArdS for
+         managemenT of SnakebITe
+
+Standard            Statement
+Quality Standard 1  All patients reporting to health facility with history of snake bite/
+Observation         suspected snake bite are kept under clinical observation for at least 24
+                    hours irrespective of severity of envenomation.
+Quality Standard 2
+Diagnosis           For all patients with sign of envenomation, 20-minute whole blood
+                    clotting (20 WBCT) test is done immediately after admission, repeated
+Quality Standard 3  hourly for first 3 hours.
+Initiation of ASV
+Therapy             All patients with Snakebite, confirmed clinically with neuroparalytic
+Quality Standard 4  symptoms or non clotting 20 WBCT are immediately provided Anti
+Care of Neurotoxic  Snake Venom therapy
+envenomation
+                    All snake bite patients presenting with neuroparlytic symptoms are
+                    immediately admitted to ICU or referred to higher facility with ICU.
+
+Quality Standard 5  All patients with confirmed diagnosis of snakebite are administered 10 vials
+ASV Dose            of polyvalent ASV within 30 min of confirmation for indication/admission.
+
+Quality Standard 6 All patients with presentation of Neurotoxic (neuroparalytic)
+
+Atropine Neostigmine Envenomation are provided AN (Atropine-Neostigmine) therapy as per
+
+Therapy             schedule.
+
+Quality Standard 7  24X7 Availability of Anti snake venom is ensured in designated health
+ASV Availability    care facilities.
+
+Quality Standard 8 ASV reactions are monitored and treated and managed as per protocol.
+Management of ASV
+Reactions
+
+Quality Standard 9  Health care provider is competent and confident to manage snakebite
+Competence          cases.
+
+Quality Standard 10 Health facility promotes the information and education regarding
+
+Promotion           scientific management of snakebite in community.
+
+                               Quality Standards for Management of Snakebite 73
+
+Quality Standard 1: Admission and Observation of Suspected Snakebite Cases
+
+1. Statement     All patients reporting to health facility with history of snake bite/ suspected
+                 snake bite are kept under clinical observation for at least 24 hours
+                 irrespective of severity of envenomation
+
+2. Rationale     Presenting Sign and symptoms of snake bite may be confusingthe time of
+                 arrival to a health facility. Some patient with dry bite or no bite may mimic
+                 like a snake bite case due anxiety and sympathetic over activity. On the
+                 other hand, some cases their may be no sign or sign similar other common
+                 disease (Acute abdomen in case on occult snake bite. The definitive signs and
+                 symptoms of snake bite may manifest later. So it is judicious to keep all cases
+                 of suspected snake bit under observation at least for 24 hours.
+
+3. Quality
+Measure
+
+3a. Structure    Evidence of availability of function indoor facilities and 24X7 nursing care at
+                 the facilities designated to treat snake bite.
+
+3b. Process      Proportion of suspected snake bite cases reported to health facility that were
+                 kept under observation for at least 24 hours.
+
+                 Numerator - Total no patients with suspected snakebite kept under
+                 observation for 24 hours
+
+3c. Outcome      Denominator - Total no. of suspected snake bite cases reported to the facility.
+
+                 Proportion of Snake bite cases re-admitted for sign and symptoms after early
+                 discharge (Before 24 hours)
+
+                 Numerator - Total No. of Patients readmitted after early discharge (before
+                 24 hours of reporting)
+
+4. What Quality  Denominator -Total No. of suspected Patients discharged before 24 hrs of
+Measure          reporting)
+means for each   Service Provider - Ensure that all the suspected cases of snake bite are kept
+audience         under observation at least for 24 hours
+
+                 Health Administrator - Ensure that adequate indoor facility and nursing care
+                 is available at the designated facility.
+
+5. Data Source   Patient and Community - Patient or their attendant should not not request
+                 hospitals staff for early discharge even if snake bite is not confirmed.
+                 Emergency Register
+
+                 Indoor Register
+
+6. Definitions   Health Facility- Any Public health facility with provision of 24X7 indoor care
+                 (PHC, CHC, District Hospitals , Tertiary care Centers/ Teaching Hospitals) or
+                 their equivalent in private sector
+
+74 Management of Snake Bite
+
+Quality Standard 2: Lab Diagnosis for Snakebite
+
+1. Statement        For all patients with sign of envenomation, 20-minute whole blood
+                    clotting (20 WBCT) test is done immediately after admission,
+                    repeated hourly for first 3 hours.
+
+2. Rationale        20 Minute WBC test is the most definitive test to identify any venom-
+                    induced consumption coagulopathy. The test will help care provider
+                    in confirming the diagnosis and differentiating between neurotoxic
+                    and vasculotoxic snakebite. The test requires minimal resources (A
+                    syringe and a glass test tube) and skills so can be performed in at all
+                    level of facilities.
+
+3. Quality Measure
+
+3a. Structure       Evidence of necessary consumables eg. Syringe and glass test tube is
+                    available and service providers are skilled for performing the test.
+
+3b. Process         Proportion of suspected snake bite cases Immediately provided the
+                    20 WBC Test after admission out of total suspected snake bite cases
+                    admitted
+
+                    Numerator- Total no patients provided immediate 20 WBC test after
+                    admission
+
+                    Denominator- Total no. of suspected snake bite cases admitted in the
+                    facility.
+
+4. What Quality     Service Provider – Ensure that 20 WBC test is conducted as early
+Measure means for   as possible after admitting the snakebite patient and then repeated
+each audience       hourly for next three hours to rule out coagulopathy. Ensure nursing/
+                    paramedic staff are skilled to perform the test. A work instruction
+                    regarding this can be displayed at nursing station
+
+                    Health Administrators/ QA Officials -Monitor the related indicators.
+                    Periodic review of case records (Clinical Audit)
+
+                    Patient and Community – Cooperate with service providers and
+                    understand the need of reparative drawing of blood and conducting
+                    the test.
+
+5. Data Source      Clinical Case records/ Bed Head Tickets of the sake bite cases
+
+6. Definitions      20 WBCT- (20 Minute whole blood clotting test) performed by placing
+                    2 ml freshly drawn venous blood in a small glass tube at ambient
+                    temperature and observing for coagulation after 20 minutes by tilting
+                    the test tube. “Not Clotted” blood is confirmation of venom induced
+                    consumption coagulopathy.
+
+                                                 Quality Standards for Management of Snakebite 75
+
+Quality Standard 3: Initiation of Anti Snake Venom Therapy
+
+1. Statement        All patients with Snakebite, confirmed clinically with neuroparalytic
+                    symptoms or non clotting 20 WBCT are immediately provided Anti Snake
+                    Venom therapy
+
+2. Rationale        Anti Snake Venom therapy is the only specific treatment for snakebite
+                    cases. Once snakebite case confirmed based on clinical sign and symptom
+                    of envenomationor by lab test (20 WBCT) , ASV therapy should be started
+                    immediately without any other consideration. There are no contradictions
+                    to ASV. Early administration of ASV will stop the further progress of
+                    envenomation and even may reverse systemic envenomation abnormalities.
+
+3. Quality Measure
+
+3a. Structure       Evidence of adequate stock of ASV is readily available for use and clinical
+                    staff is ASV therapy
+
+3b. Process         Proportion confirmed snake bite cases initiated the anti snake venom therapy
+                    immediately out of total confirmed cases of snake bite cases attended
+
+                    Numerator- Total no of patients initiated anti snake bite therapy immediately
+                    (not more than 10 Minutes) after confirmation of envenomation.
+
+                    Denominator- Total no. of confirmed snakebite cases attended
+
+3c. Outcome         Proportion of snake bite cased where mortality or severe morbidity
+                    occurred due to delay in initiation of Anti snake Venom therapy
+
+                    Numerator- Total no. of cases where mortality or severe morbidity
+                    occurred due to delay in initiation of Anti snake venom
+
+                    Denominator – Total no. of snake bite cases treated
+
+4. What Quality     Service Provider – Ensure that adequate stock of ASV is readily accessible
+Measure means for   for use, including in night hours when pharmacy or drug store may be
+each audience       closed. Protocol regarding the immediate initiation of is effectively
+                    communicated and monitored.
+
+                    Health Administrators/ QA Officials - Monitor the related indicators.
+                    Periodic review of case records (Clinical Audit)
+
+                    Patient and Community – Insist on initiation of ASV therapy once diagnosis
+                    is confirmed. Community representative in rogi kalyan samities can
+                    periodically monitor the availability of anti snake venom in the hospital.
+
+5. Data Source      Clinical Case records/ Bed Head Tickets of the sake bite cases
+
+                    Clinical Audit Records
+
+6. Definitions      Anti snake Venom Therapy – Intravenous infusion of Polyvalent / Snake
+                    specific Anti snake venom with minimum dose of 100 ml.
+
+76 Management of Snake Bite
+
+Quality Standard 4: Care of Patients with Neurotoxic Envenomation
+
+1. Statement        All snake bite patients presenting with neuroparalytic symptoms are
+                    immediately admitted to ICU or referred to higher facility with ICU after
+                    AN Injection
+
+2. Rationale        Neuroparalytic Snakebite cases presenting can not only be managed with
+                    Anti snake Venom therapy. They will require intensive monitoring and
+                    may requires assisted life support If health facility is havening Intensive
+                    care unit with ventilators the patient should be immediately shifted ICU.
+                    Primary and secondary health care centers not havening ICU should refer
+                    the patient in an advance life support ambulance to the higher center
+                    immediately after giving Atropine – Neostigmine injection.
+
+3. Quality Measure
+
+3a. Structure       Evidence of functional Intensive Care unit with facility of mechanical
+                    ventilators are available at District Hospitals and above level of facilities
+
+                    Evidence that emergency department of facilities are equipped with life
+                    saving equipment like Oxygen, Laryngoscope and Bag & Mask are available
+
+                    Evidence of life saving emergency drugs e.g. Atropine and Neostigmine
+                    are available in facility
+
+3b. Process         Proportion of neuroparalytic snakebite cases referred to ICU/Higher
+                    facility out of total neuroparalytic cases received
+
+                    Numerator- Total no of neuroparalytic cases referred immediately (not
+                    more than 30 minutes ) of receiving the patients
+
+                    Denominator- Total no. of neuroparalytic snakebite cases attended
+
+                    Proportion of neuroparalytic snake bite cases given AN injection before
+                    refereeing to higher center
+
+                    Numerator- Total no. of cases AN (Atropine- Neostigmine) injection was
+                    administered before referring the patient
+                    Denominator – Total no. of neuroparalytic snakebite cases attended
+
+4. What Quality     Service Provider – Ensure timely shifting / referral of cases requires
+Measure means for   intensive care. Ensure that AN injection is given before referral
+each audience
+                    Health Administrators/ QA Officials – Insure that ICUs are functional at
+                    district and above level facilities with mechanical ventilators. Emergency
+                    drugs and referral transport is available.
+
+5. Data Source      Patient and Community – Cooperate and support the care providers in
+                    arranging the ambulance and referral of patient.
+                    Clinical Case records/ Bed Head Tickets of the sake bite cases
+
+                    Handover registers, Ambulance records
+
+                    Quality Standards for Management of Snakebite 77
+
+Quality Standard 4: Care of Patients with Neurotoxic Envenomation
+
+6. Definitions   AN injection – Atropine 0.6 mg followed by neostigmine (1.5mg) to be
+
+                 given IV stat before referral
+
+Quality Standard-5 - Adequate dose of anti snake venom
+
+Statement        All patients with confirmed diagnosis of snakebite are administered 10
+                 vials of polyvalent ASV over 30 min
+
+Rationale        Adequate and timely administration of ASV is key top successful
+                 management of snakebite. Irrespective of type of snake or sign and
+                 symptoms, 10 vials of ASV must given over 30 minutes through IV
+                 infusion. Later doses will depend upon type of venom (Vasculotoxic or
+                 Neurotoxic) and extend of envenomation. Incomplete dose should be
+                 never be given
+
+Quality Measure
+
+3a. Structure    Evidence of adequate stock of ASV is readily available for use and clinical
+                 staff is trained for dosages of ASV therapy
+
+3b. Process      Proportion confirmed snake bite cases given at least 10 vials of ASV over
+                 30 minutes out of total snakebite cases treated.
+
+                 Numerator- Total no of confirmed snakebite patients initially given at
+                 least 10 vial of anti snake venom over 30 minutes
+
+3c. Outcome      Denominator- Total no. of confirmed snakebite cases attended
+                 Proportion of snake bite cased successfully treated out of total snake bite
+                 cases attended
+
+                 Numerator - Total no. confirmed snake bite cases successfully treated
+
+                 Denominator - Total no. of confirmed snake bite cases attended
+
+What Quality     Service Provider – Ensure that adequate stock of ASV is readily available.
+
+Measure means for Protocol regarding the initial dosages of ASV is communicated and
+
+each audience    practiced.
+
+                 Health Administrators/ QA Officials - Monitor the related indicators.
+                 Periodic review of case records (Clinical Audit)
+
+Data Source      Patient and Community – Insist on initiation of ASV therapy once diagnosis
+Definitions      is confirmed. Community representative in rogi kalyan samities can
+                 periodically monitor the availability of anti snake venom in the hospital.
+
+                 Clinical Case records/ Bed Head Tickets of the sake bite cases Clinical
+                 Audit Records
+
+                 Anti snake Venom Therapy – Intravenous infusion of Polyvalent / Snake
+                 specific Anti snake venom with minimum dose of 100 ml.
+
+78 Management of Snake Bite
+
+Quality Standard 5: Atropine Neostigmine Therapy for Neurotoxic Envenomation
+
+1. Statement        All patients with presentation of Neurotoxic (neuroparalytic) Envenomation
+                    are provided AN (Atropine-Neostigmine) therapy as per schedule
+
+2. Rationale        Neuroparalytic Snakebite must be managed with AN therapy along with
+                    ASV. The dosages of AN therapy should be given as per guidelines for
+                    recovery of patients .
+
+3. Quality Measure
+
+3a. Structure       Evidence of availability of Atropine and Neostigmine and clinical staff is
+                    skilled for AN therapy
+
+3b. Process         Proportion of neuroparalytic snake bite cases given complete AN therapy
+                    as per protocol
+
+                    Numerator- Total no. of neuroparalytic snake bite cases given complete
+                    AN therapy
+
+                    Denominator – Total no. of neuroparalytic snakebite cases attended
+
+4. What Quality Service Provider – Ensure AN therapy is given as per protocol.
+
+Measure means for Health Administrators/ QA Officials – Ensure drugs and consumable are
+
+each audience       available and protocols followed.
+
+5. Data Source      Clinical Case records/ Bed Head Tickets of the sake bite cases
+                    Handover registers, Ambulance records
+
+6. Definitions      AN Therapy - Atropine 0.6 mg followed by neostigmine (1.5mg) to be
+                    given IV stat and repeat dose of neostigmine 0.5 mg every 30 minutes for
+                    5 doses. Thereafter to be given as tapering dose at 1 hour, 2 hour, 6 hours
+                    and 12 hour
+
+                                                       Quality Standards for Management of Snakebite 79
+
+Quality Standard 6: Anti snake Venom Availability
+
+1. Statement        24X7 Availability of Anti snake venom is ensured in designated health
+                    care facilities.
+
+2. Rationale        Anti snake Venom is the only specific treatment for snake bite and
+                    saving life snake patients is directly linked for swift and adequate
+                    access to ASV. Indian Public Health Standards mandates availability of
+                    Lyophilyzed Polyvalent Anti snake Venom at Primary Health Centers
+                    and above level of facilities.
+
+3. Quality Measure
+
+3a. Structure       Total no. of Stock out Days for Anti snake Venom
+
+                    (No . of days when ASV was not available added for month)
+
+3b. Outcome         Proportion of patients denied treatment due to non availability of ASV
+
+                    Numerator- No. of Patients were denied treatment / referred to higher
+                    facility because of non availability / in adequate quantity of Anti snake
+                    venom
+
+                    Denominator - Total no. of suspected snake bite cases received in the
+                    facility
+
+4. What Quality Service Provider – Ensure that adequate stock of anti snake venom is
+
+Measure means for always maintained at the facility. The optimal stock should take in account
+
+each audience       of usual case load and time taken to replenish the stock.
+
+                    Health Administrators/QA Officials – Ensure that ASV is part of essential
+                    drug list. Availability of ASV is regularly monitored.
+
+                    Patient/Community - Be aware of the facilities those have provision
+                    for Anti Snake Venom. Community representatives in Rogi Kaylan
+                    Samities should monitor the availability of ASV in concerned
+                    facility.
+
+5. Data Source      Emergency Register, Case Records
+
+                    Drug Stock Register
+
+6. Definitions      Primary Health Center- A health facility primary level of preventive
+                    , promotive and curative care to a population of around 25000.
+                    24X7 PHCs usually have 6 bed indoor facility and can perform minor
+                    procedures.
+
+80 Management of Snake Bite
+
+Quality Standard 7: ASV Reaction
+
+1. Statement        ASV reactions are prevented /managed as per protocol.
+
+2. Rationale        20-60% of patients on ASV therapy may develop early or late reaction
+                    and rarely may manifest into life threatening anaphylaxis reaction.
+                    Some of these reactions may be prevented by avoiding unnecessary
+                    administration of ASV and use of aseptic precautions. Some of the
+                    reaction will still due ingredient and impurity in the ASV. These reactions
+                    should be managed by administration of drugs like Epinephrine and
+                    Chlorpheniramine Maleate
+
+3. Quality Measure
+
+3a. Structure       Evidence that Drugs for treating ASV Reactions are available at
+                    designated facility for ASV therapy.
+
+3b. Process         Evidence that clinical staff has been trained for preventing and managing
+                    ASV reactions.
+
+                    Proportion of ASV reactions treated with Epinephrine / Chlorpheniramine
+                    out of total ASV Reaction
+
+                    Numerator – No. of patients with ASV Reactions (Early or Late ) treated
+                    with Epinephrine (0.5mg ) and Chlorpheniramine (10mg)
+
+                    Denominator – Total no. of snake bite cases presented early or late ASV
+                    reaction
+
+3c. Outcome         Proportion of patients developed ASV reactions out of total no. of total
+                    no. of patients provided ASV therapy
+
+                    Numerator- Total no. of snakebite cases developed ASV reaction
+
+                    Denominator - Total no. of patients provided ASV therapy
+
+4. What Quality     Service Provider – Ensure that required drugs are available and clinical
+Measure means for   staff have been trained for managing ASV reactions
+each audience
+                    Health Administrators/ QA Officials – Monitor the reaction and find out
+                    the root cause. Give feed back to ASV manufacturers and service providers
+
+5. Data Source      Patient/ Community - Do not insist for ASV therapy if sign and symptoms
+                    of envenomation are not confirmed by clinician
+                    Patients clinical records
+
+6. Definitions      Adverse Drug Reactions (ADR) records
+
+                    ASV Reaction – Any major or minor reaction occurred due to
+                    hypersensitivity to one of the ingredient of ASV, impurity in the drug,
+                    contamination or due to unnecessary administration of ASV.
+
+                                  Quality Standards for Management of Snakebite 81
+
+Quality Standard 8: Staff Skills & Competence for Management of Snakebite
+
+1. Statement        Health care provider is competent and confident to manage snakebite cases
+
+2. Rationale        Snake bite is a medical emergency requires prompt and skilled clinical
+                    intervention to save the life of victim. As most of the snakebite cases
+                    happen in rural area the skills required to manage such cases should be
+                    available at first point of care may be a Primary or Community Health
+                    Center.
+
+3. Quality Measure
+
+3a. Structure       Evidence that formal training has been provided to the medical officers
+                    for management of snake bite cases
+
+3b. Outcome         Evidence that updated Standard Treatment Guidelines/Protocols are
+                    available with clinical care staff
+
+                    Proportion of patients referred to higher facilities because of lack skills/
+                    confidence in treating snakebite cases .
+
+                    Numerator- Total no. of snakebite referred to higher facilities because of
+                    lack skills/ confidence in treating snakebite cases .
+
+                    Denominator - Total no. of suspected snake received in facility.
+
+4. What Quality     Service Provider – Ensure that clinical care staff is training and STG on
+Measure means for   management of snakebite is readily available
+each audience
+                    Health Administrators/ QA Officials – Conduct periodic skill assessment
+                    of the Medical officers and arrange for their trainings
+
+5. Data Source      Publish and Distribute the guidelines on snake bite to all stakeholders
+                    Training Records
+
+                    Referral Register
+
+6. Definitions
+
+82 Management of Snake Bite
+
+Quality Standard 9: Promotion of Scientific Management of Snakebite in community
+
+1. Statement        Health facility promotes the information and education regarding
+                    scientific management of snakebite in community
+
+2. Rationale        There are several myths and traditional methods of managing snakebite
+                    prevalent in different part of India eg. Tying tourniquets, scarification,
+                    Ojha etc. None of this method are clinically proven effective. Due
+                    misbelieves and lack of information many of the victim still indulge
+                    these remedies which leads wastage of precious time and poor
+                    prognosis. Public Health system and service providers should educate
+                    the community regarding how to prevent snakebites as well as do’s and
+                    don’ts incase of snake bite.
+
+3. Quality Measure
+
+3a. Structure       Evidence that IEC material has been displayed at health facilities and
+                    public places regarding prevention and first aid in case of snake bite
+                    specially in endemic areas.
+
+3b. Outcome         Proportion of snakebite patients attended, those have already gone
+                    through some traditional therapy or malpractice like trying tourniquets
+                    before reaching health care facility
+
+                    Numerator- Total no. snakebite patients received traditional remedy
+                    before reaching the healthcare facility
+
+4. What Quality     Denominator - Total no. of Snakebite patients attended at Facility
+Measure means for   Service Provider – Promote health education on snakebite to patients
+each audience       and visitors in hospital through IEC display and counseling.
+
+                    Health Administrators/ QA Officials – Plan and implement health
+                    campaigns on prevention of snakebite and first aid.
+
+                    Patients & Community – Understand do’s and don’ts in case of
+                    snakebite.
+
+5. Data Source      Follow the preventive measures to avoid snakebites such avoiding
+6. Definitions      sleeping on floor, open defecation, confronting with snake etc.
+                    Community and Health Care facility survey
+                    IEC – Information, Education and Communication
+
+                    Quality Standards for Management of Snakebite 83
+
+NOTE
+
+NATION  AL HEALTH M
+
+        ISSION
+
+MINISTRY OF HEALTH AND FAMILY WELFARE    
+               Government of India
+
+           Nirman Bhawan, New Delhi

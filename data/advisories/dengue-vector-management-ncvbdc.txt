@@ -1,0 +1,356 @@
+GUIDELINES FOR
+           INTEGRATED VECTOR MANAGEMENT FOR
+CONTROL OF DENGUE / DENGUE HAEMORRHAGIC FEVER
+
+                                 Govt of India
+      National Vector Borne Disease Control Programme,
+
+               Directorate General of Health Services,
+                 Ministry of Health & Family Welfare
+
+                                                                                                                                   NVBDCP, Delhi
+
+1 INTRODUCTION
+
+Dengue Fever (DF), an outbreak prone viral disease is transmitted by Aedes mosquitoes. DF
+is characterized by fever, headache, muscle and joint pains, rash, nausea and vomiting.
+Some infection results in Dengue Haemorrhagic Fever (DHF) - a syndrome that in its severe
+form can threaten the patient’s life primarily through increased vascular permeability and
+shock. DF and DHF are caused by the four dengue viruses DEN 1, 2, 3 and 4, which are
+closely related antigenically. Infection with one serotype provides life long immunity to that
+virus but not to the others.
+
+Aedes aegypti (Ae aegypti) is the main vector species of DF/DHF in India and is common in
+most of the urban areas on account of deficient water management, presence of non-
+degradable tyres and long-lasting plastic containers as well as increasing urban
+agglomerations and inability of the public health community to mobilize the population to
+respond to the need to eliminate mosquito breeding sites. Overhead tanks, ground water
+storage tanks and septic tanks are usually the primary habitats. That is, Ae aegypti breeds
+almost entirely in man made water receptacles found in and around households, construction
+sites, factories.
+
+Natural larval habitats are rare, but include tree holes, leaf axles and coconut shells. The
+population of Ae aegypti fluctuates with rainfall and humidity. Under the optimal conditions
+the life cycle of aquatic stage of the Ae Aegypti (the time taken from hatching to adult
+emergence) can be as short as seven days. At low temperatures, however, it may take
+several weeks for adults to emerge. During the rainy season, when survival is longer, the risk
+of virus transmission is greater.
+
+The rural spread of Aedes is a relatively recent occurrence associated with expanding
+network of rural water supply schemes and other development projects without health impact
+assessments, scarcity of water with consequent water storage, changing lifestyle with
+improper use of air coolers and indiscriminate use of disposable containers, bottles, etc,
+improved transport system.
+
+Therefore, the key to control DF/DHF is adoption of a comprehensive approach by way of
+regular vector surveillance and integrated management of the Aedes mosquitoes through
+biological and chemical control that are safe, cost effective; and environmental management,
+legislations as well as action at household and community levels.
+
+2 VECTOR SURVEILLANCE
+
+2.1 Larval surveys: For larval surveys, the basic sampling unit is the house or premise,
+which is systematically searched for water holding containers. Containers are examined for
+the presence of mosquito larvae and pupae. Depending on the objective of the survey, the
+search may be terminated as soon as Aedes larvae are found, or it may be continued until all
+containers have been examined. The collection of specimens for laboratory examination is
+necessary to confirm the species. Four indices that are commonly used to monitor Ae aegypti
+infection levels are:
+
+i) House index (Hl): percentage of houses infected with larvae and/or pupae
+
+                                                                                                                           2
+
+                                                      NVBDCP, Delhi
+
+HI = Number of Houses infected       X100
+      Number of Houses inspected
+
+ii) Container Index (Cl): percentage of water holding containers infected with larvae or
+pupae.
+
+Cl = Number of positive containers
+         Number of containers inspected X100
+
+iii) Breteau Index (Bl): number of positive containers per 100 houses inspected
+
+Bl: Number of positive containers
+         Number of houses inspected X100
+
+iv) Pupae Index (Pl): number of pupae per 100 houses
+
+Pl = Number of pupae                 X100
+         Number of houses inspected
+
+2.2 Adult Surveys:
+
+i) Landing/biting collection: Landing/biting collection of humans is a sensitive means of
+         detecting low level infestations of Ae aegypti, but are very labour intensive. Because
+         adult males have low dispersal rates, their presence can be a reliable indicator of clear
+         proximity to hidden larvae habitats. It is usually expressed in terms of landing/biting
+         counts per man hour.
+
+ii) Resting collection: During periods of inactivity, adult mosquitoes typically rest indoors,
+         especially in bedrooms and mostly in dark places, such as cloth closets and other
+         sheltered sites. Resting collection requires systematic searching of these sites for
+         adult mosquitoes with the aid of flashlight. Following a standard timed collection
+         routine in selected rooms of each house, densities are recorded as the number of
+         adults per house or number of adults per man hour of human efforts.
+
+iii) Oviposition traps: Ovitraps are devices used to detect the presence of Ae aegypti
+         where the population density is low and larval surveys are largely unproductive (when
+         the Breteau index is less than 5) as well as normal conditions. The ovitrap is used for
+         Ae aegypti surveillance in urban areas to evaluate the impact of adulticidal space
+         spraying on adult female population.
+
+3 VECTOR MANAGEMENT
+
+3.1 Environmental Management
+
+The major environmental management methods used for control of immature stages of
+dengue vector are:
+
+                                                                                 3
+
+                                                                                                                                   NVBDCP, Delhi
+
+(i) Environmental modification: Long lasting physical transformation of vector habitats.
+         For example, improved water supply, mosquito proofing of overhead tanks, cisterns or
+         underground reservoirs.
+
+(ii) Environmental manipulation: Temporary changes to vector habitats that involve the
+         management of “essential” and “non-essential” containers and management of or
+         removal of “natural” breeding sites.
+
+(iii) Changes in human habitations: Efforts are made to reduce man-virus contact by
+         mosquito proofing of houses with screens on doors/windows.
+
+3.2 Personal Protection
+
+Protective clothing and repellents are common means of personal protection against
+mosquitoes and other biting insects. Household insecticide products, namely, mosquito coils,
+pyrethrum space spray and aerosols have been used extensively for personal protection
+against mosquitoes. Insecticide treated mosquito nets have limited utility in dengue control,
+since the vector species bite during the day time. However, insecticide treated bed nets can
+be effectively used to protect infants and night workers while sleeping in daytime.
+
+3.3 Biological Control
+
+(i) Larvivorous fish are recommended for control of Ae. aegypti in large water bodies or
+         large water containers.
+
+(ii) Endotoxin-producing bacteria, Bacillus thuringiensis serotype H-14 (Bt H-14) has been
+         found an effective mosquito control agent.
+
+3.4 Chemical Control
+
+Chemical control measures (larvicides, adulticides) are recommended in permanent big water
+containers where water has to be conserved or stored because of scarcity of water or
+irregular and unreliable water supply.
+
+(i) Larvicide: Since Ae aegypti breeds in clean water, which is stored and used for
+         household purposes, as such all the larvicides, which are safe, without any odour or
+         colour, have residual effect with low mammalian toxicity and do not pose any health
+         hazard should be used. Temephos, an organophosphate compound meets all the
+         above mentioned requirements and this insecticide is being used under the public
+         health programme. The recommended dose for application of Temephos (50 EC) is 1
+         ppm (1 mg per liter of water).
+
+(ii) Adulticide: The following methods are recommended for the control of adult Ae
+         aegypti mosquitoes:
+
+         a) Pyrethrum spray: It may be used in indoor situations as space spray at a
+             concentration of 0.1% - 0.2% @ 30-60 ml/1000 cu. ft. Commercial formulation of
+             2% pyrethrum extract is diluted with kerosene in the ratio of one part of 2%
+             pyrethrum extract with 19 parts of kerosene (volume/volume). Thus, one litre of 2%
+             pyrethrum extract is diluted by kerosene into 20 litres to make 0.1% pyrethrum
+             formulation (‘ready-to-spray’ formulation). After dilution, pyrethrum extract is
+
+                                                                                                                           4
+
+                                                                                                                                   NVBDCP, Delhi
+
+             sprayed with Flit pump or hand operated fogging machine fitted with micro-
+             discharge nozzle.
+         b) Malathion fogging or Ultra Low Volume (ULV) spray: In application of ULV,
+             minimum volume of liquid insecticide formulation is applied per unit area. That is,
+             the insecticide is broken down into small droplets of a volume median diameter
+             (VMD) of 40-80 microns with an objective of producing a cloud of insecticide
+             droplets that remain suspended in air for an appreciable time and driven under the
+             influence of wind. This provides maximum effectiveness against target vectors.
+             Since no diluent is used, the technique is more cost-effective than thermal
+             fogging but it does not generate a visible fog. Most organophosphorus
+             insecticides in their technical form can be applied as ULV spray. Under the public
+             health programme, ULV spray (fogging) is undertaken by using 95% or pure
+             technical malathion. The ground equipment mostly used for ULV spray includes
+             portable motorized knapsack blowers and cold aerosol generators.
+
+3.5 Legislative Measures
+
+Suitable laws and byelaws should be enacted and implemented for regulating
+storage/utilization of water by communities, various agencies and avoidance of
+mosquitogenic conditions at construction sites, factories.
+
+(i) Model civic byelaws: Under this act fine/punishment is imparted, if breeding is
+         detected. These measures are being strictly enforced by Mumbai, Navi Mumbai,
+         Chandigarh and Delhi Municipal Corporations.
+
+(ii) Building Construction Regulation Act: Building byelaws should be made for
+         appropriate overhead / under ground tanks, mosquito proof buildings, designs of
+         sunshades, porticos, etc for not allowing stagnation of water vis-à-vis breeding of
+         mosquitoes. In Mumbai, prior to any construction activity, the owners/builders deposit
+         a fee for controlling mosquitogenic conditions at site by the Municipal Corporation.
+
+(iii) Environmental Health Act (HIA): Suitable byelaws should be made for the proper
+         disposal/storage of junk, discarded tins, old tyres and other debris, which can withhold
+         rain water.
+
+(iv) Health Impact Assessments: Appropriate legislation should be formulated for
+         mandatory HIA prior to any development projects/major constructions.
+
+3.6 HEALTH EDUCATION FOR COMMUNITY MOBILIZATION AND INTER-SECTORAL
+         CONVERGENCE
+
+Involvement of household, community for Aedes mosquito control is of paramount importance
+as the problem revolves mainly around man and his environment. There should be a
+continuous dialogue between health personnel and the community so that people may accept
+Aedes control programmes as their own programme. Community should be involved in the
+task of elimination of Aedes breeding in and around their houses for keeping houses free of
+larval breeding and reduction/elimination of adult mosquitoes.
+
+Towards these objectives, massive, repetitive, intense and persistent Behavior Change
+Communication (BCC) campaign is crucial. The community must be assured that this is a
+preventable disease and empowered with the knowledge about mode of transmission, vector
+
+                                                                                                                           5
+
+                                                                                                                                   NVBDCP, Delhi
+
+control options, availability of services in addition to correct treatment, so that timely and
+appropriate action is taken. Special campaigns may be carried out through mass media
+including local vernacular newspapers/magazines, radio and TV, especially using local cable
+networks as well as outdoor publicity like hoardings, miking, drum beating, rallies, etc. Health
+education materials should be developed and widely disseminated in the form of posters,
+pamphlets, handbills, hoardings. Inter-personal communication through group meetings,
+traditional / folk media particularly must be optimally utilized.
+
+At different levels, following action may be taken:
+
+(i) At Household Level:
+
+          Ae aegypti mosquito bites during daytime. Adult mosquitoes should be killed by
+             using of commercially available safe aerosols (Pyrethroid-based). Rooms including
+             closets, bathrooms and kitchens should be sprayed (by removing/covering all food
+             items properly) for a few minutes and closing the room for 15-20 minutes. The
+             timing of the spray should coincide with the peak biting time of the Ae aegypti
+             mosquito, e.g., early morning or late afternoon.
+
+          Taking personal protection measures like wearing protective clothing (full sleeved
+             shirts & full pants during day time) and using mosquito nets, preferably insecticide
+             treated ones, while sleeping, even during day time. Using commercially available
+             repellents during day time.
+
+          Using mosquito repellents or burning neem leaves, coconut shells and husk to kill
+             or repel the mosquitoes.
+
+          Using tight-fitting screens/wire mesh on doors and windows.
+          Intensifying efforts to reduce actual or potential larval habitats in and around
+
+             houses by:
+              Covering all water containers in the house to prevent fresh egg laying by the
+
+                  vector.
+              Emptying, drying water tanks, containers, coolers, bird baths, pets’ water bowls,
+
+                  plant pots, drip trays at least once each week.
+              Regularly checking for clogged gutters and flat roofs that may have poor
+
+                  drainage.
+              Introducing larvivorous fishes (e.g., Gambusia / Guppy) in orrnamental water
+
+                  tanks/garden. These small fishes eat mosquito larvae.
+
+(ii) At Community Level:
+
+     People should form groups to supplement and reinforce efforts at household level.
+         Such groups can identify commercial activities such as traders dealing in used tyres or
+         small construction projects, etc, which may be creating larval habitats for the vector.
+
+     The Groups should launch awareness campaigns on Dengue and seek cooperation
+         for prevention of mosquito breeding and protection from mosquito bites. Community
+         activities against larvae and adult mosquitoes can include:
+
+             o Cleaning and covering water storage containers.
+             o Keeping the surroundings clean and improving basic sanitation measures.
+
+                                                                                                                           6
+
+                                                                                                                                   NVBDCP, Delhi
+
+             o Burning mosquito coils to kill or repel the mosquitoes/burning neem leaves,
+                  coconut shells and husk to repel mosquitoes and eliminating outdoor breeding
+                  sites.
+
+             o Aiding in screening houses.
+             o Making available hand aerosols for killing mosquitoes.
+             o Cleaning weeds and tall grass to reduce available outdoor resting places for
+
+                  adult mosquitoes near houses.
+             o Promoting use of mosquito nets to protect infants and small children from
+
+                  mosquito bites during day time and also insecticide treated nets and curtains to
+                  kill mosquitoes attempting to bite through the nets or resting on nets and
+                  curtains. Organizing camps for insecticide treatment of community owned
+                  mosquito nets/curtains.
+             o In case water containers cannot be emptied, applying Temephos (1 ppm) on
+                  weekly basis in coordination with the Health authorities.
+             o Mobilizing households to cooperate during spraying / fogging.
+
+(iii) At Institutional Level (Hospitals, Schools, Colleges, Other Institutions, Offices,
+         etc):
+
+          Weekly checking for Aedes larval habitats especially overhead tanks, ground water
+             storage tanks, air coolers, planters, flower pots, etc
+
+          Ensuring source elimination by:
+
+               Covering all water tanks with mosquito proof lids.
+               Emptying, drying water containers, coolers, plant pots at least once each week.
+               Checking for clogged gutters and flat roofs that may have poor drainage.
+               Introducing larvivorous fishes (e.g., Gambusia / Guppy) in orrnamental water
+
+                  tanks/garden.
+
+          Carrying out Indoor Space spraying with Pyrethrum 2%. The timing of the spray
+             should coincide with the biting time of the Ae aegypti mosquito, e.g., early morning
+             or late afternoon.
+
+          Carrying out fogging or Ultra Low Volume (ULV) spray by using 95% or pure
+             technical malathion.
+
+          Promoting personal protection measures like wearing protective clothing (full
+             sleeved shirts & full pants during day time), using commercially available repellents
+             during day time as well as mosquito nets, preferably insecticide treated ones, while
+             sleeping, particularly during day time.
+
+          Putting tight-fitting screens/wire mesh on doors / windows.
+          In addition, notification of fever cases (suspected/confirmed) to concerned Health
+
+             authorities and appropriate case management.
+
+In order to achieve sustainability of successful DF/DHF vector control programme, it is
+essential to focus on involvement of hospitals, non-health sector departments including
+schools/colleges, civil society organizations (NGOs, Faith Based Organizations and
+Community Based Organizations like Residents’ Welfare Organizations, Self-Help Groups),
+Panchayati Raj Institutions/Municipal Bodies or such like local self-governments, local
+Religious Bodies, Nehru Yuvak Kendras, NSS/NCC units in schools and colleges as well as
+
+                                                                                                                           7
+
+                                                                                                                                   NVBDCP, Delhi
+
+professional associations like Indian Medical Association and corporate sector. These groups
+should be provided information on all aspects of Dengue fever/DHF: what it is, how it spreads
+and the role of mosquitoes, where & how they breed/rest, and how they can be controlled.
+
+                                                                                                                           8
