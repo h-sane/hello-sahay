@@ -23,6 +23,14 @@ FALLBACK = {
     "ta": "இதைப் பற்றிய சரிபார்க்கப்பட்ட தகவல் என்னிடம் இல்லை. உங்களுக்கு அருகிலுள்ள PHC-யில் கேளுங்கள் அல்லது 104 எண்ணை அழைக்கவும்.",
 }
 _SOURCES_TAIL = re.compile(r"[\s*_]*[^\s\d:：*_.]*[*_]*\s*[:：][\s*_]*([\d,\s]+)$")
+# No eligibility or income limit is quoted until a Tamil Nadu government source is in the corpus.
+CMCHIS_ELIGIBILITY = {
+    "en": "Please check at your nearest government hospital or the CMCHIS desk to find out who is eligible.",
+    "hi": "पात्रता जानने के लिए कृपया अपने नज़दीकी सरकारी अस्पताल या CMCHIS डेस्क पर पूछें।",
+    "ta": "யார் தகுதியானவர் என்பதை அறிய உங்களுக்கு அருகிலுள்ள அரசு மருத்துவமனை அல்லது CMCHIS மையத்தில் கேளுங்கள்.",
+}
+_CMCHIS = re.compile(r"cmchis|chief minister|முதலமைச்சர்|सीएमसीएचआईएस")
+_ELIGIBILITY = re.compile(r"eligib|qualif|income|who can|who is covered|entitled|தகுதி|வருமான|पात्र|आय")
 LANGUAGE = {"en": "English", "hi": "Hindi", "ta": "Tamil"}
 
 SYSTEM = """You answer health questions for rural patients in India using ONLY the numbered excerpts provided, which come from official government health sources.
@@ -76,6 +84,9 @@ def answer(session: Session, message: str, lang: str) -> dict:
     gate = check(message, lang)
     if gate.flag != "ok":
         return _reply(gate.reply, gate.flag)
+    lowered = message.lower()
+    if _CMCHIS.search(lowered) and _ELIGIBILITY.search(lowered):
+        return _reply(CMCHIS_ELIGIBILITY[lang])
     try:
         chunks = retrieve(session, message)
         result = _ask_model(message, lang, chunks) if chunks else None

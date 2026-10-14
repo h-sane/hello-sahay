@@ -38,3 +38,13 @@ def test_chunks_stay_under_the_limit_and_overlap():
     assert len(chunks) > 1 and all(len(c) <= MAX_CHARS for c in chunks)
     assert chunks[0].split(". ")[-1] in chunks[1]  # last sentence carried into the next chunk
     assert chunk_text("x" * (MAX_CHARS * 2 + 5))  # no punctuation at all still splits
+
+
+@pytest.mark.parametrize("lang,message", [
+    ("en", "what is the income limit for CMCHIS"),
+    ("en", "who is eligible for the Chief Minister health insurance"),
+    ("ta", "CMCHIS தகுதி என்ன"),
+])
+def test_cmchis_eligibility_gets_the_fixed_reply_without_retrieval(lang, message):
+    out = service.answer(None, message, lang)  # no session: retrieval must not run
+    assert out["answer"] == service.CMCHIS_ELIGIBILITY[lang] and out["citations"] == []
