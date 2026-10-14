@@ -1,11 +1,6 @@
 import { Stethoscope, Clock, Users, UserCheck, AlertCircle } from "lucide-react";
 
-export default function DoctorsTab({ doctors, setDoctors }) {
-  const toggleAvailability = (id) => {
-    setDoctors((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, available: !d.available } : d))
-    );
-  };
+export default function DoctorsTab({ doctors }) {
 
   const activeCount = doctors.filter((d) => d.available).length;
   const leaveCount = doctors.length - activeCount;
@@ -16,22 +11,22 @@ export default function DoctorsTab({ doctors, setDoctors }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
         <div>
           <h2 className="text-2xl font-black text-slate-900">
-            Doctor Availability & Roster
+            Doctors & Open Slots
           </h2>
           <p className="text-base text-slate-600 mt-1">
-            Live on-duty status for today. Receptionists and Voice AI will route patient bookings according to active availability.
+            Built from the selected day's bookings and its open slots. The helpline and the patient app book into these slots.
           </p>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-base font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
             <span className="w-3 h-3 rounded-full bg-emerald-500" />
-            {activeCount} On Duty
+            {activeCount} With Open Slots
           </span>
           {leaveCount > 0 && (
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-base font-bold bg-rose-50 text-rose-800 border border-rose-200">
               <span className="w-3 h-3 rounded-full bg-rose-500" />
-              {leaveCount} On Leave
+              {leaveCount} Fully Booked
             </span>
           )}
         </div>
@@ -75,24 +70,6 @@ export default function DoctorsTab({ doctors, setDoctors }) {
                     </p>
                   </div>
                 </div>
-
-                {/* Interactive Toggle Switch */}
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={doc.available}
-                  onClick={() => toggleAvailability(doc.id)}
-                  title={doc.available ? "Click to set On Leave" : "Click to set Available"}
-                  className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    doc.available ? "bg-emerald-500" : "bg-slate-300"
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-7 w-7 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                      doc.available ? "translate-x-6" : "translate-x-0"
-                    }`}
-                  />
-                </button>
               </div>
 
               {/* Status Pill */}
@@ -100,12 +77,12 @@ export default function DoctorsTab({ doctors, setDoctors }) {
                 {doc.available ? (
                   <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-base font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                    Available Today
+                    Open Slots
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-base font-bold bg-rose-50 text-rose-800 border border-rose-200">
                     <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                    On Leave / Unavailable
+                    Fully Booked
                   </span>
                 )}
               </div>
@@ -120,11 +97,11 @@ export default function DoctorsTab({ doctors, setDoctors }) {
                 <div className="flex items-center gap-3 text-slate-700">
                   <Users className="w-5 h-5 text-slate-400 shrink-0" />
                   <span>
-                    Booked Slots:{" "}
+                    Booked:{" "}
                     <strong className="text-slate-900 font-extrabold text-lg">
                       {doc.bookedSlots}
                     </strong>{" "}
-                    / {doc.totalSlots} patients
+                    / {doc.totalSlots} slots
                   </span>
                 </div>
               </div>
@@ -133,24 +110,24 @@ export default function DoctorsTab({ doctors, setDoctors }) {
             {/* Capacity Progress Bar */}
             <div className="mt-5 pt-4 border-t border-slate-100">
               <div className="flex justify-between text-sm font-bold text-slate-500 mb-1.5">
-                <span>Today's Capacity</span>
+                <span>Capacity</span>
                 <span>
-                  {Math.round((doc.bookedSlots / doc.totalSlots) * 100)}% Filled
+                  {Math.round((doc.bookedSlots / Math.max(doc.totalSlots, 1)) * 100)}% Filled
                 </span>
               </div>
               <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
                 <div
                   className={`h-2.5 rounded-full transition-all duration-300 ${
-                    doc.bookedSlots / doc.totalSlots >= 0.85
+                    doc.bookedSlots / Math.max(doc.totalSlots, 1) >= 0.85
                       ? "bg-rose-500"
-                      : doc.bookedSlots / doc.totalSlots >= 0.6
+                      : doc.bookedSlots / Math.max(doc.totalSlots, 1) >= 0.6
                       ? "bg-amber-500"
                       : "bg-emerald-500"
                   }`}
                   style={{
                     width: `${Math.min(
                       100,
-                      (doc.bookedSlots / doc.totalSlots) * 100
+                      (doc.bookedSlots / Math.max(doc.totalSlots, 1)) * 100
                     )}%`,
                   }}
                 />

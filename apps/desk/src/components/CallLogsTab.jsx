@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   PhoneIncoming,
   AlertTriangle,
@@ -67,16 +66,7 @@ function OutcomeBadge({ outcome }) {
 }
 
 // ─── Main Component ──────────────────────────────────
-export default function CallLogsTab({ callLogs, setCallLogs }) {
-  // 1-Click "Mark Called" Action
-  const handleMarkCalled = (id) => {
-    setCallLogs((prev) =>
-      prev.map((log) =>
-        log.id === id ? { ...log, outcome: "Callback Completed" } : log
-      )
-    );
-  };
-
+export default function CallLogsTab({ callLogs, onMarkCalled }) {
   const pendingCallbacks = callLogs.filter(
     (l) => l.outcome === "Needs Callback"
   ).length;
@@ -95,7 +85,7 @@ export default function CallLogsTab({ callLogs, setCallLogs }) {
             </h2>
           </div>
           <p className="text-base text-slate-600">
-            Real-time audio calls handled by the "Hello Sahay" voice assistant via keypad phone calls.
+            Calls handled by the Hello Sahay voice assistant. Calls it could not finish appear as callbacks.
           </p>
         </div>
 
@@ -175,7 +165,7 @@ export default function CallLogsTab({ callLogs, setCallLogs }) {
                   <td className="py-4 px-5 whitespace-nowrap">
                     {log.outcome === "Needs Callback" ? (
                       <button
-                        onClick={() => handleMarkCalled(log.id)}
+                        onClick={() => onMarkCalled(log.id)}
                         className="inline-flex items-center gap-2 px-4 py-2 text-base font-bold text-white bg-amber-600 hover:bg-amber-700 active:scale-95 rounded-xl shadow-sm transition-all"
                         title="Click once you have called back the patient"
                       >
@@ -195,12 +185,19 @@ export default function CallLogsTab({ callLogs, setCallLogs }) {
                     ) : (
                       <span className="inline-flex items-center gap-1.5 text-base font-medium text-slate-500">
                         <Check className="w-4 h-4 text-slate-400 shrink-0" />
-                        Auto-Booked
+                        {log.outcome === "Slot Booked" ? "Auto-Booked" : "No action needed"}
                       </span>
                     )}
                   </td>
                 </tr>
               ))}
+              {callLogs.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-12 px-5 text-center text-lg font-medium text-slate-500">
+                    No calls yet. Calls to the Hello Sahay helpline will appear here as they happen.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

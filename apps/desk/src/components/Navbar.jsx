@@ -10,7 +10,7 @@ import {
 
 const tabs = [
   { id: "appointments", label: "Appointments & Schedule", icon: Calendar },
-  { id: "doctors", label: "Doctor Availability", icon: Users },
+  { id: "doctors", label: "Doctors & Open Slots", icon: Users },
   { id: "callLogs", label: "Voice AI Call Logs", icon: PhoneIncoming },
 ];
 

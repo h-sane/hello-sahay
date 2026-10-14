@@ -13,25 +13,26 @@ import {
 } from "lucide-react";
 
 // ─── Status Button ───────────────────────────────────
-function StatusButton({ status, onClick }) {
+function StatusButton({ status, onArrive, onDone }) {
   const config = {
     Booked: {
       label: "Mark Arrived",
       cls: "bg-blue-600 hover:bg-blue-700 text-white shadow-sm",
+      onClick: onArrive,
     },
     Arrived: {
-      label: "Mark Completed",
+      label: "Mark Done",
       cls: "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm",
+      onClick: onDone,
     },
-    Completed: {
-      label: "Completed ✓",
-      cls: "bg-slate-100 text-slate-400 cursor-default",
-    },
+    Completed: { label: "Done ✓", cls: "bg-slate-100 text-slate-400 cursor-default" },
+    Cancelled: { label: "Cancelled", cls: "bg-slate-100 text-slate-400 cursor-default" },
+    "No-show": { label: "No-show", cls: "bg-slate-100 text-slate-400 cursor-default" },
   };
   const c = config[status];
   return (
     <button
-      onClick={status !== "Completed" ? onClick : undefined}
+      onClick={c.onClick}
       className={`px-5 py-2.5 rounded-xl text-base font-bold transition-colors ${c.cls}`}
     >
       {c.label}
@@ -44,11 +45,15 @@ function StatusDot({ status }) {
     Booked: "bg-blue-500",
     Arrived: "bg-amber-500",
     Completed: "bg-emerald-500",
+    Cancelled: "bg-slate-400",
+    "No-show": "bg-rose-500",
   };
   const badgeCls = {
     Booked: "bg-blue-50 text-blue-800 border-blue-200",
     Arrived: "bg-amber-50 text-amber-800 border-amber-200",
     Completed: "bg-emerald-50 text-emerald-800 border-emerald-200",
+    Cancelled: "bg-slate-50 text-slate-600 border-slate-200",
+    "No-show": "bg-rose-50 text-rose-800 border-rose-200",
   };
   return (
     <span
@@ -63,111 +68,66 @@ function StatusDot({ status }) {
 // ─── Main Component ──────────────────────────────────
 export default function AppointmentsTab({
   appointments,
-  setAppointments,
   doctors,
+  slots,
+  onArrive,
+  onDone,
+  onWalkIn,
 }) {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    age: "",
-    phone: "",
-    doctor: "",
-    timeSlot: "11:30 AM",
-  });
+  const [busy, setBusy] = useState(false);
+  const [formError, setFormError] = useState("");
+  const emptyForm = { name: "", phone: "", doctorId: "", slotId: "", reason: "" };
+  const [form, setForm] = useState(emptyForm);
 
-  // ── Stats ──
-  const total = appointments.length;
-  const waitingCount = appointments.filter(
+  const active = appointments.filter(
+    (a) => a.status !== "Cancelled" && a.status !== "No-show"
+  );
+  const total = active.length;
+  const waitingCount = active.filter(
     (a) => a.status === "Booked" || a.status === "Arrived"
   ).length;
-  const completedCount = appointments.filter(
-    (a) => a.status === "Completed"
-  ).length;
+  const completedCount = active.filter((a) => a.status === "Completed").length;
 
-  // ── Active Patient for "Now Serving" banner ──
-  // Prioritize first "Arrived" patient; if none, take first "Booked"
+  // "Now serving" is the first patient at the counter; otherwise the next booked one.
   const currentServing =
-    appointments.find((a) => a.status === "Arrived") ||
-    appointments.find((a) => a.status === "Booked");
+    active.find((a) => a.status === "Arrived") ||
+    active.find((a) => a.status === "Booked");
 
-  // ── 1-Click "Complete & Call Next" Handler ──
-  const handleCompleteAndNext = () => {
-    if (!currentServing) return;
-
-    setAppointments((prev) => {
-      let completedCurrent = false;
-      let nextCalled = false;
-
-      return prev.map((a) => {
-        // Mark current active patient as Completed
-        if (a.id === currentServing.id) {
-          completedCurrent = true;
-          return { ...a, status: "Completed" };
-        }
-        // Advance the next Booked patient to Arrived if there was no other Arrived patient
-        if (
-          completedCurrent &&
-          !nextCalled &&
-          a.status === "Booked"
-        ) {
-          nextCalled = true;
-          return { ...a, status: "Arrived" };
-        }
-        return a;
-      });
-    });
-  };
-
-  // ── Filter — Patient Search ──
   const filtered = appointments.filter((a) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
     return a.patientName.toLowerCase().includes(q) || a.phone.includes(q);
   });
 
-  // ── Toggle Status ──
-  const toggleStatus = (id) => {
-    setAppointments((prev) =>
-      prev.map((a) => {
-        if (a.id !== id) return a;
-        const next = {
-          Booked: "Arrived",
-          Arrived: "Completed",
-          Completed: "Completed",
-        };
-        return { ...a, status: next[a.status] };
-      })
-    );
-  };
+  const doctorSlots = slots.filter((s) => String(s.doctor_id) === form.doctorId);
+  const slotTime = (iso) =>
+    new Date(iso).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
 
-  // ── Add Walk-In ──
-  const handleAddWalkIn = () => {
-    if (!form.name.trim() || !form.phone.trim() || !form.doctor) return;
-    const doc = doctors.find((d) => d.name === form.doctor);
-    const newAppt = {
-      id: Date.now(),
-      token:
-        appointments.length > 0
-          ? Math.max(...appointments.map((a) => a.token)) + 1
-          : 101,
-      patientName: form.name.trim(),
-      age: form.age ? parseInt(form.age, 10) : 35,
-      phone: form.phone.trim(),
-      doctor: form.doctor,
-      department: doc?.specialty || "General Medicine",
-      timeSlot: form.timeSlot || "Now",
-      status: "Arrived", // Walk-in is already at the clinic!
-    };
-    setAppointments((prev) => [...prev, newAppt]);
-    setShowModal(false);
-    setForm({
-      name: "",
-      age: "",
-      phone: "",
-      doctor: "",
-      timeSlot: "11:30 AM",
-    });
+  const handleAddWalkIn = async () => {
+    setFormError("");
+    setBusy(true);
+    try {
+      await onWalkIn({
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        slotId: Number(form.slotId),
+        reason: form.reason.trim(),
+      });
+      setShowModal(false);
+      setForm(emptyForm);
+    } catch (e) {
+      setFormError(
+        e.status === 409
+          ? "That slot was just taken. Pick another slot."
+          : e.status === 422
+          ? "Enter a valid 10-digit mobile number."
+          : e.message
+      );
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -240,7 +200,7 @@ export default function AppointmentsTab({
                       {currentServing.patientName}
                     </span>
                     <span className="text-lg font-medium text-slate-500">
-                      ({currentServing.age} yrs · {currentServing.phone})
+                      ({currentServing.phone})
                     </span>
                   </div>
                   <div className="flex flex-wrap items-center gap-3 mt-1.5 text-base text-slate-700">
@@ -265,7 +225,7 @@ export default function AppointmentsTab({
                     >
                       {currentServing.status === "Arrived"
                         ? "Waiting in Reception"
-                        : "Booked (Scheduled)"}
+                        : "Booked, not yet arrived"}
                     </span>
                   </div>
                 </div>
@@ -279,10 +239,14 @@ export default function AppointmentsTab({
 
           {currentServing && (
             <button
-              onClick={handleCompleteAndNext}
+              onClick={() =>
+                currentServing.status === "Arrived"
+                  ? onDone(currentServing.id)
+                  : onArrive(currentServing.id)
+              }
               className="w-full lg:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white text-lg font-bold rounded-xl shadow-md shadow-blue-200 transition-all shrink-0"
             >
-              Complete & Call Next
+              {currentServing.status === "Arrived" ? "Complete & Call Next" : "Mark Arrived"}
               <ArrowRight className="w-5 h-5" />
             </button>
           )}
@@ -307,7 +271,7 @@ export default function AppointmentsTab({
           className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-xl shadow-sm transition-colors shrink-0"
         >
           <Plus className="w-6 h-6" />
-          + Add Walk-In Patient
+          Add Walk-In Patient
         </button>
       </div>
 
@@ -354,9 +318,6 @@ export default function AppointmentsTab({
                   <td className="py-4 px-5">
                     <div className="text-lg font-bold text-slate-900">
                       {appt.patientName}
-                      <span className="text-base font-semibold text-slate-500 ml-2">
-                        ({appt.age} yrs)
-                      </span>
                     </div>
                     <div className="text-base font-semibold text-slate-500 font-mono mt-0.5">
                       {appt.phone}
@@ -387,7 +348,8 @@ export default function AppointmentsTab({
                   <td className="py-4 px-5">
                     <StatusButton
                       status={appt.status}
-                      onClick={() => toggleStatus(appt.id)}
+                      onArrive={() => onArrive(appt.id)}
+                      onDone={() => onDone(appt.id)}
                     />
                   </td>
                 </tr>
@@ -399,7 +361,9 @@ export default function AppointmentsTab({
                     colSpan={6}
                     className="py-12 px-5 text-center text-lg font-medium text-slate-500"
                   >
-                    No appointments found matching "{search}".
+                    {search
+                      ? `No appointments match "${search}".`
+                      : "No appointments today yet. Bookings from the helpline and the patient app appear here live."}
                   </td>
                 </tr>
               )}
@@ -415,7 +379,7 @@ export default function AppointmentsTab({
             <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-slate-50">
               <div>
                 <h3 className="text-2xl font-bold text-slate-900">
-                  + Add Walk-In Patient
+                  Add Walk-In Patient
                 </h3>
                 <p className="text-base text-slate-500 mt-0.5">
                   Register a direct counter patient into today's queue
@@ -430,80 +394,52 @@ export default function AppointmentsTab({
             </div>
 
             <div className="p-6 space-y-5 overflow-y-auto flex-1">
+              {formError && (
+                <p role="alert" className="p-3 rounded-xl bg-red-50 border border-red-200 text-base font-medium text-red-700">
+                  {formError}
+                </p>
+              )}
               <div>
-                <label className="block text-base font-bold text-slate-800 mb-1.5">
-                  Patient Full Name *
-                </label>
-                <input
-                  type="text"
-                  value={form.name}
+                <label className="block text-base font-bold text-slate-800 mb-1.5">Patient Full Name *</label>
+                <input type="text" value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Patient full name"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                  placeholder="Patient full name" className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-base font-bold text-slate-800 mb-1.5">
-                    Age (Years)
-                  </label>
-                  <input
-                    type="number"
-                    value={form.age}
-                    onChange={(e) => setForm({ ...form, age: e.target.value })}
-                    placeholder="Age"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-base font-bold text-slate-800 mb-1.5">
-                    Time Slot
-                  </label>
-                  <input
-                    type="text"
-                    value={form.timeSlot}
-                    onChange={(e) =>
-                      setForm({ ...form, timeSlot: e.target.value })
-                    }
-                    placeholder="Time slot"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
               <div>
-                <label className="block text-base font-bold text-slate-800 mb-1.5">
-                  Phone Number *
-                </label>
-                <input
-                  type="tel"
-                  value={form.phone}
+                <label className="block text-base font-bold text-slate-800 mb-1.5">Phone Number *</label>
+                <input type="tel" value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  placeholder="Mobile number"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                  placeholder="10-digit mobile number" className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
-
               <div>
-                <label className="block text-base font-bold text-slate-800 mb-1.5">
-                  Assign Doctor *
-                </label>
-                <select
-                  value={form.doctor}
-                  onChange={(e) => setForm({ ...form, doctor: e.target.value })}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                  <option value="">Select an available doctor...</option>
-                  {doctors
-                    .filter((d) => d.available)
-                    .map((d) => (
-                      <option key={d.id} value={d.name}>
-                        {d.name} — {d.specialty}
-                      </option>
-                    ))}
+                <label className="block text-base font-bold text-slate-800 mb-1.5">Assign Doctor *</label>
+                <select value={form.doctorId}
+                  onChange={(e) => setForm({ ...form, doctorId: e.target.value, slotId: "" })}
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">Select a doctor with open slots...</option>
+                  {doctors.filter((d) => d.available).map((d) => (
+                    <option key={d.id} value={d.id}>{d.name} — {d.specialty}</option>
+                  ))}
                 </select>
+              </div>
+              <div>
+                <label className="block text-base font-bold text-slate-800 mb-1.5">Time Slot *</label>
+                <select value={form.slotId} disabled={!form.doctorId}
+                  onChange={(e) => setForm({ ...form, slotId: e.target.value })}
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white disabled:bg-slate-100">
+                  <option value="">
+                    {form.doctorId ? "Select an open slot..." : "Choose a doctor first"}
+                  </option>
+                  {doctorSlots.map((s) => (
+                    <option key={s.slot_id} value={s.slot_id}>{slotTime(s.start)}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-base font-bold text-slate-800 mb-1.5">Reason for visit</label>
+                <input type="text" value={form.reason}
+                  onChange={(e) => setForm({ ...form, reason: e.target.value })}
+                  placeholder="Optional" className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
             </div>
 
@@ -519,11 +455,11 @@ export default function AppointmentsTab({
                 type="button"
                 onClick={handleAddWalkIn}
                 disabled={
-                  !form.name.trim() || !form.phone.trim() || !form.doctor
+                  busy || !form.name.trim() || !form.phone.trim() || !form.slotId
                 }
                 className="px-6 py-3 rounded-xl text-base font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-blue-200"
               >
-                Add to Queue
+                {busy ? "Adding…" : "Add to Queue"}
               </button>
             </div>
           </div>

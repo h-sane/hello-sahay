@@ -8,27 +8,28 @@ import {
   AlertCircle,
   Building2,
 } from "lucide-react";
-import { hospitals } from "../data/mockData";
 
 export default function LoginPage({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const [busy, setBusy] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    const trimmedEmail = email.trim().toLowerCase();
-    const foundHospital = Object.values(hospitals).find(
-      (h) =>
-        h.email.toLowerCase() === trimmedEmail && h.password === password
-    );
-
-    if (foundHospital) {
-      onLogin(foundHospital.id);
-    } else {
-      setError("Invalid hospital email or password. Please verify your credentials or contact facility administration.");
+    setBusy(true);
+    try {
+      await onLogin(email.trim().toLowerCase(), password);
+    } catch (err) {
+      setError(
+        err.status === 401
+          ? "Invalid facility email or password. Check your details or contact Sahay support."
+          : err.message
+      );
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -84,7 +85,7 @@ export default function LoginPage({ onLogin }) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="hospital@sahayhealth.org"
+                  placeholder="desk7@sahay.demo"
                   required
                   className="block w-full pl-11 pr-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                 />
@@ -112,9 +113,10 @@ export default function LoginPage({ onLogin }) {
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-6 border border-transparent rounded-xl text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md transition-colors"
+              disabled={busy}
+              className="w-full disabled:opacity-60 flex items-center justify-center gap-2 py-3.5 px-6 border border-transparent rounded-xl text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-md transition-colors"
             >
-              Sign In to Portal
+              {busy ? "Signing in…" : "Sign In to Portal"}
               <ArrowRight className="w-5 h-5" />
             </button>
           </form>
