@@ -19,8 +19,12 @@ header{background:var(--card);border-bottom:1px solid var(--line);position:stick
 .brand i:before,.brand i:after{content:"";position:absolute;background:#fff;border-radius:2px;left:50%;top:50%;transform:translate(-50%,-50%)}
 .brand i:before{width:14px;height:3px}.brand i:after{width:3px;height:14px}
 nav{display:flex;gap:4px;flex:1;overflow-x:auto;scrollbar-width:none}
-nav button{border:0;background:none;padding:8px 14px;border-radius:10px;color:var(--mute);font-weight:600}
+nav button{border:0;background:none;padding:8px 14px;border-radius:10px;color:var(--mute);font-weight:600;transition:background .15s,color .15s}
 nav button[aria-current=true]{background:var(--accent-soft);color:var(--accent)}
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.skel{border-radius:8px;background:linear-gradient(90deg,var(--line) 25%,var(--bg) 50%,var(--line) 75%);background-size:800px 100%;animation:shimmer 1.4s infinite linear}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+#v>*{animation:fadeIn .18s ease}
 .out{border:1px solid var(--line);background:none;color:var(--mute);padding:6px 12px;border-radius:10px}
 main{max-width:1180px;margin:auto;padding:24px 16px 64px}
 h1{font-size:28px;margin:0 0 4px}
@@ -127,14 +131,32 @@ function shell() {
     <nav>${TABS.map(([k, l]) => `<button data-t="${k}" aria-current="${k === tab}">${l}</button>`).join("")}</nav>
     <button class="out" id="so">Sign out</button></div></header><main id="v"></main>`;
   document.getElementById("so").onclick = () => signOut();
-  document.querySelectorAll("nav button").forEach(b => b.onclick = () => { tab = b.dataset.t; shell(); });
+  document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+    if (b.dataset.t === tab) return;
+    tab = b.dataset.t;
+    document.querySelectorAll("nav button").forEach(n => n.setAttribute("aria-current", n.dataset.t === tab));
+    show();
+  });
   show();
+}
+
+function skeletonLoader() {
+  return `<div style="margin-top:8px">
+    <div class="skel" style="height:32px;width:200px;margin-bottom:8px"></div>
+    <div class="skel" style="height:18px;width:320px;margin-bottom:24px"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:28px">
+      ${Array(6).fill('<div class="skel" style="height:84px;border-radius:14px"></div>').join("")}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px">
+      <div class="skel" style="height:200px;border-radius:14px"></div>
+      <div class="skel" style="height:200px;border-radius:14px"></div>
+    </div></div>`;
 }
 
 async function show() {
   const v = document.getElementById("v");
   if (!v) return;
-  v.innerHTML = `<p class="empty">Loading…</p>`;
+  v.innerHTML = skeletonLoader();
   try { v.innerHTML = await VIEWS[tab](); bind(v); }
   catch (x) { if (token) v.innerHTML = `<p class="err" role="alert">${esc(x.message)}</p>`; }
 }
