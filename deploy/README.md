@@ -10,7 +10,14 @@ redeploys on a new commit (and re-seeds slots daily), so **pushing to `main` is 
 | `https://<ip-dashed>.sslip.io` | patient app (`apps/patient-web`), also `/api`, `/voice`, `/exotel` |
 | `https://desk.<ip-dashed>.sslip.io` | Sahay Desk (`apps/desk`), also `/api` |
 
-## One-time setup
+## Live deployment (2026-10-14)
+
+- Patient app: https://13-127-85-246.sslip.io
+- Sahay Desk: https://desk.13-127-85-246.sslip.io (demo login `desk7@sahay.demo` / `demo1234`)
+- Exotel voicebot URL: `wss://13-127-85-246.sslip.io/exotel`
+- Lightsail instance `sahay`, static IP `sahay-ip`; delete both to stop the spend.
+
+## One-time setup (already done)
 
 1. AWS console → IAM → Users → `opencode-bedrock` → Add permissions → Create inline policy → JSON:
    `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"lightsail:*","Resource":"*"}]}`

@@ -24,7 +24,7 @@ Phase 0 done 2026-10-14: folder skeleton (each folder's README names its task
 cards), local Postgres + pgvector, `.env.example`, GitHub milestones and one
 issue per task card. Voice (2026-10-14): `services/voice` runs the English/Hindi/Tamil call pipeline behind a browser page (:8002) and the phone bridge (Twilio/Exotel); verified with synthetic speech in all three languages, not yet with a real phone call. Update this section as code lands.
 
-**Hosting and Android (2026-10-14):** `deploy/` holds the one-box Lightsail stack (Caddy HTTPS, self-updating from `origin/main`); see `deploy/README.md`. The patient app is wrapped for Android with Capacitor in `apps/patient-web/android` (release APK builds with Gradle, verified). Not yet hosted: needs an inline `lightsail:*` policy on the AWS user (no managed policy exists), then `bash deploy/create-instance.sh`.
+**Hosting and Android (2026-10-14):** `deploy/` holds the one-box Lightsail stack (Caddy HTTPS, self-updating from `origin/main`); see `deploy/README.md`. The patient app is wrapped for Android with Capacitor in `apps/patient-web/android` (release APK builds with Gradle, verified). **Live:** patient app https://13-127-85-246.sslip.io, Sahay Desk https://desk.13-127-85-246.sslip.io (Lightsail instance `sahay`, static IP `sahay-ip`, ap-south-1); pushing to `main` redeploys within a minute. Release APK: `apk-builds/2026-10-14/hello-sahay-patient-production-release.apk` (gitignored).
 
 **Local setup:** `docker compose up -d` (Postgres on host port **5433**), copy
 `.env.example` to `.env`, then `python scripts/check_setup.py` (needs boto3 and
