@@ -405,10 +405,17 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
                       </span>
                     ))}
 
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 bg-slate-100">
-                      <Accessibility className="w-3.5 h-3.5 text-slate-500" />
-                      <span>{hospital.accessibilityInfo}</span>
-                    </span>
+                    {hospital.accessibilityInfo && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-600 bg-slate-100">
+                        <Accessibility className="w-3.5 h-3.5 text-slate-500" />
+                        <span>{hospital.accessibilityInfo}</span>
+                      </span>
+                    )}
+                    {hospital.isPartner && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-teal-50 text-teal-900 border border-teal-200">
+                        <span>Book online</span>
+                      </span>
+                    )}
                   </div>
 
                   {/* Departments List */}
@@ -420,19 +427,19 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
                   </div>
 
                   {/* Diagnostics */}
-                  <div className="text-xs text-slate-600">
-                    <span className="font-bold text-slate-700 mr-1.5">
-                      {t('diagnosticsLabel', currentLang)}:
-                    </span>
-                    <span>{hospital.diagnosticServices.join(' · ')}</span>
-                  </div>
+                  {hospital.diagnosticServices.length > 0 && (
+                    <div className="text-xs text-slate-600">
+                      <span className="font-bold text-slate-700 mr-1.5">
+                        {t('diagnosticsLabel', currentLang)}:
+                      </span>
+                      <span>{hospital.diagnosticServices.join(' · ')}</span>
+                    </div>
+                  )}
 
                   {/* Verification timestamp */}
                   <div className="flex items-center gap-1.5 text-[11px] text-slate-400 pt-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{t('verifiedOn', currentLang)} {hospital.verifiedDate}</span>
-                    <span aria-hidden="true">·</span>
-                    <span>State Health Directory Reference Data</span>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Demo data for the Chengalpattu pilot. Confirm timings by phone.</span>
                   </div>
 
                   {/* Action Buttons */}

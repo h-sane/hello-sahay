@@ -76,61 +76,61 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
     }
   > = {
     hi: {
-      pageTitle: 'डॉ. सहाय — आपका वर्चुअल ग्रामीण स्वास्थ्य चिकित्सक',
-      pageSubtitle: 'अपने लक्षण बताएं — डॉ. सहाय आपको सही डॉक्टर सलाह देंगे और नजदीकी उपयुक्त अस्पताल सुझाएंगे',
-      consultationBadge: 'डॉ. सहाय क्लिनिकल परामर्श',
-      verifiedGuidance: 'प्रमाणित मार्गदर्शन',
+      pageTitle: 'सहाय से पूछें',
+      pageSubtitle: 'सरकारी स्वास्थ्य सलाह का सवाल पूछें। जवाब के साथ उसका स्रोत दिखता है',
+      consultationBadge: 'सरकारी स्रोत से जवाब',
+      verifiedGuidance: 'सत्यापित जानकारी',
       homeCareHeading: 'घरेलू देखभाल व हाइड्रेशन',
       medicineHeading: 'दवा व जेनेरिक साल्ट',
-      recommendedHospTitle: 'आपकी बीमारी के लिए अनुशंसित अस्पताल',
+      recommendedHospTitle: 'नज़दीकी सरकारी अस्पताल',
       kmAway: 'किमी दूर',
       departmentLabel: 'विभाग:',
-      whyFacilityLabel: 'यह अस्पताल क्यों चुना गया:',
+      whyFacilityLabel: 'कारण:',
       bookTokenBtn: 'ओपीडी टोकन बुक करें',
       callBtn: 'कॉल करें',
       routeBtn: 'रास्ता देखें',
       clinicalProtocolLabel: 'मानक क्लिनिकल प्रोटोकॉल:',
-      quickChipsHeading: '1-टैप त्वरित लक्षण चुनें:',
-      inputPh: 'अपने लक्षण लिखें (उदा: 3 दिन से तेज बुखार, सीने में दर्द, पेट मरोड़)...',
-      sendBtn: 'परामर्श लें',
-      listeningText: 'डॉ. सहाय सुन रहे हैं... बोलिए',
+      quickChipsHeading: 'जल्दी सवाल चुनें:',
+      inputPh: 'अपना सवाल लिखें (उदा: डेंगू से बचाव कैसे करें)...',
+      sendBtn: 'पूछें',
+      listeningText: 'सहाय सुन रहे हैं... बोलिए',
       stopAudioText: 'आवाज रोकें',
-      listenAdviceText: 'डॉ. सहाय की आवाज में सुनें',
+      listenAdviceText: 'सहाय की आवाज में सुनें',
       emergencyCallout: 'आपातकालीन चेतावनी: तुरंत 108 पर एम्बुलेंस बुलाएं',
       emergencyBtn: '108 कॉल करें',
-      aiDisclaimer: 'सूचना: डॉ. सहाय प्राथमिक मार्गदर्शन व अस्पताल सिफारिश हेतु है। गंभीर स्थिति में तुरंत अस्पताल जाएं।',
+      aiDisclaimer: 'सहाय डॉक्टर नहीं है और बीमारी की पहचान या इलाज नहीं बताता। गंभीर स्थिति में 108 पर कॉल करें।',
       locatingBadge: 'सक्रिय स्वास्थ्य क्षेत्र:',
     },
     ta: {
-      pageTitle: 'டாக்டர் சஹாய் — உங்கள் கிராமப்புற சுகாதார மருத்துவர்',
-      pageSubtitle: 'உங்கள் உடல்நலக் குறையை கூறுங்கள் — உடனடி மருத்துவ ஆலோசனையையும் அருகிலுள்ள சிறந்த மருத்துவமனையையும் பரிந்துரைப்போம்',
-      consultationBadge: 'டாக்டர் சஹாய் மருத்துவ ஆலோசனை',
-      verifiedGuidance: 'உறுதிப்படுத்தப்பட்ட வழிகாட்டல்',
+      pageTitle: 'சஹாயிடம் கேளுங்கள்',
+      pageSubtitle: 'அரசு சுகாதார தகவல் பற்றி கேளுங்கள். பதிலுடன் அதன் ஆதாரமும் காட்டப்படும்',
+      consultationBadge: 'அரசு ஆதாரத்துடன் பதில்',
+      verifiedGuidance: 'சரிபார்க்கப்பட்ட தகவல்',
       homeCareHeading: 'வீட்டு பராமரிப்பு & நீர்ச்சத்து',
       medicineHeading: 'மருந்து & ஜெனரிக் மாத்திரை',
-      recommendedHospTitle: 'உங்கள் நோய்க்குரிய பரிந்துரைக்கப்பட்ட மருத்துவமனை',
+      recommendedHospTitle: 'அருகிலுள்ள அரசு மருத்துவமனை',
       kmAway: 'கி.மீ தொலைவில்',
       departmentLabel: 'பிரிவு:',
-      whyFacilityLabel: 'இந்த மருத்துவமனை பரிந்துரைக்கான காரணம்:',
+      whyFacilityLabel: 'காரணம்:',
       bookTokenBtn: 'டோக்கன் பதிவு',
       callBtn: 'அழைக்க',
       routeBtn: 'வழித்தடம்',
       clinicalProtocolLabel: 'மருத்துவ வரைமுறை:',
-      quickChipsHeading: 'விரைவு அறிகுறிகள் (தட்டவும்):',
-      inputPh: 'அறிகுறிகளை எழுதுங்கள் (எ.கா: காய்ச்சல், நெஞ்சு வலி, வயிற்றுப்போக்கு)...',
-      sendBtn: 'ஆலோசனை பெற',
-      listeningText: 'டாக்டர் சஹாய் கேட்கிறார்... பேசுங்கள்',
+      quickChipsHeading: 'விரைவு கேள்விகள் (தட்டவும்):',
+      inputPh: 'உங்கள் கேள்வியை எழுதுங்கள் (எ.கா: டெங்குவை தடுப்பது எப்படி)...',
+      sendBtn: 'கேளுங்கள்',
+      listeningText: 'சஹாய் கேட்கிறார்... பேசுங்கள்',
       stopAudioText: 'நிறுத்த',
       listenAdviceText: 'குரலில் கேட்க',
       emergencyCallout: 'அவசர எச்சரிக்கை: உடனடியாக 108 ஆம்புலன்ஸை அழைக்கவும்',
       emergencyBtn: '108 அழைக்க',
-      aiDisclaimer: 'பொறுப்புத் துறப்பு: டாக்டர் சஹாய் முதற்கட்ட ஆலோசனை வழிகாட்டி மட்டுமே. அவசரத்தில் உடனே மருத்துவமனைக்கு செல்லவும்.',
+      aiDisclaimer: 'சஹாய் மருத்துவர் அல்ல; நோயைக் கண்டறியவோ சிகிச்சை சொல்லவோ மாட்டார். அவசரத்தில் 108 அழைக்கவும்.',
       locatingBadge: 'செயலில் உள்ள பகுதி:',
     },
     te: {
-      pageTitle: 'డాక్టర్ సహాయ్ — మీ వర్చువల్ గ్రామీణ వైద్యులు',
+      pageTitle: 'సహాయ్ — మీ వర్చువల్ గ్రామీణ వైద్యులు',
       pageSubtitle: 'మీ లక్షణాలను తెలపండి — సరైన వైద్య సలహాను మరియు సమీప ఆసుపత్రిని మేము సూచిస్తాము',
-      consultationBadge: 'డాక్టర్ సహాయ్ వైద్య సలహా',
+      consultationBadge: 'సహాయ్ వైద్య సలహా',
       verifiedGuidance: 'ధృవీకరించబడిన మార్గదర్శకత్వం',
       homeCareHeading: 'గృహ సంరక్షణ & ద్రవాలు',
       medicineHeading: 'మందులు & జెనెరిక్ సాల్ట్స్',
@@ -154,9 +154,9 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
       locatingBadge: 'ప్రస్తుత ప్రాంతం:',
     },
     kn: {
-      pageTitle: 'ಡಾ. ಸಹಾಯ್ — ನಿಮ್ಮ ಆರೋಗ್ಯ ವೈದ್ಯಕೀಯ ಒಡನಾಡಿ',
+      pageTitle: 'ಸಹಾಯ್ — ನಿಮ್ಮ ಆರೋಗ್ಯ ವೈದ್ಯಕೀಯ ಒಡನಾಡಿ',
       pageSubtitle: 'ನಿಮ್ಮ ರೋಗಲಕ್ಷಣಗಳನ್ನು ತಿಳಿಸಿ — ಸೂಕ್ತ ಆಸ್ಪತ್ರೆ ಮತ್ತು ಚಿಕಿತ್ಸಾ ಸಲಹೆಯನ್ನು ಪಡೆಯಿರಿ',
-      consultationBadge: 'ಡಾ. ಸಹಾಯ್ ಕ್ಲಿನಿಕಲ್ ಸಲಹೆ',
+      consultationBadge: 'ಸಹಾಯ್ ಕ್ಲಿನಿಕಲ್ ಸಲಹೆ',
       verifiedGuidance: 'ಪರಿಶೀಲಿಸಿದ ಮಾರ್ಗದರ್ಶನ',
       homeCareHeading: 'ಮನೆ ಆರೈಕೆ & ನೀರು ಸೇವನೆ',
       medicineHeading: 'ಔಷಧಿ & ಜನೌಷಧಿ ಸೌಲಭ್ಯ',
@@ -176,13 +176,13 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
       listenAdviceText: 'ಧ್ವನಿ ಕೇಳಿ',
       emergencyCallout: 'ತುರ್ತು ಎಚ್ಚರಿಕೆ: ತಕ್ಷಣ 108 ಗೆ ಕರೆ ಮಾಡಿ',
       emergencyBtn: '108 ಕರೆ',
-      aiDisclaimer: 'ಡಾ. ಸಹಾಯ್ ಪ್ರಾಥಮಿಕ ಮಾರ್ಗದರ್ಶನ ನೀಡುತ್ತದೆ.',
+      aiDisclaimer: 'ಸಹಾಯ್ ಪ್ರಾಥಮಿಕ ಮಾರ್ಗದರ್ಶನ ನೀಡುತ್ತದೆ.',
       locatingBadge: 'ಸಕ್ರಿಯ ಸ್ಥಳ:',
     },
     ml: {
-      pageTitle: 'ഡോ. സഹായ് — നിങ്ങളുടെ ആരോഗ്യ സഹായി',
+      pageTitle: 'സഹായ് — നിങ്ങളുടെ ആരോഗ്യ സഹായി',
       pageSubtitle: 'രോഗലക്ഷണങ്ങൾ പറയുക — കൃത്യമായ ചികിത്സാ മാർഗ്ഗനിർദ്ദേശവും ആശുപത്രിയും നിർദ്ദേശിക്കാം',
-      consultationBadge: 'ഡോ. സഹായ് ക്ലിനിക്കൽ കൺസൾട്ടേഷൻ',
+      consultationBadge: 'സഹായ് ക്ലിനിക്കൽ കൺസൾട്ടേഷൻ',
       verifiedGuidance: 'പരിശോധിച്ച മാർഗ്ഗനിർദ്ദേശം',
       homeCareHeading: 'വീട്ടു പരിചരണം & ജലാംശം',
       medicineHeading: 'മരുന്നുകൾ & ജൻ ഔഷധി',
@@ -202,13 +202,13 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
       listenAdviceText: 'കേൾക്കുക',
       emergencyCallout: 'അടിയന്തിര മുന്നറിയിപ്പ്: ഉടൻ 108 വിളിക്കുക',
       emergencyBtn: '108 വിളിക്കുക',
-      aiDisclaimer: 'ഡോ. സഹായ് പ്രാഥമിക വിവര സഹായി മാത്രമാണ്.',
+      aiDisclaimer: 'സഹായ് പ്രാഥമിക വിവര സഹായി മാത്രമാണ്.',
       locatingBadge: 'നിലവിലെ സ്ഥലം:',
     },
     bn: {
-      pageTitle: 'ডা. সহায় — আপনার স্বাস্থ্য চিকিৎসক',
+      pageTitle: 'সহায় — আপনার স্বাস্থ্য চিকিৎসক',
       pageSubtitle: 'আপনার লক্ষণগুলি জানান — সঠিক চিকিৎসা পরামর্শ ও উপযুক্ত হাসপাতালের সন্ধান পান',
-      consultationBadge: 'ডা. সহায় ক্লিনিকাল পরামর্শ',
+      consultationBadge: 'সহায় ক্লিনিকাল পরামর্শ',
       verifiedGuidance: 'যাচাইকৃত নির্দেশিকা',
       homeCareHeading: 'ঘরোয়া যত্ন ও জলীয় খাবার',
       medicineHeading: 'ওষুধ ও জেনেরিক সাশ্রয়',
@@ -228,14 +228,14 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
       listenAdviceText: 'কণ্ঠে শুনুন',
       emergencyCallout: 'জরুরী সতর্কতা: অবিলম্বে ১০৮ এ কল করুন',
       emergencyBtn: '১০৮ কল করুন',
-      aiDisclaimer: 'ডা. সহায় প্রাথমিক স্বাস্থ্য নির্দেশক মাত্র।',
+      aiDisclaimer: 'সহায় প্রাথমিক স্বাস্থ্য নির্দেশক মাত্র।',
       locatingBadge: 'সক্রিয় এলাকা:',
     },
     mr: {
-      pageTitle: 'डॉ. सहाय — आपले आरोग्य मार्गदर्शक',
+      pageTitle: 'सहाय — आपले आरोग्य मार्गदर्शक',
       pageSubtitle: 'आपली लक्षणे सांगा — योग्य वैद्यकीय सल्ला आणि जवळचे रुग्णालय मिळवा',
-      consultationBadge: 'डॉ. सहाय क्लिनिकल सल्ला',
-      verifiedGuidance: 'प्रमाणित मार्गदर्शन',
+      consultationBadge: 'सहाय क्लिनिकल सल्ला',
+      verifiedGuidance: 'सत्यापित जानकारी',
       homeCareHeading: 'घरगुती काळजी व हायड्रेशन',
       medicineHeading: 'औषध व जेनेरिक साल्ट',
       recommendedHospTitle: 'आपल्या आजारासाठी सुचवलेले रुग्णालय',
@@ -254,13 +254,13 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
       listenAdviceText: 'आवाजात ऐका',
       emergencyCallout: 'आणीबाणी इशारा: त्वरित १०८ वर कॉल करा',
       emergencyBtn: '१०८ कॉल करा',
-      aiDisclaimer: 'डॉ. सहाय केवळ प्राथमिक माहिती देणारा मार्गदर्शक आहे.',
+      aiDisclaimer: 'सहाय केवळ प्राथमिक माहिती देणारा मार्गदर्शक आहे.',
       locatingBadge: 'सक्रिय क्षेत्र:',
     },
     gu: {
-      pageTitle: 'ડૉ. સહાય — આપના ગ્રામીણ આરોગ્ય સાથી',
+      pageTitle: 'સહાય — આપના ગ્રામીણ આરોગ્ય સાથી',
       pageSubtitle: 'તમારા લક્ષણો જણાવો — યોગ્ય તબીબી સલાહ અને નજીકની હોસ્પિટલ મેળવો',
-      consultationBadge: 'ડૉ. સહાય ક્લિનિકલ સલાહ',
+      consultationBadge: 'સહાય ક્લિનિકલ સલાહ',
       verifiedGuidance: 'પ્રમાણિત માર્ગદર્શન',
       homeCareHeading: 'ઘરેલું સંભાળ અને હાઇડ્રેશન',
       medicineHeading: 'દવા અને જેનરિક સાલ્ટ',
@@ -280,33 +280,33 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
       listenAdviceText: 'અવાજમાં સાંભળો',
       emergencyCallout: 'ઇમરજન્સી ચેતવણી: તરત ૧૦૮ પર કૉલ કરો',
       emergencyBtn: '૧૦૮ કૉલ',
-      aiDisclaimer: 'ડૉ. સહાય માત્ર પ્રાથમિક માર્ગદર્શક છે.',
+      aiDisclaimer: 'સહાય માત્ર પ્રાથમિક માર્ગદર્શક છે.',
       locatingBadge: 'સક્રિય વિસ્તાર:',
     },
     en: {
-      pageTitle: 'Dr. Sahay — Virtual Rural Health Physician',
-      pageSubtitle: 'Describe your symptoms — Dr. Sahay provides verified medical advice and matches you to the best nearby hospital',
-      consultationBadge: 'Dr. Sahay Clinical Consultation',
-      verifiedGuidance: 'Verified Clinical Guidance',
+      pageTitle: 'Ask Sahay',
+      pageSubtitle: 'Ask about government health guidance. Every answer shows its source',
+      consultationBadge: 'Answer from a government source',
+      verifiedGuidance: 'Verified information',
       homeCareHeading: 'Home Care & Hydration',
       medicineHeading: 'Medicine & Generic Salts',
-      recommendedHospTitle: 'Recommended Hospital for Your Condition',
+      recommendedHospTitle: 'Nearest government facility',
       kmAway: 'km away',
       departmentLabel: 'Department:',
-      whyFacilityLabel: 'Why this facility:',
+      whyFacilityLabel: 'Why:',
       bookTokenBtn: 'Book Doctor Token',
       callBtn: 'Call Facility',
       routeBtn: 'Directions',
       clinicalProtocolLabel: 'Clinical Protocol:',
-      quickChipsHeading: '1-Tap Quick Symptoms:',
-      inputPh: 'Type your symptoms (e.g. fever for 3 days, chest pain, loose motions)...',
-      sendBtn: 'Consult Doctor',
-      listeningText: 'Dr. Sahay is listening... Speak now',
+      quickChipsHeading: 'Quick questions:',
+      inputPh: 'Type your question (e.g. how to prevent dengue)...',
+      sendBtn: 'Ask',
+      listeningText: 'Sahay is listening... Speak now',
       stopAudioText: 'Stop Audio',
       listenAdviceText: 'Listen in Audio',
       emergencyCallout: 'Emergency Alert: Call 108 ambulance immediately',
       emergencyBtn: 'Call 108 Now',
-      aiDisclaimer: 'Disclaimer: Dr. Sahay provides triage and guidance. In severe distress, visit hospital directly.',
+      aiDisclaimer: 'Sahay is not a doctor and does not diagnose or advise treatment. In an emergency, call 108.',
       locatingBadge: 'Active Healthcare Region:',
     },
   };
@@ -315,15 +315,15 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
 
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     const welcomeTexts: Record<Language, string> = {
-      hi: '👨‍⚕️ नमस्ते! मैं डॉ. सहाय हूँ — आपका वर्चुअल ग्रामीण स्वास्थ्य चिकित्सक। अपने लक्षणों (जैसे बुखार, सीने में दर्द, पेट दर्द, जोड़ों में दर्द, खांसी या शुगर/बीपी) के बारे में बताएं। मैं सही डॉक्टर परामर्श दूंगा और आपके नजदीकी सबसे उपयुक्त अस्पताल की सिफारिश करूंगा।',
-      ta: '👨‍⚕️ வணக்கம்! நான் டாக்டர் சஹாய் — உங்கள் கிராமப்புற சுகாதார மருத்துவர். உங்கள் அறிகுறிகளை (காய்ச்சல், நெஞ்சு வலி, வயிற்று வலி, சர்க்கரை, எலும்பு வலி) கூறுங்கள். உடனடி மருத்துவ ஆலோசனையையும், உங்கள் நோய்க்குரிய சிறந்த அருகிலுள்ள மருத்துவமனையையும் பரிந்துரைப்பேன்.',
-      te: '👨‍⚕️ నమస్తే! నేను డాక్టర్ సహాయ్ ని. మీ లక్షణాలు (జ్వరం, గుండె నొప్పి, కడుపు నొప్పి, కీళ్ల నొప్పులు) చెప్పండి. నేను సరైన వైద్య సలహాను మరియు సమీప ఆసుపత్రిని సిఫార్సు చేస్తాను.',
-      kn: '👨‍⚕️ ನಮಸ್ಕಾರ! ನಾನು ಡಾ. ಸಹಾಯ್. ನಿಮ್ಮ ಆರೋಗ್ಯ ಲಕ್ಷಣಗಳನ್ನು (ಜ್ವರ, ಎದೆ ನೋವು, ಹೊಟ್ಟೆ ನೋವು, ಕೀಲು ನೋವು) ತಿಳಿಸಿ. ಸೂಕ್ತ ವೈದ್ಯಕೀಯ ಸಲಹೆ ಹಾಗೂ ಹತ್ತಿರದ ಆಸ್ಪತ್ರೆಯನ್ನು ನಾನು ಶಿಫಾರಸು ಮಾಡುತ್ತೇನೆ.',
-      ml: '👨‍⚕️ നമസ്കാരം! ഞാൻ ഡോ. സഹായ് ആണ്. നിങ്ങളുടെ രോഗലക്ഷണങ്ങൾ (പനി, നെഞ്ചുവേദന, വയറുവേദന) പറയുക. ഡോക്ടറുടെ ശരിയായ മാർഗ്ഗനിർദ്ദേശവും അടുത്തുള്ള ആശുപത്രിയും ഞാൻ നിർദ്ദേശിക്കാം.',
-      bn: '👨‍⚕️ নমস্কার! আমি ডা. সহায়। আপনার লক্ষণগুলি (জ্বর, বুকে ব্যথা, পেটের সমস্যা, গাঁটের ব্যথা) জানান। আমি চিকিৎসা পরামর্শ এবং নিকটতম হাসপাতালের সুপারিশ করব।',
-      mr: '👨‍⚕️ नमस्कार! मी डॉ. सहाय आहे. आपली लक्षणे (ताप, छातीत दुखणे, पोटदुखी, सांधेदुखी) सांगा. मी योग्य वैद्यकीय सल्ला व जवळच्या रुग्णालयाची शिफारस करेन.',
-      gu: '👨‍⚕️ નમસ્તે! હું ડૉ. સહાય છું. તમારા લક્ષણો (તાવ, છાતીમાં દુખાવો, પેટનો દુખાવો, સાંધાનો દુખાવો) જણાવો. હું યોગ્ય તબીબી સલાહ અને નજીકની હોસ્પિટલની ભલામણ કરીશ.',
-      en: '👨‍⚕️ Hello! I am Dr. Sahay — your virtual rural health physician. Please tell me your symptoms (e.g., high fever, chest pain, stomach ache, bone injury, blood sugar, or cough). I will provide structured doctor guidance and recommend the best nearby hospital for your care.',
+      hi: 'नमस्ते! मैं सहाय हूँ। मैं सरकारी स्वास्थ्य सलाह के आधार पर जवाब देती हूँ और नज़दीकी सरकारी अस्पताल खोजने में मदद करती हूँ। मैं बीमारी की पहचान या इलाज नहीं बताती। आपातकाल में 108 पर कॉल करें।',
+      ta: 'வணக்கம்! நான் சஹாய். அரசு சுகாதார வழிகாட்டுதல்களின் அடிப்படையில் பதில் சொல்கிறேன்; அருகிலுள்ள அரசு மருத்துவமனையைத் தேட உதவுகிறேன். நோயைக் கண்டறியவோ சிகிச்சை சொல்லவோ மாட்டேன். அவசரத்தில் 108 அழைக்கவும்.',
+      te: 'నమస్తే! నేను సహాయ్ ని. మీ లక్షణాలు (జ్వరం, గుండె నొప్పి, కడుపు నొప్పి, కీళ్ల నొప్పులు) చెప్పండి. నేను సరైన వైద్య సలహాను మరియు సమీప ఆసుపత్రిని సిఫార్సు చేస్తాను.',
+      kn: 'ನಮಸ್ಕಾರ! ನಾನು ಸಹಾಯ್. ನಿಮ್ಮ ಆರೋಗ್ಯ ಲಕ್ಷಣಗಳನ್ನು (ಜ್ವರ, ಎದೆ ನೋವು, ಹೊಟ್ಟೆ ನೋವು, ಕೀಲು ನೋವು) ತಿಳಿಸಿ. ಸೂಕ್ತ ವೈದ್ಯಕೀಯ ಸಲಹೆ ಹಾಗೂ ಹತ್ತಿರದ ಆಸ್ಪತ್ರೆಯನ್ನು ನಾನು ಶಿಫಾರಸು ಮಾಡುತ್ತೇನೆ.',
+      ml: 'നമസ്കാരം! ഞാൻ സഹായ് ആണ്. നിങ്ങളുടെ രോഗലക്ഷണങ്ങൾ (പനി, നെഞ്ചുവേദന, വയറുവേദന) പറയുക. ഡോക്ടറുടെ ശരിയായ മാർഗ്ഗനിർദ്ദേശവും അടുത്തുള്ള ആശുപത്രിയും ഞാൻ നിർദ്ദേശിക്കാം.',
+      bn: 'নমস্কার! আমি সহায়। আপনার লক্ষণগুলি (জ্বর, বুকে ব্যথা, পেটের সমস্যা, গাঁটের ব্যথা) জানান। আমি চিকিৎসা পরামর্শ এবং নিকটতম হাসপাতালের সুপারিশ করব।',
+      mr: 'नमस्कार! मी सहाय आहे. आपली लक्षणे (ताप, छातीत दुखणे, पोटदुखी, सांधेदुखी) सांगा. मी योग्य वैद्यकीय सल्ला व जवळच्या रुग्णालयाची शिफारस करेन.',
+      gu: 'નમસ્તે! હું સહાય છું. તમારા લક્ષણો (તાવ, છાતીમાં દુખાવો, પેટનો દુખાવો, સાંધાનો દુખાવો) જણાવો. હું યોગ્ય તબીબી સલાહ અને નજીકની હોસ્પિટલની ભલામણ કરીશ.',
+      en: 'Hello! I am Sahay. I answer from official government health guidance and help you find the nearest government facility. I do not diagnose or advise treatment. In an emergency, call 108.',
     };
 
     return [
@@ -445,7 +445,7 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
     try {
       speechService.playAudioChime(520, 0.1);
 
-      // Dr. Sahay virtual physician advice engine
+      // Sahay virtual physician advice engine
       const doctorAdvice = await sahayAiService.consultSahayAi(
         textToSend,
         currentLang,
@@ -469,15 +469,15 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
       setMessages((prev) => [...prev, sahayMsg]);
       speechService.playAudioChime(780, 0.15);
     } catch (e) {
-      console.warn('Dr. Sahay advice error:', e);
+      console.warn('Chat error:', e);
       const fallbackMsg: ChatMessage = {
         id: `msg-${Date.now() + 2}`,
         sender: 'sahay',
         text: currentLang === 'ta'
-          ? 'டாக்டர் சஹாய்: இணைய இணைப்பு குறைபாடு காரணமாக தற்காலிக தாமதம். அவசர உதவிக்கு 108 அழைக்கவும்.'
+          ? 'சஹாய்: சேவையை அடைய முடியவில்லை. மீண்டும் முயற்சிக்கவும். அவசரத்தில் 108 அழைக்கவும்.'
           : currentLang === 'hi'
-          ? 'डॉ. सहाय: नेटवर्क धीमा होने के कारण मार्गदर्शन पुनः लोड करें। आपातकाल में 108 डायल करें।'
-          : 'Dr. Sahay: Network delay. For urgent medical emergencies, call 108 right away.',
+          ? 'सहाय: सेवा से संपर्क नहीं हो सका। फिर कोशिश करें। आपातकाल में 108 डायल करें।'
+          : 'Sahay: Could not reach the service. Please try again. In an emergency, call 108 right away.',
         timestamp: 'Just now',
         isAiGenerated: true,
       };
@@ -508,31 +508,38 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
     });
   };
 
+  const recognitionRef = useRef<{ start: () => void; stop: () => void } | null>(null);
+
   const handleToggleVoiceInput = () => {
     if (isListening) {
-      speechService.stopVoiceRecognition();
+      recognitionRef.current?.stop();
       setIsListening(false);
       return;
     }
 
+    let finalText = '';
     setIsListening(true);
-    speechService.startVoiceRecognition(
+    recognitionRef.current = speechService.createRecognition(
       currentLang,
-      (transcript) => {
-        setIsListening(false);
-        setInputQuery(transcript);
-        handleSendMessage(transcript);
+      (text) => {
+        finalText = text;
+        setInputQuery(text);
       },
       (err) => {
         console.warn('Voice error:', err);
         setIsListening(false);
+      },
+      () => {
+        setIsListening(false);
+        if (finalText.trim()) handleSendMessage(finalText);
       }
     );
+    recognitionRef.current.start();
   };
 
   return (
     <div className="space-y-4 pb-12 animate-in fade-in duration-200 flex flex-col h-[calc(100vh-140px)]">
-      {/* Top Banner: Dr. Sahay Persona & Location */}
+      {/* Top Banner: Sahay Persona & Location */}
       <div className="p-4 rounded-3xl bg-gradient-to-r from-teal-950 via-teal-900 to-teal-950 text-white border-2 border-teal-700/60 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0">
@@ -544,7 +551,7 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
                 {ui.pageTitle}
               </h1>
               <span className="text-[10px] font-bold bg-emerald-400 text-teal-950 px-2 py-0.5 rounded-full uppercase">
-                AI Active
+                Cited answers
               </span>
             </div>
             <p className="text-xs text-teal-200/90 pt-0.5">
@@ -552,6 +559,14 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
             </p>
           </div>
         </div>
+
+        <button
+          onClick={onOpenVoiceMode}
+          className="flex items-center gap-1.5 text-xs font-bold text-teal-950 bg-emerald-300 hover:bg-emerald-200 px-3 py-1.5 rounded-xl self-start sm:self-auto"
+        >
+          <Phone className="w-3.5 h-3.5 shrink-0" />
+          <span>{currentLang === 'hi' ? 'सहाय को कॉल करें' : currentLang === 'ta' ? 'சஹாயை அழைக்கவும்' : 'Call Sahay'}</span>
+        </button>
 
         {/* Location selector trigger */}
         <button
@@ -610,7 +625,7 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
                 )}
 
                 {/* Sender badge */}
-                {isSahay && (
+                {isSahay && msg.sources && msg.sources.length > 0 && (
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-black text-teal-950">
@@ -763,7 +778,7 @@ export const AskSahayView: React.FC<AskSahayViewProps> = ({
             <div className="w-8 h-8 rounded-xl bg-teal-800 text-white flex items-center justify-center">
               <Stethoscope className="w-4 h-4 text-emerald-300 animate-spin" />
             </div>
-            <span>Dr. Sahay is reviewing your symptoms & closest hospital...</span>
+            <span>Looking up verified information…</span>
           </div>
         )}
 

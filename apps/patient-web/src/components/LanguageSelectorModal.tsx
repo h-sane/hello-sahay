@@ -46,12 +46,6 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
   const languageList: { code: Language; label: string; subLabel: string; prompt: string }[] = [
     { code: 'hi', label: 'हिन्दी', subLabel: 'Hindi', prompt: 'ग्रामीण नागरिकों का सरल व सुलभ स्वास्थ्य साथी' },
     { code: 'ta', label: 'தமிழ்', subLabel: 'Tamil', prompt: 'கிராமப்புற மக்களுக்கான எளிய மருத்துவ துணை' },
-    { code: 'te', label: 'తెలుగు', subLabel: 'Telugu', prompt: 'గ్రామీణ రోగుల సంరక్షణ డిజిటల్ వేదిక' },
-    { code: 'kn', label: 'ಕನ್ನಡ', subLabel: 'Kannada', prompt: 'ಗ್ರಾಮೀಣ ರೋಗಿಗಳಿಗೆ ಸುಲಭ ಆರೋಗ್ಯ ಒಡನಾಡಿ' },
-    { code: 'ml', label: 'മലയാളം', subLabel: 'Malayalam', prompt: 'ഗ്രാമീണ രോഗികൾക്കുള്ള കരുത്തുറ്റ സഹായം' },
-    { code: 'bn', label: 'বাংলা', subLabel: 'Bengali', prompt: 'গ্রামীণ স্বাস্থ্যসেবার সহজ নির্ভরযোগ্য মাধ্যম' },
-    { code: 'mr', label: 'मराठी', subLabel: 'Marathi', prompt: 'ग्रामीण भागासाठी सुलभ आरोग्य साथी' },
-    { code: 'gu', label: 'ગુજરાતી', subLabel: 'Gujarati', prompt: 'ગ્રામીણ દર્દીઓ માટે સરળ સ્વાસ્થ્ય સેવા' },
     { code: 'en', label: 'English', subLabel: 'English', prompt: 'Patient-first rural healthcare companion' },
   ];
 
@@ -74,7 +68,7 @@ export const LanguageSelectorModal: React.FC<LanguageSelectorModalProps> = ({
                 {t('chooseLanguage', selectedLang)}
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                Select your preferred Indian language (9 major languages supported)
+                Choose your language: Tamil, Hindi or English
               </p>
             </div>
           </div>

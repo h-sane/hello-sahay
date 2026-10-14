@@ -30,6 +30,7 @@ export interface Hospital {
   isDemo: boolean;
   latitude: number;
   longitude: number;
+  isPartner?: boolean;
 }
 
 export interface Doctor {
@@ -57,15 +58,9 @@ export interface Appointment {
   date: string;
   timeSlot: string;
   patientName: string;
-  patientAge: number;
   patientPhone: string;
-  familyMemberId?: string;
-  isCaregiverAssisted: boolean;
-  caregiverName?: string;
-  status: 'confirmed_demo' | 'pending_sync' | 'cancelled';
+  status: 'booked' | 'arrived' | 'cancelled' | 'no_show';
   referenceCode: string;
-  createdAt: string;
-  isDemo: boolean;
 }
 
 export interface JanAushadhiEquivalent {
@@ -164,4 +159,5 @@ export interface UserSettings {
   notificationsPermission: boolean;
   userName?: string;
   villageTown?: string;
+  userPhone?: string;
 }

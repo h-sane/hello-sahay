@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Building2,
   MessageSquareHeart,
@@ -39,6 +39,7 @@ interface HomeViewProps {
   onOpenEmergency: () => void;
   onSelectHospitalForBooking: (hospital: Hospital) => void;
   onOpenLocationSelector: () => void;
+  onOpenVoiceCall: () => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -49,13 +50,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenEmergency,
   onSelectHospitalForBooking,
   onOpenLocationSelector,
+  onOpenVoiceCall,
 }) => {
   const [adviceIndex, setAdviceIndex] = useState(0);
   const [isPlayingAdviceAudio, setIsPlayingAdviceAudio] = useState(false);
   const [symptomInput, setSymptomInput] = useState('');
-  const currentAdvice: SahayAiAdvice = sahayAiService.getDailyAdvice(adviceIndex);
+  const [, setAdviceLoaded] = useState(false);
+  useEffect(() => {
+    sahayAiService.loadAdvice(currentLang).then(() => setAdviceLoaded(true));
+  }, [currentLang]);
+  const currentAdvice: SahayAiAdvice | null = sahayAiService.getDailyAdvice(adviceIndex);
   const reminders = storageService.getReminders();
-  const appointments = storageService.getAppointments().filter((a) => a.status === 'confirmed_demo');
+  const appointments = storageService.getAppointments().filter((a) => a.status === 'booked');
 
   // Compute nearby hospitals for user location
   const allHospitals = hospitalService.getAll();
@@ -104,15 +110,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
       callHospital: 'அழைக்க',
       getDirections: 'வழித்தடம்',
       bookToken: 'டோக்கன் பதிவு',
-      symptomCardTitle: 'டாக்டர் சஹாய் — நோய் அறிகுறிகள் & மருத்துவமனை பரிந்துரை',
-      symptomCardSub: 'உங்கள் உடல்நலக் குறையை கூறுங்கள், டாக்டர் சஹாய் சிறந்த அரசு மருத்துவமனையை பரிந்துரைப்பார்',
+      symptomCardTitle: 'சஹாய் — அருகிலுள்ள சிகிச்சையைக் கண்டறியுங்கள்',
+      symptomCardSub: 'சுகாதார கேள்வி கேளுங்கள் அல்லது அருகிலுள்ள அரசு மருத்துவமனையைத் தேடுங்கள்',
       openFullChat: 'முழு உரையாடல் →',
       tapSymptomLabel: 'அறிகுறியை தட்டவும் அல்லது எழுதவும்:',
       symptomPh: 'அறிகுறிகளை எழுதவும் (எ.கா: 3 நாட்களாக காய்ச்சல், நெஞ்சு வலி, வயிற்றுப்போக்கு)...',
       consultDoctorBtn: 'மருத்துவரிடம் கேட்க',
       actionTitle: 'முதன்மை சேவைகள்',
       actionFindHospSub: 'அருகிலுள்ள அரசு ஆரம்ப சுகாதார நிலையங்கள் & காப்பீட்டு மருத்துவமனைகள்',
-      actionAskSahaySub: '9 இந்திய மொழிகளில் டாக்டர் மருத்துவ வழிகாட்டல் & ஆலோசனைகள்',
+      actionAskSahaySub: 'அரசு சுகாதார தகவல்கள் ஆதாரத்துடன்',
       actionCheckMedSub: 'ஜன் ஔஷதி மையங்களில் 80% குறைந்த விலை ஜெனரிக் மாத்திரைகள்',
       actionApptSub: 'சேமிக்கப்பட்ட ஓபிடி முன்பதிவு சீட்டுகள் மற்றும் டோக்கன்கள்',
       nearbyListTitle: 'உங்கள் பகுதிக்கான அருகிலுள்ள மருத்துவமனைகள்',
@@ -143,8 +149,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
       callHospital: 'कॉल करें',
       getDirections: 'रास्ता देखें',
       bookToken: 'ओपीडी टोकन',
-      symptomCardTitle: 'डॉ. सहाय — लक्षण जांच व सबसे सही अस्पताल की सिफारिश',
-      symptomCardSub: 'अपने लक्षण बताएं — डॉ. सहाय सही प्राथमिक सलाह व नजदीकी अस्पताल सुझाएंगे',
+      symptomCardTitle: 'सहाय — अपने पास सही इलाज खोजें',
+      symptomCardSub: 'स्वास्थ्य सवाल पूछें या नज़दीकी सरकारी अस्पताल खोजें',
       openFullChat: 'पूरा चैट खोलें →',
       tapSymptomLabel: 'अपना लक्षण चुनें या लिखें:',
       symptomPh: 'लक्षण लिखें (उदा: 3 दिन से तेज बुखार, सीने में दर्द, पेट मरोड़)...',
@@ -182,8 +188,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
       callHospital: 'కాల్ చేయండి',
       getDirections: 'దారి చూడండి',
       bookToken: 'ఓపీడీ టోకెన్',
-      symptomCardTitle: 'డాక్టర్ సహాయ్ — లక్షణాలు & ఆసుపత్రి సిఫార్సు',
-      symptomCardSub: 'మీ లక్షణాలను తెలపండి, డాక్టర్ సహాయ్ సరైన ఆసుపత్రిని సూచిస్తారు',
+      symptomCardTitle: 'సహాయ్ — లక్షణాలు & ఆసుపత్రి సిఫార్సు',
+      symptomCardSub: 'మీ లక్షణాలను తెలపండి, సహాయ్ సరైన ఆసుపత్రిని సూచిస్తారు',
       openFullChat: 'చాట్ తెరవండి →',
       tapSymptomLabel: 'లక్షణాన్ని ఎంచుకోండి లేదా రాయండి:',
       symptomPh: 'మీ లక్షణాలను ఇక్కడ రాయండి...',
@@ -218,7 +224,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       callHospital: 'ಕರೆ ಮಾಡಿ',
       getDirections: 'ಮಾರ್ಗ ನೋಡಿ',
       bookToken: 'ಟೋಕನ್ ಬುಕಿಂಗ್',
-      symptomCardTitle: 'ಡಾ. ಸಹಾಯ್ — ಲಕ್ಷಣ ತಪಾಸಣೆ ಮತ್ತು ಆಸ್ಪತ್ರೆ ಶಿಫಾರಸು',
+      symptomCardTitle: 'ಸಹಾಯ್ — ಲಕ್ಷಣ ತಪಾಸಣೆ ಮತ್ತು ಆಸ್ಪತ್ರೆ ಶಿಫಾರಸು',
       symptomCardSub: 'ನಿಮ್ಮ ಲಕ್ಷಣಗಳನ್ನು ತಿಳಿಸಿ, ಸೂಕ್ತ ಆಸ್ಪತ್ರೆಯನ್ನು ಸೂಚಿಸುತ್ತೇವೆ',
       openFullChat: 'ಪೂರ್ಣ ಚಾಟ್ →',
       tapSymptomLabel: 'ಲಕ್ಷಣವನ್ನು ಆಯ್ಕೆಮಾಡಿ:',
@@ -254,7 +260,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       callHospital: 'വിളിക്കുക',
       getDirections: 'വഴി കാണുക',
       bookToken: 'ടോക്കൺ ബുക്കിംഗ്',
-      symptomCardTitle: 'ഡോ. സഹായ് — രോഗലക്ഷണങ്ങളും ആശുപത്രി നിർദ്ദേശവും',
+      symptomCardTitle: 'സഹായ് — രോഗലക്ഷണങ്ങളും ആശുപത്രി നിർദ്ദേശവും',
       symptomCardSub: 'നിങ്ങളുടെ രോഗലക്ഷണങ്ങൾ പറയുക, അനുയോജ്യമായ ആശുപത്രി നിർദ്ദേശിക്കാം',
       openFullChat: 'മുഴുവൻ ചാറ്റ് →',
       tapSymptomLabel: 'ലക്ഷണം തിരഞ്ഞെടുക്കുക:',
@@ -289,8 +295,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
       callHospital: 'কল করুন',
       getDirections: 'দিকনির্দেশ',
       bookToken: 'টোকেন বুকিং',
-      symptomCardTitle: 'ডা. সহায় — লক্ষণ যাচাই ও উপযুক্ত হাসপাতাল সুপারিশ',
-      symptomCardSub: 'আপনার লক্ষণগুলি জানান, ডা. সহায় সঠিক হাসপাতাল সুপারিশ করবেন',
+      symptomCardTitle: 'সহায় — লক্ষণ যাচাই ও উপযুক্ত হাসপাতাল সুপারিশ',
+      symptomCardSub: 'আপনার লক্ষণগুলি জানান, সহায় সঠিক হাসপাতাল সুপারিশ করবেন',
       openFullChat: 'সম্পূর্ণ চ্যাট →',
       tapSymptomLabel: 'লক্ষণ নির্বাচন করুন:',
       symptomPh: 'এখানে আপনার লক্ষণগুলি লিখুন...',
@@ -324,8 +330,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
       callHospital: 'कॉल करा',
       getDirections: 'रस्ता पहा',
       bookToken: 'टोकन बुक करा',
-      symptomCardTitle: 'डॉ. सहाय — लक्षणे व योग्य रुग्णालयाची शिफारस',
-      symptomCardSub: 'आपली लक्षणे सांगा, डॉ. सहाय योग्य रुग्णालय सुचवतील',
+      symptomCardTitle: 'सहाय — लक्षणे व योग्य रुग्णालयाची शिफारस',
+      symptomCardSub: 'आपली लक्षणे सांगा, सहाय योग्य रुग्णालय सुचवतील',
       openFullChat: 'संपूर्ण चॅट →',
       tapSymptomLabel: 'लक्षण निवडा किंवा लिहा:',
       symptomPh: 'आपली लक्षणे येथे लिहा...',
@@ -359,8 +365,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
       callHospital: 'કૉલ કરો',
       getDirections: 'દિશા જુઓ',
       bookToken: 'ટોકન બુક કરો',
-      symptomCardTitle: 'ડૉ. સહાય — લક્ષણ તપાસ અને હોસ્પિટલ ભલામણ',
-      symptomCardSub: 'તમારા લક્ષણો જણાવો, ડૉ. સહાય શ્રેષ્ઠ હોસ્પિટલ સૂચવશે',
+      symptomCardTitle: 'સહાય — લક્ષણ તપાસ અને હોસ્પિટલ ભલામણ',
+      symptomCardSub: 'તમારા લક્ષણો જણાવો, સહાય શ્રેષ્ઠ હોસ્પિટલ સૂચવશે',
       openFullChat: 'સંપૂર્ણ ચેટ →',
       tapSymptomLabel: 'લક્ષણ પસંદ કરો:',
       symptomPh: 'તમારા લક્ષણો અહીં લખો...',
@@ -394,12 +400,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
       callHospital: 'Call',
       getDirections: 'Directions',
       bookToken: 'Book OPD Token',
-      symptomCardTitle: 'Dr. Sahay — Symptom Checker & Hospital Recommendation',
-      symptomCardSub: 'Describe your symptoms for Dr. Sahay triage & matching hospital care',
+      symptomCardTitle: 'Sahay — Find the right care near you',
+      symptomCardSub: 'Ask a health question or find the nearest government facility',
       openFullChat: 'Open Full Chat →',
       tapSymptomLabel: 'Select or Tap Your Symptom:',
       symptomPh: 'Type your symptoms (e.g. fever for 3 days, chest pain, loose motions)...',
-      consultDoctorBtn: 'Consult Dr. Sahay',
+      consultDoctorBtn: 'Ask Sahay',
       actionTitle: 'Primary Healthcare Services',
       actionFindHospSub: 'Nearby Govt PHCs, Taluk hospitals & PM-JAY / CMCHIS centres',
       actionAskSahaySub: 'Doctor consultation & hospital triage in 9 major Indian languages',
@@ -414,7 +420,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       familyTitle: 'Family Caregiver Profiles',
       familySub: 'Manage parents & elders visits',
       actionLabel: 'Doctor Guidance:',
-      askDoctorMore: 'Ask Dr. Sahay More →',
+      askDoctorMore: 'Ask Sahay more →',
       symptoms: [
         { label: '🤒 High Fever & Body Ache', q: 'fever' },
         { label: '⚡ Severe Chest Pain', q: 'chest pain' },
@@ -434,6 +440,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       speechService.stop();
       setIsPlayingAdviceAudio(false);
     } else {
+      if (!currentAdvice) return;
       const adviceTitle = currentAdvice.title[currentLang] || currentAdvice.title.en;
       const adviceBody = currentAdvice.advice[currentLang] || currentAdvice.advice.en;
       const textToRead = `${adviceTitle}. ${adviceBody}`;
@@ -626,11 +633,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <span>{ht.consultDoctorBtn}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+            <button
+              onClick={onOpenVoiceCall}
+              className="h-12 px-5 rounded-2xl border-2 border-teal-800 text-teal-900 hover:bg-teal-50 font-black text-sm flex items-center justify-center gap-2 transition-all shrink-0"
+            >
+              <Phone className="w-4 h-4" />
+              <span>{currentLang === 'hi' ? 'कॉल करें' : currentLang === 'ta' ? 'அழைக்க' : 'Call Sahay'}</span>
+            </button>
           </div>
         </div>
       </section>
 
-      {/* 3. DYNAMIC DR. SAHAY CLINICAL ADVISORY CARD */}
+      {/* 3. GOVERNMENT HEALTH ADVISORY CARD (cited sources) */}
+      {currentAdvice && (
       <section aria-labelledby="sahay-advice-title">
         <div className="bg-white rounded-3xl border border-teal-800/30 p-5 sm:p-6 shadow-xs space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
@@ -644,27 +659,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     {t('sahayAiAdvisingHeading', currentLang)}
                   </h2>
                   <span className="text-[10px] font-bold bg-teal-100 text-teal-900 px-2 py-0.5 rounded-full uppercase">
-                    AI Clinical
+                    Govt source
                   </span>
                 </div>
                 <span className="text-xs text-slate-500 font-medium">
                   {currentLang === 'hi'
-                    ? 'डॉ. सहाय द्वारा प्रमाणित दैनिक स्वास्थ्य सलाह'
+                    ? 'सरकारी स्वास्थ्य सलाह, स्रोत सहित'
                     : currentLang === 'ta'
-                    ? 'டாக்டர் சஹாய் வழங்கும் தினசரி மருத்துவ வழிகாட்டல்'
-                    : currentLang === 'te'
-                    ? 'డాక్టర్ సహాయ్ రోజువారీ వైద్య సలహా'
-                    : currentLang === 'kn'
-                    ? 'ಡಾ. ಸಹಾಯ್ ದೈನಂದಿನ ಆರೋಗ್ಯ ಮಾರ್ಗದರ್ಶನ'
-                    : currentLang === 'ml'
-                    ? 'ഡോ. സഹായ് നൽകുന്ന ആരോഗ്യ നിർദ്ദേശം'
-                    : currentLang === 'bn'
-                    ? 'ডা. সহায় দৈনিক স্বাস্থ্য পরামর্শ'
-                    : currentLang === 'mr'
-                    ? 'डॉ. सहाय दैनिक आरोग्य मार्गदर्शन'
-                    : currentLang === 'gu'
-                    ? 'ડૉ. સહાય દૈનિક સ્વાસ્થ્ય માર્ગદર્શન'
-                    : 'Preventative healthcare guidance from Dr. Sahay'}
+                    ? 'அரசு சுகாதார அறிவுரை, ஆதாரத்துடன்'
+                    : 'Official health guidance with its source'}
                 </span>
               </div>
             </div>
@@ -731,6 +734,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
         </div>
       </section>
+      )}
 
       {/* 4. FOUR PRIMARY ACTION TILES IN SELECTED LANGUAGE */}
       <section aria-labelledby="primary-actions-title">

@@ -479,13 +479,18 @@ export const MedicineCameraScannerModal: React.FC<MedicineCameraScannerModalProp
   const handleAddDosageReminder = () => {
     if (!identifiedMedicine) return;
 
-    storageService.addReminder({
+    storageService.saveReminder({
+      id: `rem-${Date.now()}`,
       medicineName: identifiedMedicine.brandName,
       dosage: identifiedMedicine.strength,
       instructions: st.howToTakeText,
       times: ['08:00', '20:00'],
       frequency: 'twice',
       durationDays: 5,
+      startDate: new Date().toLocaleDateString('en-CA'),
+      status: 'active',
+      lastTakenTimestamp: null,
+      adherenceHistory: [],
     });
 
     setReminderAdded(true);

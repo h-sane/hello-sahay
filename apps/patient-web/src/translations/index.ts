@@ -465,9 +465,9 @@ export const translations = {
 
   // Booking Modal
   bookingSubtitle: {
-    en: 'Free outpatient booking simulation for rural patients.',
+    en: 'Free outpatient booking for rural patients.',
     hi: 'ग्रामीण मरीजों के लिए निःशुल्क ओपीडी टोकन बुकिंग।',
-    ta: 'கிராமப்புற நோயாளிகளுக்கான இலவச வெளிநோயாளி மாதிரி முன்பதிவு.',
+    ta: 'கிராமப்புற நோயாளிகளுக்கான இலவச வெளிநோயாளி முன்பதிவு.',
     te: 'గ్రామీణ రోగులకు ఉచిత ఓపీడీ బుకింగ్.',
     kn: 'ಗ್ರಾಮೀಣ ರೋಗಿಗಳಿಗೆ ಉಚಿತ ಒಪಿಡಿ ಬುಕಿಂಗ್.',
     ml: 'സൗജന്യ ഒപിഡി ടോക്കൺ ബുക്കിംഗ്.',
@@ -619,9 +619,9 @@ export const translations = {
     gu: 'બુકિંગ કન્ફર્મ કરો',
   },
   bookingSuccessTitle: {
-    en: 'Demo Appointment Voucher Generated',
-    hi: 'डेमो अपॉइंटमेंट पर्ची तैयार है',
-    ta: 'மாதிரி முன்பதிவு டோக்கன் தயாரானது',
+    en: 'Appointment booked',
+    hi: 'अपॉइंटमेंट बुक हो गया',
+    ta: 'முன்பதிவு உறுதியானது',
     te: 'అపాయింట్‌మెంట్ టోకెన్ సిద్ధమైంది',
     kn: 'ಅಪಾಯಿಂಟ್‌ಮೆಂಟ್ ಟೋಕನ್ ಸಿದ್ಧವಾಗಿದೆ',
     ml: 'അപ്പോയിന്റ്മെന്റ് ടോക്കൺ തയ്യാർ',

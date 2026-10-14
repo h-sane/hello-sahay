@@ -1,79 +1,29 @@
-# Hello Sahay (హలో సహాయ్ / हेलो सहाय / ஹலோ சகாய்)
+# Sahay patient app (web)
 
-> **Accessible Rural Healthcare Companion for India**  
-> Empowering rural communities with accessible healthcare guidance in Tamil, Hindi, and English. Features smart hospital discovery, Jan Aushadhi generic medicine cost comparison, dosage schedules/reminders, and emergency assistance.
+Mobile-first web app for patients, built from a teammate's AI Studio prototype and wired to the Hello Sahay API. Tamil, Hindi and English.
 
----
+## Run
 
-## 🌟 Key Features
+```bash
+docker compose up -d                      # Postgres (repo root)
+AWS_PROFILE=personal-bedrock python -m uvicorn app.main:app --app-dir services/api --port 8001
+cd apps/patient-web && npm install && npm run dev    # http://localhost:5174
+```
 
-- **🌐 Multilingual Support**: Fully accessible interfaces and voice guidance in English, Hindi (हिंदी), and Tamil (தமிழ்).
-- **🏥 Hospital & Care Discovery**: Find nearby primary health centers (PHCs), district hospitals, and clinics with service details and emergency contacts.
-- **💊 Jan Aushadhi Generic Medicine Comparison**: Compare branded prescription drugs with government-subsidized generic equivalents to drastically reduce medication costs.
-- **⏰ Smart Dosage Reminders**: Simple, visual medication schedules designed for low-literacy and elderly patients.
-- **🚨 Emergency Quick-Assistance**: Instant access to ambulance, emergency helplines, and offline-first safety instructions.
-- **🤖 Gemini AI Health Triage**: Intelligent voice and text conversational triage powered by the Google Gemini API to assess symptoms and recommend next steps.
+The dev server proxies `/api` to `http://localhost:8001` (set `SAHAY_API_ORIGIN` to change it), so no CORS setup is needed. For a hosted build set `VITE_API_URL`.
 
----
+## What talks to the backend
 
-## 🛠️ Tech Stack
+| Screen | Endpoint |
+|---|---|
+| Hospitals, Home, Emergency (nearest government facility first) | `GET /facilities?lat&lng` |
+| Booking (department, doctor, day, slot, patient) | `GET /facilities/{id}/slots`, `POST /appointments` |
+| My Health, appointments | `GET /patients/{phone}/appointments`, `PATCH /appointments/{id}` (cancel), `POST /auth/otp/*` |
+| Ask Sahay, voice question | `POST /chat` (cited answers; emergency and symptom messages get the fixed safe reply) |
+| Home advisory card | `GET /advisories?lang=` |
 
-- **Frontend**: React 19, TypeScript, Vite
-- **Styling & UI**: Tailwind CSS, Lucide Icons, Motion (Framer Motion)
-- **AI & Reasoning**: `@google/genai` (Google Gen AI SDK)
-- **Tooling**: Node.js, npm
+Kept on the device only: language and consent, location, medicine comparison (demo data, always "confirm with your doctor or pharmacist"), dose reminders and family profiles.
 
----
+Not available yet, shown honestly: WhatsApp confirmation (needs keys), online booking at facilities that are not Sahay Desk partners (the app shows their phone number instead).
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18+ recommended)
-- [npm](https://www.npmjs.com/)
-
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/adhitya1538/Hello_Sahay.git
-   cd Hello_Sahay
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-3. **Configure Environment Variables:**
-   Copy `.env.example` to `.env.local` (or `.env`):
-   ```bash
-   cp .env.example .env.local
-   ```
-   Open `.env.local` and add your Google Gemini API key:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   ```
-
-4. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## 📜 Available Scripts
-
-| Command | Description |
-| :--- | :--- |
-| `npm run dev` | Starts Vite development server on port 3000 |
-| `npm run build` | Compiles TypeScript and creates optimized production bundle in `dist/` |
-| `npm run preview` | Previews the production build locally |
-| `npm run lint` | Runs TypeScript type checking (`tsc --noEmit`) |
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the repository for details.
+`npm run lint` type-checks the project.

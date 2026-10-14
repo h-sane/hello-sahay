@@ -3,6 +3,7 @@ import { Language, UserSettings, Hospital, Appointment, UserCoordinates } from '
 import { storageService } from './services/storageService';
 import { locationService } from './services/locationService';
 import { hospitalService } from './services/hospitalService';
+import { appointmentService } from './services/appointmentService';
 import { Header } from './components/Header';
 import { BottomNav, NavTab } from './components/BottomNav';
 import { LanguageSelectorModal } from './components/LanguageSelectorModal';
@@ -17,7 +18,13 @@ import { MyHealthView } from './views/MyHealthView';
 import { EmergencyView } from './views/EmergencyView';
 
 export default function App() {
-  const [settings, setSettings] = useState<UserSettings>(() => storageService.getSettings());
+  const [settings, setSettings] = useState<UserSettings>(() => {
+    const saved = storageService.getSettings();
+    // Only Tamil, Hindi and English are supported; older saved settings may hold another language.
+    return ['ta', 'hi', 'en'].includes(saved.language) ? saved : { ...saved, language: 'en' as Language };
+  });
+  const [hospitalError, setHospitalError] = useState('');
+  const [, setHospitalsVersion] = useState(0);
   const [currentTab, setCurrentTab] = useState<NavTab>('home');
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
@@ -33,10 +40,7 @@ export default function App() {
     };
   });
 
-  const [nearestHospital, setNearestHospital] = useState<Hospital | null>(() => {
-    const allHospitals = hospitalService.getAll();
-    return locationService.getNearestHospital(allHospitals, userCoordinates);
-  });
+  const [nearestHospital, setNearestHospital] = useState<Hospital | null>(null);
 
   const [showLanguageModal, setShowLanguageModal] = useState<boolean>(!settings.hasConsented);
   // Show location popup before entering app if no saved location (after language consent)
@@ -47,12 +51,29 @@ export default function App() {
   const [showVoiceCallModal, setShowVoiceCallModal] = useState<boolean>(false);
   const [showEmergencyModal, setShowEmergencyModal] = useState<boolean>(false);
 
-  // Re-compute nearest hospital whenever coordinates change
+  // Load facilities from the API, nearest first, whenever the location changes
   useEffect(() => {
-    const allHospitals = hospitalService.getAll();
-    const nearest = locationService.getNearestHospital(allHospitals, userCoordinates);
-    setNearestHospital(nearest);
-  }, [userCoordinates]);
+    let cancelled = false;
+    hospitalService.load(userCoordinates).then(() => {
+      if (cancelled) return;
+      setHospitalError(hospitalService.getError());
+      setNearestHospital(
+        locationService.getNearestHospital(
+          hospitalService.getAll().filter((h) => h.category !== 'private'),
+          userCoordinates
+        )
+      );
+      setHospitalsVersion((v) => v + 1);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [userCoordinates.latitude, userCoordinates.longitude]);
+
+  // Refresh this patient's appointments from the server once their number is verified
+  useEffect(() => {
+    if (settings.userPhone) appointmentService.refresh(settings.userPhone).catch(() => {});
+  }, [settings.userPhone]);
 
   // Online / Offline listener
   useEffect(() => {
@@ -94,10 +115,8 @@ export default function App() {
   };
 
   const handleSelectLocation = (coords: UserCoordinates) => {
+    locationService.saveLocation(coords);
     setUserCoordinates(coords);
-    const allHospitals = hospitalService.getAll();
-    const nearest = locationService.getNearestHospital(allHospitals, coords);
-    setNearestHospital(nearest);
     setShowLocationModal(false);
   };
 
@@ -121,6 +140,11 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 pt-5 pb-24">
+        {hospitalError && (
+          <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-800">
+            {hospitalError} Hospital list may be out of date. In an emergency, call 108.
+          </div>
+        )}
         {currentTab === 'home' && (
           <HomeView
             currentLang={settings.language}
@@ -131,6 +155,7 @@ export default function App() {
             onOpenEmergency={() => setShowEmergencyModal(true)}
             onSelectHospitalForBooking={(hospital) => setSelectedHospitalForBooking(hospital)}
             onOpenLocationSelector={() => setShowLocationModal(true)}
+            onOpenVoiceCall={() => setShowVoiceCallModal(true)}
           />
         )}
 

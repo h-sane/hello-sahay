@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { Appointment, FamilyProfile, Language, UserSettings } from '../types';
 import { t } from '../translations';
+import { appointmentService } from '../services/appointmentService';
+import { api } from '../services/api';
 import { storageService } from '../services/storageService';
 import { speechService } from '../services/speechService';
 
@@ -34,6 +36,11 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'appointments' | 'family' | 'schemes' | 'settings'>('appointments');
   const [appointments, setAppointments] = useState<Appointment[]>(storageService.getAppointments());
+  const [lookupPhone, setLookupPhone] = useState('');
+  const [lookupCode, setLookupCode] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const [lookupError, setLookupError] = useState('');
   const [familyProfiles, setFamilyProfiles] = useState<FamilyProfile[]>(storageService.getFamilyProfiles());
 
   // Add Family Member Modal
@@ -46,8 +53,8 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({
   const [famNotes, setFamNotes] = useState('');
 
   // Settings
-  const [userName, setUserName] = useState(userSettings.userName || 'Muthuvel');
-  const [villageTown, setVillageTown] = useState(userSettings.villageTown || 'Maduranthakam');
+  const [userName, setUserName] = useState(userSettings.userName || '');
+  const [villageTown, setVillageTown] = useState(userSettings.villageTown || '');
   const [saveSettingsSuccess, setSaveSettingsSuccess] = useState(false);
 
   const reloadData = () => {
@@ -55,11 +62,42 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({
     setFamilyProfiles(storageService.getFamilyProfiles());
   };
 
-  const handleCancelAppointment = (id: string) => {
-    if (confirm('Cancel this demo appointment?')) {
-      storageService.cancelAppointment(id);
+  const handleCancelAppointment = async (id: string) => {
+    if (!confirm('Cancel this appointment? The slot will be released for other patients.')) return;
+    try {
+      await appointmentService.cancel(id);
       reloadData();
       speechService.playAudioChime(420, 0.15);
+    } catch (e) {
+      setLookupError(e instanceof Error ? e.message : 'Could not cancel. Please try again.');
+    }
+  };
+
+  const handleSendCode = async () => {
+    setLookupError('');
+    setLookupBusy(true);
+    try {
+      await api.requestOtp(lookupPhone);
+      setCodeSent(true);
+    } catch (e) {
+      setLookupError(e instanceof Error ? e.message : 'Could not send the code.');
+    } finally {
+      setLookupBusy(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    setLookupError('');
+    setLookupBusy(true);
+    try {
+      const res = await api.verifyOtp(lookupPhone, lookupCode);
+      onUpdateSettings({ userPhone: res.patient.phone });
+      await appointmentService.refresh(res.patient.phone);
+      reloadData();
+    } catch (e) {
+      setLookupError(e instanceof Error ? e.message : 'Could not verify the code.');
+    } finally {
+      setLookupBusy(false);
     }
   };
 
@@ -179,14 +217,58 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({
       {/* TAB 1: APPOINTMENTS */}
       {activeTab === 'appointments' && (
         <div className="space-y-4">
+          {!userSettings.userPhone && (
+            <div className="p-4 bg-teal-50 border border-teal-200 rounded-2xl space-y-3">
+              <p className="text-sm font-bold text-teal-950">
+                Enter your mobile number to see all your appointments.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="tel"
+                  value={lookupPhone}
+                  onChange={(e) => setLookupPhone(e.target.value)}
+                  disabled={codeSent}
+                  placeholder="10-digit mobile number"
+                  className="h-11 px-3.5 rounded-xl border border-slate-300 text-sm font-semibold font-mono flex-1 bg-white"
+                />
+                {codeSent && (
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={lookupCode}
+                    onChange={(e) => setLookupCode(e.target.value)}
+                    placeholder="6-digit code"
+                    className="h-11 px-3.5 rounded-xl border border-slate-300 text-sm font-semibold font-mono sm:w-40 bg-white"
+                  />
+                )}
+                <button
+                  onClick={codeSent ? handleVerifyCode : handleSendCode}
+                  disabled={lookupBusy || !lookupPhone.trim() || (codeSent && !lookupCode.trim())}
+                  className="h-11 px-5 rounded-xl bg-teal-800 hover:bg-teal-900 disabled:opacity-50 text-white font-bold text-sm"
+                >
+                  {lookupBusy ? 'Please wait…' : codeSent ? 'Verify and show' : 'Send code'}
+                </button>
+              </div>
+              {codeSent && (
+                <p className="text-xs text-slate-600">
+                  Demo build: no SMS is sent. Use the demo code 123456.
+                </p>
+              )}
+            </div>
+          )}
+          {lookupError && (
+            <div role="alert" className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800">
+              {lookupError}
+            </div>
+          )}
           {appointments.length === 0 ? (
             <div className="p-10 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
               <Calendar className="w-12 h-12 text-slate-300 mx-auto" />
               <h3 className="text-lg font-bold text-slate-800">
-                No appointment vouchers saved.
+                No appointments yet.
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Visit the Hospitals tab to select a government clinic or specialist and book your OPD token.
+                Open the Hospitals tab to pick a clinic and book a slot.
               </p>
             </div>
           ) : (
@@ -216,7 +298,7 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({
                               : 'bg-emerald-100 text-emerald-800'
                           }`}
                         >
-                          {isCancelled ? 'Cancelled' : 'Demo Voucher Confirmed'}
+                          {isCancelled ? 'Cancelled' : apt.status === 'arrived' ? 'Visited' : apt.status === 'no_show' ? 'Missed' : 'Booked'}
                         </span>
                       </div>
                       <h3 className="text-lg sm:text-xl font-black text-slate-900 mt-1 leading-snug">
@@ -233,14 +315,10 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({
                   </div>
 
                   {/* Patient & Slot details */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs sm:text-sm">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
                     <div>
                       <span className="text-slate-500 block">Patient Name:</span>
                       <span className="font-bold text-slate-900">{apt.patientName}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 block">Age:</span>
-                      <span className="font-bold text-slate-900">{apt.patientAge} years</span>
                     </div>
                     <div>
                       <span className="text-slate-500 block">Appointment Date:</span>
@@ -252,14 +330,8 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({
                     </div>
                   </div>
 
-                  {apt.isCaregiverAssisted && (
-                    <div className="text-xs text-purple-900 bg-purple-50 p-2 rounded-xl border border-purple-100">
-                      <span className="font-semibold">Caregiver Assistance:</span> {apt.caregiverName}
-                    </div>
-                  )}
-
                   {/* Actions */}
-                  {!isCancelled && (
+                  {apt.status === 'booked' && (
                     <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-3">
                       <button
                         onClick={() => handleCancelAppointment(apt.id)}
