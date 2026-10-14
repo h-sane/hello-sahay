@@ -15,15 +15,17 @@ Built at **Founder's Code 2026** (SMIT Chennai), Rural Healthcare domain.
 
 ## Status
 
-Work in progress during the hackathon. See [`docs/PROJECT_BRIEF.md`](docs/PROJECT_BRIEF.md)
-for the full product, business and technical plan.
+Work in progress during the hackathon. Plans:
+[architecture](docs/ARCHITECTURE.md) · [patient app spec](docs/PATIENT_APP_SPEC.md) ·
+[implementation phases](docs/IMPLEMENTATION_PHASES.md) · [screens to design](docs/FRONTEND_DELIVERABLES.md) ·
+[full brief](docs/PROJECT_BRIEF.md).
 
 ## Planned structure
 
 | Path | What it is |
 |---|---|
 | `apps/patient/` | Patient mobile app (Expo React Native) |
-| `apps/desk/` | Hospital dashboard (Next.js) |
+| `apps/web/` | Hospital dashboard (`/desk`) and admin console (`/admin`) (Next.js) |
 | `services/api/` | Backend API (FastAPI) |
 | `services/voice/` | Voice pipeline (speech-to-text, safety gate, LLM tools, text-to-speech) |
 | `data/` | Demo seed data and government advisory sources |

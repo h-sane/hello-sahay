@@ -23,6 +23,25 @@ patient app.
 Repository created 2026-10-14 at the start of the event. Docs only so far; no
 application code yet. Update this section as the code lands.
 
+## Planning docs (read before building)
+
+| Doc | What it holds |
+|---|---|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System diagram, journeys, citation rule, data model, API contract, data sources, team split |
+| [`docs/PATIENT_APP_SPEC.md`](docs/PATIENT_APP_SPEC.md) | Every patient-app feature, free vs Care plan, design rules |
+| [`docs/IMPLEMENTATION_PHASES.md`](docs/IMPLEMENTATION_PHASES.md) | Phase 0/1/2 task cards with "done when", checkpoints, demo script |
+| [`docs/FRONTEND_DELIVERABLES.md`](docs/FRONTEND_DELIVERABLES.md) | Screens to design for the patient app, Sahay Desk and admin |
+
+## Team and tools
+
+- Hussain plans and evaluates with Claude (Opus). Claude owns architecture,
+  reviews, docs and hard bugs.
+- Gemini / Antigravity implement and research, working from the task cards in
+  `docs/IMPLEMENTATION_PHASES.md`. Review their commits against the API
+  contract in `docs/ARCHITECTURE.md` §5.
+- One teammate designs screens in Google AI Studio; output lands in
+  `design/ai-studio/` as a visual reference only.
+
 ## Hackathon rules that shape how we work
 
 1. **Commit early and often, with clear messages.** Judges inspect GitHub
@@ -59,7 +78,8 @@ application code yet. Update this section as the code lands.
 | Path | Role |
 |---|---|
 | `apps/patient/` | Expo React Native patient app |
-| `apps/desk/` | Next.js hospital dashboard (also hosts the browser "Call Sahay" demo) |
+| `apps/web/` | Next.js: `/desk` hospital dashboard, `/admin` our console, `/call` browser "Call Sahay" demo |
+| `design/ai-studio/` | AI Studio screen exports (visual reference, pre-event commit) |
 | `services/api/` | FastAPI: facilities, slots, bookings, schemes, advisories RAG |
 | `services/voice/` | WebSocket voice pipeline: Transcribe → safety gate → Bedrock tools → TTS |
 | `data/seed/` | Demo district data (DEMO DATA) |
