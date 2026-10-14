@@ -77,11 +77,11 @@ def main() -> int:
     token = fetch(f"{a.base}/auth/login", body={"email": a.email, "password": a.password})["token"]
     call_id = a.call
     if call_id == "latest":
-        calls = fetch(f"{a.base}/calls?limit=1", token)
+        calls = fetch(f"{a.base}/calls?limit=200", token)  # newest by id: seeded demo calls carry future start times
         if not calls:
             print("no calls saved yet")
             return 1
-        call_id = calls[0]["id"]
+        call_id = max(c["id"] for c in calls)
     c = fetch(f"{a.base}/calls/{call_id}/trace", token)
     events = c["trace"]
     print(f"call {c['id']}  {c['started_at']}  {c['duration_s']} s  lang={c['language']}  outcome={c['outcome']}  "
