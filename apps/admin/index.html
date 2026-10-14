@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hello Sahay Admin</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b6b57'/%3E%3Cpath d='M16 7v18M7 16h18' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#f5f7f6;--card:#fff;--ink:#14231f;--mute:#5c6b66;--line:#dfe6e3;--accent:#0b6b57;--accent-soft:#e3f1ed;--red:#b3261e;--red-soft:#fbe9e7;--amber:#8a5a00;--amber-soft:#fdf1d8}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1816;--card:#16231f;--ink:#e8f0ed;--mute:#9bada6;--line:#27382f;--accent:#4fc3a1;--accent-soft:#183a31;--red:#ff8a80;--red-soft:#3a1f1c;--amber:#f2c14e;--amber-soft:#3a2f12}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,sans-serif}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.bar{max-width:1180px;margin:auto;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:20px;display:flex;align-items:center;gap:10px}
+.brand i{width:28px;height:28px;border-radius:8px;background:var(--accent);display:inline-block;position:relative}
+.brand i:before,.brand i:after{content:"";position:absolute;background:#fff;border-radius:2px;left:50%;top:50%;transform:translate(-50%,-50%)}
+.brand i:before{width:14px;height:3px}.brand i:after{width:3px;height:14px}
+nav{display:flex;gap:4px;flex:1;overflow-x:auto;scrollbar-width:none}
+nav button{border:0;background:none;padding:8px 14px;border-radius:10px;color:var(--mute);font-weight:600}
+nav button[aria-current=true]{background:var(--accent-soft);color:var(--accent)}
+.out{border:1px solid var(--line);background:none;color:var(--mute);padding:6px 12px;border-radius:10px}
+main{max-width:1180px;margin:auto;padding:24px 16px 64px}
+h1{font-size:28px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:28px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.stat b{display:block;font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{color:var(--mute);font-size:15px}
+.stat.bad b{color:var(--red)}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+h2{font-size:18px;margin:0 0 14px}
+.row{display:grid;grid-template-columns:110px 1fr 48px;gap:10px;align-items:center;margin:8px 0}
+.track{height:12px;background:var(--accent-soft);border-radius:6px;overflow:hidden}
+.fill{height:100%;background:var(--accent);border-radius:6px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line)}
+.scroll{overflow-x:auto;border-radius:14px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:15px;color:var(--mute);font-weight:600;background:var(--bg)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:14px;font-weight:600;background:var(--accent-soft);color:var(--accent)}
+.tag.red{background:var(--red-soft);color:var(--red)}.tag.amber{background:var(--amber-soft);color:var(--amber)}.tag.grey{background:var(--bg);color:var(--mute)}
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filters button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:10px}
+.filters button[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.call{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:10px}
+.call>button{all:unset;display:grid;grid-template-columns:1fr auto;gap:6px 12px;padding:14px 18px;width:100%;box-sizing:border-box;cursor:pointer}
+.call>button:focus-visible{outline:3px solid var(--accent);outline-offset:-3px;border-radius:14px}
+.call .meta{color:var(--mute);font-size:15px}
+.call .tags{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
+.tr{padding:4px 18px 16px;border-top:1px solid var(--line)}
+.turn{margin:10px 0;max-width:70ch}.turn small{display:block;color:var(--mute);font-weight:600}
+.empty,.err{padding:40px 16px;text-align:center;color:var(--mute)}
+.err{color:var(--red)}
+.login{max-width:380px;margin:12vh auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:28px}
+.login label{display:block;font-weight:600;margin:14px 0 6px}
+.login input{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.login .go{margin-top:20px;width:100%;padding:13px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:700}
+.login .go:disabled{opacity:.6}
+@media(prefers-reduced-motion:no-preference){.fill{transition:width .5s}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const API = "/api/v1";
+const LANG = {ta: "Tamil", hi: "Hindi", en: "English", unknown: "Not set"};
+const OUTCOME = {booked: "Booked", info_given: "Info given", emergency: "Emergency", handed_off: "Handed off", unknown: "No outcome"};
+const KIND = {subscription: "Subscription", arrival_fee: "Arrival fees", premium: "Care plan"};
+const TABS = [["overview", "Overview"], ["hospitals", "Hospitals"], ["payments", "Payments"], ["calls", "Calls"], ["premium", "Care plan"]];
+const $ = document.getElementById("app");
+let token = null, tab = "overview", callFilter = "all";
+try { token = sessionStorage.getItem("sahay_admin"); } catch {}
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const rs = n => "₹" + Number(n || 0).toLocaleString("en-IN");
+const when = d => d ? new Date(d).toLocaleString("en-IN", {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"}) : "";
+const dur = s => s == null ? "" : s >= 60 ? `${Math.floor(s / 60)}m ${s % 60}s` : `${s}s`;
+
+async function api(path, opts = {}) {
+  const r = await fetch(API + path, {...opts, headers: {"Content-Type": "application/json", ...(token ? {Authorization: "Bearer " + token} : {})}});
+  if (token && (r.status === 401 || r.status === 403)) { signOut("Please sign in again."); throw new Error("Please sign in again."); }
+  if (r.status === 401) throw new Error("Wrong email or password.");
+  if (!r.ok) throw new Error(`The server answered ${r.status}.`);
+  return r.json();
+}
+function signOut(msg = "") { token = null; try { sessionStorage.removeItem("sahay_admin"); } catch {} renderLogin(msg); }
+
+function renderLogin(msg = "") {
+  $.innerHTML = `<form class="login" id="f"><div class="brand"><i></i>Hello Sahay Admin</div>
+    <p class="sub" style="margin-top:8px">For the Hello Sahay team only.</p>
+    <label for="e">Email</label><input id="e" type="email" autocomplete="username" required>
+    <label for="p">Password</label><input id="p" type="password" autocomplete="current-password" required>
+    <p class="err" role="alert" style="padding:10px 0 0;text-align:left">${esc(msg)}</p>
+    <button class="go" type="submit">Sign in</button></form>`;
+  document.getElementById("f").onsubmit = async ev => {
+    ev.preventDefault();
+    const btn = ev.target.querySelector(".go"); btn.disabled = true; btn.textContent = "Signing in…";
+    try {
+      const d = await api("/auth/login", {method: "POST", body: JSON.stringify({email: e.value, password: p.value})});
+      if (d.role !== "admin") throw new Error("This account is not an admin account.");
+      token = d.token; try { sessionStorage.setItem("sahay_admin", token); } catch {}
+      shell();
+    } catch (x) { renderLogin(x.message); }
+  };
+}
+
+function shell() {
+  $.innerHTML = `<header><div class="bar"><div class="brand"><i></i>Hello Sahay Admin</div>
+    <nav>${TABS.map(([k, l]) => `<button data-t="${k}" aria-current="${k === tab}">${l}</button>`).join("")}</nav>
+    <button class="out" id="so">Sign out</button></div></header><main id="v"></main>`;
+  document.getElementById("so").onclick = () => signOut();
+  document.querySelectorAll("nav button").forEach(b => b.onclick = () => { tab = b.dataset.t; shell(); });
+  show();
+}
+
+async function show() {
+  const v = document.getElementById("v");
+  if (!v) return;
+  v.innerHTML = `<p class="empty">Loading…</p>`;
+  try { v.innerHTML = await VIEWS[tab](); bind(v); }
+  catch (x) { if (token) v.innerHTML = `<p class="err" role="alert">${esc(x.message)}</p>`; }
+}
+
+const bars = (obj, labels) => {
+  const entries = Object.entries(obj).sort((a, b) => b[1] - a[1]), max = Math.max(1, ...entries.map(e => e[1]));
+  return entries.length ? entries.map(([k, n]) => `<div class="row"><span>${esc(labels[k] || k)}</span><div class="track"><div class="fill" style="width:${n / max * 100}%"></div></div><b>${n}</b></div>`).join("")
+    : `<p class="empty">Nothing yet.</p>`;
+};
+const stat = (n, label, cls = "") => `<div class="stat ${cls}"><b>${n}</b><span>${label}</span></div>`;
+
+const VIEWS = {
+  async overview() {
+    const o = await api("/admin/overview");
+    return `<h1>Overview</h1><p class="sub">Everything across every hospital and every caller.</p>
+    <div class="stats">${stat(o.calls_today, "Calls today")}${stat(o.calls_total, "Calls in total")}
+      ${stat(o.appointments_by_status.booked ?? 0, "Appointments booked")}${stat(o.arrivals, "Patients arrived")}
+      ${stat(o.no_show_rate == null ? "–" : Math.round(o.no_show_rate * 100) + "%", "No-show rate")}
+      ${stat(o.emergencies, "Emergencies redirected", o.emergencies ? "bad" : "")}${stat(o.handoffs, "Handed to a human")}
+      ${stat(o.partner_hospitals, "Partner hospitals")}${stat(rs(o.revenue_rs), "Billed to hospitals")}
+      ${stat(o.patients, "Patients")}${stat(o.premium_patients, "Care plan subscribers")}</div>
+    <div class="split"><div class="panel"><h2>Calls by language</h2>${bars(o.calls_by_language, LANG)}</div>
+      <div class="panel"><h2>How calls ended</h2>${bars(o.calls_by_outcome, OUTCOME)}</div></div>`;
+  },
+  async hospitals() {
+    const h = await api("/admin/hospitals");
+    return `<h1>Hospitals</h1><p class="sub">Partners pay ${rs(2999)} a month plus ${rs(40)} for every patient who arrives.</p>
+    <div class="scroll"><table><thead><tr><th>Hospital</th><th>Status</th><th class="n">Calls</th><th class="n">Bookings</th><th class="n">Arrived</th><th class="n">No-shows</th><th class="n">Amount due</th></tr></thead><tbody>
+    ${h.map(f => `<tr><td><b>${esc(f.name)}</b><br><span class="meta" style="color:var(--mute);font-size:15px">${esc(f.type)}${f.address ? " · " + esc(f.address) : ""}</span></td>
+      <td>${f.is_partner ? `<span class="tag">Partner${f.plan ? " · " + esc(f.plan) : ""}</span>` : `<span class="tag grey">Listed</span>`}</td>
+      <td class="n">${f.calls}</td><td class="n">${f.bookings}</td><td class="n">${f.arrivals}</td><td class="n">${f.no_shows}</td><td class="n">${f.amount_due_rs ? rs(f.amount_due_rs) : "–"}</td></tr>`).join("")}
+    </tbody></table></div>`;
+  },
+  async payments() {
+    const p = await api("/admin/payments");
+    const total = p.reduce((s, x) => s + x.amount_rs, 0);
+    return `<h1>Payments</h1><p class="sub">${p.length} lines, ${rs(total)} in total.</p>
+    ${p.length ? `<div class="scroll"><table><thead><tr><th>Payer</th><th>For</th><th>Detail</th><th>Status</th><th class="n">Amount</th></tr></thead><tbody>
+    ${p.map(x => `<tr><td>${esc(x.payer)}</td><td>${esc(KIND[x.kind] || x.kind)}</td><td>${esc(x.detail)}</td>
+      <td><span class="tag ${x.status === "due" ? "amber" : ""}">${esc(x.status)}</span></td><td class="n">${rs(x.amount_rs)}</td></tr>`).join("")}</tbody></table></div>`
+      : `<p class="empty">No payments yet. Subscriptions and arrival fees appear here once a hospital becomes a partner.</p>`}`;
+  },
+  async calls() {
+    const q = callFilter === "emergency" ? "&emergency=true" : "";
+    let c = await api("/admin/calls?limit=200" + q);
+    if (callFilter === "handoff") c = c.filter(x => x.handoff);
+    const fb = (k, l) => `<button data-f="${k}" aria-pressed="${callFilter === k}">${l}</button>`;
+    return `<h1>Calls</h1><p class="sub">Every call and transcript on the platform, including callers who are not tied to a hospital.</p>
+    <div class="filters">${fb("all", "All calls")}${fb("emergency", "Emergencies")}${fb("handoff", "Handed to a human")}</div>
+    ${c.length ? c.map(x => `<div class="call"><button aria-expanded="false"><span><b>${esc(x.patient_phone || "Unknown caller")}</b>
+        <span class="meta"> · ${esc(LANG[x.language] || "Language not set")} · ${esc(x.facility || "No hospital")} · ${when(x.started_at)} ${dur(x.duration_s)}</span><br>
+        <span class="meta">${esc(x.summary || "No summary")}</span></span>
+        <span class="tags">${x.emergency ? `<span class="tag red">Emergency</span>` : ""}${x.handoff ? `<span class="tag amber">Handoff</span>` : ""}
+        <span class="tag ${x.outcome ? "" : "grey"}">${esc(OUTCOME[x.outcome || "unknown"])}</span></span></button>
+        <div class="tr" hidden>${transcript(x.transcript)}</div></div>`).join("")
+      : `<p class="empty">No calls match this filter.</p>`}`;
+  },
+  async premium() {
+    const p = await api("/admin/premium");
+    return `<h1>Care plan</h1><p class="sub">${p.length} subscribers.</p>
+    ${p.length ? `<div class="scroll"><table><thead><tr><th>Name</th><th>Phone</th><th>Language</th><th>Village</th><th>Family contact</th></tr></thead><tbody>
+    ${p.map(x => `<tr><td>${esc(x.name || "–")}</td><td>${esc(x.phone)}</td><td>${esc(LANG[x.language] || "–")}</td><td>${esc(x.village || "–")}</td><td>${esc(x.family_phone || "–")}</td></tr>`).join("")}</tbody></table></div>`
+      : `<p class="empty">No one has joined the Care plan yet.</p>`}`;
+  },
+};
+
+function transcript(t) {
+  if (!t || (Array.isArray(t) && !t.length)) return `<p class="meta" style="color:var(--mute)">No transcript was stored for this call.</p>`;
+  if (typeof t === "string") return `<p style="white-space:pre-wrap">${esc(t)}</p>`;
+  const turns = Array.isArray(t) ? t : (t.turns || [t]);
+  return turns.map(x => typeof x === "string" ? `<div class="turn">${esc(x)}</div>`
+    : `<div class="turn"><small>${esc(x.role || x.speaker || "")}</small>${esc(x.text || x.content || JSON.stringify(x))}</div>`).join("");
+}
+
+function bind(v) {
+  v.querySelectorAll(".filters button").forEach(b => b.onclick = () => { callFilter = b.dataset.f; show(); });
+  v.querySelectorAll(".call > button").forEach(b => b.onclick = () => {
+    const open = b.getAttribute("aria-expanded") === "true";
+    b.setAttribute("aria-expanded", String(!open)); b.nextElementSibling.hidden = open;
+  });
+}
+
+token ? shell() : renderLogin();
+</script>
+</body>
+</html>

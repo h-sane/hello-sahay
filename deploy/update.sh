@@ -22,11 +22,13 @@ git reset -q --hard "origin/$BRANCH"
 DASHED=${IP//./-}
 APP_HOST="$DASHED.sslip.io"
 DESK_HOST="desk.$DASHED.sslip.io"
-sed -i -e '/^APP_HOST=/d' -e '/^DESK_HOST=/d' -e '/^CORS_ORIGINS=/d' /opt/sahay/stack.env
+ADMIN_HOST="admin.$DASHED.sslip.io"
+sed -i -e '/^APP_HOST=/d' -e '/^DESK_HOST=/d' -e '/^ADMIN_HOST=/d' -e '/^CORS_ORIGINS=/d' /opt/sahay/stack.env
 cat >> /opt/sahay/stack.env <<ENV
 APP_HOST=$APP_HOST
 DESK_HOST=$DESK_HOST
-CORS_ORIGINS=https://$APP_HOST,https://$DESK_HOST,https://localhost,http://localhost,capacitor://localhost
+ADMIN_HOST=$ADMIN_HOST
+CORS_ORIGINS=https://$APP_HOST,https://$DESK_HOST,https://$ADMIN_HOST,https://localhost,http://localhost,capacitor://localhost
 ENV
 
 build_web() { # name dir
@@ -40,6 +42,8 @@ build_web() { # name dir
 }
 build_web patient apps/patient-web
 build_web desk apps/desk
+rm -rf /opt/sahay/web/admin; mkdir -p /opt/sahay/web/admin
+cp "$REPO/apps/admin/index.html" /opt/sahay/web/admin/
 
 cd deploy
 docker compose up -d --build --remove-orphans
@@ -53,4 +57,4 @@ if [ -z "${INGESTED:-}" ]; then
   INGESTED=1
 fi
 printf 'OLD=%s\nOLDIP=%s\nSEEDED=%s\nINGESTED=%s\n' "$NEW" "$IP" "$TODAY" "$INGESTED" > "$STATE"
-echo "[$(date -Is)] deploy done https://$APP_HOST https://$DESK_HOST"
+echo "[$(date -Is)] deploy done https://$APP_HOST https://$DESK_HOST https://$ADMIN_HOST"

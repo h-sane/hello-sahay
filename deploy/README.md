@@ -9,6 +9,7 @@ redeploys on a new commit (and re-seeds slots daily), so **pushing to `main` is 
 |---|---|
 | `https://<ip-dashed>.sslip.io` | patient app (`apps/patient-web`), also `/api`, `/voice`, `/exotel` |
 | `https://desk.<ip-dashed>.sslip.io` | Sahay Desk (`apps/desk`), also `/api` |
+| `https://admin.<ip-dashed>.sslip.io` | Hello Sahay admin console (`apps/admin`, plain static page), also `/api` |
 
 ## Live deployment (2026-10-14)
 

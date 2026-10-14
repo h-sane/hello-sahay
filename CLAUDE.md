@@ -100,6 +100,7 @@ INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
 | `apps/web/` | Next.js: `/desk` hospital dashboard, `/admin` our console, `/call` browser "Call Sahay" demo |
 | `apps/patient-web/` | Teammate's patient web app, wired to the API (Vite, :5174). See `docs/FRONTEND_INTEGRATION.md` |
 | `apps/desk/` | Teammate's Sahay Desk, wired to the API (Vite, :5173) |
+| `apps/admin/` | Hello Sahay admin console for our team: overview, hospitals, payments, all calls and transcripts, Care plan. One static `index.html`, no build; API is `services/api/app/routers/admin.py` |
 | `design/ai-studio/` | AI Studio screen exports (visual reference, pre-event commit) |
 | `services/api/` | FastAPI: facilities, slots, bookings, schemes, advisories RAG |
 | `services/voice/` | WebSocket voice pipeline: Transcribe → safety gate → Bedrock tools → TTS |

@@ -1,4 +1,4 @@
-# APP_HOST / DESK_HOST are <ip>.sslip.io style names; Caddy gets real HTTPS certificates for them.
+# APP_HOST / DESK_HOST / ADMIN_HOST are <ip>.sslip.io style names; Caddy gets real HTTPS certificates for them.
 {$APP_HOST} {
 	encode gzip
 	handle /api/* {
@@ -25,6 +25,18 @@
 	}
 	handle {
 		root * /srv/desk
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+{$ADMIN_HOST} {
+	encode gzip
+	handle /api/* {
+		reverse_proxy api:8001
+	}
+	handle {
+		root * /srv/admin
 		try_files {path} /index.html
 		file_server
 	}
