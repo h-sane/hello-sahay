@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', 'Noto Sans Tamil', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+  }
+  
+  html {
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    min-height: 100vh;
+    font-size: 1.125rem; /* 18px base text for clear readability */
+    line-height: 1.6;
+    color: #1e293b;
+    background-color: #fbfbfa;
+  }
+
+  /* High contrast accessible focus indicators */
+  *:focus-visible {
+    outline: 3px solid #0b5d5b;
+    outline-offset: 2px;
+  }
+}
+
+/* Touch targets >= 48px */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Tabular numerals for prices, distances, and dates */
+.tabular-numbers {
+  font-variant-numeric: tabular-nums;
+}

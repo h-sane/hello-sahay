@@ -1,0 +1,6 @@
+{
+  "name": "Hello Sahay",
+  "description": "Accessible rural healthcare companion for India in Tamil, Hindi, and English with hospital discovery, Jan Aushadhi generic medicine comparison, dosage reminders, and emergency assistance.",
+  "requestFramePermissions": ["geolocation", "microphone", "camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
