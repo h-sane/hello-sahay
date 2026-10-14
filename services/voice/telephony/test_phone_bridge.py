@@ -17,7 +17,7 @@ class FakeSession:
 
     def __init__(self, lang, send_audio, send_event, in_rate=16000, out_rate=16000):
         self.lang, self.in_rate, self.out_rate, self.send_audio = lang, in_rate, out_rate, send_audio
-        self.fed, self.closed = [], False
+        self.fed, self.closed, self.state = [], False, {}
         self._done = None
         FakeSession.made.append(self)
 
@@ -70,6 +70,7 @@ def test_exotel_replies_are_padded_to_whole_100ms_frames_on_the_same_stream():
     for f in frames:
         out = base64.b64decode(f["media"]["payload"])
         assert f["stream_sid"] == "EX1" and len(out) == 3200 and len(out) % 320 == 0
+        assert set(f) == {"event", "stream_sid", "media"} and set(f["media"]) == {"payload"}  # Exotel parses fields as strings
 
 
 def test_unknown_language_falls_back_to_english():
