@@ -3,8 +3,11 @@ import Navbar from "./components/Navbar";
 import AppointmentsTab from "./components/AppointmentsTab";
 import DoctorsTab from "./components/DoctorsTab";
 import CallLogsTab from "./components/CallLogsTab";
+import HistoryTab from "./components/HistoryTab";
+import UsersTab from "./components/UsersTab";
 import LoginPage from "./components/LoginPage";
 import { api, liveSocketUrl, session as sessionStore } from "./api";
+import { ROLE_LABEL, todayIST, toCallRow, toDoctor, toRow } from "./mappers";
 import { MapPin, Menu, AlertCircle, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 const TYPE_LABEL = {
@@ -14,6 +17,14 @@ const TYPE_LABEL = {
   private: "Private facility",
 };
 
+// What each role may open. The API enforces the same rules; this only decides what to show.
+const TABS_FOR = {
+  hospital_admin: ["appointments", "doctors", "callLogs", "history", "users"],
+  receptionist: ["appointments", "doctors", "callLogs", "history"],
+  nurse: ["appointments", "doctors", "callLogs", "history"],
+  doctor: ["appointments", "history"],
+};
+
 const isoDay = (d) => d.toLocaleDateString("en-CA");
 const shiftDay = (iso, by) => {
   const d = new Date(`${iso}T12:00:00`);
@@ -21,137 +32,28 @@ const shiftDay = (iso, by) => {
   return isoDay(d);
 };
 
-const clock = (iso) =>
-  new Date(iso).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
-
-const loadSet = (key) => {
-  try {
-    return new Set(JSON.parse(localStorage.getItem(key)) || []);
-  } catch {
-    return new Set();
-  }
-};
-const saveSet = (key, set) => {
-  try {
-    localStorage.setItem(key, JSON.stringify([...set]));
-  } catch {
-    /* private mode: the flag then lasts only until reload */
-  }
-};
-
-// Maps the API appointment to the shape the tabs render. "Completed" and
-// "callback done" have no backend state yet, so they are kept per facility in
-// this browser only.
-function toRow(a, token, done) {
-  const status =
-    a.status === "cancelled" ? "Cancelled"
-    : a.status === "no_show" ? "No-show"
-    : a.status === "arrived" ? (done.has(a.id) ? "Completed" : "Arrived")
-    : "Booked";
-  return {
-    id: a.id,
-    token,
-    patientName: a.patient.name || "Unnamed patient",
-    phone: a.patient.phone,
-    doctor: a.doctor.name,
-    department: a.doctor.department,
-    timeSlot: clock(a.slot.start),
-    status,
-    source: a.source,
-    reason: a.reason_text,
-  };
-}
-
-const OUTCOME = {
-  booked: "Slot Booked",
-  emergency: "108 Emergency Redirected",
-  handed_off: "Needs Callback",
-  info_given: "Information Given",
-};
-const LANG = { ta: "Tamil", hi: "Hindi", en: "English" };
-
-function toCallRow(c, called) {
-  let outcome = OUTCOME[c.outcome] || "Information Given";
-  if (c.emergency) outcome = OUTCOME.emergency;
-  else if (c.handoff) outcome = called.has(c.id) ? "Callback Completed" : OUTCOME.handed_off;
-  return {
-    id: c.id,
-    callerPhone: c.patient_phone || "Unknown caller",
-    time: new Date(c.started_at).toLocaleString("en-IN", {
-      day: "numeric",
-      month: "short",
-      hour: "numeric",
-      minute: "2-digit",
-    }),
-    language: LANG[c.language] || "English",
-    summary: c.summary || "No summary recorded for this call.",
-    outcome,
-  };
-}
-
-// Doctor roster derived from today's appointments and the slots still open.
-function buildRoster(appointments, openSlots) {
-  const byDoctor = new Map();
-  const entry = (id, name, department) => {
-    if (!byDoctor.has(id))
-      byDoctor.set(id, {
-        id,
-        name,
-        specialty: department,
-        bookedSlots: 0,
-        openSlots: 0,
-        first: null,
-        last: null,
-      });
-    return byDoctor.get(id);
-  };
-  const span = (d, start, end) => {
-    if (!d.first || start < d.first) d.first = start;
-    if (!d.last || end > d.last) d.last = end;
-  };
-  for (const a of appointments) {
-    if (a.status === "cancelled") continue;
-    const d = entry(a.doctor.id, a.doctor.name, a.doctor.department);
-    d.bookedSlots += 1;
-    span(d, a.slot.start, a.slot.end);
-  }
-  for (const s of openSlots) {
-    const d = entry(s.doctor_id, s.doctor_name, s.department);
-    d.openSlots += 1;
-    span(d, s.start, s.end);
-  }
-  return [...byDoctor.values()]
-    .map((d) => ({
-      ...d,
-      totalSlots: d.bookedSlots + d.openSlots,
-      timings: d.first ? `${clock(d.first)} – ${clock(d.last)}` : "No slots today",
-      available: d.openSlots > 0,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
-}
-
 export default function App() {
   const [auth, setAuth] = useState(sessionStore.get());
   const [hospital, setHospital] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("appointments");
-  const [day, setDay] = useState(isoDay(new Date()));
-  const [raw, setRaw] = useState({ appointments: [], slots: [], calls: [] });
+  const [day, setDay] = useState(todayIST());
+  const [raw, setRaw] = useState({ appointments: [], doctors: [], calls: [], history: [] });
   const [loading, setLoading] = useState(false);
   const [live, setLive] = useState(false);
   const [error, setError] = useState("");
-  const [doneIds, setDoneIds] = useState(new Set());
-  const [calledIds, setCalledIds] = useState(new Set());
 
   const facilityId = auth?.facility_id;
-  const doneKey = `sahay.done.${facilityId}`;
-  const calledKey = `sahay.called.${facilityId}`;
+  const role = auth?.role;
+  const isDoctor = role === "doctor";
+  const tabs = TABS_FOR[role] || [];
 
   const logout = useCallback(() => {
     sessionStore.clear();
     setAuth(null);
     setHospital(null);
     setLive(false);
+    setActiveTab("appointments");
     setMobileMenuOpen(false);
   }, []);
 
@@ -163,37 +65,47 @@ export default function App() {
     [logout]
   );
 
+  // The tab and role are read inside refresh through refs, so a live push refetches only what is on screen.
+  const tabRef = useRef(activeTab);
+  tabRef.current = activeTab;
+
   const refresh = useCallback(async () => {
     if (!facilityId) return;
     try {
-      const [appointments, slots, calls] = await Promise.all([
+      const [appointments, doctors, calls, history] = await Promise.all([
         api.appointments(day),
-        api.slots(facilityId, day),
-        api.calls(),
+        isDoctor ? [] : api.doctors(day),
+        isDoctor ? [] : api.calls(),
+        tabRef.current === "history" ? api.history() : null,
       ]);
-      setRaw({ appointments, slots, calls });
+      setRaw((prev) => ({ appointments, doctors, calls, history: history ?? prev.history }));
     } catch (e) {
       fail(e);
     }
-  }, [facilityId, day, fail]);
+  }, [facilityId, day, isDoctor, fail]);
 
   const handleLogin = async (email, password) => {
     const res = await api.login(email, password);
-    if (res.role !== "desk") {
+    if (!TABS_FOR[res.role]) {
       throw new Error(
-        "This account is not tied to one facility. Sign in with a facility account."
+        "This is a Hello Sahay team account. Use the admin console, or sign in with a hospital account."
       );
     }
-    const next = { token: res.token, role: res.role, facility_id: res.facility_id, email };
+    const next = {
+      token: res.token,
+      role: res.role,
+      facility_id: res.facility_id,
+      doctor_id: res.doctor_id,
+      name: res.name,
+      email: res.email || email,
+    };
     sessionStore.set(next);
     setAuth(next);
   };
 
-  // On sign-in (or a reload with a stored session): identity, local flags, first load.
+  // On sign-in (or a reload with a stored session): which hospital this is.
   useEffect(() => {
     if (!facilityId) return;
-    setDoneIds(loadSet(doneKey));
-    setCalledIds(loadSet(calledKey));
     api
       .facilities()
       .then((list) => {
@@ -201,18 +113,21 @@ export default function App() {
         setHospital({
           name: f?.name || `Facility ${facilityId}`,
           email: auth.email || "",
+          userName: auth.name || ROLE_LABEL[role],
+          roleLabel: ROLE_LABEL[role] || role,
           planBadge: TYPE_LABEL[f?.type] || "Partner facility",
+          departments: f?.departments || [],
         });
       })
       .catch(fail);
   }, [facilityId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Refetch on first load and whenever the viewed day changes.
+  // Refetch on first load, when the viewed day changes and when the history tab opens.
   useEffect(() => {
     if (!facilityId) return;
     setLoading(true);
     refresh().finally(() => setLoading(false));
-  }, [refresh]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [refresh, activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Live updates: any pushed booking or call triggers a refetch.
   const refreshRef = useRef(refresh);
@@ -239,41 +154,36 @@ export default function App() {
     };
   }, [facilityId, auth?.token]);
 
-  const markArrived = async (id) => {
+  // Runs a write, shows its error, and always refetches so the screen matches the server.
+  const run = async (action) => {
     setError("");
     try {
-      await api.act(id, "arrived");
+      await action();
     } catch (e) {
       fail(e);
     }
     await refresh();
   };
 
-  const markDone = (id) => {
-    const next = new Set(doneIds).add(id);
-    setDoneIds(next);
-    saveSet(doneKey, next);
-  };
+  const markArrived = (id) => run(() => api.act(id, "arrived"));
+  const markDone = (id) => run(() => api.act(id, "complete"));
+  const markNoShow = (id) => run(() => api.act(id, "no_show"));
+  const markCalledBack = (id) => run(() => api.callbackDone(id));
+  const toggleDuty = (id, onDuty) => run(() => api.setDuty(id, onDuty));
 
-  const markCalledBack = (id) => {
-    const next = new Set(calledIds).add(id);
-    setCalledIds(next);
-    saveSet(calledKey, next);
-  };
-
-  // A walk-in is a desk booking that is marked arrived straight away.
-  const addWalkIn = async ({ name, phone, slotId, reason }) => {
-    const booked = await api.book({
+  // A walk-in is at the counter now, so it lands on today's queue whatever day is on screen.
+  const addWalkIn = async ({ name, phone, doctorId, reason }) => {
+    await api.walkIn({
       patient: { name, phone },
-      slot_id: slotId,
-      source: "desk",
+      doctor_id: doctorId,
       reason_text: reason || null,
     });
-    await api.act(booked.id, "arrived");
+    setDay(todayIST());
     await refresh();
   };
 
-  if (!auth) return <LoginPage onLogin={handleLogin} />;
+  // A stored session from before roles existed has no usable role: back to sign-in.
+  if (!auth || !TABS_FOR[role]) return <LoginPage onLogin={handleLogin} />;
   if (!hospital) {
     return (
       <div className="min-h-screen flex items-center justify-center text-lg font-semibold text-slate-500">
@@ -286,25 +196,28 @@ export default function App() {
     .filter((a) => a.status !== "cancelled")
     .sort((a, b) => a.slot.start.localeCompare(b.slot.start) || a.id - b.id);
   const tokenOf = new Map(ranked.map((a, i) => [a.id, i + 1]));
-  const appointments = raw.appointments.map((a) =>
-    toRow(a, tokenOf.get(a.id) ?? "–", doneIds)
-  );
-  const callLogs = raw.calls.map((c) => toCallRow(c, calledIds));
-  const doctorsList = buildRoster(raw.appointments, raw.slots);
-  const currentHospital = hospital;
+  const appointments = raw.appointments.map((a) => toRow(a, tokenOf.get(a.id) ?? "–"));
+  const callLogs = raw.calls.map(toCallRow);
+  const doctorsList = raw.doctors.map(toDoctor);
+  const pastVisits = raw.history.map((a) => toRow(a, "–"));
 
   const tabTitles = {
-    appointments: "Appointments & Live Queue",
+    appointments: isDoctor ? "My Appointments" : "Appointments & Live Queue",
     doctors: "Doctors & Open Slots",
     callLogs: "Voice AI Helpline Call Logs",
+    history: isDoctor ? "My Past Patients" : "Past Visits",
+    users: "Staff Logins",
   };
+  const showDay = activeTab === "appointments" || activeTab === "doctors";
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900">
       <Navbar
+        tabs={tabs}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        currentHospital={currentHospital}
+        currentHospital={hospital}
+        isDoctor={isDoctor}
         onLogout={logout}
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
@@ -326,10 +239,10 @@ export default function App() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-500 mb-0.5 truncate">
                   <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="truncate">{currentHospital.name}</span>
+                  <span className="truncate">{hospital.name}</span>
                   <span className="hidden sm:inline">·</span>
                   <span className="hidden sm:inline font-bold text-blue-700">
-                    {currentHospital.planBadge}
+                    {hospital.planBadge}
                   </span>
                 </div>
                 <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight truncate">
@@ -339,30 +252,34 @@ export default function App() {
             </div>
 
             <div className="flex items-center gap-3 sm:gap-4 text-sm sm:text-base font-semibold text-slate-600 bg-slate-50 px-3 sm:px-4 py-2 rounded-xl border border-slate-200 shrink-0">
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setDay(shiftDay(day, -1))}
-                  aria-label="Previous day"
-                  className="p-1 rounded-lg hover:bg-slate-200"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <span className="whitespace-nowrap min-w-[7.5rem] text-center">
-                  {new Date(`${day}T12:00:00`).toLocaleDateString("en-IN", {
-                    weekday: "short",
-                    day: "numeric",
-                    month: "short",
-                  })}
-                </span>
-                <button
-                  onClick={() => setDay(shiftDay(day, 1))}
-                  aria-label="Next day"
-                  className="p-1 rounded-lg hover:bg-slate-200"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-              <span className="hidden sm:inline text-slate-300">|</span>
+              {showDay && (
+                <>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setDay(shiftDay(day, -1))}
+                      aria-label="Previous day"
+                      className="p-1 rounded-lg hover:bg-slate-200"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <span className="whitespace-nowrap min-w-[7.5rem] text-center">
+                      {new Date(`${day}T12:00:00`).toLocaleDateString("en-IN", {
+                        weekday: "short",
+                        day: "numeric",
+                        month: "short",
+                      })}
+                    </span>
+                    <button
+                      onClick={() => setDay(shiftDay(day, 1))}
+                      aria-label="Next day"
+                      className="p-1 rounded-lg hover:bg-slate-200"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <span className="hidden sm:inline text-slate-300">|</span>
+                </>
+              )}
               <div
                 className={`flex items-center gap-1.5 font-bold whitespace-nowrap ${
                   live ? "text-emerald-700" : "text-amber-700"
@@ -396,7 +313,7 @@ export default function App() {
               </button>
             </div>
           )}
-          {loading && (
+          {loading && showDay && (
             <p className="mb-4 text-base font-semibold text-slate-500">
               Loading this day's data…
             </p>
@@ -406,15 +323,30 @@ export default function App() {
             <AppointmentsTab
               appointments={appointments}
               doctors={doctorsList}
-              slots={raw.slots}
+              isDoctor={isDoctor}
               onArrive={markArrived}
               onDone={markDone}
+              onNoShow={markNoShow}
               onWalkIn={addWalkIn}
             />
           )}
-          {activeTab === "doctors" && <DoctorsTab doctors={doctorsList} />}
+          {activeTab === "doctors" && (
+            <DoctorsTab doctors={doctorsList} onToggleDuty={toggleDuty} />
+          )}
           {activeTab === "callLogs" && (
             <CallLogsTab callLogs={callLogs} onMarkCalled={markCalledBack} />
+          )}
+          {activeTab === "history" && (
+            <HistoryTab visits={pastVisits} isDoctor={isDoctor} />
+          )}
+          {activeTab === "users" && (
+            <UsersTab
+              self={auth.email}
+              doctors={doctorsList}
+              departments={hospital.departments}
+              onError={fail}
+              onChanged={refresh}
+            />
           )}
         </div>
       </main>

@@ -25,7 +25,7 @@ export default function LoginPage({ onLogin }) {
     } catch (err) {
       setError(
         err.status === 401
-          ? "Invalid facility email or password. Check your details or contact Sahay support."
+          ? "Wrong email or password. Check your details or ask your hospital admin."
           : err.message
       );
     } finally {
@@ -48,7 +48,7 @@ export default function LoginPage({ onLogin }) {
           Hospital & Clinic Portal
         </h2>
         <p className="text-base text-slate-600 mt-2">
-          Clinical Receptionist & Outpatient Queue Administration
+          Reception, nursing and doctor sign-in for the outpatient queue
         </p>
       </div>
 
@@ -56,8 +56,8 @@ export default function LoginPage({ onLogin }) {
         <div className="bg-white py-8 px-6 sm:px-10 rounded-2xl border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between pb-5 border-b border-slate-100 mb-6">
             <div>
-              <h3 className="text-xl font-bold text-slate-900">Facility Sign In</h3>
-              <p className="text-sm text-slate-500 mt-0.5">Access your clinic or hospital dashboard</p>
+              <h3 className="text-xl font-bold text-slate-900">Staff Sign In</h3>
+              <p className="text-sm text-slate-500 mt-0.5">Receptionist, nurse, doctor or hospital admin</p>
             </div>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
@@ -75,7 +75,7 @@ export default function LoginPage({ onLogin }) {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-base font-semibold text-slate-700 mb-2">
-                Facility Email Address
+                Email Address
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
@@ -123,7 +123,7 @@ export default function LoginPage({ onLogin }) {
 
           <div className="mt-6 pt-5 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-400 font-medium">
-              Authorized personnel only. All access is logged and encrypted.
+              Authorized hospital staff only. Your hospital admin creates your login.
             </p>
           </div>
         </div>

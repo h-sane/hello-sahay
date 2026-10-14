@@ -4,41 +4,52 @@ import {
   Plus,
   X,
   CalendarCheck,
-  Users,
   CheckCircle2,
   Clock,
   ArrowRight,
   UserCheck,
-  PhoneCall,
 } from "lucide-react";
 
 // ─── Status Button ───────────────────────────────────
-function StatusButton({ status, onArrive, onDone }) {
-  const config = {
-    Booked: {
-      label: "Mark Arrived",
-      cls: "bg-blue-600 hover:bg-blue-700 text-white shadow-sm",
-      onClick: onArrive,
-    },
-    Arrived: {
-      label: "Mark Done",
-      cls: "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm",
-      onClick: onDone,
-    },
-    Completed: { label: "Done ✓", cls: "bg-slate-100 text-slate-400 cursor-default" },
-    Cancelled: { label: "Cancelled", cls: "bg-slate-100 text-slate-400 cursor-default" },
-    "No-show": { label: "No-show", cls: "bg-slate-100 text-slate-400 cursor-default" },
-  };
-  const c = config[status];
-  return (
-    <button
-      onClick={c.onClick}
-      className={`px-5 py-2.5 rounded-xl text-base font-bold transition-colors ${c.cls}`}
-    >
-      {c.label}
-    </button>
-  );
+// Front desk marks arrival (or no-show); the doctor or the front desk finishes the visit.
+function StatusButton({ status, isDoctor, onArrive, onDone, onNoShow }) {
+  const idle = "bg-slate-100 text-slate-400 cursor-default";
+  if (status === "Booked") {
+    if (isDoctor) {
+      return <span className={`px-5 py-2.5 rounded-xl text-base font-bold ${idle}`}>Not arrived</span>;
+    }
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          onClick={onArrive}
+          className="px-5 py-2.5 rounded-xl text-base font-bold transition-colors bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+        >
+          Mark Arrived
+        </button>
+        <button
+          onClick={onNoShow}
+          className="px-3.5 py-2.5 rounded-xl text-base font-bold text-slate-600 hover:text-rose-700 hover:bg-rose-50 border border-slate-200 transition-colors"
+        >
+          No-show
+        </button>
+      </div>
+    );
+  }
+  if (status === "Arrived") {
+    return (
+      <button
+        onClick={onDone}
+        className="px-5 py-2.5 rounded-xl text-base font-bold transition-colors bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+      >
+        Mark Done
+      </button>
+    );
+  }
+  const label = { Completed: "Done ✓", Cancelled: "Cancelled", "No-show": "No-show" }[status];
+  return <span className={`px-5 py-2.5 rounded-xl text-base font-bold ${idle}`}>{label}</span>;
 }
+
+const SOURCE = { helpline: "Helpline", app: "Patient app", desk: "Walk-in" };
 
 function StatusDot({ status }) {
   const color = {
@@ -69,16 +80,17 @@ function StatusDot({ status }) {
 export default function AppointmentsTab({
   appointments,
   doctors,
-  slots,
+  isDoctor,
   onArrive,
   onDone,
+  onNoShow,
   onWalkIn,
 }) {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [busy, setBusy] = useState(false);
   const [formError, setFormError] = useState("");
-  const emptyForm = { name: "", phone: "", doctorId: "", slotId: "", reason: "" };
+  const emptyForm = { name: "", phone: "", doctorId: "", reason: "" };
   const [form, setForm] = useState(emptyForm);
 
   const active = appointments.filter(
@@ -101,9 +113,7 @@ export default function AppointmentsTab({
     return a.patientName.toLowerCase().includes(q) || a.phone.includes(q);
   });
 
-  const doctorSlots = slots.filter((s) => String(s.doctor_id) === form.doctorId);
-  const slotTime = (iso) =>
-    new Date(iso).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
+  const onDutyDoctors = doctors.filter((d) => d.onDuty);
 
   const handleAddWalkIn = async () => {
     setFormError("");
@@ -112,7 +122,7 @@ export default function AppointmentsTab({
       await onWalkIn({
         name: form.name.trim(),
         phone: form.phone.trim(),
-        slotId: Number(form.slotId),
+        doctorId: Number(form.doctorId),
         reason: form.reason.trim(),
       });
       setShowModal(false);
@@ -120,7 +130,7 @@ export default function AppointmentsTab({
     } catch (e) {
       setFormError(
         e.status === 409
-          ? "That slot was just taken. Pick another slot."
+          ? e.message
           : e.status === 422
           ? "Enter a valid 10-digit mobile number."
           : e.message
@@ -167,7 +177,7 @@ export default function AppointmentsTab({
               {completedCount}
             </p>
             <p className="text-base font-bold text-slate-600 mt-0.5">
-              Completed Today
+              Completed
             </p>
           </div>
         </div>
@@ -231,13 +241,13 @@ export default function AppointmentsTab({
                 </div>
               ) : (
                 <div className="text-xl font-bold text-emerald-700 mt-1">
-                  Queue is clear! All scheduled patients have been completed.
+                  Queue is clear. Nobody is waiting.
                 </div>
               )}
             </div>
           </div>
 
-          {currentServing && (
+          {currentServing && !(isDoctor && currentServing.status === "Booked") && (
             <button
               onClick={() =>
                 currentServing.status === "Arrived"
@@ -266,13 +276,15 @@ export default function AppointmentsTab({
           />
         </div>
 
-        <button
-          onClick={() => setShowModal(true)}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-xl shadow-sm transition-colors shrink-0"
-        >
-          <Plus className="w-6 h-6" />
-          Add Walk-In Patient
-        </button>
+        {!isDoctor && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-xl shadow-sm transition-colors shrink-0"
+          >
+            <Plus className="w-6 h-6" />
+            Add Walk-In Patient
+          </button>
+        )}
       </div>
 
       {/* ── Appointments Table (High-contrast, Large Font, py-4 px-5) ── */}
@@ -322,6 +334,10 @@ export default function AppointmentsTab({
                     <div className="text-base font-semibold text-slate-500 font-mono mt-0.5">
                       {appt.phone}
                     </div>
+                    <div className="text-sm text-slate-500 mt-1">
+                      <span className="font-bold text-slate-600">{SOURCE[appt.source] || appt.source}</span>
+                      {appt.reason ? ` · ${appt.reason}` : ""}
+                    </div>
                   </td>
 
                   {/* Doctor & Dept */}
@@ -348,8 +364,10 @@ export default function AppointmentsTab({
                   <td className="py-4 px-5">
                     <StatusButton
                       status={appt.status}
+                      isDoctor={isDoctor}
                       onArrive={() => onArrive(appt.id)}
                       onDone={() => onDone(appt.id)}
+                      onNoShow={() => onNoShow(appt.id)}
                     />
                   </td>
                 </tr>
@@ -363,7 +381,7 @@ export default function AppointmentsTab({
                   >
                     {search
                       ? `No appointments match "${search}".`
-                      : "No appointments today yet. Bookings from the helpline and the patient app appear here live."}
+                      : "No appointments on this day. Bookings from the helpline and the patient app appear here live."}
                   </td>
                 </tr>
               )}
@@ -382,7 +400,7 @@ export default function AppointmentsTab({
                   Add Walk-In Patient
                 </h3>
                 <p className="text-base text-slate-500 mt-0.5">
-                  Register a direct counter patient into today's queue
+                  Register a counter patient into today's queue
                 </p>
               </div>
               <button
@@ -414,26 +432,18 @@ export default function AppointmentsTab({
               <div>
                 <label className="block text-base font-bold text-slate-800 mb-1.5">Assign Doctor *</label>
                 <select value={form.doctorId}
-                  onChange={(e) => setForm({ ...form, doctorId: e.target.value, slotId: "" })}
+                  onChange={(e) => setForm({ ...form, doctorId: e.target.value })}
                   className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                  <option value="">Select a doctor with open slots...</option>
-                  {doctors.filter((d) => d.available).map((d) => (
+                  <option value="">
+                    {onDutyDoctors.length ? "Select a doctor..." : "No doctor is on duty"}
+                  </option>
+                  {onDutyDoctors.map((d) => (
                     <option key={d.id} value={d.id}>{d.name} — {d.specialty}</option>
                   ))}
                 </select>
-              </div>
-              <div>
-                <label className="block text-base font-bold text-slate-800 mb-1.5">Time Slot *</label>
-                <select value={form.slotId} disabled={!form.doctorId}
-                  onChange={(e) => setForm({ ...form, slotId: e.target.value })}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white disabled:bg-slate-100">
-                  <option value="">
-                    {form.doctorId ? "Select an open slot..." : "Choose a doctor first"}
-                  </option>
-                  {doctorSlots.map((s) => (
-                    <option key={s.slot_id} value={s.slot_id}>{slotTime(s.start)}</option>
-                  ))}
-                </select>
+                <p className="text-sm text-slate-500 mt-1.5">
+                  The patient takes this doctor's next free time and joins the queue as arrived.
+                </p>
               </div>
               <div>
                 <label className="block text-base font-bold text-slate-800 mb-1.5">Reason for visit</label>
@@ -455,7 +465,7 @@ export default function AppointmentsTab({
                 type="button"
                 onClick={handleAddWalkIn}
                 disabled={
-                  busy || !form.name.trim() || !form.phone.trim() || !form.slotId
+                  busy || !form.name.trim() || !form.phone.trim() || !form.doctorId
                 }
                 className="px-6 py-3 rounded-xl text-base font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-blue-200"
               >

@@ -38,7 +38,13 @@ async function request(path, { method = "GET", body, auth = true } = {}) {
   }
   const data = await res.json().catch(() => null);
   if (!res.ok) {
-    const detail = typeof data?.detail === "string" ? data.detail : res.statusText;
+    // FastAPI sends a string for its own errors and a list of {msg} for invalid input.
+    const detail =
+      typeof data?.detail === "string"
+        ? data.detail
+        : Array.isArray(data?.detail)
+        ? data.detail.map((d) => d.msg).join("; ")
+        : res.statusText;
     throw new ApiError(res.status, detail);
   }
   return data;
@@ -49,12 +55,19 @@ export const api = {
     request("/auth/login", { method: "POST", body: { email, password }, auth: false }),
   facilities: () => request("/facilities?limit=100", { auth: false }),
   appointments: (date) => request(`/appointments?date=${date}`),
-  slots: (facilityId, date) =>
-    request(`/facilities/${facilityId}/slots?date=${date}`, { auth: false }),
+  history: () => request("/appointments?history=true"),
+  doctors: (date) => request(`/doctors?date=${date}`),
+  setDuty: (id, onDuty) =>
+    request(`/doctors/${id}`, { method: "PATCH", body: { on_duty: onDuty } }),
   calls: () => request("/calls?limit=100"),
-  book: (body) => request("/appointments", { method: "POST", body }),
+  callbackDone: (id) =>
+    request(`/calls/${id}`, { method: "PATCH", body: { callback_done: true } }),
+  walkIn: (body) => request("/appointments/walk-in", { method: "POST", body }),
   act: (id, action) =>
     request(`/appointments/${id}`, { method: "PATCH", body: { action } }),
+  users: () => request("/users"),
+  createUser: (body) => request("/users", { method: "POST", body }),
+  updateUser: (id, body) => request(`/users/${id}`, { method: "PATCH", body }),
 };
 
 export function liveSocketUrl(facilityId, token) {

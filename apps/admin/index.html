@@ -61,6 +61,14 @@ tr:last-child td{border-bottom:0}
 .login input{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
 .login .go{margin-top:20px;width:100%;padding:13px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:700}
 .login .go:disabled{opacity:.6}
+.form{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:18px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 16px;align-items:end}
+.form label{display:block;font-weight:600;margin-bottom:6px;font-size:15px}
+.form input,.form select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.form .wide{grid-column:1/-1}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:10px;font-weight:600}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.sm{padding:5px 10px;font-size:15px}
+.creds{background:var(--accent-soft);border:1px solid var(--accent);border-radius:14px;padding:16px 18px;margin:18px 0;font-family:ui-monospace,Consolas,monospace;word-break:break-all}
 @media(prefers-reduced-motion:no-preference){.fill{transition:width .5s}}
 </style>
 </head>
@@ -71,9 +79,10 @@ const API = "/api/v1";
 const LANG = {ta: "Tamil", hi: "Hindi", en: "English", unknown: "Not set"};
 const OUTCOME = {booked: "Booked", info_given: "Info given", emergency: "Emergency", handed_off: "Handed off", unknown: "No outcome"};
 const KIND = {subscription: "Subscription", arrival_fee: "Arrival fees", premium: "Care plan"};
-const TABS = [["overview", "Overview"], ["hospitals", "Hospitals"], ["payments", "Payments"], ["calls", "Calls"], ["premium", "Care plan"]];
+const TABS = [["overview", "Overview"], ["hospitals", "Hospitals"], ["logins", "Hospital logins"], ["payments", "Payments"], ["calls", "Calls"], ["premium", "Care plan"]];
+const ROLE = {hospital_admin: "Hospital admin", receptionist: "Receptionist", nurse: "Nurse", doctor: "Doctor"};
 const $ = document.getElementById("app");
-let token = null, tab = "overview", callFilter = "all";
+let token = null, tab = "overview", callFilter = "all", loginHospital = null, newLogin = null;
 try { token = sessionStorage.getItem("sahay_admin"); } catch {}
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
@@ -85,7 +94,11 @@ async function api(path, opts = {}) {
   const r = await fetch(API + path, {...opts, headers: {"Content-Type": "application/json", ...(token ? {Authorization: "Bearer " + token} : {})}});
   if (token && (r.status === 401 || r.status === 403)) { signOut("Please sign in again."); throw new Error("Please sign in again."); }
   if (r.status === 401) throw new Error("Wrong email or password.");
-  if (!r.ok) throw new Error(`The server answered ${r.status}.`);
+  if (!r.ok) {
+    const d = await r.json().catch(() => null);
+    const detail = typeof d?.detail === "string" ? d.detail : Array.isArray(d?.detail) ? d.detail.map(x => x.msg).join("; ") : "";
+    throw new Error(detail || `The server answered ${r.status}.`);
+  }
   return r.json();
 }
 function signOut(msg = "") { token = null; try { sessionStorage.removeItem("sahay_admin"); } catch {} renderLogin(msg); }
@@ -155,6 +168,34 @@ const VIEWS = {
       <td class="n">${f.calls}</td><td class="n">${f.bookings}</td><td class="n">${f.arrivals}</td><td class="n">${f.no_shows}</td><td class="n">${f.amount_due_rs ? rs(f.amount_due_rs) : "–"}</td></tr>`).join("")}
     </tbody></table></div>`;
   },
+  async logins() {
+    const hospitals = (await api("/admin/hospitals")).filter(h => h.is_partner);
+    if (!hospitals.length) return `<h1>Hospital logins</h1><p class="empty">No partner hospital yet.</p>`;
+    if (!hospitals.some(h => h.id === loginHospital)) loginHospital = hospitals[0].id;
+    const users = await api(`/users?facility_id=${loginHospital}`);
+    const creds = newLogin ? `<div class="creds"><b>${esc(newLogin.title)}</b><br>Email: ${esc(newLogin.email)}<br>Password: ${esc(newLogin.password)}<br>
+      <span style="font-family:inherit;color:var(--mute)">Shown once. Share it with the person now; it cannot be read again.</span></div>` : "";
+    newLogin = null;
+    return `<h1>Hospital logins</h1><p class="sub">Give each hospital one admin login. That admin then creates the receptionist, nurse and doctor logins from the Users tab in Sahay Desk.</p>
+    <div class="filters"><label for="lh" style="align-self:center;font-weight:600">Hospital</label>
+      <select id="lh" style="font:inherit;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)">
+      ${hospitals.map(h => `<option value="${h.id}" ${h.id === loginHospital ? "selected" : ""}>${esc(h.name)}</option>`).join("")}</select></div>
+    ${creds}
+    <div class="scroll"><table><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Status</th><th></th></tr></thead><tbody>
+    ${users.map(u => `<tr><td>${esc(u.name || "–")}${u.department ? `<br><span style="color:var(--mute);font-size:15px">${esc(u.department)}</span>` : ""}</td>
+      <td><span class="tag">${esc(ROLE[u.role] || u.role)}</span></td><td>${esc(u.email)}</td>
+      <td>${u.active ? `<span class="tag">Active</span>` : `<span class="tag red">Switched off</span>`}</td>
+      <td><button class="btn sm" data-reset="${u.id}" data-email="${esc(u.email)}">Reset password</button>
+        <button class="btn sm" data-toggle="${u.id}" data-active="${u.active}">${u.active ? "Switch off" : "Switch on"}</button></td></tr>`).join("")}
+    </tbody></table></div>
+    <form class="form" id="nl"><div class="wide"><b>Add a login</b></div>
+      <div><label for="nr">Role</label><select id="nr"><option value="hospital_admin">Hospital admin</option><option value="receptionist">Receptionist</option><option value="nurse">Nurse</option><option value="doctor">Doctor</option></select></div>
+      <div><label for="nn">Full name</label><input id="nn" required></div>
+      <div><label for="ne">Email</label><input id="ne" type="email" required autocomplete="off"></div>
+      <div><label for="np">Password (8+ characters)</label><input id="np" required minlength="8" value="${esc(genPassword())}" autocomplete="off"></div>
+      <div id="nd" hidden><label for="ndp">Department (doctor)</label><input id="ndp" list="depts" placeholder="General Medicine"><datalist id="depts">${["General Medicine", "Obstetrics", "Paediatrics", "Orthopaedics", "Dental", "Ophthalmology"].map(d => `<option>${d}</option>`).join("")}</datalist></div>
+      <div><button class="btn pri" type="submit">Create login</button></div><p class="err wide" id="ne-err" role="alert" style="padding:0;text-align:left"></p></form>`;
+  },
   async payments() {
     const p = await api("/admin/payments");
     const total = p.reduce((s, x) => s + x.amount_rs, 0);
@@ -196,7 +237,47 @@ function transcript(t) {
     : `<div class="turn"><small>${esc(x.role || x.speaker || "")}</small>${esc(x.text || x.content || JSON.stringify(x))}</div>`).join("");
 }
 
+// No look-alike characters, so a password read out over the phone survives.
+function genPassword() {
+  const a = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from(crypto.getRandomValues(new Uint8Array(10)), b => a[b % a.length]).join("");
+}
+
+function bindLogins(v) {
+  const sel = v.querySelector("#lh");
+  if (!sel) return;
+  sel.onchange = () => { loginHospital = Number(sel.value); show(); };
+  const role = v.querySelector("#nr");
+  role.onchange = () => { v.querySelector("#nd").hidden = role.value !== "doctor"; };
+  v.querySelector("#nl").onsubmit = async ev => {
+    ev.preventDefault();
+    const body = {facility_id: loginHospital, role: role.value, name: v.querySelector("#nn").value.trim(),
+      email: v.querySelector("#ne").value.trim(), password: v.querySelector("#np").value};
+    if (role.value === "doctor") body.doctor = {department: v.querySelector("#ndp").value.trim() || "General Medicine", languages: ["en", "ta"]};
+    try {
+      await api("/users", {method: "POST", body: JSON.stringify(body)});
+      newLogin = {title: `${ROLE[body.role]} login created`, email: body.email, password: body.password};
+      show();
+    } catch (x) { v.querySelector("#ne-err").textContent = x.message; }
+  };
+  v.querySelectorAll("[data-reset]").forEach(b => b.onclick = async () => {
+    const password = genPassword();
+    try {
+      await api(`/users/${b.dataset.reset}`, {method: "PATCH", body: JSON.stringify({password})});
+      newLogin = {title: "Password reset", email: b.dataset.email, password};
+      show();
+    } catch (x) { v.querySelector("#ne-err").textContent = x.message; }
+  });
+  v.querySelectorAll("[data-toggle]").forEach(b => b.onclick = async () => {
+    try {
+      await api(`/users/${b.dataset.toggle}`, {method: "PATCH", body: JSON.stringify({active: b.dataset.active !== "true"})});
+      show();
+    } catch (x) { v.querySelector("#ne-err").textContent = x.message; }
+  });
+}
+
 function bind(v) {
+  bindLogins(v);
   v.querySelectorAll(".filters button").forEach(b => b.onclick = () => { callFilter = b.dataset.f; show(); });
   v.querySelectorAll(".call > button").forEach(b => b.onclick = () => {
     const open = b.getAttribute("aria-expanded") === "true";

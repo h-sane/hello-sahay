@@ -85,7 +85,7 @@ export default function CallLogsTab({ callLogs, onMarkCalled }) {
             </h2>
           </div>
           <p className="text-base text-slate-600">
-            Calls handled by the Hello Sahay voice assistant. Calls it could not finish appear as callbacks.
+            Calls handled by the Hello Sahay voice assistant for this hospital. Calls it could not finish appear as callbacks for the front desk.
           </p>
         </div>
 
@@ -180,7 +180,7 @@ export default function CallLogsTab({ callLogs, onMarkCalled }) {
                     ) : log.outcome === "108 Emergency Redirected" ? (
                       <span className="inline-flex items-center gap-1.5 text-base font-bold text-rose-700 bg-rose-50 px-3.5 py-1.5 rounded-xl border border-rose-200">
                         <ShieldAlert className="w-4 h-4 text-rose-600 shrink-0" />
-                        108 Dispatched
+                        Told to call 108
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1.5 text-base font-medium text-slate-500">

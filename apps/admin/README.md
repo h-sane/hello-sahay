@@ -1,7 +1,7 @@
 # apps/admin — Hello Sahay admin console
 
 For the Hello Sahay team only (not hospitals). One static `index.html`, no build step.
-Screens: Overview, Hospitals, Payments, Calls (every transcript, including callers with no hospital), Care plan.
+Screens: Overview, Hospitals, Hospital logins (create the hospital admin login for a partner hospital, reset passwords, switch logins off), Payments, Calls (every transcript, including callers with no hospital), Care plan.
 
 Data comes from `GET /api/v1/admin/*` (`services/api/app/routers/admin.py`), admin token only.
 Subscription (₹2,999) and arrival-fee (₹40) lines are derived from the partner flag and arrived appointments.

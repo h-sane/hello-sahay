@@ -5,16 +5,22 @@ import {
   Activity,
   LogOut,
   Building2,
+  History,
+  UserCog,
   X,
 } from "lucide-react";
 
-const tabs = [
-  { id: "appointments", label: "Appointments & Schedule", icon: Calendar },
-  { id: "doctors", label: "Doctors & Open Slots", icon: Users },
-  { id: "callLogs", label: "Voice AI Call Logs", icon: PhoneIncoming },
-];
+const TAB_DEFS = {
+  appointments: { label: "Appointments & Schedule", doctorLabel: "My Appointments", icon: Calendar },
+  doctors: { label: "Doctors & Open Slots", icon: Users },
+  callLogs: { label: "Voice AI Call Logs", icon: PhoneIncoming },
+  history: { label: "Past Visits", doctorLabel: "My Past Patients", icon: History },
+  users: { label: "Users", icon: UserCog },
+};
 
 export default function Navbar({
+  tabs,
+  isDoctor,
   activeTab,
   setActiveTab,
   currentHospital,
@@ -78,6 +84,9 @@ export default function Navbar({
               >
                 {currentHospital.name}
               </h2>
+              <p className="text-sm font-bold text-slate-800 truncate mt-1" title={currentHospital.userName}>
+                {currentHospital.userName}
+              </p>
               <p
                 className="text-xs font-mono text-slate-500 truncate mt-0.5"
                 title={currentHospital.email}
@@ -86,7 +95,7 @@ export default function Navbar({
               </p>
               <div className="mt-2.5 flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                  {currentHospital.planBadge || currentHospital.plan}
+                  {currentHospital.roleLabel}
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -102,14 +111,15 @@ export default function Navbar({
           <p className="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
             Portal Navigation
           </p>
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
+          {tabs.map((id) => {
+            const def = TAB_DEFS[id];
+            const Icon = def.icon;
+            const isActive = activeTab === id;
             return (
               <button
-                key={tab.id}
+                key={id}
                 onClick={() => {
-                  setActiveTab(tab.id);
+                  setActiveTab(id);
                   onClose?.();
                 }}
                 className={`w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-base font-bold transition-all text-left ${
@@ -123,7 +133,7 @@ export default function Navbar({
                     isActive ? "text-white" : "text-slate-500"
                   }`}
                 />
-                <span className="truncate">{tab.label}</span>
+                <span className="truncate">{isDoctor && def.doctorLabel ? def.doctorLabel : def.label}</span>
               </button>
             );
           })}
@@ -139,7 +149,7 @@ export default function Navbar({
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-base font-bold text-slate-700 hover:text-red-700 bg-white hover:bg-red-50 border border-slate-200 hover:border-red-200 transition-colors shadow-sm"
           >
             <LogOut className="w-5 h-5 text-slate-500 group-hover:text-red-600 shrink-0" />
-            Sign Out Facility
+            Sign Out
           </button>
           <p className="text-center text-xs text-slate-400 mt-2.5">
             Sahay Desk · Clinical Information System
