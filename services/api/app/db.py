@@ -36,5 +36,13 @@ def init_db() -> None:
         for ddl in ("ALTER TABLE patient ADD COLUMN IF NOT EXISTS lat double precision",
                     "ALTER TABLE patient ADD COLUMN IF NOT EXISTS lng double precision",
                     "ALTER TABLE patient ADD COLUMN IF NOT EXISTS location_at timestamptz",
-                    "ALTER TABLE desk_user ADD COLUMN IF NOT EXISTS doctor_id integer REFERENCES doctor(id)"):
+                    "ALTER TABLE desk_user ADD COLUMN IF NOT EXISTS doctor_id integer REFERENCES doctor(id)",
+                    "ALTER TABLE desk_user ADD COLUMN IF NOT EXISTS name varchar(200)",
+                    "ALTER TABLE desk_user ADD COLUMN IF NOT EXISTS active boolean NOT NULL DEFAULT true",
+                    "ALTER TABLE desk_user ALTER COLUMN role TYPE varchar(20)",
+                    "ALTER TABLE doctor ADD COLUMN IF NOT EXISTS on_duty boolean NOT NULL DEFAULT true",
+                    "ALTER TABLE call ADD COLUMN IF NOT EXISTS callback_done boolean NOT NULL DEFAULT false",
+                    # the old single 'desk' role split into per-person roles
+                    "UPDATE desk_user SET role = 'doctor' WHERE role = 'desk' AND doctor_id IS NOT NULL",
+                    "UPDATE desk_user SET role = 'hospital_admin' WHERE role = 'desk'"):
             conn.execute(text(ddl))

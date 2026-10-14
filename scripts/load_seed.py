@@ -1,28 +1,27 @@
 """Load the DEMO DATA in data/seed into Postgres. Safe to run repeatedly.
 
 Facilities and doctors are updated in place (matched by name) so ids that
-desk users and appointments reference stay valid. Open slots are regenerated;
-booked and blocked slots are kept.
+desk users and appointments reference stay valid. Missing slots for the next
+week are added (nothing booked is touched), then the demo logins, appointments
+and helpline calls of the one demo hospital are created if they do not exist.
 """
 import csv
 import sys
-from datetime import datetime, time, timedelta
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "services" / "api"))
+sys.path.insert(0, str(ROOT / "scripts"))
 
 from sqlalchemy import delete, select  # noqa: E402
 
 from app.db import SessionLocal, init_db  # noqa: E402
-from app.models import Doctor, Facility, Slot  # noqa: E402
+from app.models import Appointment, Doctor, Facility, Slot  # noqa: E402
+from app.routers import auth  # noqa: E402
+from app.slots import ensure_slots  # noqa: E402
+from seed_activity import retire_old_logins, seed_appointments, seed_calls, seed_users  # noqa: E402
 
 SEED = ROOT / "data" / "seed"
-IST = ZoneInfo("Asia/Kolkata")
-DAYS = 3
-SLOT_MINUTES = 15
-WINDOWS = [(time(9), time(13)), (time(16), time(18))]
 
 
 def read_csv(name):
@@ -40,19 +39,6 @@ def upsert(session, model, key, values):
         setattr(row, k, v)
     session.flush()
     return row
-
-
-def slot_times():
-    today = datetime.now(IST).date()
-    step = timedelta(minutes=SLOT_MINUTES)
-    for d in range(DAYS):
-        day = today + timedelta(days=d)
-        for begin, end in WINDOWS:
-            t = datetime.combine(day, begin, IST)
-            stop = datetime.combine(day, end, IST)
-            while t < stop:
-                yield t, t + step
-                t += step
 
 
 def main():
@@ -81,22 +67,30 @@ def main():
             )
             doctors.append((doc, fac))
 
-        partner_ids = [d.id for d, f in doctors if f.is_partner]
-        session.execute(delete(Slot).where(Slot.doctor_id.in_(partner_ids), Slot.status == "open"))
-        kept = {(s.doctor_id, s.start) for s in session.scalars(select(Slot).where(Slot.doctor_id.in_(partner_ids)))}
-        new_slots = [
-            Slot(doctor_id=did, start=start, end=end, status="open")
-            for did in partner_ids
-            for start, end in slot_times()
-            if (did, start) not in kept
-        ]
-        session.add_all(new_slots)
-        session.commit()
-
         partners = [f for f in facilities.values() if f.is_partner]
+        session.flush()
+        for f in facilities.values():  # a hospital that stopped being a partner no longer takes bookings
+            if not f.is_partner:
+                session.execute(delete(Slot).where(Slot.status == "open", Slot.id.not_in(select(Appointment.slot_id)), Slot.doctor_id.in_(
+                    select(Doctor.id).where(Doctor.facility_id == f.id))))
+        session.commit()
+        added = ensure_slots(session)
+
+        retire_old_logins(session)
+        by_name = {(f.name, d.name): d for d, f in doctors}
+        users = seed_users(session, facilities, by_name)
+        session.commit()
+        auth.ensure_demo_users(session)  # the Hello Sahay admin and one hospital admin per partner
+        appts = calls = 0
+        if partners:  # all demo traffic belongs to the first partner
+            hospital = min(partners, key=lambda f: f.id)
+            appts, calls = seed_appointments(session, hospital), seed_calls(session, hospital)
+            session.commit()
+
         print(f"facilities: {len(facilities)} ({len(partners)} partners)")
         print(f"doctors: {len(doctors)}")
-        print(f"slots generated: {len(new_slots)} (partner doctors: {len(partner_ids)}, kept booked/blocked: {len(kept)})")
+        print(f"slots added: {added}")
+        print(f"demo logins added: {users}, appointments added: {appts}, calls added: {calls}")
         for f in partners:
             print(f"  partner id={f.id} {f.name}")
 

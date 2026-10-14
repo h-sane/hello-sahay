@@ -1,0 +1,14 @@
+# DEMO DATA - Sahay Desk logins for the demo hospital (password demo1234 for all). The hospital admin desk<facility id>@sahay.demo is created by the API itself.
+# doctor_name links a doctor login to that doctor, who then sees only their own appointments.
+email,name,role,facility_name,doctor_name
+reception@sunrise.demo,Priya Devi,receptionist,Sunrise Nursing Home,
+nurse@sunrise.demo,Nisha Thomas,nurse,Sunrise Nursing Home,
+harini@sunrise.demo,Dr. Harini Krishnan,doctor,Sunrise Nursing Home,Dr. Harini Krishnan
+karthik@sunrise.demo,Dr. Karthik Subramanian,doctor,Sunrise Nursing Home,Dr. Karthik Subramanian
+sundar@sunrise.demo,Dr. Sundar Raman,doctor,Sunrise Nursing Home,Dr. Sundar Raman
+padma@sunrise.demo,Dr. Padma Venkatesh,doctor,Sunrise Nursing Home,Dr. Padma Venkatesh
+revathi@sunrise.demo,Dr. Revathi Mohan,doctor,Sunrise Nursing Home,Dr. Revathi Mohan
+rohit@sunrise.demo,Dr. Rohit Sharma,doctor,Sunrise Nursing Home,Dr. Rohit Sharma
+anitha@sunrise.demo,Dr. Anitha Raghavan,doctor,Sunrise Nursing Home,Dr. Anitha Raghavan
+lakshmi@sunrise.demo,Dr. Lakshmi Narayanan,doctor,Sunrise Nursing Home,Dr. Lakshmi Narayanan
+farhan@sunrise.demo,Dr. Farhan Ahmed,doctor,Sunrise Nursing Home,Dr. Farhan Ahmed

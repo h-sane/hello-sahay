@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from ..common import normalize_phone
 from ..db import get_session
-from ..models import DeskUser, Doctor, Facility, Patient
+from ..models import DeskUser, Facility, Patient
 from ..security import hash_password, make_token, verify_password
 
 log = logging.getLogger("sahay.auth")
@@ -25,23 +25,22 @@ def desk_email(facility_id: int) -> str:
     return f"desk{facility_id}@sahay.demo"
 
 
-def doctor_email(doctor_id: int) -> str:
-    return f"doctor{doctor_id}@sahay.demo"
-
-
 def ensure_demo_users(session: Session) -> None:
-    """One desk user per partner facility, one account per doctor there, plus one admin. Idempotent."""
-    existing = set(session.scalars(select(DeskUser.email)))
-    wanted = [(desk_email(f.id), "desk", f.id, None)
+    """The Hello Sahay admin plus one hospital admin per partner facility. Idempotent.
+
+    Receptionists, nurses and doctors are created by the hospital admin (Users tab in Sahay Desk), or seeded
+    from data/seed/users.csv for the demo hospital.
+    """
+    existing = {u.email: u for u in session.scalars(select(DeskUser))}
+    wanted = [(desk_email(f.id), "hospital_admin", f.id, f"{f.name} admin")
               for f in session.scalars(select(Facility).where(Facility.is_partner))]
-    wanted += [(doctor_email(d.id), "desk", d.facility_id, d.id)
-               for d in session.scalars(select(Doctor).join(Facility, Facility.id == Doctor.facility_id)
-                                        .where(Facility.is_partner))]
-    wanted.append((ADMIN_EMAIL, "admin", None, None))
-    for email, role, facility_id, doctor_id in wanted:
+    wanted.append((ADMIN_EMAIL, "admin", None, "Hello Sahay admin"))
+    for email, role, facility_id, name in wanted:
         if email not in existing:
             session.add(DeskUser(email=email, password_hash=hash_password(DEMO_PASSWORD),
-                                 role=role, facility_id=facility_id, doctor_id=doctor_id))
+                                 role=role, facility_id=facility_id, name=name))
+        elif not existing[email].name:  # accounts made before logins had names
+            existing[email].name = name
     session.commit()
 
 
@@ -74,8 +73,11 @@ def login(body: LoginIn, session: Session = Depends(get_session)):
     ok = verify_password(body.password, user.password_hash if user else _DUMMY_HASH)
     if user is None or not ok:
         raise HTTPException(401, "invalid email or password")
+    if not user.active:
+        raise HTTPException(403, "this login has been switched off; ask your hospital admin")
     return {"token": make_token(user.email, user.role, user.facility_id, user.doctor_id),
-            "role": user.role, "facility_id": user.facility_id, "doctor_id": user.doctor_id}
+            "role": user.role, "facility_id": user.facility_id, "doctor_id": user.doctor_id,
+            "name": user.name, "email": user.email}
 
 
 @router.post("/otp/request")

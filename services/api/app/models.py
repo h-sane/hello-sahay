@@ -1,7 +1,8 @@
 """Tables from docs/ARCHITECTURE.md section 4. Names match the doc exactly.
 
 Additions beyond section 4: call.facility_id (so GET /calls?facility_id can
-filter) and desk_user (login for Sahay Desk and admin).
+filter), call.callback_done, doctor.on_duty and desk_user (logins for Sahay Desk
+and the Hello Sahay admin console).
 """
 from datetime import date, datetime
 
@@ -51,6 +52,7 @@ class Doctor(Base):
     name: Mapped[str] = mapped_column(String(200))
     department: Mapped[str] = mapped_column(String(100))
     languages: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
+    on_duty: Mapped[bool] = mapped_column(Boolean, default=True)  # false: no new bookings (leave, day off)
 
 
 class Slot(Base):
@@ -87,7 +89,7 @@ class Appointment(Base):
     slot_id: Mapped[int] = mapped_column(ForeignKey("slot.id"), index=True)
     source: Mapped[str] = mapped_column(String(10))  # helpline / app / desk
     reason_text: Mapped[str | None] = mapped_column(Text)
-    status: Mapped[str] = mapped_column(String(12), default="booked")  # booked/arrived/no_show/cancelled
+    status: Mapped[str] = mapped_column(String(12), default="booked")  # booked/arrived/completed/no_show/cancelled
     arrived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
@@ -103,6 +105,7 @@ class Call(Base):
     outcome: Mapped[str | None] = mapped_column(String(20))  # booked/info_given/emergency/handed_off
     emergency: Mapped[bool] = mapped_column(Boolean, default=False)
     handoff: Mapped[bool] = mapped_column(Boolean, default=False)
+    callback_done: Mapped[bool] = mapped_column(Boolean, default=False)  # a person rang the caller back
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     duration_s: Mapped[int | None] = mapped_column(Integer)
 
@@ -193,6 +196,8 @@ class DeskUser(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(200), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(300))
-    role: Mapped[str] = mapped_column(String(10))  # desk / admin
+    role: Mapped[str] = mapped_column(String(20))  # admin (Hello Sahay team) / hospital_admin / receptionist / nurse / doctor
+    name: Mapped[str | None] = mapped_column(String(200))
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
     facility_id: Mapped[int | None] = mapped_column(ForeignKey("facility.id"))
     doctor_id: Mapped[int | None] = mapped_column(ForeignKey("doctor.id"))  # set: the account sees only this doctor's appointments

@@ -11,11 +11,10 @@ import urllib.parse
 import urllib.request
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..db import get_session
-from ..models import Facility
+from ..demo import demo_facility
 from .facilities import _km
 
 router = APIRouter()
@@ -96,7 +95,7 @@ def nearby_hospitals(
             time.sleep(1.1)  # Nominatim allows one request per second
         _cache[key] = (time.time(), found)
 
-    partner = session.scalars(select(Facility).where(Facility.is_partner.is_(True)).order_by(Facility.id)).first()
+    partner = demo_facility(session)
     phone = os.environ.get("DEMO_CALL_NUMBER") or os.environ.get("DEMO_EMERGENCY_NUMBER") or None
     out = [{**h, "distance_km": round(_km(lat, lng, h["lat"], h["lng"]), 1),
             # No official scheme list is available per hospital, so both schemes show for all.

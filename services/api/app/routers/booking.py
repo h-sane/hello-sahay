@@ -1,4 +1,4 @@
-from datetime import date as Date, datetime
+from datetime import date as Date, datetime, timedelta
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -10,7 +10,7 @@ from ..common import IST, day_range, normalize_phone, today_ist
 from ..db import get_session
 from ..models import Appointment, Doctor, Facility, Patient, Slot
 from ..notify import send_whatsapp
-from ..security import check_facility, optional_claims, require_staff
+from ..security import FRONT_DESK_ROLES, check_facility, optional_claims, require_front_desk, require_staff
 from .live import push
 
 router = APIRouter()
@@ -76,8 +76,14 @@ class BookIn(BaseModel):
 
 
 class PatchIn(BaseModel):
-    action: Literal["reschedule", "cancel", "arrived"]
+    action: Literal["reschedule", "cancel", "arrived", "complete", "no_show"]
     new_slot_id: int | None = None
+
+
+class WalkInIn(BaseModel):
+    patient: PatientIn
+    doctor_id: int
+    reason_text: str | None = Field(None, max_length=1000)
 
 
 @router.post("/appointments", status_code=201)
@@ -103,6 +109,47 @@ def book(body: BookIn, session: Session = Depends(get_session)):
     return out
 
 
+@router.post("/appointments/walk-in", status_code=201)
+def walk_in(body: WalkInIn, session: Session = Depends(get_session), claims: dict = Depends(require_front_desk)):
+    """A patient at the counter right now: takes the doctor's next free slot (or an extra one) and is marked arrived.
+
+    Unlike a patient booking this never fails because the day's slots are used up or already past.
+    """
+    doctor = session.get(Doctor, body.doctor_id)
+    if doctor is None:
+        raise HTTPException(404, "doctor not found")
+    check_facility(claims, doctor.facility_id)
+    if not doctor.on_duty:
+        raise HTTPException(409, f"{doctor.name} is off duty today")
+    now = datetime.now(IST)
+    _, day_end = day_range(now.date())
+    slot = session.scalar(select(Slot).where(Slot.doctor_id == doctor.id, Slot.status == "open",
+                                             Slot.end > now, Slot.start < day_end)
+                          .order_by(Slot.start).limit(1).with_for_update())
+    if slot is None:  # nothing left on the grid: an extra slot starting now
+        start = now.replace(second=0, microsecond=0)
+        slot = Slot(doctor_id=doctor.id, start=start, end=start + timedelta(minutes=15), status="open")
+        session.add(slot)
+        session.flush()
+    p = body.patient
+    patient = session.scalar(select(Patient).where(Patient.phone == p.phone))
+    if patient is None:
+        patient = Patient(phone=p.phone)
+        session.add(patient)
+    patient.name = p.name
+    patient.language = p.language or patient.language
+    patient.village = p.village or patient.village
+    session.flush()
+    appt = Appointment(patient_id=patient.id, slot_id=slot.id, source="desk", reason_text=body.reason_text,
+                       status="arrived", arrived_at=now)
+    slot.status = "booked"
+    session.add(appt)
+    session.commit()
+    out = _load(session, appt.id)
+    push([out["facility"]["id"]], {"type": "appointment", "appointment": out})
+    return out
+
+
 @router.patch("/appointments/{appointment_id}")
 def change(appointment_id: int, body: PatchIn, session: Session = Depends(get_session),
            claims: dict | None = Depends(optional_claims)):
@@ -110,17 +157,26 @@ def change(appointment_id: int, body: PatchIn, session: Session = Depends(get_se
                           .with_for_update())
     if appt is None:
         raise HTTPException(404, "appointment not found")
-    if appt.status != "booked":
-        raise HTTPException(409, f"appointment is already {appt.status}")
     old_slot = session.scalar(select(Slot).where(Slot.id == appt.slot_id).with_for_update())
     facilities = {_facility_of(session, old_slot.id)}
+    needs = "arrived" if body.action == "complete" else "booked"
+    if appt.status != needs:
+        raise HTTPException(409, f"appointment is already {appt.status}" if needs == "booked"
+                            else "only a patient who has arrived can be completed")
 
-    if body.action == "arrived":
-        # Arrival triggers the per-patient fee, so only that hospital's staff may mark it.
-        if claims is None or claims["role"] not in ("desk", "admin"):
-            raise HTTPException(401, "desk login required to mark arrival")
+    if body.action in ("arrived", "no_show", "complete"):
+        # Arrival triggers the per-patient fee, so only that hospital's staff may change it.
+        if claims is None or claims["role"] not in (*FRONT_DESK_ROLES, "admin", "doctor"):
+            raise HTTPException(401, "desk login required")
         check_facility(claims, next(iter(facilities)))
-        appt.status, appt.arrived_at = "arrived", datetime.now(IST)
+        if claims["role"] == "doctor" and (body.action != "complete" or claims["doctor_id"] != old_slot.doctor_id):
+            raise HTTPException(403, "a doctor can only complete their own patients")
+        if body.action == "arrived":
+            appt.status, appt.arrived_at = "arrived", datetime.now(IST)
+        elif body.action == "complete":
+            appt.status = "completed"
+        else:
+            appt.status = "no_show"
     elif body.action == "cancel":
         appt.status, old_slot.status = "cancelled", "open"
     else:
@@ -133,7 +189,7 @@ def change(appointment_id: int, body: PatchIn, session: Session = Depends(get_se
 
     session.commit()
     out = _load(session, appt.id)
-    if body.action != "arrived":
+    if body.action in ("cancel", "reschedule"):
         send_whatsapp(out["patient"]["phone"], f"appointment_{body.action}", appointment_id=appt.id)
     push(facilities, {"type": "appointment", "appointment": out})
     return out
@@ -142,16 +198,23 @@ def change(appointment_id: int, body: PatchIn, session: Session = Depends(get_se
 @router.get("/appointments")
 def desk_appointments(
     on: Date | None = Query(None, alias="date"),
+    history: bool = False,
     facility_id: int | None = None,
     session: Session = Depends(get_session),
     claims: dict = Depends(require_staff),
 ):
-    """Desk list for the token's facility; admin may pass facility_id or see all."""
-    if claims["role"] == "desk":
+    """Desk list for the token's facility; admin may pass facility_id or see all.
+
+    history=true lists everything before today instead (newest first, 300 at most): the doctor's "past patients".
+    """
+    if claims["role"] != "admin":
         facility_id = claims["facility_id"]
     start, end = day_range(on or today_ist())
-    query = _JOINED.where(Slot.start >= start, Slot.start < end).order_by(Slot.start)
-    if claims.get("doctor_id"):  # a doctor's own account sees only their patients
+    if history:
+        query = _JOINED.where(Slot.start < day_range(today_ist())[0]).order_by(Slot.start.desc()).limit(300)
+    else:
+        query = _JOINED.where(Slot.start >= start, Slot.start < end).order_by(Slot.start)
+    if claims["role"] == "doctor":  # a doctor's own account sees only their patients
         query = query.where(Doctor.id == claims["doctor_id"])
     if facility_id is not None:
         query = query.where(Facility.id == facility_id)

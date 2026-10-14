@@ -1,0 +1,31 @@
+# DEMO DATA - fictional patients (phones +91 90000 000xx) and bookings around today so Sahay Desk is never empty. day_offset is relative to the day the loader runs.
+day_offset,time,doctor_name,patient_name,phone,village,reason,status,source
+-3,09:00,Dr. Harini Krishnan,Selvam Pillai,9000000001,Paranur,Fever for three days,completed,helpline
+-3,09:15,Dr. Karthik Subramanian,Kamala Devi,9000000002,Singaperumal Koil,Joint pain,completed,app
+-3,10:00,Dr. Rohit Sharma,Baby Dharani,9000000003,Chengalpattu,Cough and cold,completed,helpline
+-3,16:00,Dr. Padma Venkatesh,Meena Kumari,9000000004,Madurantakam,Antenatal check,completed,app
+-3,16:30,Dr. Sundar Raman,Murugan Velu,9000000005,Kolambakkam,Knee pain,no_show,helpline
+-2,09:00,Dr. Harini Krishnan,Abdul Rahman,9000000006,Chengalpattu,Blood pressure check,completed,helpline
+-2,09:30,Dr. Harini Krishnan,Lakshmi Ammal,9000000007,Paranur,Body ache,completed,desk
+-2,10:15,Dr. Lakshmi Narayanan,Ravi Chandran,9000000008,Pudupattu,Tooth pain,completed,helpline
+-2,11:00,Dr. Farhan Ahmed,Savitha Raj,9000000009,Thirukazhukundram,Blurred vision,completed,app
+-2,16:15,Dr. Anitha Raghavan,Baby Kavin,9000000010,Singaperumal Koil,Fever,cancelled,app
+-1,09:00,Dr. Karthik Subramanian,Govindan Nair,9000000011,Madurantakam,Stomach pain,completed,helpline
+-1,09:45,Dr. Revathi Mohan,Janaki Subbu,9000000012,Chengalpattu,Pregnancy follow-up,completed,helpline
+-1,10:30,Dr. Sundar Raman,Palani Swamy,9000000013,Paranur,Back pain,completed,app
+-1,11:15,Dr. Harini Krishnan,Fathima Begum,9000000014,Kolambakkam,Fever and headache,no_show,helpline
+-1,16:00,Dr. Rohit Sharma,Baby Hari,9000000015,Pudupattu,Vomiting,completed,helpline
+0,09:00,Dr. Harini Krishnan,Selvam Pillai,9000000001,Paranur,Follow-up visit,completed,helpline
+0,09:15,Dr. Karthik Subramanian,Muthulakshmi,9000000016,Chengalpattu,Fever for two days,completed,helpline
+0,09:30,Dr. Padma Venkatesh,Deepa Rani,9000000017,Singaperumal Koil,Antenatal check,arrived,app
+0,09:45,Dr. Sundar Raman,Annamalai,9000000018,Madurantakam,Knee swelling,arrived,helpline
+0,10:00,Dr. Rohit Sharma,Baby Nivetha,9000000019,Paranur,Cough,booked,helpline
+0,10:15,Dr. Harini Krishnan,Shanthi Perumal,9000000020,Thirukazhukundram,Diabetes check,booked,app
+0,10:30,Dr. Lakshmi Narayanan,Karthikeyan,9000000021,Chengalpattu,Tooth cleaning,booked,helpline
+0,11:00,Dr. Farhan Ahmed,Rukmani Ammal,9000000022,Pudupattu,Eye check,booked,helpline
+0,11:30,Dr. Revathi Mohan,Sumathi Raj,9000000023,Kolambakkam,Pregnancy check,booked,app
+0,16:00,Dr. Anitha Raghavan,Baby Yazhini,9000000024,Madurantakam,Fever,booked,helpline
+0,16:30,Dr. Karthik Subramanian,Senthil Kumar,9000000025,Paranur,Chest cold,booked,helpline
+1,09:15,Dr. Harini Krishnan,Parvathi Devi,9000000026,Chengalpattu,Fever,booked,helpline
+1,10:00,Dr. Sundar Raman,Rajendran,9000000027,Singaperumal Koil,Shoulder pain,booked,app
+1,10:30,Dr. Padma Venkatesh,Gomathi,9000000028,Madurantakam,Antenatal check,booked,helpline

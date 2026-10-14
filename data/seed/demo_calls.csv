@@ -1,0 +1,8 @@
+# DEMO DATA - fictional helpline calls for the Sahay Desk call log. Summaries all start with "DEMO:". day_offset is relative to the day the loader runs.
+day_offset,time,phone,language,outcome,emergency,handoff,duration_s,summary,caller_line,sahay_line
+-1,17:10,9000000011,ta,booked,false,false,142,DEMO: Booked General Medicine for stomach pain,எனக்கு வயிற்று வலி இருக்கிறது,உங்களுக்கு நாளை காலை 9 மணிக்கு டாக்டர் கார்த்திக் கிடைக்கிறார்.
+-1,19:40,9000000029,hi,handed_off,false,true,95,DEMO: Caller asked to speak to a person about a report,मुझे अपनी रिपोर्ट के बारे में बात करनी है,ठीक है। हमारी टीम का एक व्यक्ति आपको वापस कॉल करेगा।
+0,08:20,9000000016,en,booked,false,false,118,DEMO: Booked General Medicine for fever,I have fever for two days,I can book you with Dr. Karthik Subramanian at 9:15 this morning.
+0,08:45,9000000030,ta,handed_off,false,true,76,DEMO: Caller wants a callback about a PM-JAY card,எனக்கு காப்பீட்டு அட்டை பற்றி தெரிந்து கொள்ள வேண்டும்,எங்கள் குழுவில் ஒருவர் உங்களை மீண்டும் அழைப்பார்.
+0,09:05,9000000031,en,emergency,true,false,41,DEMO: Emergency detected - caller told to call 108,My father has chest pain and cannot breathe,Please call 108 or 112 right now. I can connect you to a person.
+0,09:30,9000000032,hi,info_given,false,false,88,DEMO: Asked about hospital timings,अस्पताल कितने बजे खुलता है,अस्पताल सुबह 9 बजे से शाम 6 बजे तक खुला रहता है।

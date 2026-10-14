@@ -68,7 +68,7 @@ def facility_slots(
     start, end = day_range(on or today_ist())
     start = max(start, datetime.now(IST))
     query = (select(Slot, Doctor).join(Doctor, Doctor.id == Slot.doctor_id)
-             .where(Doctor.facility_id == facility_id, Slot.status == "open",
+             .where(Doctor.facility_id == facility_id, Doctor.on_duty.is_(True), Slot.status == "open",
                     Slot.start >= start, Slot.start < end)
              .order_by(Slot.start))
     if department:

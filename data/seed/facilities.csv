@@ -6,7 +6,7 @@ Demo PHC Kolambakkam,PHC,"Kolambakkam Village, Madurantakam Taluk 603306",12.560
 Demo PHC Pudupattu,PHC,"Pudupattu Road, Thirukazhukundram Taluk 603109",12.6200,80.0300,044-0000-0104,Mon-Sat 08:00-16:00,General Medicine|Paediatrics,true,true,false,
 Demo CHC Madurantakam,CHC,"Hospital Road, Madurantakam 603306",12.5120,79.8850,044-0000-0105,Daily 08:00-20:00,General Medicine|Obstetrics|Paediatrics|Dental,true,true,false,
 Demo Government Hospital Chengalpattu,GH,"GST Road, Chengalpattu 603001",12.6830,79.9770,044-0000-0106,Open 24 hours,General Medicine|Obstetrics|Paediatrics|Ophthalmology|Dental|Orthopaedics,true,true,false,
-Sunrise Nursing Home,private,"Railway Feeder Road, Chengalpattu 603001",12.6900,79.9810,044-0000-0201,Mon-Sat 09:00-18:00,General Medicine|Obstetrics|Paediatrics|Orthopaedics,true,true,true,sahay_desk
-Amudha Multispeciality Hospital,private,"Bazaar Street, Madurantakam 603306",12.5080,79.8920,044-0000-0202,Mon-Sat 09:00-18:00,General Medicine|Ophthalmology|Dental|Orthopaedics,false,true,true,sahay_desk
-Kavya Mother and Child Clinic,private,"Main Road, Thirukazhukundram 603109",12.6100,80.0510,044-0000-0203,Mon-Sat 09:00-18:00,General Medicine|Obstetrics|Paediatrics,true,false,true,sahay_desk
-Lotus Family Hospital,private,"OMR Link Road, Singaperumal Koil 603204",12.7060,79.9960,044-0000-0204,Mon-Sat 09:00-18:00,General Medicine|Paediatrics|Dental|Orthopaedics,false,false,true,sahay_desk
+Sunrise Nursing Home,private,"Railway Feeder Road, Chengalpattu 603001",12.6900,79.9810,044-0000-0201,Mon-Sat 09:00-18:00,General Medicine|Obstetrics|Paediatrics|Orthopaedics|Dental|Ophthalmology,true,true,true,sahay_desk
+Amudha Multispeciality Hospital,private,"Bazaar Street, Madurantakam 603306",12.5080,79.8920,044-0000-0202,Mon-Sat 09:00-18:00,General Medicine|Ophthalmology|Dental|Orthopaedics,false,true,false,
+Kavya Mother and Child Clinic,private,"Main Road, Thirukazhukundram 603109",12.6100,80.0510,044-0000-0203,Mon-Sat 09:00-18:00,General Medicine|Obstetrics|Paediatrics,true,false,false,
+Lotus Family Hospital,private,"OMR Link Road, Singaperumal Koil 603204",12.7060,79.9960,044-0000-0204,Mon-Sat 09:00-18:00,General Medicine|Paediatrics|Dental|Orthopaedics,false,false,false,

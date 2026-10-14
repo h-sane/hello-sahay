@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 from ..common import normalize_phone
 from ..db import get_session
 from ..models import Call, Patient
-from ..security import check_facility, require_staff
+from ..demo import demo_facility
+from ..security import check_facility, require_front_desk
 from .live import push
 
 router = APIRouter()
@@ -37,7 +38,7 @@ def _out(c: Call, phone: str | None) -> dict:
     return {"id": c.id, "patient_phone": phone, "facility_id": c.facility_id,
             "language": c.language, "transcript": c.transcript, "summary": c.summary,
             "outcome": c.outcome, "emergency": c.emergency, "handoff": c.handoff,
-            "started_at": c.started_at, "duration_s": c.duration_s}
+            "callback_done": c.callback_done, "started_at": c.started_at, "duration_s": c.duration_s}
 
 
 @router.post("/calls", status_code=201)
@@ -50,7 +51,11 @@ def create_call(body: CallIn, session: Session = Depends(get_session)):
             session.add(patient)
             session.flush()
         patient_id = patient.id
-    call = Call(patient_id=patient_id, facility_id=body.facility_id, language=body.language,
+    facility_id = body.facility_id
+    if facility_id is None:  # demo: a call that reached no hospital still belongs on the one demo Desk
+        demo = demo_facility(session)
+        facility_id = demo.id if demo else None
+    call = Call(patient_id=patient_id, facility_id=facility_id, language=body.language,
                 transcript=body.transcript, summary=body.summary, outcome=body.outcome,
                 emergency=body.emergency, handoff=body.handoff, duration_s=body.duration_s)
     if body.started_at:
@@ -63,7 +68,7 @@ def create_call(body: CallIn, session: Session = Depends(get_session)):
 
 
 def _list(session: Session, claims: dict, facility_id: int | None, handoff_only: bool, limit: int):
-    if claims["role"] == "desk":
+    if claims["role"] != "admin":
         check_facility(claims, facility_id if facility_id is not None else claims["facility_id"])
         facility_id = claims["facility_id"]
     query = (select(Call, Patient.phone).outerjoin(Patient, Patient.id == Call.patient_id)
@@ -77,11 +82,28 @@ def _list(session: Session, claims: dict, facility_id: int | None, handoff_only:
 
 @router.get("/calls")
 def list_calls(facility_id: int | None = None, limit: int = Query(50, ge=1, le=200),
-               session: Session = Depends(get_session), claims: dict = Depends(require_staff)):
+               session: Session = Depends(get_session), claims: dict = Depends(require_front_desk)):
     return _list(session, claims, facility_id, False, limit)
 
 
 @router.get("/handoffs")
 def list_handoffs(facility_id: int | None = None, limit: int = Query(50, ge=1, le=200),
-                  session: Session = Depends(get_session), claims: dict = Depends(require_staff)):
+                  session: Session = Depends(get_session), claims: dict = Depends(require_front_desk)):
     return _list(session, claims, facility_id, True, limit)
+
+
+class CallbackIn(BaseModel):
+    callback_done: bool = True
+
+
+@router.patch("/calls/{call_id}")
+def mark_callback(call_id: int, body: CallbackIn, session: Session = Depends(get_session),
+                  claims: dict = Depends(require_front_desk)):
+    call = session.get(Call, call_id)
+    if call is None:
+        raise HTTPException(404, "call not found")
+    check_facility(claims, call.facility_id)
+    call.callback_done = body.callback_done
+    session.commit()
+    phone = session.scalar(select(Patient.phone).where(Patient.id == call.patient_id)) if call.patient_id else None
+    return _out(call, phone)

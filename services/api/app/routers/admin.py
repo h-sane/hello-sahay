@@ -34,14 +34,24 @@ def _counts(session: Session, column, *where) -> dict:
     return {key or "unknown": n for key, n in session.execute(query)}
 
 
+ARRIVED = ("arrived", "completed")
+
+
 def _arrivals_by_facility(session: Session) -> dict[int, dict]:
+    """Per facility: appointment counts by status, and 'billable' = patients Sahay sent who arrived.
+
+    Walk-ins entered at the counter (source desk) were not brought by Sahay, so they carry no ₹40 fee.
+    """
     rows = session.execute(
-        select(Doctor.facility_id, Appointment.status, func.count())
+        select(Doctor.facility_id, Appointment.status, Appointment.source, func.count())
         .join(Slot, Slot.id == Appointment.slot_id).join(Doctor, Doctor.id == Slot.doctor_id)
-        .group_by(Doctor.facility_id, Appointment.status))
+        .group_by(Doctor.facility_id, Appointment.status, Appointment.source))
     out: dict[int, dict] = {}
-    for facility_id, status, n in rows:
-        out.setdefault(facility_id, {})[status] = n
+    for facility_id, status, source, n in rows:
+        stats = out.setdefault(facility_id, {})
+        stats[status] = stats.get(status, 0) + n
+        if status in ARRIVED and source != "desk":
+            stats["billable"] = stats.get("billable", 0) + n
     return out
 
 
@@ -49,7 +59,8 @@ def _arrivals_by_facility(session: Session) -> dict[int, dict]:
 def overview(session: Session = Depends(get_session)):
     midnight = datetime.now(IST).replace(hour=0, minute=0, second=0, microsecond=0)
     appt = _counts(session, Appointment.status)
-    arrived, no_show = appt.get("arrived", 0), appt.get("no_show", 0)
+    arrived, no_show = sum(appt.get(k, 0) for k in ARRIVED), appt.get("no_show", 0)
+    billable = sum(v.get("billable", 0) for v in _arrivals_by_facility(session).values())
     partners = session.scalar(select(func.count()).select_from(Facility).where(Facility.is_partner)) or 0
     call_total = session.scalar(select(func.count()).select_from(Call)) or 0
     return {
@@ -65,7 +76,7 @@ def overview(session: Session = Depends(get_session)):
         "arrivals": arrived,
         "no_show_rate": round(no_show / (arrived + no_show), 3) if arrived + no_show else None,
         "partner_hospitals": partners,
-        "revenue_rs": partners * SUBSCRIPTION_RS + arrived * ARRIVAL_FEE_RS,
+        "revenue_rs": partners * SUBSCRIPTION_RS + billable * ARRIVAL_FEE_RS,
     }
 
 
@@ -76,13 +87,13 @@ def hospitals(session: Session = Depends(get_session)):
     out = []
     for f in session.scalars(select(Facility).order_by(Facility.is_partner.desc(), Facility.name)):
         stats = by_facility.get(f.id, {})
-        arrived = stats.get("arrived", 0)
+        arrived, billable = sum(stats.get(k, 0) for k in ARRIVED), stats.get("billable", 0)
         out.append({
             "id": f.id, "name": f.name, "type": f.type, "address": f.address, "phone": f.phone,
             "is_partner": f.is_partner, "plan": f.plan, "pmjay": f.pmjay, "cmchis": f.cmchis,
-            "calls": calls.get(f.id, 0), "bookings": sum(stats.values()), "arrivals": arrived,
+            "calls": calls.get(f.id, 0), "bookings": sum(v for k, v in stats.items() if k != "billable"), "arrivals": arrived,
             "no_shows": stats.get("no_show", 0),
-            "amount_due_rs": (SUBSCRIPTION_RS if f.is_partner else 0) + arrived * ARRIVAL_FEE_RS,
+            "amount_due_rs": (SUBSCRIPTION_RS if f.is_partner else 0) + billable * ARRIVAL_FEE_RS,
         })
     return out
 
@@ -92,8 +103,8 @@ def payments(session: Session = Depends(get_session)):
     names = {f.id: f.name for f in session.scalars(select(Facility))}
     lines = []
     for f_id, stats in _arrivals_by_facility(session).items():
-        if stats.get("arrived") and f_id in names:
-            n = stats["arrived"]
+        if stats.get("billable") and f_id in names:
+            n = stats["billable"]
             lines.append({"payer": names[f_id], "kind": "arrival_fee", "detail": f"{n} arrivals × ₹{ARRIVAL_FEE_RS}",
                           "amount_rs": n * ARRIVAL_FEE_RS, "status": "due"})
     for f in session.scalars(select(Facility).where(Facility.is_partner)):
@@ -124,6 +135,7 @@ def all_calls(limit: int = Query(100, ge=1, le=500), emergency: bool | None = No
     if emergency is not None:
         query = query.where(Call.emergency.is_(emergency))
     return [{"id": c.id, "patient_phone": phone, "facility": facility, "language": c.language,
-             "outcome": c.outcome, "emergency": c.emergency, "handoff": c.handoff, "summary": c.summary,
+             "outcome": c.outcome, "emergency": c.emergency, "handoff": c.handoff, "callback_done": c.callback_done,
+             "summary": c.summary,
              "transcript": c.transcript, "started_at": c.started_at, "duration_s": c.duration_s}
             for c, phone, facility in session.execute(query)]
