@@ -43,6 +43,25 @@ Send the token as `Authorization: Bearer <token>`.
 - `app/notify.py:send_whatsapp` only logs until P1-8 fills it in.
 - `GET /facilities` lists government types (PHC, CHC, GH) before private, then nearest first when `lat`/`lng` are given.
 
+## Chat and advisories (P1-10)
+
+`POST /chat {message, lang}` returns `{answer, citations[{issuer,title,url,published}], safety_flag, grounded}`:
+
+1. The safety gate runs first; an emergency or symptom message gets its fixed reply and no model call.
+2. The message is embedded (Titan v2, 1024 dims) and the nearest `advisory_chunk` rows under `ADVISORY_MAX_DISTANCE` (default 0.75) are retrieved, at most 2 per document.
+3. Nova Lite may only rephrase those excerpts, in the asked language, and must name the excerpts it used.
+4. No usable citation, `NO_ANSWER`, or any Bedrock error returns the fixed fallback ("I don't have verified information on that...") with `grounded: false`.
+
+`GET /advisories?lang` lists one row per source document with issuer, link and a short summary.
+
+Load or refresh the corpus (idempotent, replaces each document's chunks; about 1 s per chunk because the personal account throttles Titan):
+
+```bash
+AWS_PROFILE=personal-bedrock python scripts/ingest_advisories.py [--dir DIR] [--only DOC_ID ...]
+```
+
+`published` must be a full date (`2024-04-15`) or `YYYY-MM`; a bare year is stored empty rather than guessed. Tests: `python -m pytest app/chat app/safety -q` from `services/api`.
+
 ## Layout
 
-`app/main.py` wires the routers under `/api/v1`; `app/routers/` has one file per domain (`facilities`, `booking`, `auth`, `live`, `calls`); `app/models.py` and `app/db.py` hold the tables and session; `app/safety/` is the emergency/symptom gate.
+`app/main.py` wires the routers under `/api/v1`; `app/routers/` has one file per domain (`facilities`, `booking`, `auth`, `live`, `calls`, `chat`); `app/chat/` holds Bedrock access, chunking and the chat pipeline; `app/models.py` and `app/db.py` hold the tables and session; `app/safety/` is the emergency/symptom gate.
