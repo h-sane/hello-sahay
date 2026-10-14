@@ -62,6 +62,8 @@ code is refused, and the profile is on the server.
 
 ## Tab 1: Home
 
+**Status: done 2026-10-15** (session_21). Greeting, Start call (browser) and Call by phone (helpline from `GET /config/contacts`), Emergency, today's visit and medicines, who is looking after you, nearest hospital, three shortcuts. The fake family contact and fake GPS line are gone from the Emergency screen.
+
 Build:
 1. One config call (`GET /config/contacts`) gives the app two numbers: the AI
    helpline (Exotel 044-481-36970) and the emergency desk (`DEMO_EMERGENCY_NUMBER`,
@@ -88,10 +90,14 @@ Build:
 
 ## Tab 3: Ask Sahay
 
+**Status: done 2026-10-15** (session_21). Local verified corpus first; when it has no answer the server searches live official government websites (gov.in, nic.in, cmchistn.com only) and cites the page it read. See `services/api/app/live_search.py`.
+
 Build: shorter reply cards, source line always visible, big mic and send buttons,
 check every state on a phone (loading, error, emergency, no answer).
 
 ## Tab 4: Medicines
+
+**Status: done 2026-10-15** (session_21). Real brand data (246k brands) and the official PMBI list; label photo read by Nova vision, matched by a fixed program, the label's own printed price is shown first; nothing is guessed. `scripts/load_medicines.py`.
 
 Build:
 1. Load a real brand-to-composition dataset (Indian Medicine Dataset, about 250k
@@ -104,6 +110,8 @@ Build:
    or pharmacist". If nothing matches, it says so (no default medicine).
 
 ## Tab 5: My Health
+
+**Status: done 2026-10-15** (session_21). Server-side family members with mobile numbers, Care plan with a demo payment that upgrades the parent's number to Care plan at once, in-app notifications and due-medicine alerts, medicine reminders with an "I took it" log, editable personal details. Reminders live here (and can be created from Medicines).
 
 Build:
 1. My appointments: loaded from the server by the signed-in number, cancel and
@@ -123,3 +131,8 @@ anything except opening it.
 2. In the Emergency screen Adithya's number is the main button; 108 and 112 stay
    as small links because the safety rules say a patient must always be told them.
 3. Payments stay a test stub until Razorpay keys exist.
+
+
+## Elderly-friendly pass (applies to every tab)
+
+Done 2026-10-15 (session_21). Shared kit in `apps/patient-web/src/components/ui.tsx`: 20 px base text, buttons at least 64 px tall, one primary action per card, 2 px borders, no text below 14 px, bottom sheets with a labelled Close, plain verbs. Every tab, the first-open screens, the booking pop-up, location chooser, emergency and voice call were converted. New screens must use this kit.

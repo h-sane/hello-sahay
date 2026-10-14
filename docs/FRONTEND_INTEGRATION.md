@@ -42,6 +42,23 @@ Removed because they break the guardrails or have no backend: the "Dr. Sahay" pe
 
 **The line between real and demo (Hussain, 2026-10-15):** hospital name, address, distance and the GPS/nearest logic are real. Everything behind "Book" is demo: `book_facility_id` is the first partner facility (Sunrise Nursing Home), so doctors, slots and bookings from every hospital in the list land on that one Sahay Desk, `phone` is `DEMO_CALL_NUMBER` (falls back to `DEMO_EMERGENCY_NUMBER`), and the patient's own appointment list shows the hospital they chose (`appointment.hospital_label`). The helpline works the same way (`services/voice/README.md`).
 
+## Patient app: Ask Sahay, Medicines, My Health (session 21)
+
+All of these except search and config need the patient token (`Authorization: Bearer`, from the OTP sign-in).
+
+| Screen | Backend | Notes |
+|---|---|---|
+| Ask Sahay | `POST /chat` | Safety gate, then the local advisory corpus, then a live search of official government sites (`live_search.py`, Exa public endpoint, results filtered to gov.in / nic.in / cmchistn.com). Citations carry `url` and `live: true` for live pages. Answers for the same question are cached 30 minutes |
+| Medicines search | `GET /medicines/search?q=` | Brands by name then salt, plus Jan Aushadhi generics; each brand carries its cheapest same-contents Jan Aushadhi product and the saving per tablet/ml |
+| Medicines scan | `POST /medicines/scan` `{image: base64}` | Nova vision only reads the label; a fixed program matches composition, strength and form. Status `found / no_equivalent / brand_only / unreadable`. The label's own printed MRP is used when present |
+| Home, Emergency | `GET /config/contacts` | helpline, emergency desk, hospital call number, 108, 112. Numbers are dialled, never printed |
+| My Health: family | `GET/POST /family`, `PUT/DELETE /family/{id}` | name, optional mobile number, relation; private to the owner |
+| My Health: Care plan | `GET /care/me`, `POST /care/pay`, `DELETE /care/plans/{id}`, `GET /care/parents` | Demo payment: pressing Pay records a Payment (kind `premium`, Rs 149, ref `DEMO-PAY-n`), creates the parent's patient row if needed and sets `is_premium`. The parent's app shows who is looking after them. The admin console's revenue and Payments tab include it |
+| My Health: medicines | `GET/POST /reminders`, `PUT/DELETE /reminders/{id}`, `POST /reminders/{id}/taken` | "I took it" notifies the people paying for that patient |
+| Alerts | `GET /notifications`, `POST /notifications/read` | Polled every 20 s by the app; shown as a banner. Due medicines are computed on the phone from the reminder list |
+
+Medicine data is loaded by `scripts/load_medicines.py load` (deploy runs it with `--if-empty`).
+
 ## Sahay Desk: screen to endpoint
 
 Tabs depend on the login role (`apps/desk/README.md` has the table); the API enforces the same rules.
@@ -64,4 +81,4 @@ Tabs depend on the login role (`apps/desk/README.md` has the table); the API enf
 - `GET /patients/{phone}/appointments` and `PATCH` cancel/reschedule are open endpoints; anyone who knows a number can list that patient's bookings. The app gates its own lookup with the demo OTP but the API does not enforce it. Needs a patient token check (owner: API session).
 - No patient age. A switched-off Desk login keeps working until its token expires (12 h). `POST /calls` and `POST /appointments` take no token (the voice service has none), so anyone who knows the API can post a fake call or booking.
 - WhatsApp confirmation is still a log line (P1-8 needs keys), so the booking screen says "show this code at the counter" only.
-- Medicines, reminders and family profiles are local-only until P2-1 and the Care plan exist.
+- Medicines, reminders, family members and the Care plan are on the server (see the patient-app section below). The old local-only copies of reminders and family profiles in `storageService` are no longer read.

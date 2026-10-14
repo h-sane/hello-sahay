@@ -1,5 +1,7 @@
 # data/medicines — source research for P2-1 (medicine data)
 
+**Status 2026-10-15: loaded and in use.** `janaushadhi_mrp.csv` is the PMBI product list (2,439 rows, downloaded from the portal's CSV button on 2026-10-15). `brands.csv.gz` is the Indian Medicine Dataset with discontinued and non-allopathic rows removed and each composition normalised into a comparable key (246,064 brands). Both are built by `scripts/load_medicines.py build` and loaded into Postgres by `scripts/load_medicines.py load`; the app reads them through `GET /medicines/search` and `POST /medicines/scan`. Raw downloads go in `raw/` (gitignored). 1,029 of the 1,566 Jan Aushadhi products that have a parsed composition have at least one matching brand. NPPA ceiling prices (section 2 below) are still not used.
+
 Researched 2026-10-14. Nothing large is committed here yet. Files were downloaded to a scratchpad only to count rows and read column names.
 
 ## 1. Jan Aushadhi (PMBI) product list with MRP — official, not yet downloaded

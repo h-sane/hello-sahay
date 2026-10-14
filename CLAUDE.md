@@ -34,6 +34,8 @@ issue per task card. Voice (2026-10-14): `services/voice` runs the English/Hindi
 
 **Hospitals tab (2026-10-15):** scheme tags come from Tamil Nadu's own CMCHIS empanelment list (`data/schemes/`, matcher `services/api/app/schemes.py`); unmatched hospitals say "Scheme cover not confirmed". The map is real (Leaflet + OpenStreetMap tiles), cards are phone-width, and Call buttons dial the demo number without showing it. Verified in a 375 px frame against a local API; booking was driven only to the date-and-time step.
 
+**Patient app tabs 3, 4, 5, 1 and elderly-friendly UI (2026-10-15):** Ask Sahay answers from the verified corpus first, then live official government websites (gov.in, nic.in, cmchistn.com only) with the page link cited. Medicines uses real data (246k brands, official PMBI Jan Aushadhi list) and reads label photos with Nova vision; the label's printed price is shown. My Health has server-side family members, reminders with an "I took it" log, in-app alerts, editable details and the Care plan (demo payment upgrades the parent's number and shows in the admin console). Home reflects all of it. Every screen uses the large-type kit in `apps/patient-web/src/components/ui.tsx`. Verified in a 390 px frame against a local API; not yet merged to `main`, not tried on a real phone. See `.claude/handoffs/2026-10-15_session_21.md`.
+
 **Local setup:** `docker compose up -d` (Postgres on host port **5433**), copy
 `.env.example` to `.env`, then `python scripts/check_setup.py` (needs boto3 and
 psycopg or psycopg2) to confirm DB, Bedrock, embeddings, Polly and Transcribe.
