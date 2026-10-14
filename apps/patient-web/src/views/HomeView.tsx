@@ -554,7 +554,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   >
                     <Phone className="w-4 h-4 text-teal-800 shrink-0" />
                     <span className="whitespace-nowrap">{ht.callHospital}</span>
-                    <span className="hidden md:inline font-mono text-xs text-teal-700 font-normal">({nearestHospital.contactPhone})</span>
                   </a>
 
                   <a

@@ -180,6 +180,7 @@ export default function App() {
         {currentTab === 'hospitals' && (
           <HospitalsView
             currentLang={settings.language}
+            userCoordinates={userCoordinates}
             onSelectHospitalForBooking={(hospital) => setSelectedHospitalForBooking(hospital)}
           />
         )}

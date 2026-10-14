@@ -75,6 +75,8 @@ Build:
 
 ## Tab 2: Hospitals and booking
 
+**Status: done 2026-10-15** (see handoff session_19). Real scheme tags from the CMCHIS list, real Leaflet/OpenStreetMap map, phone-width cards, Call buttons show no number.
+
 Build:
 1. Every hospital in the list can be booked (it goes to the one demo hospital, the
    patient's appointment still shows the hospital they chose). The "not available"

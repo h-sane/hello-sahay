@@ -198,7 +198,8 @@ class Tools:
 
         def view(h: dict) -> dict:
             return {"id": demo_id, "name": h["name"], "address": h.get("address") or "", "distance_km": h.get("distance_km"),
-                    "is_government": h.get("kind") in GOVERNMENT_KINDS, "can_book": True, "pmjay": True, "cmchis": True}
+                    "is_government": h.get("kind") in GOVERNMENT_KINDS, "can_book": True,
+                    "pmjay": bool(h.get("pmjay")), "cmchis": bool(h.get("cmchis"))}
 
         if hospital_name:  # a hospital the caller named is accepted as said, even if it is not on the list
             name = best_match(hospital_name, [h["name"] for h in hospitals])

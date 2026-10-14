@@ -47,6 +47,7 @@ export interface ApiNearbyHospital {
   emergency: boolean;
   pmjay: boolean;
   cmchis: boolean;
+  scheme_checked?: boolean;
   phone: string | null;
   book_facility_id: number | null;
 }

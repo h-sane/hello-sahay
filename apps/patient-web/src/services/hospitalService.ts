@@ -52,8 +52,9 @@ const KIND_LABEL: Record<ApiNearbyHospital['kind'], string> = {
   hospital: 'Hospital',
 };
 
-// A real hospital from OpenStreetMap. Booking and calls are the demo wiring: every one books into the same
-// partner facility (so each shows up on its Sahay Desk) and calls go to the demo number.
+// A real hospital from OpenStreetMap, with scheme cover checked by the API against Tamil Nadu's CMCHIS list.
+// Booking and calls are the demo wiring: every one books into the same partner facility (so each shows up on its
+// Sahay Desk) and calls go to the demo number.
 function fromNearby(n: ApiNearbyHospital): Hospital {
   const address = n.address || '';
   return {
@@ -81,6 +82,7 @@ function fromNearby(n: ApiNearbyHospital): Hospital {
     isPartner: n.book_facility_id != null,
     speciality: n.speciality ?? undefined,
     kindLabel: KIND_LABEL[n.kind],
+    schemeChecked: n.scheme_checked ?? false,
   };
 }
 
@@ -148,7 +150,7 @@ export const hospitalService = {
     query: string,
     filters?: {
       category?: 'government' | 'phc' | 'private' | 'all';
-      scheme?: 'PM-JAY' | 'CMCHIS' | 'all';
+      scheme?: 'PM-JAY' | 'CMCHIS' | 'any' | 'all';
       emergencyOnly?: boolean;
     }
   ): Hospital[] {
@@ -174,7 +176,10 @@ export const hospitalService = {
         }
       }
       if (filters.scheme && filters.scheme !== 'all') {
-        result = result.filter((h) => h.schemesSupported.includes(filters.scheme as 'PM-JAY' | 'CMCHIS'));
+        const wanted = filters.scheme;
+        result = result.filter((h) =>
+          wanted === 'any' ? h.schemesSupported.length > 0 : h.schemesSupported.includes(wanted)
+        );
       }
       if (filters.emergencyOnly) {
         result = result.filter((h) => h.emergency24x7);

@@ -196,7 +196,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         <div className="p-5 sm:p-6 bg-gradient-to-r from-teal-900 to-teal-800 text-white flex items-start justify-between">
           <div className="space-y-1">
             <span className="text-xs font-bold uppercase tracking-wider text-teal-200">
-              {hospital.district} · {hospital.category.toUpperCase()}
+              {[hospital.district, hospital.kindLabel ?? hospital.category.toUpperCase()].filter(Boolean).join(' · ')}
             </span>
             <h2 className="text-xl sm:text-2xl font-bold leading-tight">
               {hospital.nativeNames[currentLang] || hospital.name}
@@ -234,7 +234,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 className="h-12 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-sm flex items-center justify-center gap-2"
               >
                 <Phone className="w-4 h-4" />
-                <span>Call {hospital.contactPhone}</span>
+                <span>{t('callHospital', currentLang)}</span>
               </a>
             )}
           </div>

@@ -34,6 +34,7 @@ export interface Hospital {
   bookFacilityId?: number; // the Sahay Desk facility a booking goes to (real nearby hospitals all use the demo one)
   speciality?: string;
   kindLabel?: string;
+  schemeChecked?: boolean; // true when scheme cover was checked against the Tamil Nadu CMCHIS list
 }
 
 export interface Doctor {
