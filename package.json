@@ -1,0 +1,11 @@
+{
+  "name": "hello-sahay",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix apps/patient-web run dev",
+    "dev:patient": "npm --prefix apps/patient-web run dev",
+    "dev:desk": "npm --prefix apps/desk run dev",
+    "dev:web": "npm --prefix apps/web run dev",
+    "build": "npm --prefix apps/patient-web run build"
+  }
+}
