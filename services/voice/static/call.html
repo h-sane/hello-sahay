@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Call Sahay</title>
+<style>
+  :root { --bg:#fff; --fg:#111; --muted:#4a4a4a; --line:#c9c9c9; --accent:#0b5d3b; --alert:#a4161a; --soft:#f2f2f2; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#101412; --fg:#f4f4f4; --muted:#b8b8b8; --line:#3a3f3c; --accent:#5fd39a; --alert:#ff8a8a; --soft:#1b201d; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:20px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Tamil","Noto Sans Devanagari",sans-serif; }
+  main { max-width:640px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:32px; margin:0 0 4px; }
+  p.lead { margin:0 0 24px; color:var(--muted); }
+  .row { display:flex; gap:12px; flex-wrap:wrap; }
+  select,button { font:inherit; min-height:56px; border-radius:12px; border:2px solid var(--fg); background:var(--bg); color:var(--fg); padding:0 18px; }
+  select { flex:1 1 160px; }
+  button { flex:2 1 200px; font-weight:700; cursor:pointer; background:var(--accent); border-color:var(--accent); color:#fff; }
+  button.end { background:var(--alert); border-color:var(--alert); }
+  button:focus-visible,select:focus-visible { outline:4px solid var(--fg); outline-offset:2px; }
+  #state { margin:20px 0 8px; font-weight:700; }
+  #error { color:var(--alert); font-weight:700; margin:0 0 8px; min-height:1.5em; }
+  #heard { min-height:1.5em; color:var(--muted); font-style:italic; }
+  ol { list-style:none; margin:16px 0 0; padding:0; display:grid; gap:10px; }
+  li { padding:12px 14px; border-radius:12px; background:var(--soft); border:1px solid var(--line); }
+  li.assistant { border-left:6px solid var(--accent); }
+  li.user { border-left:6px solid var(--fg); }
+  li b { display:block; font-size:16px; color:var(--muted); }
+  #lat { margin-top:20px; font-size:16px; color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Call Sahay</h1>
+  <p class="lead">Speak to the free health helpline. Allow the microphone when asked. Sahay cannot give medical advice.</p>
+  <div class="row">
+    <select id="lang" aria-label="Language">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+      <option value="ta">தமிழ்</option>
+    </select>
+    <button id="go">Start call</button>
+  </div>
+  <div id="state" role="status">Not connected</div>
+  <div id="error" role="alert"></div>
+  <div id="heard" aria-live="polite"></div>
+  <ol id="log"></ol>
+  <div id="lat"></div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const WORKLET = `
+class Cap extends AudioWorkletProcessor {
+  constructor(){ super(); this.buf = new Int16Array(1600); this.n = 0; }
+  process(inputs){
+    const ch = inputs[0][0]; if (!ch) return true;
+    for (let i = 0; i < ch.length; i++) {
+      this.buf[this.n++] = Math.max(-1, Math.min(1, ch[i])) * 32767;
+      if (this.n === 1600) { this.port.postMessage(this.buf.slice().buffer); this.n = 0; }
+    }
+    return true;
+  }
+}
+registerProcessor('cap', Cap);`;
+let ws, ctx, stream, playAt = 0, lats = [];
+
+const setState = t => $('state').textContent = t;
+const setError = t => $('error').textContent = t;
+function addLine(role, text) {
+  const li = document.createElement('li'); li.className = role;
+  li.innerHTML = '<b></b><span></span>';
+  li.firstChild.textContent = role === 'assistant' ? 'Sahay' : 'You';
+  li.lastChild.textContent = text; $('log').appendChild(li); li.scrollIntoView({block:'nearest'});
+}
+function play(buf) {
+  const pcm = new Int16Array(buf), f = new Float32Array(pcm.length);
+  for (let i = 0; i < pcm.length; i++) f[i] = pcm[i] / 32768;
+  const b = ctx.createBuffer(1, f.length, 16000); b.copyToChannel(f, 0);
+  const s = ctx.createBufferSource(); s.buffer = b; s.connect(ctx.destination);
+  playAt = Math.max(playAt, ctx.currentTime + 0.05); s.start(playAt); playAt += b.duration;
+}
+async function start() {
+  setError(''); $('log').innerHTML = ''; $('lat').textContent = ''; lats = [];
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:true, channelCount:1}});
+  } catch { setError('Microphone blocked. Allow it in the browser address bar and try again.'); return; }
+  ctx = new AudioContext({sampleRate:16000}); playAt = 0;
+  await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET], {type:'text/javascript'})));
+  const node = new AudioWorkletNode(ctx, 'cap');
+  ctx.createMediaStreamSource(stream).connect(node);
+  setState('Connecting…');
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}/call?lang=${$('lang').value}`);
+  ws.binaryType = 'arraybuffer';
+  ws.onopen = () => { setState('Connected. Sahay is greeting you, then speak.'); $('go').textContent = 'End call'; $('go').className = 'end'; };
+  node.port.onmessage = e => { if (ws.readyState === 1) ws.send(e.data); };
+  ws.onmessage = ({data}) => {
+    if (data instanceof ArrayBuffer) return play(data);
+    const e = JSON.parse(data);
+    if (e.type === 'transcript') { $('heard').textContent = ''; addLine(e.role, e.text); }
+    else if (e.type === 'heard') $('heard').textContent = e.final ? '' : e.text;
+    else if (e.type === 'latency') { lats.push(e.first_audio_ms); $('lat').textContent = `Time to first audio per turn (ms): ${lats.join(', ')}`; }
+    else if (e.type === 'ended') setState('Call ended');
+  };
+  ws.onerror = () => setError('Cannot reach the voice service. Is it running on this address?');
+  ws.onclose = () => { stop(false); };
+}
+function stop(send = true) {
+  if (send && ws && ws.readyState === 1) ws.send(JSON.stringify({type:'end'}));
+  if (ws) { try { ws.close(); } catch {} ws = null; }
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  if (ctx) ctx.close().catch(() => {}); ctx = stream = null;
+  $('go').textContent = 'Start call'; $('go').className = '';
+  if ($('state').textContent !== 'Call ended') setState('Not connected');
+}
+$('go').onclick = () => ws ? stop() : start();
+</script>
+</body>
+</html>

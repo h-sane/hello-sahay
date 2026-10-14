@@ -1,6 +1,6 @@
 """Voice service on :8002. Run: python -m uvicorn pipeline.server:app --app-dir services/voice --port 8002
 
-WS /call?lang=en|hi : binary frames are 16 kHz mono PCM16 both ways; text frames are JSON events.
+WS /call?lang=en|hi|ta : binary frames are 16 kHz mono PCM16 both ways; text frames are JSON events.
 GET /               : minimal test page (static/call.html).
 """
 import asyncio
@@ -16,7 +16,7 @@ from .session import CallSession
 
 logging.basicConfig(level=logging.INFO)
 STATIC = Path(__file__).resolve().parents[1] / "static"
-LANGS = {"en", "hi"}
+LANGS = {"en", "hi", "ta"}
 
 app = FastAPI(title="Hello Sahay voice")
 

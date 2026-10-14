@@ -17,6 +17,7 @@ from . import config, prompts
 from .gate import check
 from .grounding import ungrounded
 from .llm import run_agent
+from .sarvam import SarvamStt, synthesize as synthesize_ta
 from .stt import TranscribeStt
 from .tools import Tools
 from .tts import synthesize
@@ -33,8 +34,10 @@ class CallSession:
                  *, stt=None, agent=run_agent, tts=synthesize, http: httpx.AsyncClient | None = None):
         self.lang, self.in_rate, self.out_rate = lang, in_rate, out_rate
         self._send_audio, self._send_event = send_audio, send_event
-        self._stt = stt or TranscribeStt(lang, in_rate)
-        self._agent, self._tts = agent, tts
+        self._stt = stt or (SarvamStt if lang == "ta" else TranscribeStt)(lang, in_rate)
+        self._agent = agent
+        self._tts = synthesize_ta if lang == "ta" and tts is synthesize else tts
+        self._end_silence = getattr(self._stt, "end_silence", END_SILENCE_S)
         self._http = http or httpx.AsyncClient(base_url=config.API_BASE_URL, timeout=10)
         self.state: dict = {}
         self.transcript: list[dict] = []
@@ -97,7 +100,7 @@ class CallSession:
     async def _turn_loop(self) -> None:
         while not self._done.is_set():
             await asyncio.sleep(0.1)
-            if self._pending and not self._speaking() and time.monotonic() - self._last_result >= END_SILENCE_S:
+            if self._pending and not self._speaking() and time.monotonic() - self._last_result >= self._end_silence:
                 text, self._pending = " ".join(self._pending), []
                 try:
                     await self._turn(text)

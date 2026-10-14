@@ -5,7 +5,7 @@ Flow: `docs/ARCHITECTURE.md` §2.1. Task cards: P1-5 to P1-8.
 
 ## Demo phone number (task card P2-7 bonus)
 
-Two providers share one bridge, `telephony/phone_bridge.py`. Today both only echo the caller's own voice; the real pipeline replaces the echo lines.
+Two providers share one bridge, `telephony/phone_bridge.py`. Each call is a `CallSession` (the same pipeline the browser page uses) at 8 kHz; language is `?lang=en|hi|ta` (Twilio: on the `/incoming` webhook URL; Exotel: on the `/exotel` URL), default `en`.
 
 | Provider | Number | Caller needs | Entry point |
 |---|---|---|---|
@@ -15,8 +15,12 @@ Two providers share one bridge, `telephony/phone_bridge.py`. Today both only ech
 Run it (two terminals; the tunnel URL changes every run, so re-save it in the provider dashboard):
 
 ```
-python -m uvicorn phone_bridge:app --app-dir services/voice/telephony --port 8000
+python -m uvicorn telephony.phone_bridge:app --app-dir services/voice --port 8000
 cloudflared tunnel --url http://localhost:8000
 ```
 
-Twilio: Console → Home → Make a voice call → Receive a call → Custom. Exotel: dashboard → App Bazaar → call flow with a Voicebot applet. Tests: `cd services/voice/telephony && python -m pytest`.
+Twilio: Console → Home → Make a voice call → Receive a call → Custom. Exotel: dashboard → App Bazaar → call flow with a Voicebot applet. Tests: `cd services/voice && python -m pytest`.
+
+## Browser test page
+
+`AWS_PROFILE=personal-bedrock python -m uvicorn pipeline.server:app --app-dir services/voice --port 8002`, open http://localhost:8002 (needs the API on :8001). Language: English/Hindi (Transcribe + Polly), Tamil (Sarvam, needs `SARVAM_API_KEY` in `.env`). Also the `/call` demo page.
