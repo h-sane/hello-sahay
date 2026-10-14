@@ -1,0 +1,217 @@
+# DEMO DATA - fixed visit-reason -> department table (not LLM triage). Unmatched reasons default to General Medicine.
+keyword,lang,department
+pregnancy,en,Obstetrics
+pregnant,en,Obstetrics
+antenatal,en,Obstetrics
+prenatal,en,Obstetrics
+delivery,en,Obstetrics
+labour,en,Obstetrics
+maternity,en,Obstetrics
+expecting,en,Obstetrics
+missed period,en,Obstetrics
+childbirth,en,Obstetrics
+गर्भ,hi,Obstetrics
+गर्भवती,hi,Obstetrics
+गर्भावस्था,hi,Obstetrics
+प्रसव,hi,Obstetrics
+डिलीवरी,hi,Obstetrics
+प्रेग्नेंसी,hi,Obstetrics
+प्रेग्नेंट,hi,Obstetrics
+पेट से,hi,Obstetrics
+garbh,hi,Obstetrics
+garbhvati,hi,Obstetrics
+garbhavastha,hi,Obstetrics
+prasav,hi,Obstetrics
+pregnancy,hi,Obstetrics
+pregnant,hi,Obstetrics
+pet se,hi,Obstetrics
+delivery,hi,Obstetrics
+கர்ப்பம்,ta,Obstetrics
+கர்ப்பிணி,ta,Obstetrics
+கர்ப்பகாலம்,ta,Obstetrics
+பிரசவம்,ta,Obstetrics
+மகப்பேறு,ta,Obstetrics
+குழந்தை பிறப்பு,ta,Obstetrics
+கருவுற்ற,ta,Obstetrics
+மாதவிடாய் நின்றது,ta,Obstetrics
+karbam,ta,Obstetrics
+karppam,ta,Obstetrics
+karpini,ta,Obstetrics
+karppini,ta,Obstetrics
+pirasavam,ta,Obstetrics
+magapperu,ta,Obstetrics
+garbam,ta,Obstetrics
+delivery,ta,Obstetrics
+child,en,Paediatrics
+children,en,Paediatrics
+baby,en,Paediatrics
+infant,en,Paediatrics
+newborn,en,Paediatrics
+toddler,en,Paediatrics
+kid,en,Paediatrics
+paediatric,en,Paediatrics
+pediatric,en,Paediatrics
+vaccination,en,Paediatrics
+बच्चा,hi,Paediatrics
+बच्चे,hi,Paediatrics
+बच्ची,hi,Paediatrics
+शिशु,hi,Paediatrics
+बाल रोग,hi,Paediatrics
+नवजात,hi,Paediatrics
+बालक,hi,Paediatrics
+टीकाकरण,hi,Paediatrics
+bachcha,hi,Paediatrics
+bachche,hi,Paediatrics
+bachchi,hi,Paediatrics
+shishu,hi,Paediatrics
+baal rog,hi,Paediatrics
+navjaat,hi,Paediatrics
+balak,hi,Paediatrics
+tikakaran,hi,Paediatrics
+குழந்தை,ta,Paediatrics
+குழந்தைகள்,ta,Paediatrics
+சிசு,ta,Paediatrics
+பச்சிளம்,ta,Paediatrics
+குழந்தை நலம்,ta,Paediatrics
+தடுப்பூசி,ta,Paediatrics
+சிறுவன்,ta,Paediatrics
+சிறுமி,ta,Paediatrics
+kuzhandhai,ta,Paediatrics
+kulanthai,ta,Paediatrics
+kuzhanthai,ta,Paediatrics
+kuzhandhaigal,ta,Paediatrics
+sisu,ta,Paediatrics
+pachilam,ta,Paediatrics
+thadupoosi,ta,Paediatrics
+siruvan,ta,Paediatrics
+sirumi,ta,Paediatrics
+eye,en,Ophthalmology
+eyes,en,Ophthalmology
+vision,en,Ophthalmology
+cataract,en,Ophthalmology
+eyesight,en,Ophthalmology
+spectacles,en,Ophthalmology
+glasses,en,Ophthalmology
+blurred vision,en,Ophthalmology
+red eye,en,Ophthalmology
+eye pain,en,Ophthalmology
+आँख,hi,Ophthalmology
+आंख,hi,Ophthalmology
+आंखें,hi,Ophthalmology
+नजर,hi,Ophthalmology
+मोतियाबिंद,hi,Ophthalmology
+चश्मा,hi,Ophthalmology
+दृष्टि,hi,Ophthalmology
+धुंधला,hi,Ophthalmology
+aankh,hi,Ophthalmology
+aankhein,hi,Ophthalmology
+nazar,hi,Ophthalmology
+motiyabind,hi,Ophthalmology
+chashma,hi,Ophthalmology
+drishti,hi,Ophthalmology
+dhundhla,hi,Ophthalmology
+aankh dard,hi,Ophthalmology
+கண்,ta,Ophthalmology
+கண்கள்,ta,Ophthalmology
+பார்வை,ta,Ophthalmology
+கண்புரை,ta,Ophthalmology
+கண்ணாடி,ta,Ophthalmology
+கண் வலி,ta,Ophthalmology
+கண் எரிச்சல்,ta,Ophthalmology
+மங்கலான பார்வை,ta,Ophthalmology
+kann,ta,Ophthalmology
+kan,ta,Ophthalmology
+kangal,ta,Ophthalmology
+paarvai,ta,Ophthalmology
+kanpurai,ta,Ophthalmology
+kannadi,ta,Ophthalmology
+kan vali,ta,Ophthalmology
+kan erichal,ta,Ophthalmology
+tooth,en,Dental
+teeth,en,Dental
+dental,en,Dental
+toothache,en,Dental
+gum,en,Dental
+gums,en,Dental
+cavity,en,Dental
+dentist,en,Dental
+root canal,en,Dental
+denture,en,Dental
+दांत,hi,Dental
+दाँत,hi,Dental
+दंत,hi,Dental
+मसूड़े,hi,Dental
+दांत दर्द,hi,Dental
+दंत चिकित्सक,hi,Dental
+मसूढ़ा,hi,Dental
+नकली दांत,hi,Dental
+daant,hi,Dental
+dant,hi,Dental
+masude,hi,Dental
+daant dard,hi,Dental
+dantist,hi,Dental
+masoora,hi,Dental
+nakli daant,hi,Dental
+dentist,hi,Dental
+பல்,ta,Dental
+பற்கள்,ta,Dental
+பல் வலி,ta,Dental
+ஈறு,ta,Dental
+பல் மருத்துவர்,ta,Dental
+பல் சொத்தை,ta,Dental
+பல் பிடுங்க,ta,Dental
+செயற்கை பல்,ta,Dental
+pal,ta,Dental
+parkal,ta,Dental
+pal vali,ta,Dental
+eeru,ta,Dental
+pal maruthuvar,ta,Dental
+pal sothai,ta,Dental
+pal pidunga,ta,Dental
+seyarkai pal,ta,Dental
+bone,en,Orthopaedics
+bones,en,Orthopaedics
+fracture,en,Orthopaedics
+joint,en,Orthopaedics
+joint pain,en,Orthopaedics
+knee pain,en,Orthopaedics
+back pain,en,Orthopaedics
+sprain,en,Orthopaedics
+broken bone,en,Orthopaedics
+arthritis,en,Orthopaedics
+हड्डी,hi,Orthopaedics
+हड्डियां,hi,Orthopaedics
+फ्रैक्चर,hi,Orthopaedics
+जोड़,hi,Orthopaedics
+जोड़ों का दर्द,hi,Orthopaedics
+घुटने का दर्द,hi,Orthopaedics
+कमर दर्द,hi,Orthopaedics
+मोच,hi,Orthopaedics
+गठिया,hi,Orthopaedics
+टूटी हड्डी,hi,Orthopaedics
+haddi,hi,Orthopaedics
+haddiyan,hi,Orthopaedics
+fracture,hi,Orthopaedics
+jod,hi,Orthopaedics
+jodon ka dard,hi,Orthopaedics
+ghutne ka dard,hi,Orthopaedics
+kamar dard,hi,Orthopaedics
+moch,hi,Orthopaedics
+gathiya,hi,Orthopaedics
+tooti haddi,hi,Orthopaedics
+எலும்பு,ta,Orthopaedics
+எலும்பு முறிவு,ta,Orthopaedics
+மூட்டு,ta,Orthopaedics
+மூட்டு வலி,ta,Orthopaedics
+முழங்கால் வலி,ta,Orthopaedics
+முதுகு வலி,ta,Orthopaedics
+சுளுக்கு,ta,Orthopaedics
+மூட்டுவாதம்,ta,Orthopaedics
+elumbu,ta,Orthopaedics
+elumbu murivu,ta,Orthopaedics
+muttu,ta,Orthopaedics
+muttu vali,ta,Orthopaedics
+mulangal vali,ta,Orthopaedics
+muthugu vali,ta,Orthopaedics
+sulukku,ta,Orthopaedics
+muttuvaadham,ta,Orthopaedics

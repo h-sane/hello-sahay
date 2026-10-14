@@ -1,0 +1,37 @@
+# DEMO DATA - fictional doctors. facility_name must match facilities.csv.
+facility_name,name,department,languages
+Demo PHC Paranur,Dr. Meenakshi Rajan,General Medicine,ta|en
+Demo PHC Paranur,Dr. Arun Kumar,Obstetrics,ta|en
+Demo PHC Paranur,Dr. Selvi Murugan,Paediatrics,ta|hi|en
+Demo PHC Singaperumal Koil,Dr. Karthik Subbiah,General Medicine,ta|en
+Demo PHC Singaperumal Koil,Dr. Revathi Gopal,Obstetrics,ta|en
+Demo PHC Singaperumal Koil,Dr. Imran Basha,Paediatrics,ta|hi|en
+Demo PHC Kolambakkam,Dr. Lakshmi Narayanan,General Medicine,ta|en
+Demo PHC Kolambakkam,Dr. Pavithra Devi,Obstetrics,ta|en
+Demo PHC Pudupattu,Dr. Vignesh Babu,General Medicine,ta|en
+Demo PHC Pudupattu,Dr. Anitha Chandran,Paediatrics,ta|en
+Demo CHC Madurantakam,Dr. Ramesh Iyer,General Medicine,ta|hi|en
+Demo CHC Madurantakam,Dr. Sumathi Venkat,Obstetrics,ta|en
+Demo CHC Madurantakam,Dr. Dinesh Raj,Paediatrics,ta|en
+Demo CHC Madurantakam,Dr. Farida Begum,Dental,ta|hi|en
+Demo Government Hospital Chengalpattu,Dr. Balaji Srinivasan,General Medicine,ta|en
+Demo Government Hospital Chengalpattu,Dr. Geetha Ramesh,Obstetrics,ta|hi|en
+Demo Government Hospital Chengalpattu,Dr. Prakash Mohan,Paediatrics,ta|en
+Demo Government Hospital Chengalpattu,Dr. Nandini Rao,Ophthalmology,ta|hi|en
+Demo Government Hospital Chengalpattu,Dr. Sathish Kannan,Dental,ta|en
+Demo Government Hospital Chengalpattu,Dr. Vijay Anand,Orthopaedics,ta|en
+Sunrise Nursing Home,Dr. Harini Krishnan,General Medicine,ta|en
+Sunrise Nursing Home,Dr. Sundar Raman,Orthopaedics,ta|hi|en
+Sunrise Nursing Home,Dr. Padma Venkatesh,Obstetrics,ta|en
+Sunrise Nursing Home,Dr. Rohit Sharma,Paediatrics,hi|en
+Amudha Multispeciality Hospital,Dr. Kumaravel Pillai,General Medicine,ta|en
+Amudha Multispeciality Hospital,Dr. Deepa Ashok,Ophthalmology,ta|en
+Amudha Multispeciality Hospital,Dr. Mohamed Rafi,Dental,ta|hi|en
+Amudha Multispeciality Hospital,Dr. Surya Prakash,Orthopaedics,ta|en
+Kavya Mother and Child Clinic,Dr. Kavitha Shankar,Obstetrics,ta|en
+Kavya Mother and Child Clinic,Dr. Anand Raghavan,Paediatrics,ta|hi|en
+Kavya Mother and Child Clinic,Dr. Thenmozhi Selvam,General Medicine,ta|en
+Lotus Family Hospital,Dr. Ganesh Babu,General Medicine,ta|en
+Lotus Family Hospital,Dr. Shalini Mathew,Paediatrics,ta|en
+Lotus Family Hospital,Dr. Irfan Khan,Dental,ta|hi|en
+Lotus Family Hospital,Dr. Vasanthi Raj,Orthopaedics,ta|en
