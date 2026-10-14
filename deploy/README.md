@@ -12,7 +12,9 @@ redeploys on a new commit (and re-seeds slots daily), so **pushing to `main` is 
 
 ## One-time setup
 
-1. AWS console → IAM → Users → `opencode-bedrock` → Add permissions → attach `AmazonLightsailFullAccess`.
+1. AWS console → IAM → Users → `opencode-bedrock` → Add permissions → Create inline policy → JSON:
+   `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"lightsail:*","Resource":"*"}]}`
+   (Lightsail has no AWS-managed policy; name it `lightsail-full`).
 2. From the repo root: `bash deploy/create-instance.sh` (reads `.env` and the `personal-bedrock` AWS
    profile, creates the box and a static IP, prints the two URLs). First deploy takes about 10 minutes.
 3. Log: `/var/log/sahay-deploy.log` on the box (Lightsail console → Connect using SSH).

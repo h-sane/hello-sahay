@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One-time, run by Hussain from the repo root (it copies the personal-bedrock AWS key into the
 # instance launch script, so it is not run by an agent). Needs the personal-bedrock IAM user to
-# have AmazonLightsailFullAccess. Prints only the final URLs.
+# have an inline policy allowing lightsail:*. Prints only the final URLs.
 #   DRY_RUN=1 bash deploy/create-instance.sh   # builds the launch script and syntax-checks it
 set -euo pipefail
 export AWS_PROFILE=personal-bedrock AWS_DEFAULT_REGION=ap-south-1
