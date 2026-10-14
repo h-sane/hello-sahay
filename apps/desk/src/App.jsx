@@ -225,8 +225,8 @@ export default function App() {
 
       <main className="flex-1 ml-0 lg:ml-80 min-w-0 transition-all">
         <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 sm:px-6 lg:px-8 py-3.5 sm:py-5 shadow-xs">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1 basis-60">
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}

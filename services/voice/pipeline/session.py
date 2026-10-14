@@ -282,7 +282,7 @@ class CallSession:
         s = self.state
         outcome = ("emergency" if s.get("emergency") else "booked" if s.get("appointment_id")
                    else "handed_off" if s.get("handoff") else "info_given" if s.get("facility_id") else None)
-        summary = "; ".join(f"{k}: {s[k]}" for k in ("name", "village", "reason", "department", "handoff_reason")
+        summary = "; ".join(f"{k}: {s[k]}" for k in ("name", "village", "reason", "department", "hospital", "handoff_reason")
                             if s.get(k))
         return {"language": self.lang, "transcript": self.transcript, "summary": summary or None,
                 "outcome": outcome, "emergency": bool(s.get("emergency")), "handoff": bool(s.get("handoff")),

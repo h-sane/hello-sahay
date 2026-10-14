@@ -36,25 +36,32 @@ Device only (no backend): language and consent, location, medicine comparison (d
 
 Removed because they break the guardrails or have no backend: the "Dr. Sahay" persona and clinical advice text, symptom-to-department routing, seeded fake appointments, reminders and family members, six of the nine languages (only Tamil, Hindi, English remain).
 
-### Home: nearest hospital
+### Nearest hospital: real names, one demo Desk
 
-`GET /places/nearby-hospitals?lat&lng` returns real hospitals from OpenStreetMap (Nominatim), nearest first, with distance, kind and speciality when OSM has them. Per-hospital scheme data does not exist, so PM-JAY and CMCHIS show on every one. Demo wiring: `phone` is `DEMO_CALL_NUMBER` (falls back to `DEMO_EMERGENCY_NUMBER`) and `book_facility_id` is the first partner facility, so every booking from the home card lands on one Sahay Desk. Results are cached for an hour per ~1 km cell.
+`GET /places/nearby-hospitals?lat&lng` returns real hospitals from OpenStreetMap (Nominatim), nearest first, with distance, kind and speciality when OSM has them. Per-hospital scheme data does not exist, so PM-JAY and CMCHIS show on every one. Results are cached for an hour per ~1 km cell. Both the Home card and the Hospitals tab use this list (the seeded demo facilities only appear if the lookup finds nothing).
+
+**The line between real and demo (Hussain, 2026-10-15):** hospital name, address, distance and the GPS/nearest logic are real. Everything behind "Book" is demo: `book_facility_id` is the first partner facility (Sunrise Nursing Home), so doctors, slots and bookings from every hospital in the list land on that one Sahay Desk, `phone` is `DEMO_CALL_NUMBER` (falls back to `DEMO_EMERGENCY_NUMBER`), and the patient's own appointment list shows the hospital they chose (`appointment.hospital_label`). The helpline works the same way (`services/voice/README.md`).
 
 ## Sahay Desk: screen to endpoint
 
+Tabs depend on the login role (`apps/desk/README.md` has the table); the API enforces the same rules.
+
 | Screen | Backend | Notes |
 |---|---|---|
-| Sign in | `POST /auth/login` | Desk accounts only; admin is refused with a message |
-| Appointments | `GET /appointments?date`, `PATCH ... arrived`, `POST /appointments` (walk-in, source `desk`, then arrived) | Day arrows in the header. Token number is the position in the day's queue |
-| Doctors | derived from `GET /appointments` and `GET /facilities/{id}/slots` | Read-only: booked and open slots per doctor; the on-leave toggle was dropped (no backend) |
-| Call logs | `GET /calls` | Handoffs show as callbacks; emergencies as 108 redirects |
+| Sign in | `POST /auth/login` | Hospital logins only; the Hello Sahay admin is refused with a message |
+| Appointments | `GET /appointments?date`, `PATCH ... arrived / complete / no_show` | Day arrows in the header. Token number is the position in the day's queue. A doctor sees only their own patients and cannot mark arrivals |
+| Walk-in | `POST /appointments/walk-in` | Pick a doctor on duty; no slot to choose, so it works after hours. Source `desk`, marked arrived, no arrival fee |
+| Doctors | `GET /doctors?date`, `PATCH /doctors/{id}` | Every doctor with booked/open slots; the on-duty switch stops new bookings from the helpline and app |
+| Call logs | `GET /calls`, `PATCH /calls/{id}` | Handoffs show as callbacks and "Mark Called" is saved on the server; emergencies read "Told to call 108" |
+| Past visits / My past patients | `GET /appointments?history=true` | Everything before today, newest first (300 at most); doctors get only their own |
+| Users (hospital admin only) | `GET/POST/PATCH /users` | Add receptionist, nurse or doctor logins (a new doctor gets a doctor record and slots), reset a password, switch a login off |
 | Live badge | `WS /live/desk/{id}?token=` | Any pushed booking or call refetches; reconnects every 3 s |
 
-Kept on the device per facility: "Done" for a patient who has arrived, and "callback made" on handoff calls (the API has no such states yet). `arrived` is only sent when staff press Mark Arrived, because it triggers the Rs 40 fee.
+`arrived` is only sent when staff press Mark Arrived, because it triggers the Rs 40 fee (not for counter walk-ins).
 
 ## Known gaps (backend work, not done here)
 
 - `GET /patients/{phone}/appointments` and `PATCH` cancel/reschedule are open endpoints; anyone who knows a number can list that patient's bookings. The app gates its own lookup with the demo OTP but the API does not enforce it. Needs a patient token check (owner: API session).
-- No "completed" or "callback done" state, no doctor on-duty flag, no patient age.
+- No patient age. A switched-off Desk login keeps working until its token expires (12 h). `POST /calls` and `POST /appointments` take no token (the voice service has none), so anyone who knows the API can post a fake call or booking.
 - WhatsApp confirmation is still a log line (P1-8 needs keys), so the booking screen says "show this code at the counter" only.
 - Medicines, reminders and family profiles are local-only until P2-1 and the Care plan exist.

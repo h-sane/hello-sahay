@@ -1,9 +1,10 @@
 import { Hospital, UserCoordinates } from '../types';
 import { api, ApiFacility, ApiNearbyHospital } from './api';
 
-// Facilities come from GET /facilities and are cached here so the views can keep
+// Hospitals come from the nearby lookup (real, OpenStreetMap) with GET /facilities as the fallback, cached here so the views can keep
 // reading them synchronously. App calls load() on start and when the location changes.
 let hospitals: Hospital[] = [];
+let demoDepartments: string[] = ['General Medicine'];
 let lastError = '';
 
 const CATEGORY: Record<ApiFacility['type'], Hospital['category']> = {
@@ -51,21 +52,22 @@ const KIND_LABEL: Record<ApiNearbyHospital['kind'], string> = {
   hospital: 'Hospital',
 };
 
-// A real hospital from OpenStreetMap. Booking and calls are the demo wiring: the id is the one
-// partner facility so every booking lands on its Sahay Desk, and the phone is the demo number.
+// A real hospital from OpenStreetMap. Booking and calls are the demo wiring: every one books into the same
+// partner facility (so each shows up on its Sahay Desk) and calls go to the demo number.
 function fromNearby(n: ApiNearbyHospital): Hospital {
   const address = n.address || '';
   return {
-    id: String(n.book_facility_id ?? ''),
+    id: `osm:${n.lat.toFixed(4)},${n.lng.toFixed(4)}`,
+    bookFacilityId: n.book_facility_id ?? undefined,
     name: n.name,
     nativeNames: { en: n.name, hi: n.name, ta: n.name },
     category: n.kind === 'hospital' ? 'private' : n.kind,
     district: '',
     state: 'Tamil Nadu',
-    pinCode: address.match(/\d{6}/)?.[0] ?? '',
+    pinCode: address.match(/\d{6}/)?.[0] ?? '',
     address: { en: address, hi: address, ta: address },
     distanceKm: n.distance_km,
-    departments: [],
+    departments: [], // OpenStreetMap does not list them; booking uses the demo hospital's (bookingDepartments)
     emergency24x7: n.emergency,
     schemesSupported: [...(n.pmjay ? (['PM-JAY'] as const) : []), ...(n.cmchis ? (['CMCHIS'] as const) : [])],
     contactPhone: n.phone || '',
@@ -82,24 +84,52 @@ function fromNearby(n: ApiNearbyHospital): Hospital {
   };
 }
 
+// One lookup per ~100 m cell is shared by load() and nearestReal(); the server also caches for an hour.
+let nearbyKey = '';
+let nearbyLookup: Promise<ApiNearbyHospital[]> | null = null;
+function lookupNearby(coords: UserCoordinates): Promise<ApiNearbyHospital[]> {
+  const key = `${coords.latitude.toFixed(3)},${coords.longitude.toFixed(3)}`;
+  if (key !== nearbyKey || !nearbyLookup) {
+    nearbyKey = key;
+    nearbyLookup = api.nearbyHospitals(coords).catch(() => {
+      nearbyKey = ''; // a failed lookup is retried next time
+      return [] as ApiNearbyHospital[];
+    });
+  }
+  return nearbyLookup;
+}
+
 export const hospitalService = {
   // Nearest real hospital to the user, or null when the lookup fails.
   async nearestReal(coords: UserCoordinates): Promise<Hospital | null> {
-    try {
-      const list = await api.nearbyHospitals(coords);
-      return list.length ? fromNearby(list[0]) : null;
-    } catch {
-      return null;
+    const [first] = await lookupNearby(coords);
+    return first ? fromNearby(first) : null;
+  },
+
+  // The list every screen reads: real hospitals near the user (OpenStreetMap), nearest first. When that lookup
+  // finds nothing, the seeded demo facilities stand in so the screens are never empty.
+  async load(coords?: UserCoordinates): Promise<void> {
+    const [facilities, nearby] = await Promise.allSettled([
+      api.facilities(coords),
+      coords ? lookupNearby(coords) : Promise.resolve([] as ApiNearbyHospital[]),
+    ]);
+    const seeded = facilities.status === 'fulfilled' ? facilities.value : [];
+    demoDepartments = seeded.find((f) => f.is_partner)?.departments ?? demoDepartments;
+    const real = nearby.status === 'fulfilled' ? nearby.value : [];
+    if (real.length) {
+      hospitals = real.map(fromNearby);
+      lastError = '';
+    } else if (facilities.status === 'fulfilled') {
+      hospitals = seeded.map(toHospital);
+      lastError = '';
+    } else {
+      lastError = facilities.reason instanceof Error ? facilities.reason.message : 'Could not load hospitals.';
     }
   },
 
-  async load(coords?: UserCoordinates): Promise<void> {
-    try {
-      hospitals = (await api.facilities(coords)).map(toHospital);
-      lastError = '';
-    } catch (e) {
-      lastError = e instanceof Error ? e.message : 'Could not load hospitals.';
-    }
+  // Departments a booking can choose from: the demo hospital's, because its doctors take every booking.
+  bookingDepartments(): string[] {
+    return demoDepartments;
   },
 
   getError(): string {

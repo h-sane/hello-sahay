@@ -53,9 +53,10 @@ export interface ApiNearbyHospital {
 
 export interface ApiAppointment {
   id: number;
-  status: 'booked' | 'arrived' | 'no_show' | 'cancelled';
+  status: 'booked' | 'arrived' | 'completed' | 'no_show' | 'cancelled';
   source: 'helpline' | 'app' | 'desk';
   reason_text: string | null;
+  hospital_label: string | null; // the hospital the patient chose; the slot itself is at the demo hospital
   patient: { id: number; name: string | null; phone: string; language: string | null; village: string | null };
   slot: { id: number; start: string; end: string };
   doctor: { id: number; name: string; department: string };
@@ -113,14 +114,17 @@ export const api = {
     request<ApiFacility[]>(
       `/facilities?limit=100${coords ? `&lat=${coords.latitude}&lng=${coords.longitude}` : ''}`
     ),
-  nearbyHospitals: (coords: { latitude: number; longitude: number }) =>
-    request<ApiNearbyHospital[]>(`/places/nearby-hospitals?lat=${coords.latitude}&lng=${coords.longitude}`),
+  nearbyHospitals: (coords: { latitude: number; longitude: number }, limit = 10) =>
+    request<ApiNearbyHospital[]>(
+      `/places/nearby-hospitals?lat=${coords.latitude}&lng=${coords.longitude}&limit=${limit}`
+    ),
   slots: (facilityId: number, date: string) =>
     request<ApiSlot[]>(`/facilities/${facilityId}/slots?date=${date}`),
   book: (body: {
     patient: { name: string; phone: string; language?: string };
     slot_id: number;
     reason_text?: string;
+    hospital_name?: string;
   }) => request<ApiAppointment>('/appointments', { method: 'POST', body: { ...body, source: 'app' } }),
   cancel: (id: number) =>
     request<ApiAppointment>(`/appointments/${id}`, { method: 'PATCH', body: { action: 'cancel' } }),

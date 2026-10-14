@@ -91,6 +91,8 @@ class Appointment(Base):
     reason_text: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(12), default="booked")  # booked/arrived/completed/no_show/cancelled
     arrived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Demo wiring: the real hospital the patient chose or was told. The slot itself is at the demo hospital's Desk.
+    hospital_label: Mapped[str | None] = mapped_column(String(200))
 
 
 class Call(Base):

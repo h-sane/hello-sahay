@@ -14,7 +14,7 @@ redeploys on a new commit (and re-seeds slots daily), so **pushing to `main` is 
 ## Live deployment (2026-10-14)
 
 - Patient app: https://13-127-85-246.sslip.io
-- Sahay Desk: https://desk.13-127-85-246.sslip.io (demo login `desk7@sahay.demo` / `demo1234`)
+- Sahay Desk: https://desk.13-127-85-246.sslip.io (hospital admin `desk7@sahay.demo` / `demo1234`; receptionist `reception@sunrise.demo`, doctors `harini@sunrise.demo` and others, same password)
 - Exotel voicebot URL: `wss://13-127-85-246.sslip.io/exotel`
 - Lightsail instance `sahay`, static IP `sahay-ip`; delete both to stop the spend.
 

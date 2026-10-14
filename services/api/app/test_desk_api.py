@@ -276,3 +276,26 @@ def test_live_socket_needs_a_token_for_this_hospital(client):
             pass
     with client.websocket_connect(f"/api/v1/live/desk/{FACILITY}?token={token}"):
         pass
+
+
+def test_booking_keeps_the_hospital_the_patient_chose_but_sits_at_the_demo_desk(client, made):
+    day = (today_ist() + timedelta(days=1)).isoformat()
+    slot = client.get(f"/api/v1/facilities/{FACILITY}/slots", params={"date": day}).json()[-1]
+    r = client.post("/api/v1/appointments", json={
+        "patient": {"name": "Label Test", "phone": "9000077001"}, "slot_id": slot["slot_id"], "source": "app",
+        "hospital_name": "Some Real Hospital"})
+    assert r.status_code == 201, r.text
+    made["patients"].append(r.json()["patient"]["id"])
+    assert r.json()["hospital_label"] == "Some Real Hospital" and r.json()["facility"]["id"] == FACILITY
+    client.patch(f"/api/v1/appointments/{r.json()['id']}", json={"action": "cancel"})
+
+
+def test_real_nearby_hospitals_all_book_into_the_demo_hospital(client, monkeypatch):
+    from .routers import places
+    places._cache.clear()
+    monkeypatch.setattr(places, "_search", lambda lat, lng, span: [
+        {"type": "hospital", "name": "Real One", "lat": str(lat), "lon": str(lng), "display_name": "Real One, A, B, C", "extratags": {}},
+        {"type": "hospital", "name": "Real Two", "lat": str(lat + 0.01), "lon": str(lng), "display_name": "Real Two, A, B, C", "extratags": {}}])
+    rows = client.get("/api/v1/places/nearby-hospitals", params={"lat": 11.11, "lng": 77.77}).json()
+    places._cache.clear()
+    assert [r["name"] for r in rows] == ["Real One", "Real Two"] and {r["book_facility_id"] for r in rows} == {FACILITY}

@@ -15,6 +15,7 @@ import { Appointment, Hospital, Language } from '../types';
 import { t } from '../translations';
 import { api, ApiSlot } from '../services/api';
 import { appointmentService, toAppointment } from '../services/appointmentService';
+import { hospitalService } from '../services/hospitalService';
 import { storageService } from '../services/storageService';
 import { speechService } from '../services/speechService';
 
@@ -29,15 +30,16 @@ interface BookingModalProps {
 const DAYS_AHEAD = 7;
 const ANY_DOCTOR = 0;
 
+// Slots are on Indian time whatever the phone's own clock says.
+const TZ = 'Asia/Kolkata';
 const isoDay = (offset: number) => {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return d.toLocaleDateString('en-CA');
+  const d = new Date(Date.now() + offset * 86_400_000);
+  return d.toLocaleDateString('en-CA', { timeZone: TZ });
 };
 const dayLabel = (iso: string) =>
   new Date(`${iso}T12:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
 const timeLabel = (iso: string) =>
-  new Date(iso).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
+  new Date(iso).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: TZ });
 
 export const BookingModal: React.FC<BookingModalProps> = ({
   hospital,
@@ -50,7 +52,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const familyProfiles = storageService.getFamilyProfiles();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
-  const [selectedDept, setSelectedDept] = useState<string>(hospital.departments[0] || 'General Medicine');
+  const departments = hospital.departments.length ? hospital.departments : hospitalService.bookingDepartments();
+  const [selectedDept, setSelectedDept] = useState<string>(departments[0] || 'General Medicine');
   const [selectedDoctor, setSelectedDoctor] = useState<number>(ANY_DOCTOR);
   const [selectedDate, setSelectedDate] = useState<string>(isoDay(0));
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
@@ -65,6 +68,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [reminderAdded, setReminderAdded] = useState(false);
 
   const bookable = hospital.isPartner !== false;
+  // A real hospital from the nearby list books into the one demo hospital's Desk (demo wiring).
+  const bookFacilityId = hospital.bookFacilityId ?? Number(hospital.id);
 
   // Open slots for the next week, fetched together so the day chips can show counts.
   const loadSlots = async () => {
@@ -72,7 +77,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     setSlotsByDay(null);
     try {
       const days = Array.from({ length: DAYS_AHEAD }, (_, i) => isoDay(i));
-      const lists = await Promise.all(days.map((d) => api.slots(Number(hospital.id), d)));
+      const lists = await Promise.all(days.map((d) => api.slots(bookFacilityId, d)));
       const map = Object.fromEntries(days.map((d, i) => [d, lists[i]]));
       setSlotsByDay(map);
       const firstOpen = days.find((d) => map[d].length > 0);
@@ -128,6 +133,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
           language: ['ta', 'hi', 'en'].includes(currentLang) ? currentLang : undefined,
         },
         slot_id: selectedSlot,
+        hospital_name: hospital.isDemo ? undefined : hospital.name,
       });
       const appointment = toAppointment(res);
       appointmentService.remember(appointment);
@@ -265,7 +271,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                     <p className="text-xs text-slate-500">Choose the outpatient clinic you want to visit.</p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {hospital.departments.map((dept) => {
+                    {departments.map((dept) => {
                       const isSelected = selectedDept === dept;
                       return (
                         <button

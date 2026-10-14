@@ -14,6 +14,7 @@ from ..security import FRONT_DESK_ROLES, check_facility, optional_claims, requir
 from .live import push
 
 router = APIRouter()
+WALK_IN_WAIT_MIN = 20
 
 _JOINED = (select(Appointment, Patient, Slot, Doctor, Facility)
            .join(Patient, Patient.id == Appointment.patient_id)
@@ -26,7 +27,7 @@ def _out(row) -> dict:
     a, p, s, d, f = row
     return {
         "id": a.id, "status": a.status, "source": a.source, "reason_text": a.reason_text,
-        "arrived_at": a.arrived_at,
+        "arrived_at": a.arrived_at, "hospital_label": a.hospital_label,
         "patient": {"id": p.id, "name": p.name, "phone": p.phone,
                     "language": p.language, "village": p.village},
         "slot": {"id": s.id, "start": s.start, "end": s.end},
@@ -73,6 +74,7 @@ class BookIn(BaseModel):
     slot_id: int
     source: Literal["helpline", "app", "desk"]
     reason_text: str | None = Field(None, max_length=1000)
+    hospital_name: str | None = Field(None, max_length=200)  # the hospital the patient chose (demo wiring)
 
 
 class PatchIn(BaseModel):
@@ -99,7 +101,8 @@ def book(body: BookIn, session: Session = Depends(get_session)):
     patient.village = p.village or patient.village
     session.flush()
     appt = Appointment(patient_id=patient.id, slot_id=slot.id, source=body.source,
-                       reason_text=body.reason_text, status="booked")
+                       reason_text=body.reason_text, status="booked",
+                       hospital_label=(body.hospital_name or "").strip() or None)
     slot.status = "booked"
     session.add(appt)
     session.commit()
@@ -111,7 +114,8 @@ def book(body: BookIn, session: Session = Depends(get_session)):
 
 @router.post("/appointments/walk-in", status_code=201)
 def walk_in(body: WalkInIn, session: Session = Depends(get_session), claims: dict = Depends(require_front_desk)):
-    """A patient at the counter right now: takes the doctor's next free slot (or an extra one) and is marked arrived.
+    """A patient at the counter right now: takes the doctor's free slot starting within the next 20 minutes, or an
+    extra slot starting now, and is marked arrived.
 
     Unlike a patient booking this never fails because the day's slots are used up or already past.
     """
@@ -123,8 +127,9 @@ def walk_in(body: WalkInIn, session: Session = Depends(get_session), claims: dic
         raise HTTPException(409, f"{doctor.name} is off duty today")
     now = datetime.now(IST)
     _, day_end = day_range(now.date())
+    soon = now + timedelta(minutes=WALK_IN_WAIT_MIN)
     slot = session.scalar(select(Slot).where(Slot.doctor_id == doctor.id, Slot.status == "open",
-                                             Slot.end > now, Slot.start < day_end)
+                                             Slot.end > now, Slot.start <= soon, Slot.start < day_end)
                           .order_by(Slot.start).limit(1).with_for_update())
     if slot is None:  # nothing left on the grid: an extra slot starting now
         start = now.replace(second=0, microsecond=0)

@@ -47,8 +47,15 @@ Twilio: Console → Home → Make a voice call → Receive a call → Custom. Ex
 2. The caller's number comes from the carrier (Exotel `start.from`, Twilio `<Parameter name="from">`); the browser page has an
    optional number field. It is never asked for when known. `GET /patients/{phone}` tells the call whether the caller is
    registered in the Sahay app and where they are; a live location is confirmed once out loud, otherwise the village is asked.
-3. `find_facilities` returns one `recommended` bookable hospital (free government first, then nearest) plus the nearest
-   `free_government_option`. A named hospital goes through `hospital_name`.
-4. `get_slots` honours `doctor_name` and `preferred_time`: `exact`, `next_for_doctor`, `other_doctor` or `none`.
-5. `book_appointment` uses the call's number; the booking shows in the patient app (`/patients/{phone}/appointments`), in the
-   facility's Sahay Desk and in the doctor's own account (`doctor<id>@sahay.demo`, password `demo1234`).
+3. `find_facilities` names the **real** nearest hospital (OpenStreetMap via `GET /places/nearby-hospitals`, nearest first) as
+   `recommended`, plus the nearest government one as `free_government_option` when it is a different hospital. Every
+   hospital returned is bookable; a hospital the caller names through `hospital_name` is accepted as said even if it is not
+   on the list. If the lookup is down the demo hospital is named under its own name.
+4. `get_slots` honours `doctor_name` and `preferred_time`: `exact`, `next_for_doctor`, `any` or `none`. A doctor the
+   caller names who is not at the demo hospital is **never refused**: the doctor who is free in the closest slot is offered
+   and booked, and the confirmation names that doctor.
+5. `book_appointment` uses the call's number. **Demo wiring:** the doctors, slots and booking are always the one demo
+   hospital's (Sunrise Nursing Home, see `data/seed/README.md`); the caller is told the real hospital's name, which is saved
+   on the appointment as `hospital_label`. The booking shows in the patient app (`/patients/{phone}/appointments`), in the
+   demo hospital's Sahay Desk and in the assigned doctor's own login (for example `harini@sunrise.demo`, password
+   `demo1234`). Every call log lands on the same Desk, with "hospital: <name told>" in its summary.

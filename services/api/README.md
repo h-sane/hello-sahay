@@ -17,8 +17,14 @@ Reads `DATABASE_URL`, `JWT_SECRET`, `DEMO_OTP` and optional `CORS_ORIGINS` (comm
 
 | Email | Password | Role |
 |---|---|---|
-| `desk<facility_id>@sahay.demo` (one per partner facility, e.g. `desk7@sahay.demo`) | `demo1234` | desk, scoped to that facility |
-| `admin@sahay.demo` | `demo1234` | admin, all facilities |
+| `desk<facility_id>@sahay.demo` (one per partner facility, e.g. `desk7@sahay.demo`) | `demo1234` | `hospital_admin` of that hospital |
+| `reception@sunrise.demo`, `nurse@sunrise.demo` | `demo1234` | `receptionist` / `nurse`: everything in Sahay Desk except Users |
+| `harini@sunrise.demo`, `karthik@sunrise.demo`, … (one per seeded doctor, see `data/seed/users.csv`) | `demo1234` | `doctor`: only their own appointments and past patients |
+| `admin@sahay.demo` | `demo1234` | `admin`: the Hello Sahay team, all hospitals (admin console) |
+
+Roles: `admin` (Hello Sahay), then per hospital `hospital_admin`, `receptionist`, `nurse`, `doctor`. The Hello Sahay admin creates a
+hospital's admin login; that admin creates the other three from the Users tab (`POST /users`). A switched-off login (`active=false`)
+cannot sign in, but a token already issued keeps working until it expires (12 h).
 
 Patient OTP login: `POST /auth/otp/request {phone}` then `POST /auth/otp/verify {phone, code}` with `code = DEMO_OTP` (default `123456`). No SMS is sent.
 
@@ -28,17 +34,23 @@ Send the token as `Authorization: Bearer <token>`.
 
 | Endpoint | Rule |
 |---|---|
-| `GET /appointments?date` | Desk token; returns that facility's appointments (admin may pass `facility_id`) |
-| `PATCH /appointments/{id}` with `arrived` | Desk token for the appointment's facility (arrival triggers the per-patient fee) |
-| `GET /calls`, `GET /handoffs` | Desk token, own facility only; admin sees all |
-| `WS /live/desk/{facility_id}` | Optional `?token=`; if given it must match the facility |
+| `GET /appointments?date` (`history=true` for earlier days) | Any hospital login, own facility only; a doctor login sees only their own patients. Admin may pass `facility_id` |
+| `PATCH /appointments/{id}` with `arrived`, `no_show` | Front desk (hospital admin, receptionist, nurse) of that facility; arrival triggers the per-patient fee, except counter walk-ins |
+| `PATCH /appointments/{id}` with `complete` | Front desk, or the appointment's own doctor; only after `arrived` |
+| `POST /appointments/walk-in` | Front desk: takes the doctor's free slot within 20 minutes or an extra slot now, marked arrived, source `desk` |
+| `GET /doctors?date`, `PATCH /doctors/{id}` (`on_duty`) | Any hospital login (a doctor sees and switches only themselves); an off-duty doctor gets no new bookings |
+| `GET /users`, `POST /users`, `PATCH /users/{id}` | Hospital admin (own facility) or Hello Sahay admin (`facility_id`); only the Hello Sahay admin creates a `hospital_admin` |
+| `GET /calls`, `GET /handoffs`, `PATCH /calls/{id}` (`callback_done`) | Front desk, own facility only; doctors get 403; admin sees all |
+| `WS /live/desk/{facility_id}?token=` | Token required, for that facility; a doctor's socket only hears about their own appointments |
 | everything else | Open, because the voice service and the patient app call it without a desk login |
 
 ## Behaviour worth knowing
 
 - Phone numbers are normalised to `+91XXXXXXXXXX`; `9876543210`, `09876543210` and `+91 98765 43210` are the same patient.
 - Booking locks the slot row (`SELECT … FOR UPDATE`); a second booking of the same slot gets **409**.
-- `PATCH /appointments/{id}` actions: `reschedule` (needs `new_slot_id`), `cancel` (frees the slot), `arrived`. A cancelled or arrived appointment answers 409.
+- `PATCH /appointments/{id}` actions: `reschedule` (needs `new_slot_id`), `cancel` (frees the slot), `arrived`, `complete`, `no_show`. An appointment that is not `booked` (or, for `complete`, not `arrived`) answers 409.
+- Slots exist for the next 7 days for every partner doctor: created at start-up and every 6 hours (`app/slots.py`), never removed.
+- The demo hospital is the first partner facility (`app/demo.py`): `POST /calls` without a `facility_id` is filed under it, and `GET /places/nearby-hospitals` points every real hospital's `book_facility_id` at it.
 - Every booking, change and call is pushed as `{"type":"appointment","appointment":{…}}` or `{"type":"call","call":{…}}` to that facility's sockets. The hub is in-process, so run one uvicorn worker.
 - `app/notify.py:send_whatsapp` only logs until P1-8 fills it in.
 - `GET /facilities` lists government types (PHC, CHC, GH) before private, then nearest first when `lat`/`lng` are given.

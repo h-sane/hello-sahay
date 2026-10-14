@@ -13,7 +13,7 @@ npm run dev                     # http://localhost:3000/desk
 npm run build                   # production build check
 ```
 
-Needs the API on port 8001. Demo login: `desk7@sahay.demo` / `demo1234` (one `desk<facility_id>@sahay.demo` per partner hospital).
+Needs the API on port 8001. Demo login: `desk7@sahay.demo` / `demo1234` (the hospital admin of the demo hospital). This is the earlier Desk; the Vite Sahay Desk in `apps/desk` has the role-based tabs.
 
 ## Sahay Desk (`/desk`)
 

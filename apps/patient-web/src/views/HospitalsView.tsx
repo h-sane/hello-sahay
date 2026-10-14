@@ -419,12 +419,14 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
                   </div>
 
                   {/* Departments List */}
-                  <div className="text-xs text-slate-600 border-t border-slate-100 pt-3">
-                    <span className="font-bold text-slate-700 mr-1.5">
-                      {t('departmentsLabel', currentLang)}:
-                    </span>
-                    <span>{hospital.departments.slice(0, 5).join(' · ')}</span>
-                  </div>
+                  {hospital.departments.length > 0 && (
+                    <div className="text-xs text-slate-600 border-t border-slate-100 pt-3">
+                      <span className="font-bold text-slate-700 mr-1.5">
+                        {t('departmentsLabel', currentLang)}:
+                      </span>
+                      <span>{hospital.departments.slice(0, 5).join(' · ')}</span>
+                    </div>
+                  )}
 
                   {/* Diagnostics */}
                   {hospital.diagnosticServices.length > 0 && (
@@ -439,7 +441,11 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
                   {/* Verification timestamp */}
                   <div className="flex items-center gap-1.5 text-[11px] text-slate-400 pt-1">
                     <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Demo data for the Chengalpattu pilot. Confirm timings by phone.</span>
+                    <span>
+                      {hospital.isDemo
+                        ? 'Demo data for the Chengalpattu pilot. Confirm timings by phone.'
+                        : 'Name and location from OpenStreetMap. Confirm timings by phone.'}
+                    </span>
                   </div>
 
                   {/* Action Buttons */}

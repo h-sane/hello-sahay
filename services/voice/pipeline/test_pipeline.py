@@ -202,12 +202,19 @@ def test_preferred_doctor_and_time_free_is_an_exact_match():
     assert out["result"] == "exact" and [s["slot_id"] for s in out["slots"]] == [3]
 
 
-def test_busy_doctor_gets_their_next_slot_and_unknown_doctor_gets_others():
+def test_busy_doctor_gets_their_next_slot():
     slots = [_slot(1, "Dr Meena", 10), _slot(2, "Dr Ravi", 11), _slot(3, "Dr Ravi", 16)]
     nxt = _get_slots(slots, doctor_name="Ravi", preferred_time="14:00")
     assert nxt["result"] == "next_for_doctor" and nxt["slots"][0]["slot_id"] == 3
-    other = _get_slots(slots, doctor_name="Dr Kumar")
-    assert other["result"] == "other_doctor" and {s["doctor"] for s in other["slots"]} == {"Dr Meena", "Dr Ravi"}
+
+
+def test_a_doctor_who_is_not_here_is_never_refused_the_free_doctor_at_that_time_is_assigned():
+    slots = [_slot(1, "Dr Meena", 10), _slot(2, "Dr Ravi", 11), _slot(3, "Dr Ravi", 16)]
+    out = _get_slots(slots, doctor_name="Dr Kumar", preferred_time="11:00")
+    assert out["result"] == "exact" and out["slots"][0]["slot_id"] == 2 and out["slots"][0]["doctor"] == "Dr Ravi"
+    assert "note" not in out and "no open slot" not in json.dumps(out).lower()
+    anytime = _get_slots(slots, doctor_name="Dr Kumar")
+    assert anytime["result"] == "any" and {s["doctor"] for s in anytime["slots"]} <= {"Dr Meena", "Dr Ravi"}
 
 
 def test_booking_uses_the_number_the_call_came_from():
@@ -220,19 +227,59 @@ def test_booking_uses_the_number_the_call_came_from():
     assert out["appointment_id"] == 9 and state["phone"] == "09876543210"
 
 
-def test_recommends_the_nearest_bookable_hospital_and_mentions_the_free_government_one():
-    def fac(i, name, gov, partner, km):
-        return {"id": i, "name": name, "type": "PHC" if gov else "private", "address": "", "phone": "", "hours": "",
-                "departments": ["General Medicine"], "pmjay": False, "cmchis": False, "is_partner": partner,
-                "is_government": gov, "distance_km": km}
-    rows = [fac(1, "Paranur PHC", True, False, 2.0), fac(2, "Far Care Hospital", False, True, 9.0),
-            fac(3, "Near Care Hospital", False, True, 4.0)]
+def _places_api(hospitals, partner_rows=()):
+    def api(req):
+        if req.url.path.endswith("/places/nearby-hospitals"):
+            if hospitals is None:
+                return httpx.Response(503, json={"detail": "busy"})
+            return httpx.Response(200, json=hospitals)
+        if req.url.path.endswith("/facilities"):
+            return httpx.Response(200, json=list(partner_rows))
+        return httpx.Response(404)
+    return httpx.AsyncClient(base_url="http://api", transport=httpx.MockTransport(api))
+
+
+def _hospital(name, kind, km, book_id=7):
+    return {"name": name, "kind": kind, "distance_km": km, "address": f"{name} Road", "book_facility_id": book_id}
+
+
+def _find(api, state=None, **args):
+    state = {} if state is None else state
 
     async def go():
-        return await Tools(_slots_api([], rows), "en", {}).call("find_facilities", {"village": "Paranur", "reason": "fever"})
-    out = asyncio.run(go())
-    assert out["recommended"]["name"] == "Near Care Hospital" and out["recommended"]["can_book"]
-    assert out["free_government_option"]["name"] == "Paranur PHC"
+        return await Tools(api, "en", state).call("find_facilities", {"village": "Paranur", "reason": "fever", **args})
+    return asyncio.run(go()), state
+
+
+def test_names_the_real_nearest_hospital_and_books_into_the_demo_one():
+    api = _places_api([_hospital("Rao Nursing Home", "private", 1.2), _hospital("Government Hospital Chengalpattu", "government", 3.4)])
+    out, state = _find(api)
+    assert out["recommended"]["name"] == "Rao Nursing Home" and out["recommended"]["id"] == 7 and out["recommended"]["can_book"]
+    assert out["free_government_option"]["name"] == "Government Hospital Chengalpattu" and out["free_government_option"]["can_book"]
+    assert state["facility_id"] == 7 and state["hospital"] == "Rao Nursing Home"
+
+
+def test_a_hospital_the_caller_names_is_accepted_even_when_it_is_not_nearby():
+    api = _places_api([_hospital("Rao Nursing Home", "private", 1.2)])
+    out, state = _find(api, hospital_name="Apollo Speciality Hospital")
+    assert out["recommended"]["name"] == "Apollo Speciality Hospital" and out["recommended"]["id"] == 7
+    assert "error" not in out and state["facility_id"] == 7 and state["hospital"] == "Apollo Speciality Hospital"
+
+
+def test_when_the_hospital_lookup_is_down_the_demo_hospital_is_named_instead():
+    demo = {"id": 7, "name": "Sunrise Nursing Home", "address": "Railway Feeder Road", "is_partner": True}
+    out, state = _find(_places_api(None, [demo]))
+    assert out["recommended"]["name"] == "Sunrise Nursing Home" and state["facility_id"] == 7
+
+
+def test_the_booking_confirmation_names_the_hospital_the_caller_was_told():
+    async def go():
+        state = {"hospital": "Rao Nursing Home", "hospital_address": "Rao Road"}
+        out = await Tools(_slots_api([_slot(1, "Dr A", 10)]), "en", state).call(
+            "book_appointment", {"slot_id": 1, "name": "Ravi", "phone": "9876543210", "village": "P", "reason_text": "fever"})
+        return out, state
+    out, state = asyncio.run(go())
+    assert out["facility"] == "Rao Nursing Home" and out["address"] == "Rao Road" and state["facility_id"] == 7
 
 
 def test_dictated_digit_words_become_digits_but_ordinary_speech_is_left_alone():

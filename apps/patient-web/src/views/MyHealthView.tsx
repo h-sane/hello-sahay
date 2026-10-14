@@ -298,7 +298,7 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({
                               : 'bg-emerald-100 text-emerald-800'
                           }`}
                         >
-                          {isCancelled ? 'Cancelled' : apt.status === 'arrived' ? 'Visited' : apt.status === 'no_show' ? 'Missed' : 'Booked'}
+                          {isCancelled ? 'Cancelled' : apt.status === 'arrived' || apt.status === 'completed' ? 'Visited' : apt.status === 'no_show' ? 'Missed' : 'Booked'}
                         </span>
                       </div>
                       <h3 className="text-lg sm:text-xl font-black text-slate-900 mt-1 leading-snug">

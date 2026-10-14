@@ -31,6 +31,7 @@ export interface Hospital {
   latitude: number;
   longitude: number;
   isPartner?: boolean;
+  bookFacilityId?: number; // the Sahay Desk facility a booking goes to (real nearby hospitals all use the demo one)
   speciality?: string;
   kindLabel?: string;
 }
@@ -61,7 +62,7 @@ export interface Appointment {
   timeSlot: string;
   patientName: string;
   patientPhone: string;
-  status: 'booked' | 'arrived' | 'cancelled' | 'no_show';
+  status: 'booked' | 'arrived' | 'completed' | 'cancelled' | 'no_show';
   referenceCode: string;
 }
 
