@@ -25,7 +25,7 @@ flowchart LR
   V --> GATE[Safety gate<br/>emergency + symptom check]
   GATE --> LLM[AWS Bedrock LLM<br/>with tools]
   LLM -->|tool calls| API[Backend API - FastAPI<br/>services/api]
-  V --> TTS[Polly hi/en<br/>Sarvam or Google ta]
+  V --> TTS[Polly hi/en<br/>Sarvam bulbul:v3 ta]
 
   API --> DB[(PostgreSQL + pgvector)]
   API --> WA[WhatsApp Cloud API]

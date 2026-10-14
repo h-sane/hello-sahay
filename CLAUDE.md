@@ -104,8 +104,9 @@ INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
 ## Stack
 
 FastAPI + PostgreSQL/pgvector · Next.js · Expo · AWS Bedrock (LLM) · Amazon
-Transcribe (speech-to-text) · Amazon Polly (Hindi/English speech) · Sarvam or
-Google TTS (Tamil) · WhatsApp Cloud API · AWS Mumbai region. Secrets live in
+Transcribe (Hindi/English speech-to-text) · Amazon Polly (Hindi/English speech) ·
+Sarvam (Tamil speech-to-text `saarika:v2.5` and text-to-speech `bulbul:v3`;
+verified 2026-10-14, ₹100 free credit) · WhatsApp Cloud API · AWS Mumbai region. Secrets live in
 `.env` files that are never committed; one shared `.env.example` at the
 root lists every variable.
 
