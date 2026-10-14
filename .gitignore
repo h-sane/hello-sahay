@@ -1,5 +1,6 @@
 # Claude internal continuity notes
 .claude/handoffs/
+.claude/coordination/
 .claude/settings.local.json
 
 # Secrets

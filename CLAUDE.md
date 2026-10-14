@@ -108,6 +108,36 @@ Hussain does not manage git here; Claude does, every session, without being aske
 4. If branches diverge unexpectedly (a teammate pushed), stop and surface it.
 5. This overrides the global "commit/push only when asked" default for this repo.
 
+## Multi-agent setup (several Claude sessions run at once)
+
+Hussain runs several Claude Code sessions in parallel on this same folder, and
+teammates push from their own machines. Sessions must coordinate so they never
+overwrite each other.
+
+1. **Board first.** At the start of every session, read
+   `.claude/coordination/BOARD.md` (local, gitignored) and run `ListAgents` to
+   see the other live sessions. Ask them with `SendMessage` if anything is
+   unclear.
+2. **Claim before editing.** Add a row to the board: your session name, the
+   task card (from `docs/IMPLEMENTATION_PHASES.md`), the folders/files you own,
+   and the start time. Never start on a card or folder another row has claimed.
+3. **Stay in your scope.** Edit only the files you claimed. Shared files
+   (`CLAUDE.md`, `docs/ARCHITECTURE.md` API contract, `docker-compose.yml`, root
+   `.gitignore`, `.env.example` files) need a message to the other sessions
+   first, and the edit stays small and focused.
+4. **Shared working tree, careful git.** All local sessions share one checkout.
+   Stage only your own paths (`git add <paths>`, never `git add -A` or
+   `git commit -a`). Never `stash`, `reset`, `checkout --` or `clean` files you
+   didn't write. Before pushing, run `git pull --rebase`; on a conflict in
+   someone else's file, stop and message them.
+5. **Announce changes others depend on.** Changing an API shape, env var, port
+   or table: update the doc and `SendMessage` the sessions that use it.
+6. **Release when done.** Mark your board row done with the commit hash, and
+   write your handoff. Session numbers for handoffs are claimed on the board
+   too, so two sessions never write the same `session_NN`.
+7. Teammates on other machines coordinate through GitHub issues
+   (one issue per task card, assigned to whoever is on it).
+
 ## Session handoffs (mandatory, every session)
 
 **Every session ends with a handoff.** This is not a judgment call for this
