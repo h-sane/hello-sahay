@@ -11,6 +11,13 @@ from phone_bridge import app
 client = TestClient(app)
 
 
+class Trace:
+    events: list = []
+
+    def add(self, *args, **data):
+        self.events.append((args, data))
+
+
 class FakeSession:
     """Records the audio it is fed and replies with one second of a known PCM tone."""
     made: list = []
@@ -18,6 +25,7 @@ class FakeSession:
     def __init__(self, lang, send_audio, send_event, in_rate=16000, out_rate=16000):
         self.lang, self.in_rate, self.out_rate, self.send_audio = lang, in_rate, out_rate, send_audio
         self.fed, self.closed, self.state = [], False, {}
+        self.trace = Trace()
         self._done = None
         FakeSession.made.append(self)
 

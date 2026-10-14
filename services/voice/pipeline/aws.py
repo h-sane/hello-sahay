@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 import boto3
+from botocore.config import Config
 
 from . import config
 
@@ -14,4 +15,6 @@ def session() -> boto3.Session:
 
 @lru_cache
 def client(name: str):
-    return session().client(name)
+    # a stuck request must fail in seconds and be retried, not hold a caller in silence for a minute
+    return session().client(name, config=Config(connect_timeout=5, read_timeout=15,
+                                                retries={"max_attempts": 2, "mode": "standard"}))

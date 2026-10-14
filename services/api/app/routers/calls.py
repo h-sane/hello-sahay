@@ -27,6 +27,7 @@ class CallIn(BaseModel):
     handoff: bool = False
     started_at: datetime | None = None
     duration_s: int | None = Field(None, ge=0)
+    trace: list | None = None
 
     @field_validator("patient_phone")
     @classmethod
@@ -57,7 +58,7 @@ def create_call(body: CallIn, session: Session = Depends(get_session)):
         facility_id = demo.id if demo else None
     call = Call(patient_id=patient_id, facility_id=facility_id, language=body.language,
                 transcript=body.transcript, summary=body.summary, outcome=body.outcome,
-                emergency=body.emergency, handoff=body.handoff, duration_s=body.duration_s)
+                emergency=body.emergency, handoff=body.handoff, duration_s=body.duration_s, trace=body.trace)
     if body.started_at:
         call.started_at = body.started_at
     session.add(call)
@@ -90,6 +91,18 @@ def list_calls(facility_id: int | None = None, limit: int = Query(50, ge=1, le=2
 def list_handoffs(facility_id: int | None = None, limit: int = Query(50, ge=1, le=200),
                   session: Session = Depends(get_session), claims: dict = Depends(require_front_desk)):
     return _list(session, claims, facility_id, True, limit)
+
+
+@router.get("/calls/{call_id}/trace")
+def call_trace(call_id: int, session: Session = Depends(get_session), claims: dict = Depends(require_front_desk)):
+    """Everything the voice service logged for one call: the evidence behind the transcript."""
+    call = session.get(Call, call_id)
+    if call is None:
+        raise HTTPException(404, "call not found")
+    if claims["role"] != "admin":
+        check_facility(claims, call.facility_id)
+    phone = session.scalar(select(Patient.phone).where(Patient.id == call.patient_id)) if call.patient_id else None
+    return {**_out(call, phone), "trace": call.trace or []}
 
 
 class CallbackIn(BaseModel):

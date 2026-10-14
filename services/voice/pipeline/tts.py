@@ -2,11 +2,18 @@
 import asyncio
 
 from . import aws
+from .hedge import hedged
+
+HEDGE_S = 1.2  # Polly answers in 0.2 s; a request still open after this is stuck on a dead connection
 
 POLLY = {"en": ("Kajal", "en-IN"), "hi": ("Kajal", "hi-IN")}
 
 
 async def synthesize(text: str, lang: str, rate: int) -> bytes:
+    return await hedged(lambda: _synthesize(text, lang, rate), HEDGE_S, "polly")
+
+
+async def _synthesize(text: str, lang: str, rate: int) -> bytes:
     voice, code = POLLY[lang]
 
     def call() -> bytes:
