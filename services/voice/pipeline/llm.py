@@ -2,6 +2,8 @@
 import asyncio
 import re
 
+from botocore.exceptions import ClientError
+
 from . import aws, config
 from .tools import TOOL_SPECS, Tools
 
@@ -20,7 +22,11 @@ def _converse(system: str, messages: list) -> dict:
 async def run_agent(system: str, messages: list, tools: Tools) -> str:
     """Appends the assistant and tool turns to `messages` and returns the text to speak."""
     for _ in range(MAX_ROUNDS):
-        msg = (await asyncio.to_thread(_converse, system, messages))["output"]["message"]
+        try:
+            out = await asyncio.to_thread(_converse, system, messages)
+        except ClientError:  # Nova now and then emits a malformed tool call; a second attempt almost always works
+            out = await asyncio.to_thread(_converse, system, messages)
+        msg = out["output"]["message"]
         messages.append(msg)
         uses = [b["toolUse"] for b in msg["content"] if "toolUse" in b]
         if not uses:

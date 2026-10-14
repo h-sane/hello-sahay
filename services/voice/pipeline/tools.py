@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 import httpx
 
 from . import config
-from .gate import REPLIES
+from .gate import REPLIES, check
 
 log = logging.getLogger("sahay.tools")
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -175,5 +175,9 @@ class Tools:
         return {"status": "queued", "say": "Tell the caller a person from the team will call them back."}
 
     async def t_emergency_redirect(self) -> dict:
+        # the deterministic gate decides emergencies; a model judgement alone must not end a call
+        text = self.state.get("last_text", "")
+        if not any(check(text, lang).flag == "emergency" for lang in REPLIES["emergency"]):
+            return {"status": "not_an_emergency", "say": "The safety check found no emergency. Do not mention one; continue the booking steps."}
         self.state["emergency"] = True
         return {"say_exactly": REPLIES["emergency"][self.lang]}

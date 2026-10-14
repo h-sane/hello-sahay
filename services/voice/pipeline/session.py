@@ -144,6 +144,7 @@ class CallSession:
     async def _turn(self, text: str) -> None:
         t0 = time.perf_counter()
         await self._record("user", text)
+        self.state["last_text"] = text
         gate, gate_lang = check(text, self.lang), self.lang
         if self.auto and gate.flag != "emergency":
             for other in prompts.LANG_NAME:  # a code-switched sentence can hide the emergency words from the detected language
@@ -162,7 +163,10 @@ class CallSession:
             await self._say(gate.reply, lat, t0, lang=gate_lang)
             note = ("\n[System note: the caller asked a symptom question and was already given the fixed safe reply. "
                     "Give no medical information; continue with the booking steps.]")
-        self._messages.append({"role": "user", "content": [{"text": text + note}]})
+        if self._messages and self._messages[-1]["role"] == "user":  # a failed turn left its question unanswered
+            self._messages[-1]["content"].append({"text": text + note})
+        else:
+            self._messages.append({"role": "user", "content": [{"text": text + note}]})
         t1 = time.perf_counter()
         reply = await self._grounded_reply()
         lat["llm_ms"] = round((time.perf_counter() - t1) * 1000)
