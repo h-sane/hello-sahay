@@ -119,6 +119,11 @@ All under `/api/v1`. JSON in and out. Implementers: keep these names so the voic
 | `POST /payments/checkout`, `POST /payments/webhook` | Razorpay test mode |
 | `GET /admin/analytics`, `GET/POST /admin/hospitals` | Admin console |
 | `WS /live/desk/{facility_id}` | Live push of new bookings and calls to the Desk |
+| `POST /auth/login` | Desk/admin `{email, password}` → `{token, role, facility_id}` (demo users seeded) |
+| `POST /auth/otp/request`, `POST /auth/otp/verify` | Patient `{phone}` then `{phone, code}` (code = `DEMO_OTP`) → `{token, patient}` |
+| `GET /appointments?date` | Desk list for the token's facility (`facility_id` from the JWT) |
+
+Local ports: API **8001** (`uvicorn app.main:app --app-dir services/api --port 8001`), voice **8002**, phone bridge **8000**, web **3000**. DB driver is psycopg2 (`postgresql+psycopg2://…`) because psycopg 3 is not installed and PyPI is slow here.
 
 **Voice tool names** (Bedrock tool definitions) map 1:1 onto these: `find_facilities`, `get_slots`, `book_appointment`, `reschedule_appointment`, `cancel_appointment`, `check_scheme_coverage`, `search_advisories`, `send_whatsapp`, `handoff_to_human`, `emergency_redirect`.
 

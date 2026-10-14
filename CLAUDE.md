@@ -159,6 +159,12 @@ overwrite each other.
 project: the team works in many short sessions across a 24-hour event, and
 context must never be lost.
 
+- **Every response, not just the session end:** each session ends every turn by
+  updating its own handoff (append a `### HH:MM update` section) or creating it,
+  so other agents always see what each session is doing right now.
+- Talk to other sessions with `SendMessage` (names from `ListAgents`), never by
+  editing their files. The orchestrator session (Opus) assigns cards and edits
+  the plan; implementers report back to it when a card is done.
 - Location: `.claude/handoffs/` (gitignored).
 - Naming: `YYYY-MM-DD_session_<NN>.md`, numbered continuously across the whole
   project (`session_01`, `session_02`, …).

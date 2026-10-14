@@ -49,8 +49,8 @@ Surprise challenges take priority over Phase 2 when they land. The backend owner
 ### Voice helpline
 | Card | What | Done when |
 |---|---|---|
-| P1-5 | **Voice round-trip in English** (`services/voice`): browser mic → WebSocket → Transcribe streaming → safety gate → Bedrock (tools from `ARCHITECTURE.md` §5) → Polly → audio back. Flow from `ARCHITECTURE.md` §2.1: collect name, phone, location, reason → find facilities → book (partner) or give directions (non-partner) | A spoken English call books a slot end to end; turn latency noted |
-| P1-6 | **Hindi and Tamil**: language choice at start; Transcribe hi-IN / ta-IN; Polly for Hindi; Sarvam or Google TTS for Tamil | Same booking call works in all three languages |
+| P1-5 | **Voice round-trip in English** (`services/voice/pipeline/`): browser mic → WebSocket → Transcribe streaming → safety gate (imported from `services/api/app/safety`) → Bedrock **Nova Pro** Converse API with tools (tools call the API over HTTP, `API_BASE_URL`) → Polly → audio back. The pipeline is one transport-agnostic call session (PCM16 in, PCM16 out) so the browser `/call` page and the phone bridge (`services/voice/telephony/`) both feed it. Flow from `ARCHITECTURE.md` §2.1: collect name, phone, location, reason → find facilities → book (partner) or give directions (non-partner) | A spoken English call books a slot end to end; turn latency noted |
+| P1-6 | **Hindi and Tamil**: language choice at start; Hindi: Transcribe hi-IN + Polly; **Tamil: Sarvam** `saarika:v2.5` STT (not streaming: buffer an utterance on silence, then send) + `bulbul:v3` TTS (Transcribe has no Tamil streaming) | Same booking call works in all three languages |
 | P1-7 | **Call logging + human handoff**: save transcript, summary, outcome; `handoff_to_human` puts the call in the queue; emergency path logs and redirects to 108 | Emergency phrase → 108 message + queue entry |
 | P1-8 | **WhatsApp confirmation** on booking (and directions for non-partner hospitals) | Message arrives on a verified demo phone |
 
