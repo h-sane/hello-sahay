@@ -7,4 +7,4 @@ Data comes from `GET /api/v1/admin/*` (`services/api/app/routers/admin.py`), adm
 Subscription (₹2,999) and arrival-fee (₹40) lines are derived from the partner flag and arrived appointments.
 
 Run locally: serve this folder with any static server that proxies `/api` to the API on :8001.
-Live: `https://admin.<ip-dashed>.sslip.io` (see `deploy/README.md`). Demo login `admin@sahay.demo` / `demo1234`.
+Live: `https://hellosahay.<ip-dashed>.sslip.io`, also `https://admin.<ip-dashed>.sslip.io` (see `deploy/README.md`). Demo login `admin@sahay.demo` / `demo1234`.

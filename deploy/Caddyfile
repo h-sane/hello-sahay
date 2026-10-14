@@ -1,5 +1,6 @@
-# APP_HOST / DESK_HOST / ADMIN_HOST are <ip>.sslip.io style names; Caddy gets real HTTPS certificates for them.
-{$APP_HOST} {
+# *_HOST are <ip>.sslip.io style names and *_NAME the readable ones (sahay., sahaydesk., hellosahay. in front of the same
+# <ip>.sslip.io); Caddy gets real HTTPS certificates for all of them. The old names keep working.
+{$APP_HOST}, {$APP_NAME:sahay.invalid} {
 	encode gzip
 	handle /api/* {
 		reverse_proxy api:8001
@@ -18,7 +19,7 @@
 	}
 }
 
-{$DESK_HOST} {
+{$DESK_HOST}, {$DESK_NAME:sahaydesk.invalid} {
 	encode gzip
 	handle /api/* {
 		reverse_proxy api:8001
@@ -30,7 +31,7 @@
 	}
 }
 
-{$ADMIN_HOST:admin.invalid} {
+{$ADMIN_HOST:admin.invalid}, {$ADMIN_NAME:hellosahay.invalid} {
 	encode gzip
 	handle /api/* {
 		reverse_proxy api:8001

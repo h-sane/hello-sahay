@@ -23,12 +23,18 @@ DASHED=${IP//./-}
 APP_HOST="$DASHED.sslip.io"
 DESK_HOST="desk.$DASHED.sslip.io"
 ADMIN_HOST="admin.$DASHED.sslip.io"
-sed -i -e '/^APP_HOST=/d' -e '/^DESK_HOST=/d' -e '/^ADMIN_HOST=/d' -e '/^CORS_ORIGINS=/d' /opt/sahay/stack.env
+APP_NAME="sahay.$DASHED.sslip.io"
+DESK_NAME="sahaydesk.$DASHED.sslip.io"
+ADMIN_NAME="hellosahay.$DASHED.sslip.io"
+sed -i -e '/^APP_HOST=/d' -e '/^DESK_HOST=/d' -e '/^ADMIN_HOST=/d' -e '/^APP_NAME=/d' -e '/^DESK_NAME=/d'   -e '/^ADMIN_NAME=/d' -e '/^CORS_ORIGINS=/d' /opt/sahay/stack.env
 cat >> /opt/sahay/stack.env <<ENV
 APP_HOST=$APP_HOST
 DESK_HOST=$DESK_HOST
 ADMIN_HOST=$ADMIN_HOST
-CORS_ORIGINS=https://$APP_HOST,https://$DESK_HOST,https://$ADMIN_HOST,https://localhost,http://localhost,capacitor://localhost
+APP_NAME=$APP_NAME
+DESK_NAME=$DESK_NAME
+ADMIN_NAME=$ADMIN_NAME
+CORS_ORIGINS=https://$APP_HOST,https://$DESK_HOST,https://$ADMIN_HOST,https://$APP_NAME,https://$DESK_NAME,https://$ADMIN_NAME,https://localhost,http://localhost,capacitor://localhost
 ENV
 
 build_web() { # name dir

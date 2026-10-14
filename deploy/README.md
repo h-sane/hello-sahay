@@ -11,9 +11,14 @@ redeploys on a new commit (and re-seeds slots daily), so **pushing to `main` is 
 | `https://desk.<ip-dashed>.sslip.io` | Sahay Desk (`apps/desk`), also `/api` |
 | `https://admin.<ip-dashed>.sslip.io` | Hello Sahay admin console (`apps/admin`, plain static page), also `/api` |
 
+Readable names for the same three sites (the names above keep working): `sahay.<ip-dashed>.sslip.io` is the patient
+app, `sahaydesk.<ip-dashed>.sslip.io` is Sahay Desk and `hellosahay.<ip-dashed>.sslip.io` is the admin console.
+`update.sh` writes them into `/opt/sahay/stack.env`; a real domain would replace `*_NAME` there.
+
 ## Live deployment (2026-10-14)
 
 - Patient app: https://13-127-85-246.sslip.io
+- Readable names: https://sahay.13-127-85-246.sslip.io, https://sahaydesk.13-127-85-246.sslip.io, https://hellosahay.13-127-85-246.sslip.io (admin console)
 - Sahay Desk: https://desk.13-127-85-246.sslip.io (hospital admin `desk7@sahay.demo` / `demo1234`; receptionist `reception@sunrise.demo`, doctors `harini@sunrise.demo` and others, same password)
 - Exotel voicebot URL: `wss://13-127-85-246.sslip.io/exotel`
 - Lightsail instance `sahay`, static IP `sahay-ip`; delete both to stop the spend.
