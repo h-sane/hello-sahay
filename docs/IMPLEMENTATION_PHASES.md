@@ -4,6 +4,8 @@ How we build Hello Sahay in the 24 hours. Each task card is written so an implem
 
 Read first: [`ARCHITECTURE.md`](ARCHITECTURE.md) (API contract §5, data model §4, rules §3) and [`PATIENT_APP_SPEC.md`](PATIENT_APP_SPEC.md).
 
+Which features each app gets, with tier and card number: [`PRODUCT_FEATURES.md`](PRODUCT_FEATURES.md). Business decisions: [`BUSINESS.md`](BUSINESS.md).
+
 ## Rules for every task
 1. Work on the `development` branch; commit after each finished card with a clear message (`feat(api): booking endpoints`). Push. Judges read the history.
 2. Keep the API names and JSON shapes from `ARCHITECTURE.md` §5. If you must change one, update that doc in the same commit.

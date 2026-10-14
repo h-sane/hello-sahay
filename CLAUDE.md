@@ -31,6 +31,8 @@ application code yet. Update this section as the code lands.
 | [`docs/PATIENT_APP_SPEC.md`](docs/PATIENT_APP_SPEC.md) | Every patient-app feature, free vs Care plan, design rules |
 | [`docs/IMPLEMENTATION_PHASES.md`](docs/IMPLEMENTATION_PHASES.md) | Phase 0/1/2 task cards with "done when", checkpoints, demo script |
 | [`docs/FRONTEND_DELIVERABLES.md`](docs/FRONTEND_DELIVERABLES.md) | Screens to design for the patient app, Sahay Desk and admin |
+| [`docs/PRODUCT_FEATURES.md`](docs/PRODUCT_FEATURES.md) | Every feature per app (helpline, patient app, Desk, admin, `/call`) with tier and task card |
+| [`docs/BUSINESS.md`](docs/BUSINESS.md) | Business decisions: who pays, pricing, go-to-market, competitors, jury answers, open questions |
 
 ## Team and tools
 
