@@ -1,0 +1,57 @@
+# Production stack on the Lightsail box. The repo checkout is mounted at /app, so a
+# deploy is `git pull` + restart; the image only holds Python dependencies.
+# All settings (secrets, hostnames) come from /opt/sahay/stack.env, written by bootstrap.sh.
+x-backend: &backend
+  build: .
+  restart: unless-stopped
+  env_file: /opt/sahay/stack.env
+  environment:
+    DATABASE_URL: postgresql+psycopg2://sahay:sahay@db:5432/sahay
+    API_BASE_URL: http://api:8001/api/v1
+    AWS_PROFILE: personal-bedrock
+    AWS_REGION: ap-south-1
+  volumes:
+    - ..:/app:ro
+    - /opt/sahay/aws:/root/.aws:ro
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment: {POSTGRES_USER: sahay, POSTGRES_PASSWORD: sahay, POSTGRES_DB: sahay}
+    volumes:
+      - sahay_db:/var/lib/postgresql/data
+      - ../scripts/db-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sahay -d sahay"]
+      interval: 5s
+      retries: 20
+
+  api:
+    <<: *backend
+    command: uvicorn app.main:app --app-dir services/api --host 0.0.0.0 --port 8001
+
+  voice:
+    <<: *backend
+    command: python -m uvicorn pipeline.server:app --app-dir services/voice --host 0.0.0.0 --port 8002
+
+  bridge:
+    <<: *backend
+    command: python -m uvicorn telephony.phone_bridge:app --app-dir services/voice --host 0.0.0.0 --port 8000
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    env_file: /opt/sahay/stack.env
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /opt/sahay/web:/srv:ro
+      - caddy_data:/data
+
+volumes:
+  sahay_db:
+  caddy_data:
