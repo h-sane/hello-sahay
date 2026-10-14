@@ -6,7 +6,9 @@ from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import SessionLocal, init_db
-from .routers import admin, auth, booking, calls, chat, doctors, facilities, live, patients, places, users
+from . import models_patient_app  # noqa: F401  (registers its tables before init_db)
+from .routers import (admin, auth, booking, calls, care, chat, config, doctors, facilities, live, medicines, patients,
+                      places, reminders, users)
 from .slots import keep_slots_fresh
 
 
@@ -31,7 +33,8 @@ app.add_middleware(
 )
 
 api = APIRouter(prefix="/api/v1")
-for module in (facilities, booking, auth, live, calls, chat, patients, places, admin, users, doctors):
+for module in (facilities, booking, auth, live, calls, chat, patients, places, admin, users, doctors,
+               medicines, care, reminders, config):
     api.include_router(module.router)
 
 

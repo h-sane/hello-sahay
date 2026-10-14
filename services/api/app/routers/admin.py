@@ -63,6 +63,8 @@ def overview(session: Session = Depends(get_session)):
     billable = sum(v.get("billable", 0) for v in _arrivals_by_facility(session).values())
     partners = session.scalar(select(func.count()).select_from(Facility).where(Facility.is_partner)) or 0
     call_total = session.scalar(select(func.count()).select_from(Call)) or 0
+    care_rs = float(session.scalar(select(func.coalesce(func.sum(Payment.amount), 0)).where(
+        Payment.kind == "premium", Payment.status == "paid")) or 0)
     return {
         "calls_total": call_total,
         "calls_today": session.scalar(select(func.count()).select_from(Call).where(Call.started_at >= midnight)),
@@ -76,7 +78,8 @@ def overview(session: Session = Depends(get_session)):
         "arrivals": arrived,
         "no_show_rate": round(no_show / (arrived + no_show), 3) if arrived + no_show else None,
         "partner_hospitals": partners,
-        "revenue_rs": partners * SUBSCRIPTION_RS + billable * ARRIVAL_FEE_RS,
+        "care_plan_revenue_rs": care_rs,
+        "revenue_rs": partners * SUBSCRIPTION_RS + billable * ARRIVAL_FEE_RS + care_rs,
     }
 
 
@@ -111,7 +114,11 @@ def payments(session: Session = Depends(get_session)):
         lines.append({"payer": f.name, "kind": "subscription", "detail": f.plan or "monthly plan",
                       "amount_rs": SUBSCRIPTION_RS, "status": "due"})
     for p in session.scalars(select(Payment).order_by(Payment.id.desc())):
-        payer = names.get(p.payer_id) if p.payer_type == "hospital" else f"Patient {p.payer_id}"
+        if p.payer_type == "hospital":
+            payer = names.get(p.payer_id)
+        else:
+            who = session.get(Patient, p.payer_id)
+            payer = f"{who.name or 'Patient'} ({who.phone})" if who else f"Patient {p.payer_id}"
         lines.append({"payer": payer, "kind": p.kind, "detail": p.razorpay_ref or "",
                       "amount_rs": float(p.amount), "status": p.status})
     return lines

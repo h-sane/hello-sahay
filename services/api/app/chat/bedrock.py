@@ -39,3 +39,18 @@ def generate(system: str, user: str, max_tokens: int = 500) -> str:
         inferenceConfig={"temperature": 0, "maxTokens": max_tokens},
     )
     return out["output"]["message"]["content"][0]["text"].strip()
+
+
+def read_image(system: str, user: str, image: bytes, fmt: str, max_tokens: int = 700) -> str:
+    """One multimodal call (Nova): the model reads text off a photo. `fmt` is jpeg, png or webp."""
+    model = os.environ.get("BEDROCK_VISION_MODEL_ID", os.environ.get("BEDROCK_SMART_MODEL_ID", "apac.amazon.nova-pro-v1:0"))
+    out = _runtime().converse(
+        modelId=model,
+        system=[{"text": system}],
+        messages=[{"role": "user", "content": [
+            {"image": {"format": fmt, "source": {"bytes": image}}},
+            {"text": user},
+        ]}],
+        inferenceConfig={"temperature": 0, "maxTokens": max_tokens},
+    )
+    return out["output"]["message"]["content"][0]["text"].strip()

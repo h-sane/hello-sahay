@@ -51,6 +51,7 @@ docker compose restart api voice bridge caddy >/dev/null
 
 until docker compose exec -T api python -c "import urllib.request as u;u.urlopen('http://localhost:8001/api/v1/health')" 2>/dev/null; do sleep 2; done
 docker compose exec -T api python scripts/load_seed.py
+docker compose exec -T api python scripts/load_medicines.py load --if-empty
 if [ -z "${INGESTED:-}" ]; then
   # about a second per chunk because the account throttles Titan; runs in the background
   docker compose exec -T -d api python scripts/ingest_advisories.py

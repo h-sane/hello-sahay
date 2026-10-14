@@ -2,10 +2,13 @@
 import logging
 import os
 import re
+import time
+from types import SimpleNamespace
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .. import live_search
 from ..models import AdvisoryChunk
 from ..safety import check
 from . import bedrock
@@ -80,6 +83,34 @@ def _ask_model(message: str, lang: str, chunks: list[AdvisoryChunk]) -> tuple[st
     return (answer, used) if answer and used else None
 
 
+_live_cache: dict[tuple[str, str], tuple[float, dict]] = {}
+LIVE_CACHE_S = 30 * 60
+
+
+def live_answer(message: str, lang: str) -> dict | None:
+    """Answer from official government websites fetched now; every citation is a live page link."""
+    key = (message.strip().lower(), lang)
+    hit = _live_cache.get(key)
+    if hit and time.time() - hit[0] < LIVE_CACHE_S:
+        return hit[1]
+    try:
+        pages = live_search.search(message)
+        result = _ask_model(message, lang, [SimpleNamespace(text=f"{p.title}. {p.text}") for p in pages]) if pages else None
+    except Exception:
+        log.exception("live government search failed; sending the fixed fallback")
+        return None
+    if result is None:
+        return None
+    text, used = result
+    citations = [{"issuer": pages[n - 1].host, "title": pages[n - 1].title, "url": pages[n - 1].url,
+                  "published": pages[n - 1].published, "live": True} for n in used[:3]]
+    reply = _reply(text, "ok", citations)
+    if len(_live_cache) > 200:
+        _live_cache.clear()
+    _live_cache[key] = (time.time(), reply)
+    return reply
+
+
 def answer(session: Session, message: str, lang: str) -> dict:
     gate = check(message, lang)
     if gate.flag != "ok":
@@ -94,7 +125,7 @@ def answer(session: Session, message: str, lang: str) -> dict:
         log.exception("chat pipeline failed; sending the fixed fallback")
         result = None
     if result is None:
-        return _reply(FALLBACK[lang])
+        return live_answer(message, lang) or _reply(FALLBACK[lang])
     text, used = result
     citations, seen = [], set()
     for n in used:

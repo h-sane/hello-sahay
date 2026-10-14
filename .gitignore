@@ -33,6 +33,7 @@ Thumbs.db
 .idea/
 
 # Logs and local data
+data/medicines/raw/
 *.log
 *.db
 graphify-out/
