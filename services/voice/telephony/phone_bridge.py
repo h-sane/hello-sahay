@@ -18,7 +18,7 @@ from fastapi import FastAPI, Request, Response, WebSocket
 
 from pipeline.session import CallSession
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
 log = logging.getLogger("sahay.bridge")
 LANGS = {"en", "hi", "ta", "auto"}
 RATE = 8000  # both carriers; Transcribe and Polly accept 8 kHz directly
@@ -27,6 +27,11 @@ EXOTEL_CHUNK = 320  # 20 ms of 8 kHz 16-bit mono; outbound frames must be a mult
 EXOTEL_MIN_SEND = 3200  # and at least 100 ms
 
 app = FastAPI()
+
+
+@app.on_event("startup")
+async def _prewarm() -> None:
+    asyncio.create_task(CallSession.prewarm(RATE))
 
 
 def mulaw_to_pcm16(frame: bytes) -> bytes:
@@ -51,6 +56,7 @@ class _Call:
     def __init__(self, lang: str, send_audio):
         self.session = CallSession(lang, send_audio, _no_event, in_rate=RATE, out_rate=RATE)
         self.task = asyncio.create_task(self.session.run())
+        self.task.add_done_callback(lambda t: t.cancelled() or t.exception() and log.error("call session failed", exc_info=t.exception()))
 
     def feed(self, pcm: bytes) -> None:
         self.session.feed_audio(pcm)
@@ -107,28 +113,50 @@ async def exotel(ws: WebSocket) -> None:
     await ws.accept()
     stream_sid, call, seq = None, None, 0
 
+    closed = False
+
     async def send_audio(pcm: bytes) -> None:
         nonlocal seq
-        pcm += bytes(-len(pcm) % EXOTEL_MIN_SEND)  # pad the tail with silence to whole 100 ms frames
+        pcm += bytes(-len(pcm) % EXOTEL_MIN_SEND)  # pad the tail with silence to whole frames
         for i in range(0, len(pcm), EXOTEL_MIN_SEND):
+            if closed:
+                return
             seq += 1
-            media = {"chunk": seq, "timestamp": str(seq * 100),
-                     "payload": base64.b64encode(pcm[i:i + EXOTEL_MIN_SEND]).decode()}
-            await ws.send_text(json.dumps(
-                {"event": "media", "sequence_number": seq, "stream_sid": stream_sid, "media": media}))
+            # Exotel parses every field as a string, so a numeric sequence_number or chunk ends the call;
+            # the documented outbound message is only event, stream_sid and media.payload.
+            await ws.send_text(json.dumps({"event": "media", "stream_sid": stream_sid,
+                                           "media": {"payload": base64.b64encode(pcm[i:i + EXOTEL_MIN_SEND]).decode()}}))
+            await asyncio.sleep(EXOTEL_MIN_SEND / 2 / RATE * 0.9)  # stay just ahead of real time; Exotel hangs up on bursts
+
+    def open_call(msg: dict) -> "_Call":
+        # Exotel drops the URL query string; it delivers it in start.custom_parameters
+        start = msg.get("start") or {}
+        params = start.get("custom_parameters") or start.get("customParameters") or {}
+        lang = _lang(params.get("lang") or ws.query_params.get("lang") or "auto")
+        c = _Call(lang, send_audio)
+        c.session.state["phone"] = start.get("from") or start.get("From")
+        log.info("exotel call open lang=%s from=%s", lang, c.session.state["phone"])
+        return c
 
     try:
         async for raw in ws.iter_text():
             msg = json.loads(raw)
             stream_sid = msg.get("stream_sid", stream_sid)
-            if msg["event"] == "start" and not call:
-                call = _Call(_lang(ws.query_params.get("lang")), send_audio)
-            elif msg["event"] == "media":
+            event = msg.get("event")
+            if event != "media":
+                log.info("exotel event %s", raw[:600])
+            if event == "start" and not call:
+                call = open_call(msg)
+            elif event == "media":
                 if not call:
-                    call = _Call(_lang(ws.query_params.get("lang")), send_audio)
+                    call = open_call(msg)
                 call.feed(base64.b64decode(msg["media"]["payload"]))
-            elif msg["event"] == "stop":
+            elif event == "stop":
                 break
+    except Exception:
+        log.exception("exotel websocket failed")
     finally:
+        closed = True
+        log.info("exotel websocket closed, %d audio frames sent", seq)
         if call:
             await call.close()

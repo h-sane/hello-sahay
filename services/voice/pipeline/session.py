@@ -25,6 +25,7 @@ from .tts import synthesize
 log = logging.getLogger("sahay.call")
 END_SILENCE_S = 1.4  # quiet time after the last transcript result before an utterance counts as finished
 TAIL_S = 0.4  # keep muting the mic this long after our audio ends
+_AUDIO_CACHE: dict[tuple[str, str, int], bytes] = {}
 _SENTENCE = re.compile(r"(?<=[.!?।])\s+")
 
 
@@ -96,10 +97,24 @@ class CallSession:
             log.exception("speech-to-text failed")
             await self._finish()
 
-    def _tts(self, sentence: str, lang: str, rate: int):
+    async def _tts(self, sentence: str, lang: str, rate: int) -> bytes:
         if self._tts_override:
-            return self._tts_override(sentence, lang, rate)
-        return (synthesize_ta if lang == "ta" else synthesize)(sentence, lang, rate)
+            return await self._tts_override(sentence, lang, rate)
+        key = (sentence, lang, rate)
+        if key not in _AUDIO_CACHE:  # greetings repeat on every call; synthesising them costs seconds of silence
+            _AUDIO_CACHE[key] = await (synthesize_ta if lang == "ta" else synthesize)(sentence, lang, rate)
+        return _AUDIO_CACHE[key]
+
+    @staticmethod
+    async def prewarm(rate: int) -> None:
+        sentences = [(s, lang) for lang, g in prompts.GREETING.items() for s in _SENTENCE.split(g)]
+        sentences += [(line, lang) for lang, line in prompts.AUTO_LINES.items()]
+        for s, lang in sentences:
+            if s.strip() and (s, lang, rate) not in _AUDIO_CACHE:
+                try:
+                    _AUDIO_CACHE[(s, lang, rate)] = await (synthesize_ta if lang == "ta" else synthesize)(s, lang, rate)
+                except Exception:
+                    log.exception("could not prewarm %s greeting", lang)
 
     def _switch_language(self, lang: str) -> None:
         log.info("language switched %s -> %s", self.lang, lang)
