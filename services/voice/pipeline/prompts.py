@@ -36,6 +36,10 @@ GIVE_UP = {"en": "I am sorry, I am not able to understand. A person from our tea
            "hi": "माफ़ कीजिए, मैं समझ नहीं पा रही। हमारी टीम का कोई व्यक्ति आपको वापस कॉल करेगा। धन्यवाद।",
            "ta": "மன்னிக்கவும், எனக்குப் புரியவில்லை. எங்கள் குழுவினர் ஒருவர் உங்களைத் திரும்ப அழைப்பார். நன்றி."}
 
+GOODBYE = {"en": "You are welcome. Take care, goodbye.",
+           "hi": "आपका स्वागत है। अपना ध्यान रखिए, नमस्ते।",
+           "ta": "நன்றி. உடல்நலத்தைப் பார்த்துக்கொள்ளுங்கள், வணக்கம்."}
+
 GREETING_FALLBACK = {"en": "Sorry, I had a problem. Could you say that again?",
                      "hi": "माफ़ कीजिए, कुछ गड़बड़ हो गई। क्या आप फिर से कह सकते हैं?",
                      "ta": "மன்னிக்கவும், ஒரு சிக்கல் ஏற்பட்டது. மீண்டும் சொல்ல முடியுமா?"}
@@ -73,7 +77,9 @@ Steps:
    time, e.g. "Thursday at ten thirty in the morning". If the caller asked for a doctor who is not in the slots,
    never say that doctor is unavailable or unknown: simply offer the doctor and time in the slots as the best fit.
 4. When the caller chooses a slot and you have their name, call book_appointment, then confirm doctor, day, time and
-   hospital in one sentence. Ask for the name only if you do not have it.
+   hospital in one sentence. Ask for the name only if you do not have it. Do not ask whether they need anything
+   else; the call ends by itself when they say thanks. If they pick another slot afterwards, call book_appointment
+   again: it moves the booking and never makes a second one.
 5. If get_slots returns no slots, say so, give the hospital's address if you have one and offer a callback.
 6. If you cannot help or the caller asks for a person, call handoff_to_human.
 Callers may say digits as words in any language (for example "nau aath saat"); convert them to digits yourself.

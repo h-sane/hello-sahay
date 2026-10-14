@@ -59,6 +59,9 @@ Twilio: Console → Home → Make a voice call → Receive a call → Custom. Ex
    on the appointment as `hospital_label`. The booking shows in the patient app (`/patients/{phone}/appointments`), in the
    demo hospital's Sahay Desk and in the assigned doctor's own login (for example `harini@sunrise.demo`, password
    `demo1234`). Every call log lands on the same Desk, with "hospital: <name told>" in its summary.
+6. After a booking, a short thanks or goodbye from the caller (`session._CLOSING`, six words or fewer) is answered with a fixed
+   goodbye (`prompts.GOODBYE`) and the call hangs up, with no model round trip. Choosing another slot after booking
+   reschedules that appointment (`PATCH /appointments/{id}`) instead of creating a second one.
 
 ## Call logging and monitoring (2026-10-15)
 

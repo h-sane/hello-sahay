@@ -446,3 +446,54 @@ def test_a_failed_first_attempt_does_not_hide_a_good_second_one():
         return "ok"
 
     assert asyncio.run(hedged(make, 0.05)) == "ok"
+
+
+def test_thanks_after_a_booking_greets_back_and_ends_the_call_without_the_model():
+    from pipeline.prompts import GOODBYE
+
+    async def agent(*_):
+        raise AssertionError("a thank-you after booking must not reach the model")
+
+    async def go():
+        s, _, events = make_session(agent, [])
+        s.state["appointment_id"] = 9
+        await s._turn("நன்றி.")
+        return s, events
+
+    s, events = asyncio.run(go())
+    assert spoken(s)[-1] == GOODBYE["en"] and any(e["type"] == "ended" for e in events)
+
+
+def test_thanks_before_any_booking_or_a_long_request_keeps_the_call_going():
+    async def agent(system, messages, tools):
+        messages.append({"role": "assistant", "content": [{"text": "x"}]})
+        return "Which village are you from?"
+
+    async def go():
+        s, _, events = make_session(agent, [])
+        await s._turn("thank you")
+        s.state["appointment_id"] = 9
+        await s._turn("thank you but I also need a doctor for my mother tomorrow morning")
+        return s, events
+
+    s, events = asyncio.run(go())
+    assert spoken(s) == ["Which village are you from?"] * 2
+    assert not any(e["type"] == "ended" for e in events)
+
+
+def test_a_second_slot_choice_moves_the_booking_instead_of_making_another():
+    calls = []
+
+    def api(req):
+        calls.append((req.method, req.url.path))
+        return httpx.Response(200, json={"id": 9, "patient": {"phone": "09876543210"}, "facility": {"id": 7, "name": "F", "address": "A"},
+                                         "doctor": {"name": "Dr A"}, "slot": {"start": "2026-10-16T10:00:00+05:30"}})
+
+    async def go():
+        http = httpx.AsyncClient(base_url="http://api", transport=httpx.MockTransport(api))
+        state = {"phone": "09876543210", "appointment_id": 9}
+        return await Tools(http, "en", state).call(
+            "book_appointment", {"slot_id": 2, "name": "Ravi", "village": "P", "reason_text": "fever"})
+
+    out = asyncio.run(go())
+    assert calls == [("PATCH", "/appointments/9")] and out["appointment_id"] == 9

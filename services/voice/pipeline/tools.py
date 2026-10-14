@@ -273,7 +273,11 @@ class Tools:
         body = {"patient": {"name": name, "phone": phone, "language": self.lang, "village": village},
                 "slot_id": slot_id, "source": "helpline", "reason_text": reason_text,
                 "hospital_name": self.state.get("hospital")}
-        r = await self.http.post("/appointments", json=body)
+        if self.state.get("appointment_id"):  # this call already booked: a second choice moves that booking
+            r = await self.http.patch(f"/appointments/{self.state['appointment_id']}",
+                                      json={"action": "reschedule", "new_slot_id": slot_id})
+        else:
+            r = await self.http.post("/appointments", json=body)
         if r.status_code == 409:
             return {"error": "slot_taken", "say": "That slot was just taken; offer another slot."}
         if r.status_code == 422:

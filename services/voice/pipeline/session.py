@@ -44,6 +44,9 @@ NO_INPUT_S = 12.0  # silence after the beep before the caller is prompted again
 FILLER_AFTER_S = 3.0  # a turn this slow gets a spoken "one moment" so the caller does not sit in silence
 REPEAT_RATIO = 0.85
 ECHO_RATIO = 0.7
+_CLOSING = re.compile(r"thank|bye|that's all|that is all|nothing else|no thanks|நன்றி|போதும்|வேறு எதுவும் இல்லை|பை$|"
+                      r"धन्यवाद|शुक्रिया|अलविदा|बाय|और कुछ नहीं|बस इतना", re.I)
+CLOSING_MAX_WORDS = 6  # a longer sentence is a new request that merely contains a thanks
 
 
 def _clean(text: str) -> str:
@@ -365,6 +368,10 @@ class CallSession:
         if gate.flag == "emergency":
             self.state.update(emergency=True, handoff=True)
             await self._say(gate.reply, lat, t0, lang=gate_lang)
+            await self._finish()
+            return
+        if self.state.get("appointment_id") and len(text.split()) <= CLOSING_MAX_WORDS and _CLOSING.search(text):
+            await self._say(prompts.GOODBYE[self.lang], lat, t0)  # booked and thanked: greet back and hang up
             await self._finish()
             return
         note = ""
