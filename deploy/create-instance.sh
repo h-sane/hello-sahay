@@ -26,7 +26,7 @@ bash -n "$LAUNCH"
 if [ -n "${DRY_RUN:-}" ]; then echo "launch script ok ($(wc -c < "$LAUNCH") bytes)"; exit 0; fi
 
 aws lightsail create-instances --instance-names "$NAME" --availability-zone ap-south-1a \
-  --blueprint-id ubuntu_24_04 --bundle-id "$BUNDLE" --user-data "file://$LAUNCH" >/dev/null
+  --blueprint-id ubuntu_24_04 --bundle-id "$BUNDLE" --user-data "$(cat "$LAUNCH")" >/dev/null
 aws lightsail allocate-static-ip --static-ip-name "$NAME-ip" >/dev/null
 until aws lightsail get-instance-state --instance-name "$NAME" --query state.name --output text | grep -q running; do sleep 5; done
 aws lightsail attach-static-ip --static-ip-name "$NAME-ip" --instance-name "$NAME" >/dev/null
