@@ -40,9 +40,10 @@ def fake(monkeypatch):
 
 
 def test_incoming_returns_stream_twiml_with_language():
-    r = client.post("/incoming?lang=hi", headers={"x-forwarded-host": "demo.example.com"})
+    r = client.post("/incoming?lang=hi", headers={"x-forwarded-host": "demo.example.com"}, data={"From": "+919876543210"})
     assert r.headers["content-type"].startswith("text/xml")
-    assert '<Stream url="wss://demo.example.com/media"><Parameter name="lang" value="hi"/></Stream>' in r.text
+    assert ('<Stream url="wss://demo.example.com/media"><Parameter name="lang" value="hi"/>'
+            '<Parameter name="from" value="+919876543210"/></Stream>') in r.text
 
 
 def test_twilio_audio_is_decoded_for_the_session_and_replies_come_back_as_20ms_mulaw_frames():

@@ -74,6 +74,9 @@ class Patient(Base):
     consent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     is_premium: Mapped[bool] = mapped_column(Boolean, default=False)
     family_phone: Mapped[str | None] = mapped_column(String(20))
+    lat: Mapped[float | None] = mapped_column(Float)  # last live location pushed by the patient app
+    lng: Mapped[float | None] = mapped_column(Float)
+    location_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Appointment(Base):
@@ -192,3 +195,4 @@ class DeskUser(Base):
     password_hash: Mapped[str] = mapped_column(String(300))
     role: Mapped[str] = mapped_column(String(10))  # desk / admin
     facility_id: Mapped[int | None] = mapped_column(ForeignKey("facility.id"))
+    doctor_id: Mapped[int | None] = mapped_column(ForeignKey("doctor.id"))  # set: the account sees only this doctor's appointments

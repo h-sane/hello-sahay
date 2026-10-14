@@ -3,7 +3,7 @@
 Run from services/voice: python -m uvicorn telephony.phone_bridge:app --app-dir services/voice --port 8000
 Exotel (Indian number): Voicebot applet URL wss://<tunnel>/exotel?lang=en|hi|ta;
 audio is 8 kHz 16-bit PCM, base64; outbound frames must be a multiple of 320 bytes and >= 100 ms.
-Twilio (US number): the "A call comes in" webhook is POST /incoming?lang=en|hi|ta on the tunnel;
+Twilio (US number): the "A call comes in" webhook is POST /incoming?lang=en|hi|ta|auto on the tunnel;
 audio is 8 kHz mu-law, base64, 20 ms frames. Python 3.13+ needs `pip install audioop-lts`.
 """
 import asyncio
@@ -12,6 +12,7 @@ import base64
 import json
 import logging
 from contextlib import suppress
+from urllib.parse import parse_qs
 from xml.sax.saxutils import quoteattr
 
 from fastapi import FastAPI, Request, Response, WebSocket
@@ -71,11 +72,13 @@ class _Call:
 @app.post("/incoming")
 async def incoming(request: Request) -> Response:
     host = request.headers.get("x-forwarded-host") or request.headers["host"]
-    lang = _lang(request.query_params.get("lang"))
+    lang = _lang(request.query_params.get("lang") or "auto")
+    caller = parse_qs((await request.body()).decode()).get("From", [""])[0]  # Twilio posts the caller as a form field
     twiml = (
         '<?xml version="1.0" encoding="UTF-8"?>'
         f'<Response><Connect><Stream url="wss://{host}/media">'
-        f'<Parameter name="lang" value={quoteattr(lang)}/></Stream></Connect></Response>'
+        f'<Parameter name="lang" value={quoteattr(lang)}/>'
+        f'<Parameter name="from" value={quoteattr(caller)}/></Stream></Connect></Response>'
     )
     return Response(twiml, media_type="text/xml")
 
@@ -97,7 +100,8 @@ async def media(ws: WebSocket) -> None:
             if msg["event"] == "start":
                 stream_sid = msg["start"]["streamSid"]
                 params = msg["start"].get("customParameters", {})
-                call = _Call(_lang(params.get("lang") or ws.query_params.get("lang")), send_audio)
+                call = _Call(_lang(params.get("lang") or ws.query_params.get("lang") or "auto"), send_audio)
+                call.session.state["phone"] = params.get("from") or None
             elif msg["event"] == "media" and call:
                 call.feed(mulaw_to_pcm16(base64.b64decode(msg["media"]["payload"])))
             elif msg["event"] == "stop":

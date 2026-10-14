@@ -35,10 +35,12 @@
   <p class="lead">Speak to the free health helpline. Allow the microphone when asked. Sahay cannot give medical advice.</p>
   <div class="row">
     <select id="lang" aria-label="Language">
+      <option value="auto">Auto (English / हिन्दी / தமிழ்)</option>
       <option value="en">English</option>
       <option value="hi">हिन्दी</option>
       <option value="ta">தமிழ்</option>
     </select>
+    <input id="phone" type="tel" placeholder="Caller number (optional)" aria-label="Caller number" style="font-size:20px;padding:12px;border-radius:10px;border:2px solid var(--muted);min-width:0;flex:1">
     <button id="go">Start call</button>
   </div>
   <div id="state" role="status">Not connected</div>
@@ -90,7 +92,7 @@ async function start() {
   ctx.createMediaStreamSource(stream).connect(node);
   setState('Connecting…');
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  ws = new WebSocket(`${proto}://${location.host}/call?lang=${$('lang').value}`);
+  ws = new WebSocket(`${proto}://${location.host}/call?lang=${$('lang').value}&phone=${encodeURIComponent($('phone').value.trim())}`);
   ws.binaryType = 'arraybuffer';
   ws.onopen = () => { setState('Connected. Sahay is greeting you, then speak.'); $('go').textContent = 'End call'; $('go').className = 'end'; };
   node.port.onmessage = e => { if (ws.readyState === 1) ws.send(e.data); };
@@ -100,6 +102,7 @@ async function start() {
     if (e.type === 'transcript') { $('heard').textContent = ''; addLine(e.role, e.text); }
     else if (e.type === 'heard') $('heard').textContent = e.final ? '' : e.text;
     else if (e.type === 'latency') { lats.push(e.first_audio_ms); $('lat').textContent = `Time to first audio per turn (ms): ${lats.join(', ')}`; }
+    else if (e.type === 'listening') setState('Your turn: speak now');
     else if (e.type === 'ended') setState('Call ended');
   };
   ws.onerror = () => setError('Cannot reach the voice service. Is it running on this address?');

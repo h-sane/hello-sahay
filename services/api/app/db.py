@@ -32,3 +32,9 @@ def init_db() -> None:
     with engine.begin() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
     Base.metadata.create_all(engine)
+    with engine.begin() as conn:  # create_all never adds columns to a table that already exists
+        for ddl in ("ALTER TABLE patient ADD COLUMN IF NOT EXISTS lat double precision",
+                    "ALTER TABLE patient ADD COLUMN IF NOT EXISTS lng double precision",
+                    "ALTER TABLE patient ADD COLUMN IF NOT EXISTS location_at timestamptz",
+                    "ALTER TABLE desk_user ADD COLUMN IF NOT EXISTS doctor_id integer REFERENCES doctor(id)"):
+            conn.execute(text(ddl))

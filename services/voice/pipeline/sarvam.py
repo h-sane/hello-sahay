@@ -14,7 +14,7 @@ from . import config
 log = logging.getLogger("sahay.sarvam")
 BASE = "https://api.sarvam.ai"
 SPEECH_RMS = 500  # 16-bit sample level that counts as speech
-QUIET_S = 0.8  # silence after speech that closes an utterance
+QUIET_S = 0.6  # silence after speech that closes an utterance
 MAX_S = 20.0
 
 
@@ -35,7 +35,7 @@ async def synthesize(text: str, lang: str, rate: int) -> bytes:
 
 
 class SarvamStt:
-    end_silence = 0.2  # the utterance is already closed by silence here, so the turn can start straight away
+    end_silence = 0.3  # the utterance is already closed by silence here, so the turn can start straight away
 
     def __init__(self, lang: str, sample_rate: int):
         self.rate = sample_rate

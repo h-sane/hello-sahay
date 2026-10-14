@@ -165,3 +165,78 @@ def test_booking_a_taken_slot_tells_the_model_to_offer_another():
             "book_appointment", {"slot_id": 1, "name": "Ravi", "phone": "9876543210", "village": "Paranur", "reason_text": "fever"})
 
     assert asyncio.run(go())["error"] == "slot_taken"
+
+
+def _slots_api(slots, facilities=()):
+    def api(req):
+        if req.url.path.endswith("/slots"):
+            day = req.url.params["date"]
+            return httpx.Response(200, json=[s for s in slots if s["start"].startswith(day)])
+        if req.url.path.endswith("/facilities"):
+            return httpx.Response(200, json=list(facilities))
+        if req.method == "POST":
+            body = json.loads(req.content)
+            return httpx.Response(201, json={"id": 9, "patient": {"phone": body["patient"]["phone"]},
+                                             "facility": {"id": 7, "name": "H", "address": "A"},
+                                             "doctor": {"name": "Dr A"}, "slot": {"start": slots[0]["start"]}})
+        return httpx.Response(404)
+    return httpx.AsyncClient(base_url="http://api", transport=httpx.MockTransport(api))
+
+
+def _slot(i, doctor, hour, day_offset=1):
+    from datetime import datetime, timedelta
+    from pipeline.tools import IST
+    t = (datetime.now(IST) + timedelta(days=day_offset)).replace(hour=hour, minute=0, second=0, microsecond=0)
+    return {"slot_id": i, "start": t.isoformat(), "doctor_name": doctor}
+
+
+def _get_slots(slots, **args):
+    async def go():
+        return await Tools(_slots_api(slots), "en", {}).call("get_slots", {"facility_id": 7, "department": "General Medicine", **args})
+    return asyncio.run(go())
+
+
+def test_preferred_doctor_and_time_free_is_an_exact_match():
+    out = _get_slots([_slot(1, "Dr Meena", 10), _slot(2, "Dr Ravi", 10), _slot(3, "Dr Ravi", 15)],
+                     doctor_name="Dr Ravi", preferred_time="15:00")
+    assert out["result"] == "exact" and [s["slot_id"] for s in out["slots"]] == [3]
+
+
+def test_busy_doctor_gets_their_next_slot_and_unknown_doctor_gets_others():
+    slots = [_slot(1, "Dr Meena", 10), _slot(2, "Dr Ravi", 11), _slot(3, "Dr Ravi", 16)]
+    nxt = _get_slots(slots, doctor_name="Ravi", preferred_time="14:00")
+    assert nxt["result"] == "next_for_doctor" and nxt["slots"][0]["slot_id"] == 3
+    other = _get_slots(slots, doctor_name="Dr Kumar")
+    assert other["result"] == "other_doctor" and {s["doctor"] for s in other["slots"]} == {"Dr Meena", "Dr Ravi"}
+
+
+def test_booking_uses_the_number_the_call_came_from():
+    async def go():
+        state = {"phone": "09876543210"}
+        out = await Tools(_slots_api([_slot(1, "Dr A", 10)]), "en", state).call(
+            "book_appointment", {"slot_id": 1, "name": "Ravi", "phone": "1111111111", "village": "P", "reason_text": "fever"})
+        return out, state
+    out, state = asyncio.run(go())
+    assert out["appointment_id"] == 9 and state["phone"] == "09876543210"
+
+
+def test_recommends_the_nearest_bookable_hospital_and_mentions_the_free_government_one():
+    def fac(i, name, gov, partner, km):
+        return {"id": i, "name": name, "type": "PHC" if gov else "private", "address": "", "phone": "", "hours": "",
+                "departments": ["General Medicine"], "pmjay": False, "cmchis": False, "is_partner": partner,
+                "is_government": gov, "distance_km": km}
+    rows = [fac(1, "Paranur PHC", True, False, 2.0), fac(2, "Far Care Hospital", False, True, 9.0),
+            fac(3, "Near Care Hospital", False, True, 4.0)]
+
+    async def go():
+        return await Tools(_slots_api([], rows), "en", {}).call("find_facilities", {"village": "Paranur", "reason": "fever"})
+    out = asyncio.run(go())
+    assert out["recommended"]["name"] == "Near Care Hospital" and out["recommended"]["can_book"]
+    assert out["free_government_option"]["name"] == "Paranur PHC"
+
+
+def test_dictated_digit_words_become_digits_but_ordinary_speech_is_left_alone():
+    from pipeline.digits import digits_from_words as d
+    assert d("मेरा नंबर नौ आठ सात छह पाँच चार तीन दो एक शून्य है") == "मेरा नंबर 9876543210 है"
+    assert d("my number is nine eight seven six five four three two one zero") == "my number is 9876543210"
+    assert d("one or two days") == "one or two days"

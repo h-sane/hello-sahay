@@ -109,6 +109,8 @@ All under `/api/v1`. JSON in and out. Implementers: keep these names so the voic
 | `POST /appointments` | Book `{patient, slot_id, source, reason_text}` → sends WhatsApp |
 | `PATCH /appointments/{id}` | Reschedule / cancel / mark arrived |
 | `GET /patients/{phone}/appointments` | Patient's appointments |
+| `GET /patients/{phone}` | Helpline caller lookup: `registered`, `name`, `village`, and `location_live` with `lat`/`lng` when the app pushed a location within 30 min |
+| `PUT /patients/{phone}/location` | Patient app pushes live `{lat, lng}`; needs that patient's Bearer token |
 | `POST /chat` | `{message, lang}` → `{answer, citations[], safety_flag}` (same safety gate as voice) |
 | `GET /advisories?lang` | Advisory feed with sources |
 | `POST /medicines/lookup` | `{text}` or `{image}` → identified brand + composition |
@@ -129,7 +131,7 @@ All under `/api/v1`. JSON in and out. Implementers: keep these names so the voic
 - WS pushes `{type:"appointment", appointment}` and `{type:"call", call}`.
 - Slots: `[{slot_id, start, end, doctor_id, doctor_name, department}]`, optional `&department=`; a non-partner facility returns 404.
 - Phones are normalised to `+91XXXXXXXXXX`; `language` is `ta|hi|en`; `source` is `helpline|app|desk`.
-- Auth: `PATCH action=arrived` (it triggers the ₹40 fee), `GET /appointments`, `GET /calls` and `GET /handoffs` need a desk/admin Bearer token scoped to its facility. `WS /live/desk/{id}?token=` is optional. `POST /appointments`, `POST /calls`, reschedule/cancel and `GET /patients/{phone}/appointments` are open, because voice has no token. ponytail: add a service key before real use.
+- Auth: `PATCH action=arrived` (it triggers the ₹40 fee), `GET /appointments`, `GET /calls` and `GET /handoffs` need a desk/admin Bearer token scoped to its facility. A doctor account (`doctor<id>@sahay.demo`, role `desk` with `doctor_id`) sees only that doctor's appointments. `WS /live/desk/{id}?token=` is optional. `POST /appointments`, `POST /calls`, reschedule/cancel and `GET /patients/{phone}/appointments` are open, because voice has no token. ponytail: add a service key before real use.
 - Demo logins: `desk<facility_id>@sahay.demo`, `admin@sahay.demo`, password `demo1234`.
 
 Local ports: API **8001** (`uvicorn app.main:app --app-dir services/api --port 8001`), voice **8002**, phone bridge **8000**, web **3000**. DB driver is psycopg2 (`postgresql+psycopg2://…`) because psycopg 3 is not installed and PyPI is slow here.

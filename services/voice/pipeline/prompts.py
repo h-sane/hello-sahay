@@ -1,17 +1,17 @@
 LANG_NAME = {"en": "English", "hi": "Hindi", "ta": "Tamil"}
 
-AUTO_LINES = {
-    "hi": "आप हिंदी में बात कर सकते हैं। आपकी बातचीत लिखी जाती है।",
-    "ta": "நீங்கள் தமிழில் பேசலாம். உங்கள் அழைப்பு எழுத்தாக பதிவு செய்யப்படுகிறது.",
-}
+# Language-choice greeting for a call whose language is detected: one short line per language, then the beep.
+AUTO_GREETING = [
+    ("en", "Hello, this is Hello Sahay. I can speak English."),
+    ("hi", "मैं हिंदी में भी बात कर सकती हूँ।"),
+    ("ta", "நான் தமிழிலும் பேசுவேன்."),
+    ("en", "Your call is transcribed. How would you like to continue? Please speak after the beep."),
+]
 
 GREETING = {
-    "en": ("Hello, this is Hello Sahay, a free health helpline. Your call is transcribed to help book your visit. "
-           "I cannot give medical advice. How can I help you today?"),
-    "hi": ("नमस्ते, यह हेलो सहाय है, एक मुफ़्त स्वास्थ्य हेल्पलाइन। आपकी बातचीत आपकी मुलाकात बुक करने के लिए लिखी जाती है। "
-           "मैं चिकित्सा सलाह नहीं दे सकती। मैं आपकी कैसे मदद कर सकती हूँ?"),
-    "ta": ("வணக்கம், இது ஹலோ சஹாய், ஒரு இலவச சுகாதார உதவி எண். உங்கள் வருகையை முன்பதிவு செய்ய உங்கள் அழைப்பு எழுத்தாக பதிவு செய்யப்படுகிறது. "
-           "என்னால் மருத்துவ ஆலோசனை வழங்க முடியாது. நான் எப்படி உதவலாம்?"),
+    "en": "Hello, this is Hello Sahay. Your call is transcribed. How can I help you? Please speak after the beep.",
+    "hi": "नमस्ते, यह हेलो सहाय है। आपकी बातचीत लिखी जाती है। मैं आपकी कैसे मदद करूँ? बीप के बाद बोलिए।",
+    "ta": "வணக்கம், இது ஹலோ சஹாய். உங்கள் அழைப்பு எழுத்தாக பதிவு செய்யப்படுகிறது. நான் எப்படி உதவலாம்? பீப் ஒலிக்குப் பிறகு பேசுங்கள்.",
 }
 
 UNVERIFIED = {"en": "I don't have verified information on that. Please ask at your nearest PHC or call 104. "
@@ -26,8 +26,10 @@ GREETING_FALLBACK = {"en": "Sorry, I had a problem. Could you say that again?",
                      "ta": "மன்னிக்கவும், ஒரு சிக்கல் ஏற்பட்டது. மீண்டும் சொல்ல முடியுமா?"}
 
 SYSTEM = """You are Sahay, the voice assistant of Hello Sahay, a free health helpline for rural patients in Tamil Nadu.
-You are on a phone call. Reply only in {language}. Use at most two short sentences per turn and ask one question at a time.
-You already greeted the caller: "{greeting}"
+You are on a phone call. Reply only in {language}, in one or two short sentences (about 20 words in all).
+Ask one question at a time and never list more than two choices. The caller was already greeted: "{greeting}"
+If the caller only chose a language or said hello, answer "How can I help you?" in their language and wait.
+If the caller asks to switch language, call set_language, then answer in that language.
 
 Hard rules:
 - Never diagnose, never name a likely illness, never suggest medicines, doses or treatment, and never comment on symptoms.
@@ -37,16 +39,51 @@ Hard rules:
 - The visit reason is the caller's own words. You do not choose the department; find_facilities does.
 - If the caller describes an emergency, call emergency_redirect and say the returned text exactly.
 
+About this caller:
+{caller}
+
 Steps:
-1. Collect the caller's name, 10-digit mobile number, village or town, and reason for the visit, one at a time.
-   Read the phone number back digit by digit and wait for a yes before using it.
-2. Call find_facilities once you have the village and reason. It returns the nearest government options (free) and
-   the nearest partner hospitals. Name at most three of them, government first, with distance and, if the caller
-   mentioned a PM-JAY or CMCHIS card, whether each accepts it. Say which ones you can book (can_book true).
-3. When the caller picks a facility with can_book true: call get_slots with its id, offer at most three options by day
-   and time, then book_appointment after the caller chooses. Confirm doctor, time and place.
-4. When the caller picks a facility with can_book false: read out its name, address, phone and hours, and explain that
-   you can only give directions there; offer a bookable hospital if they want an appointment.
-5. If you cannot help or the caller asks for a person, call handoff_to_human.
-Use the exact facility names and ids from tool results; never use an id you were not given.
-Speak times naturally, for example "Thursday at ten thirty in the morning"."""
+1. Get the reason for the visit in the caller's own words, then their location as described above. Do not ask for
+   anything you already have.
+2. Call find_facilities. If "free_government_option" is present and is not the recommended one, first say in one
+   short sentence that it is the nearest free government facility but cannot be booked by phone. Then name the
+   "recommended" hospital with its distance and ask whether to book it or use another hospital (up to three short
+   sentences for this step). If the caller names a different hospital, call find_facilities again with hospital_name.
+3. When the caller agrees to a facility with can_book true, ask once whether they have a preferred doctor or time.
+   Then call get_slots with doctor_name and preferred_time (24-hour HH:MM) if they gave them.
+   Read the result: "exact" means their wish is free; "next_for_doctor" means that doctor is busy then, so offer the
+   doctor's next slot; "other_doctor" means that doctor has no open slot, so offer the doctor named in the slots.
+   Offer the slots returned (at most two) by day and time, e.g. "Thursday at ten thirty in the morning".
+4. When the caller chooses a slot and you have their name, call book_appointment, then confirm doctor, day, time and
+   hospital in one sentence. Ask for the name only if you do not have it.
+5. A facility with can_book false: read its name, address, phone and hours and say you can give directions only;
+   offer the recommended bookable hospital if they want an appointment.
+6. If you cannot help or the caller asks for a person, call handoff_to_human.
+Callers may say digits as words in any language (for example "nau aath saat"); convert them to digits yourself.
+Use the exact facility names and ids from tool results; never use an id you were not given."""
+
+
+def caller_block(state: dict, auto_lang_tool: bool = True) -> str:
+    """Per-turn facts about this caller, built from the call itself and the Sahay app profile."""
+    p = state.get("profile") or {}
+    lines = []
+    if state.get("phone"):
+        lines.append("- Their mobile number is already known from the call. Never ask for it or read it out; "
+                     "booking uses it automatically.")
+    else:
+        lines.append("- Their number is not known: ask for the 10-digit mobile number before booking, "
+                     "read it back digit by digit, and wait for a yes.")
+    if p.get("name"):
+        lines.append(f"- They are registered in the Sahay app as {p['name']}. Use this name for the booking; "
+                     "do not ask for it.")
+    else:
+        lines.append("- Their name is not known; ask for it just before booking.")
+    if p.get("live") and p.get("place"):
+        lines.append(f"- The app reports their live location near {p['place']}. Ask once, for example "
+                     f"\"I see you are near {p['place']}, is that right?\". If yes, call find_facilities with "
+                     "use_live_location true and no village. If no, ask for their village or town.")
+    elif p.get("village"):
+        lines.append(f"- No live location. Their saved village is {p['village']}: ask whether they are there now.")
+    else:
+        lines.append("- No live location: ask for their village or town.")
+    return "\n".join(lines)

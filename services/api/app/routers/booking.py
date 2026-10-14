@@ -151,6 +151,8 @@ def desk_appointments(
         facility_id = claims["facility_id"]
     start, end = day_range(on or today_ist())
     query = _JOINED.where(Slot.start >= start, Slot.start < end).order_by(Slot.start)
+    if claims.get("doctor_id"):  # a doctor's own account sees only their patients
+        query = query.where(Doctor.id == claims["doctor_id"])
     if facility_id is not None:
         query = query.where(Facility.id == facility_id)
     return [_out(r) for r in session.execute(query)]

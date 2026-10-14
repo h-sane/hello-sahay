@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from ..common import normalize_phone
 from ..db import get_session
-from ..models import DeskUser, Facility, Patient
+from ..models import DeskUser, Doctor, Facility, Patient
 from ..security import hash_password, make_token, verify_password
 
 log = logging.getLogger("sahay.auth")
@@ -25,16 +25,23 @@ def desk_email(facility_id: int) -> str:
     return f"desk{facility_id}@sahay.demo"
 
 
+def doctor_email(doctor_id: int) -> str:
+    return f"doctor{doctor_id}@sahay.demo"
+
+
 def ensure_demo_users(session: Session) -> None:
-    """One desk user per partner facility plus one admin. Idempotent."""
+    """One desk user per partner facility, one account per doctor there, plus one admin. Idempotent."""
     existing = set(session.scalars(select(DeskUser.email)))
-    wanted = [(desk_email(f.id), "desk", f.id)
+    wanted = [(desk_email(f.id), "desk", f.id, None)
               for f in session.scalars(select(Facility).where(Facility.is_partner))]
-    wanted.append((ADMIN_EMAIL, "admin", None))
-    for email, role, facility_id in wanted:
+    wanted += [(doctor_email(d.id), "desk", d.facility_id, d.id)
+               for d in session.scalars(select(Doctor).join(Facility, Facility.id == Doctor.facility_id)
+                                        .where(Facility.is_partner))]
+    wanted.append((ADMIN_EMAIL, "admin", None, None))
+    for email, role, facility_id, doctor_id in wanted:
         if email not in existing:
             session.add(DeskUser(email=email, password_hash=hash_password(DEMO_PASSWORD),
-                                 role=role, facility_id=facility_id))
+                                 role=role, facility_id=facility_id, doctor_id=doctor_id))
     session.commit()
 
 
@@ -67,8 +74,8 @@ def login(body: LoginIn, session: Session = Depends(get_session)):
     ok = verify_password(body.password, user.password_hash if user else _DUMMY_HASH)
     if user is None or not ok:
         raise HTTPException(401, "invalid email or password")
-    return {"token": make_token(user.email, user.role, user.facility_id),
-            "role": user.role, "facility_id": user.facility_id}
+    return {"token": make_token(user.email, user.role, user.facility_id, user.doctor_id),
+            "role": user.role, "facility_id": user.facility_id, "doctor_id": user.doctor_id}
 
 
 @router.post("/otp/request")

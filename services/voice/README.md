@@ -38,3 +38,17 @@ Twilio: Console → Home → Make a voice call → Receive a call → Custom. Ex
 ## Browser test page
 
 `AWS_PROFILE=personal-bedrock python -m uvicorn pipeline.server:app --app-dir services/voice --port 8002`, open http://localhost:8002 (needs the API on :8001). Language: English/Hindi (Transcribe + Polly), Tamil (Sarvam, needs `SARVAM_API_KEY` in `.env`). Also the `/call` demo page.
+
+
+## Call flow (2026-10-15)
+
+1. Greeting is short: with `lang=auto` (the default on the phone) one line per language, then "speak after the beep", then a beep.
+   The beep is generated in `session._beep`, so it works on every carrier. The mic stays muted until the beep has played.
+2. The caller's number comes from the carrier (Exotel `start.from`, Twilio `<Parameter name="from">`); the browser page has an
+   optional number field. It is never asked for when known. `GET /patients/{phone}` tells the call whether the caller is
+   registered in the Sahay app and where they are; a live location is confirmed once out loud, otherwise the village is asked.
+3. `find_facilities` returns one `recommended` bookable hospital (free government first, then nearest) plus the nearest
+   `free_government_option`. A named hospital goes through `hospital_name`.
+4. `get_slots` honours `doctor_name` and `preferred_time`: `exact`, `next_for_doctor`, `other_doctor` or `none`.
+5. `book_appointment` uses the call's number; the booking shows in the patient app (`/patients/{phone}/appointments`), in the
+   facility's Sahay Desk and in the doctor's own account (`doctor<id>@sahay.demo`, password `demo1234`).

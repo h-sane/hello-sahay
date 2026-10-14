@@ -1,6 +1,6 @@
 """Voice service on :8002. Run: python -m uvicorn pipeline.server:app --app-dir services/voice --port 8002
 
-WS /call?lang=en|hi|ta : binary frames are 16 kHz mono PCM16 both ways; text frames are JSON events.
+WS /call?lang=en|hi|ta|auto&phone=<optional caller number> : binary frames are 16 kHz mono PCM16 both ways; text frames are JSON events.
 GET /               : minimal test page (static/call.html).
 """
 import asyncio
@@ -27,7 +27,7 @@ async def index() -> FileResponse:
 
 
 @app.websocket("/call")
-async def call(ws: WebSocket, lang: str = "en") -> None:
+async def call(ws: WebSocket, lang: str = "en", phone: str = "") -> None:
     await ws.accept()
     lang = lang if lang in LANGS else "en"
 
@@ -35,6 +35,8 @@ async def call(ws: WebSocket, lang: str = "en") -> None:
         await ws.send_text(json.dumps(e, ensure_ascii=False))
 
     session = CallSession(lang, ws.send_bytes, send_event)
+    if phone.strip():  # the test page can pose as a caller whose number is known
+        session.state["phone"] = phone.strip()
 
     async def pump() -> None:
         while True:
