@@ -30,7 +30,7 @@
 	}
 }
 
-{$ADMIN_HOST} {
+{$ADMIN_HOST:admin.invalid} {
 	encode gzip
 	handle /api/* {
 		reverse_proxy api:8001
