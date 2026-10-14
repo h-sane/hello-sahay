@@ -35,6 +35,8 @@ Nova (`apac.amazon.nova-lite-v1:0`, `apac.amazon.nova-pro-v1:0`) and Titan
 embeddings v2 work on credits; Claude models on Bedrock fail with
 INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
 
+**Frontends (2026-10-14):** `apps/patient-web` and `apps/desk` are the teammates' UIs with their data layer replaced by our API; `docs/FRONTEND_INTEGRATION.md` has the screen-to-endpoint map and known gaps. Backend is the source of truth.
+
 ## Planning docs (read before building)
 
 | Doc | What it holds |
@@ -44,6 +46,7 @@ INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
 | [`docs/IMPLEMENTATION_PHASES.md`](docs/IMPLEMENTATION_PHASES.md) | Phase 0/1/2 task cards with "done when", checkpoints, demo script |
 | [`docs/FRONTEND_DELIVERABLES.md`](docs/FRONTEND_DELIVERABLES.md) | Screens to design for the patient app, Sahay Desk and admin |
 | [`docs/PRODUCT_FEATURES.md`](docs/PRODUCT_FEATURES.md) | Every feature per app (helpline, patient app, Desk, admin, `/call`) with tier and task card |
+| [`docs/FRONTEND_INTEGRATION.md`](docs/FRONTEND_INTEGRATION.md) | How the teammate frontends are wired to the API, run commands, known gaps |
 | [`docs/BUSINESS.md`](docs/BUSINESS.md) | Business decisions: who pays, pricing, go-to-market, competitors, jury answers, open questions |
 
 ## Team and tools
@@ -93,6 +96,8 @@ INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
 |---|---|
 | `apps/patient/` | Expo React Native patient app |
 | `apps/web/` | Next.js: `/desk` hospital dashboard, `/admin` our console, `/call` browser "Call Sahay" demo |
+| `apps/patient-web/` | Teammate's patient web app, wired to the API (Vite, :5174). See `docs/FRONTEND_INTEGRATION.md` |
+| `apps/desk/` | Teammate's Sahay Desk, wired to the API (Vite, :5173) |
 | `design/ai-studio/` | AI Studio screen exports (visual reference, pre-event commit) |
 | `services/api/` | FastAPI: facilities, slots, bookings, schemes, advisories RAG |
 | `services/voice/` | WebSocket voice pipeline: Transcribe → safety gate → Bedrock tools → TTS |
