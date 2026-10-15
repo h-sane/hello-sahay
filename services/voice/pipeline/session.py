@@ -100,12 +100,13 @@ class CallSession:
         self._profile_task: asyncio.Task | None = None
         self._audio_q: asyncio.Queue = asyncio.Queue()
         self._window = {"bytes": 0, "rms": 0, "muted_bytes": 0, "muted_rms": 0}
-        self._pending: list[str] = []  # finished utterances; "" stands for one that was only noise
+        self._pending: list[str] = []  # finished utterances from the caller
         self._strikes = 0  # consecutive turns that made no progress
         self._last_reply = ""
         self._filling = False
         self._listening_since = 0.0
         self._last_result = 0.0
+        self._last_speech = 0.0  # last result that held real words; noise never resets the no-input prompt
         self._speak_until = 0.0
         self._started = datetime.now(timezone.utc)
         self._done = asyncio.Event()
@@ -283,9 +284,9 @@ class CallSession:
             if own_voice and not kept:
                 pass  # only our own words came back
             elif not any(c.isalnum() for c in kept):
-                self.trace.add("noise", raw=text)
-                self._pending.append("")
+                self.trace.add("noise", raw=text)  # background voices or hum: ignored, never answered or counted
             else:
+                self._last_speech = self._last_result
                 if self.auto and detected in prompts.LANG_NAME and detected != self.lang:
                     later = self._spoke_once
                     if (len(kept.split()) >= (MIN_WORDS_TO_SWITCH_LATER if later else MIN_WORDS_TO_SWITCH)
@@ -302,7 +303,7 @@ class CallSession:
         while not self._done.is_set():
             await asyncio.sleep(0.1)
             if (not self._pending and self._listening_since and not self._speaking()
-                    and time.monotonic() - max(self._listening_since, self._last_result) > NO_INPUT_S):
+                    and time.monotonic() - max(self._listening_since, self._last_speech) > NO_INPUT_S):
                 self._listening_since = 0.0
                 self.trace.add("no_input")
                 await self._unclear()  # nothing heard for a while: ask again, hang up on the third silence

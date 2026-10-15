@@ -14,7 +14,10 @@ from .hedge import hedged
 
 log = logging.getLogger("sahay.sarvam")
 BASE = "https://api.sarvam.ai"
-SPEECH_RMS = 500  # 16-bit sample level that counts as speech
+SPEECH_RMS = 500  # lowest 16-bit sample level that counts as speech
+NOISE_FACTOR = 3.0  # on a noisy line, speech must be this many times louder than the background level
+MAX_SPEECH_RMS = 3000  # the adaptive bar never rises above this; real callers measured 7000-13000 on Exotel
+MIN_SPEECH_S = 0.25  # an utterance with less loud audio than this is a click or a distant voice, never sent
 QUIET_S = 0.6  # silence after speech that closes an utterance
 MAX_S = 20.0
 
@@ -48,17 +51,28 @@ class SarvamStt:
         self.detected: str | None = None
 
     async def run(self, audio_q: "asyncio.Queue[bytes | None]", on_result: Callable[[str, bool], Awaitable[None]]) -> None:
-        buf, quiet, spoke = bytearray(), 0.0, False
+        buf, quiet, loud, spoke = bytearray(), 0.0, 0.0, False
+        floor = 0.0  # running background level; muted audio arrives as exact zeros and is left out
         while (chunk := await audio_q.get()) is not None:
             secs = len(chunk) / (2 * self.rate)
-            if audioop.rms(chunk, 2) > SPEECH_RMS:
+            level = audioop.rms(chunk, 2)
+            bar = min(MAX_SPEECH_RMS, max(SPEECH_RMS, NOISE_FACTOR * floor))
+            if level > bar:
                 spoke, quiet = True, 0.0
-            elif spoke:
-                quiet += secs
+                loud += secs
+            else:
+                if level and not spoke:
+                    floor = level if not floor else 0.95 * floor + 0.05 * level
+                if spoke:
+                    quiet += secs
             if spoke:
                 buf += chunk
             if spoke and (quiet >= QUIET_S or len(buf) / (2 * self.rate) >= MAX_S):
-                pcm, buf, quiet, spoke = bytes(buf), bytearray(), 0.0, False
+                pcm, enough = bytes(buf), loud >= MIN_SPEECH_S
+                buf, quiet, loud, spoke = bytearray(), 0.0, 0.0, False
+                if not enough:
+                    log.info("dropped a %.2f s blip under the speech bar %d", len(pcm) / (2 * self.rate), bar)
+                    continue
                 text = await self._transcribe(pcm)
                 if text:
                     await on_result(text, True)

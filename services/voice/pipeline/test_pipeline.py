@@ -1,6 +1,8 @@
 """Offline tests: the model, speech and the API are faked, so these cost nothing and need no network."""
+import array
 import asyncio
 import json
+import time
 
 import httpx
 
@@ -322,25 +324,77 @@ def test_the_same_question_three_times_is_rephrased_once_then_the_call_is_handed
     assert any(e["ev"] == "give_up" for e in s.trace.events)
 
 
-def test_noise_gets_a_short_prompt_and_the_third_in_a_row_ends_the_call():
-    from pipeline.prompts import GIVE_UP, UNCLEAR
-
+def test_background_noise_is_never_answered_and_never_counts_against_the_caller():
     async def agent(*_):
         raise AssertionError("noise must not reach the model")
 
     async def go():
         s, _, events = make_session(agent, [])
-        for _ in range(3):
-            await s._on_result("ਕੀ ਆ।", True)
-            s._last_result = 0
-            text, s._pending = " ".join(p for p in s._pending if p), []
-            assert text == ""
-            await s._unclear()
+        s._listening_since = time.monotonic()
+        for raw in ("ਹਾਂਜੀ।", "ਹਾਂ।", "ਅੱਛਾ।"):  # the fragments from the noisy demo-room call
+            await s._on_result(raw, True)
         return s, events
 
     s, events = asyncio.run(go())
-    assert spoken(s) == [UNCLEAR["en"][0], UNCLEAR["en"][1], GIVE_UP["en"]]
-    assert s.state["handoff"]
+    assert s._pending == [] and spoken(s) == [] and s._strikes == 0
+    assert not s.state.get("handoff")
+    assert s._last_speech == 0.0  # the no-input prompt still fires if only noise is heard for a while
+
+
+def test_real_words_after_noise_are_answered():
+    async def go():
+        s, _, _ = make_session(None, [])
+        await s._on_result("ਹਾਂਜੀ।", True)
+        await s._on_result("I need a doctor", True)
+        return s
+
+    s = asyncio.run(go())
+    assert s._pending == ["I need a doctor"] and s._last_speech > 0
+
+
+def _pcm(level: int, secs: float, rate: int = 8000) -> bytes:
+    return array.array("h", [level if i % 2 else -level for i in range(int(rate * secs))]).tobytes()
+
+
+def _listen(chunks: list[bytes]) -> list[bytes]:
+    from pipeline.sarvam import SarvamStt
+
+    sent = []
+    stt = SarvamStt("auto", 8000)
+
+    async def fake(pcm):
+        sent.append(pcm)
+        return "x"
+
+    async def noop(*_):
+        pass
+
+    stt._transcribe = fake
+
+    async def go():
+        q = asyncio.Queue()
+        for c in chunks:
+            for i in range(0, len(c), 320):  # 20 ms frames, as the phone bridge sends them
+                q.put_nowait(c[i:i + 320])
+        q.put_nowait(None)
+        await stt.run(q, noop)
+
+    asyncio.run(go())
+    return sent
+
+
+def test_a_short_blip_is_not_sent_for_transcription():
+    assert _listen([_pcm(0, 0.5), _pcm(4000, 0.1), _pcm(0, 1.0)]) == []
+
+
+def test_speech_is_still_sent_on_a_quiet_line():
+    assert len(_listen([_pcm(20, 0.5), _pcm(8000, 0.8), _pcm(20, 1.0)])) == 1
+
+
+def test_steady_background_hum_is_not_speech_but_a_caller_over_it_is():
+    hum = _pcm(450, 3.0)  # the noisy call's background level, just under the old fixed bar of 500
+    assert _listen([hum, _pcm(700, 1.0), hum]) == []  # a louder stretch of the same room noise
+    assert len(_listen([hum, _pcm(8000, 0.8), hum])) == 1
 
 
 def test_a_short_utterance_never_switches_the_language_but_a_sentence_does():

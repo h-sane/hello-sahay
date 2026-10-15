@@ -90,13 +90,16 @@ local API, then read the call with `call_trace.py latest --base <that API>`.
 
 ### Guards against a stuck call
 
-- Letters of scripts we do not speak (Gurmukhi, Gujarati, ... that the detector emits for noise) are dropped; an
-  utterance with nothing left is noise and gets "I could not hear that".
+- Background noise is ignored, never answered. The Sarvam listener learns the line's background level and only counts
+  audio three times louder as speech (between levels 500 and 3000, `sarvam.NOISE_FACTOR`), and drops anything with
+  under 0.25 s of loud audio unsent (`MIN_SPEECH_S`). Letters of scripts we do not speak (Gurmukhi, Gujarati, ... that
+  the detector emits for distant voices) are dropped; an utterance with nothing left is logged as `noise` and skipped
+  silently. Found from a demo-room call where three bystander fragments each got "I could not hear that" and hung up.
 - Our own sentences coming back on the line are cut out of what was heard (`echo_stripped`).
 - The caller's first sentence (three words or more) sets the language. After that it only moves for a whole sentence of five
   words or more written in the other language's script (`session.MIN_WORDS_TO_SWITCH_LATER`, `_in_script`); a village or
   hospital name, or a short answer, never switches it (`language_kept` in the trace).
-- The same reply twice in a row is re-asked once with a note to rephrase. Three strikes in a row (noise, silence for
+- The same reply twice in a row is re-asked once with a note to rephrase. Three strikes in a row (silence or only noise for
   12 s after the beep, or a repeated question) play a goodbye, queue a human callback (`handoff`) and hang up on the
   carrier.
 - A turn slower than 3 s says "one moment please". Polly, Bedrock and Sarvam requests that stall start a second attempt
