@@ -34,7 +34,9 @@ def make_session(agent, posted, lang="en"):
         return httpx.Response(201, json={})
 
     http = httpx.AsyncClient(base_url="http://api", transport=httpx.MockTransport(api))
-    return CallSession(lang, send_audio, send_event, stt=FakeStt(), agent=agent, tts=tts, http=http), audio, events
+    s = CallSession(lang, send_audio, send_event, stt=FakeStt(), agent=agent, tts=tts, http=http)
+    s._busy = False  # as after the greeting's beep: the caller has the floor
+    return s, audio, events
 
 
 def spoken(session):
@@ -103,6 +105,84 @@ def test_mic_audio_is_muted_while_the_bot_speaks():
         return [s._audio_q.get_nowait() for _ in range(2)]
 
     assert asyncio.run(go()) == [b"\x01\x01", b"\x00\x00"]
+
+
+def test_mic_stays_muted_from_the_start_of_our_turn_until_the_beep():
+    async def go():
+        s, _, _ = make_session(None, [])
+        s._busy = True  # thinking
+        s.feed_audio(b"\x01\x01")
+        await s._beep()
+        s.feed_audio(b"\x01\x01")
+        return [s._audio_q.get_nowait() for _ in range(2)]
+
+    assert asyncio.run(go()) == [b"\x00\x00", b"\x01\x01"]
+
+
+def test_words_heard_mid_turn_are_dropped_so_the_call_never_answers_one_turn_late():
+    """Call 17: 'yes, book it' arrived while the bot was still answering an older sentence, and every reply after
+    that answered the previous question."""
+    heard, call = [], {}
+
+    async def agent(system, messages, tools):
+        heard.append(messages[-1]["content"][-1]["text"])
+        if len(heard) == 1:
+            await call["s"]._on_result("Hello hello", True)  # said while the model is still thinking
+        return f"Reply {len(heard)}."
+
+    async def go():
+        s, _, _ = make_session(agent, [])
+        call["s"] = s
+        loop = asyncio.create_task(s._turn_loop())
+        await s._on_result("I have stomach pain", True)
+        s._last_result = 0
+        await asyncio.sleep(1.5)
+        await s._on_result("Maduravoyal", True)
+        s._last_result = 0
+        await asyncio.sleep(1.5)
+        s._done.set()
+        await loop
+        return s
+
+    s = asyncio.run(go())
+    assert heard == ["I have stomach pain", "Maduravoyal"]
+    assert any(e["ev"] == "ignored_mid_turn" for e in s.trace.events)
+
+
+def test_a_sentence_still_being_transcribed_is_waited_for_not_split_into_two_turns():
+    heard = []
+
+    async def agent(system, messages, tools):
+        heard.append(messages[-1]["content"][-1]["text"])
+        return "Okay."
+
+    async def go():
+        s, _, _ = make_session(agent, [])
+        s._stt.busy = True  # the caller's second half is still with Sarvam
+        loop = asyncio.create_task(s._turn_loop())
+        await s._on_result("I need a doctor", True)
+        await asyncio.sleep(0.6)
+        await s._on_result("for my mother", True)
+        s._stt.busy = False
+        await asyncio.sleep(1.5)
+        s._done.set()
+        await loop
+
+    asyncio.run(go())
+    assert heard == ["I need a doctor for my mother"]
+
+
+def test_running_out_of_strikes_after_booking_says_goodbye_not_callback():
+    from pipeline.prompts import GOODBYE
+
+    async def go():
+        s, _, _ = make_session(None, [])
+        s.state["appointment_id"] = 5
+        await s._give_up("noise")
+        return s
+
+    s = asyncio.run(go())
+    assert spoken(s) == [GOODBYE["en"]] and not s.state.get("handoff")
 
 
 def test_department_comes_from_the_keyword_table_not_the_model():

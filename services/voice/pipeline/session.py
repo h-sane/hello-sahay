@@ -1,6 +1,7 @@
 """One call: PCM16 in, PCM16 out, plus events. Transport-agnostic: the browser page and the phone bridge both feed it.
 
-Half duplex on purpose: while we are speaking, mic audio is replaced by silence so the call never hears itself.
+Half duplex on purpose: from the start of our turn (thinking and speaking) until the beep, mic audio is replaced by
+silence, so the call never hears itself and a sentence said mid-turn is never answered one turn late.
 # ponytail: no barge-in; add it by cutting playback when the caller's level rises mid-reply.
 """
 import array
@@ -43,6 +44,7 @@ MIN_WORDS_TO_SWITCH_LATER = 5  # after the caller's first sentence the language 
 _SCRIPT = {"en": "LATIN", "hi": "DEVANAGARI", "ta": "TAMIL"}
 STRIKES_TO_HANG_UP = 3  # unclear sentences or repeated questions in a row before the call is handed to a person
 NO_INPUT_S = 12.0  # silence after the beep before the caller is prompted again
+MAX_WAIT_FOR_STT_S = 2.5  # longest a finished sentence waits for the caller's next words still being transcribed
 FILLER_AFTER_S = 3.0  # a turn this slow gets a spoken "one moment" so the caller does not sit in silence
 REPEAT_RATIO = 0.85
 ECHO_RATIO = 0.7
@@ -107,6 +109,7 @@ class CallSession:
         self._listening_since = 0.0
         self._last_result = 0.0
         self._last_speech = 0.0  # last result that held real words; noise never resets the no-input prompt
+        self._busy = True  # our turn: from the moment we start answering until the beep; the greeting counts too
         self._speak_until = 0.0
         self._started = datetime.now(timezone.utc)
         self._done = asyncio.Event()
@@ -115,7 +118,7 @@ class CallSession:
 
     # --- transport side ---------------------------------------------------
     def feed_audio(self, pcm: bytes) -> None:
-        muted = self._speaking()
+        muted = self._busy or self._speaking()
         self._level(pcm, muted)
         self._audio_q.put_nowait(bytes(len(pcm)) if muted else pcm)
 
@@ -267,14 +270,18 @@ class CallSession:
         await self._send_audio(audio)
         await asyncio.sleep(max(0.0, self._speak_until + TAIL_S - time.monotonic()))  # audio is queued ahead of real time
         self.trace.add("listening")
+        self._busy = False
         self._listening_since = time.monotonic()
         await self._send_event({"type": "listening"})
 
     async def _on_result(self, text: str, final: bool) -> None:
-        self._last_result = time.monotonic()
         detected = getattr(self._stt, "detected", None)
         self.trace.add("stt_result", text=text, final=final, detected=detected,
-                       speaking=self._speaking(), pending=len(self._pending))
+                       speaking=self._speaking(), pending=len(self._pending), busy=self._busy)
+        if self._busy:  # said or heard during our turn, before the beep: answering it next turn puts the call one behind
+            self.trace.add("ignored_mid_turn", text=text)
+            return
+        self._last_result = time.monotonic()
         if final:
             kept = _clean(text)
             own_voice = kept
@@ -305,12 +312,16 @@ class CallSession:
             if (not self._pending and self._listening_since and not self._speaking()
                     and time.monotonic() - max(self._listening_since, self._last_speech) > NO_INPUT_S):
                 self._listening_since = 0.0
+                self._busy = True
                 self.trace.add("no_input")
                 await self._unclear()  # nothing heard for a while: ask again, hang up on the third silence
                 if not self._done.is_set():
                     await self._beep()
                 continue
-            if self._pending and not self._speaking() and time.monotonic() - self._last_result >= self._end_silence:
+            quiet_for = time.monotonic() - self._last_result
+            if (self._pending and not self._speaking() and quiet_for >= self._end_silence
+                    and (not getattr(self._stt, "busy", False) or quiet_for >= MAX_WAIT_FOR_STT_S)):
+                self._busy = True
                 text, self._pending = " ".join(p for p in self._pending if p), []
                 try:
                     await (self._turn(text) if text else self._unclear())
@@ -341,6 +352,10 @@ class CallSession:
 
     async def _give_up(self, reason: str) -> None:
         self.trace.add("give_up", reason=reason)
+        if self.state.get("appointment_id"):  # already booked: end politely instead of promising a callback
+            await self._say(prompts.GOODBYE[self.lang])
+            await self._finish()
+            return
         self.state.update(handoff=True, handoff_reason=reason)
         await self._say(prompts.GIVE_UP[self.lang])
         await self._finish()

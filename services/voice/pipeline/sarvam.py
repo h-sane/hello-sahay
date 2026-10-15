@@ -49,6 +49,7 @@ class SarvamStt:
         self.rate = sample_rate
         self.code = "unknown" if lang == "auto" else "ta-IN"  # "unknown" lets Sarvam detect en/hi/ta per utterance
         self.detected: str | None = None
+        self.busy = False  # the caller is mid-sentence or their words are being transcribed: do not answer yet
 
     async def run(self, audio_q: "asyncio.Queue[bytes | None]", on_result: Callable[[str, bool], Awaitable[None]]) -> None:
         buf, quiet, loud, spoke = bytearray(), 0.0, 0.0, False
@@ -67,13 +68,18 @@ class SarvamStt:
                     quiet += secs
             if spoke:
                 buf += chunk
+            self.busy = spoke
             if spoke and (quiet >= QUIET_S or len(buf) / (2 * self.rate) >= MAX_S):
                 pcm, enough = bytes(buf), loud >= MIN_SPEECH_S
                 buf, quiet, loud, spoke = bytearray(), 0.0, 0.0, False
                 if not enough:
                     log.info("dropped a %.2f s blip under the speech bar %d", len(pcm) / (2 * self.rate), bar)
                     continue
-                text = await self._transcribe(pcm)
+                self.busy = True
+                try:
+                    text = await self._transcribe(pcm)
+                finally:
+                    self.busy = False
                 if text:
                     await on_result(text, True)
 

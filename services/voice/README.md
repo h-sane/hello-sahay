@@ -95,6 +95,11 @@ local API, then read the call with `call_trace.py latest --base <that API>`.
   under 0.25 s of loud audio unsent (`MIN_SPEECH_S`). Letters of scripts we do not speak (Gurmukhi, Gujarati, ... that
   the detector emits for distant voices) are dropped; an utterance with nothing left is logged as `noise` and skipped
   silently. Found from a demo-room call where three bystander fragments each got "I could not hear that" and hung up.
+- The caller has the floor only after the beep. From the moment we start answering (thinking and speaking) until the
+  beep, the mic is muted and anything still transcribed is dropped (`ignored_mid_turn`), so a sentence said mid-turn
+  is never answered one turn late. Found from call 17, where every reply answered the previous question. A finished
+  sentence also waits up to 2.5 s while the caller's next words are still with Sarvam (`MAX_WAIT_FOR_STT_S`), so one
+  thought with a pause is one turn, not two. Running out of strikes after a booking says goodbye, not "we will call back".
 - Our own sentences coming back on the line are cut out of what was heard (`echo_stripped`).
 - The caller's first sentence (three words or more) sets the language. After that it only moves for a whole sentence of five
   words or more written in the other language's script (`session.MIN_WORDS_TO_SWITCH_LATER`, `_in_script`); a village or
