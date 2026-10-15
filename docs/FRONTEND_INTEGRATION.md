@@ -7,7 +7,7 @@ How the two teammate frontends are wired to our API. Decision (Hussain, 2026-10-
 | Patient app (web) | `apps/patient-web/` | Vite, React 19, TS, Tailwind 4 | 5174 | AI Studio prototype by Adhitya |
 | Sahay Desk (hospital dashboard) | `apps/desk/` | Vite, React 18, JS, Tailwind 3 | 5173 | prototype by Bharani |
 
-`apps/web/` (Next.js `/desk`) is the earlier Desk and still works; `apps/patient/` (Expo) is untouched. Which Desk to demo is Hussain's call.
+`apps/web/` (Next.js `/desk`) is the earlier Desk and `apps/patient/` (Expo) the earlier patient shell; both are superseded and not deployed. The Hello Sahay admin console is `apps/admin` (one static page, `GET /api/v1/admin/*`); hosting is described in `deploy/README.md` and `ARCHITECTURE.md` §7.
 
 ## Run all of it
 
@@ -19,22 +19,22 @@ cd apps/patient-web && npm install && npm run dev     # :5174
 cd apps/desk && npm install && npm run dev            # :5173
 ```
 
-Both dev servers proxy `/api` to `:8001` (and the patient app `/voice` to `:8002`), so the browser never needs CORS and **no backend file changed**. Hosted builds set `VITE_API_URL` and `VITE_VOICE_URL`. Demo Desk login: `desk7@sahay.demo` / `demo1234` (also 8, 9, 10).
+Both dev servers proxy `/api` to `:8001` (and the patient app `/voice` to `:8002`), so the browser never needs CORS and **no backend file changed**. Hosted builds set `VITE_API_URL` and `VITE_VOICE_URL`. Demo Desk login: `desk7@sahay.demo` / `demo1234` (the demo hospital's admin; see `apps/desk/README.md` for the other roles).
 
 ## Patient app: screen to endpoint
 
 | Screen | Backend | Notes |
 |---|---|---|
-| Home, Hospitals, nearest facility | `GET /facilities?lat&lng` | Cached in `hospitalService`; government first, then nearest. Facilities that are not Sahay Desk partners show phone and directions, not a booking flow |
+| Home, Hospitals, nearest facility | `GET /places/nearby-hospitals?lat&lng` (real), `GET /facilities` as the fallback | Real OpenStreetMap hospitals, nearest first; every hospital books into the one demo Desk (see "Nearest hospital" below) |
 | Booking | `GET /facilities/{id}/slots?date`, `POST /appointments` | Next 7 days fetched together; a 409 returns the patient to the slot step |
-| My Health, appointments | `GET /patients/{phone}/appointments`, `PATCH ... cancel`, `POST /auth/otp/request` and `/verify` | Lookup by phone after the demo OTP (123456); a fresh booking is also cached on the device |
+| My Health, appointments | `GET /patients/{phone}/appointments`, `PATCH ... cancel`, `POST /auth/otp/request` and `/verify` | Lookup by phone after sign-in with the random code (shown on screen in demo mode); a fresh booking is also cached on the device |
 | Ask Sahay | `POST /chat` | Cited answers only. Emergency and symptom messages get the server's fixed reply plus the nearest government facility |
 | Home advisory card | `GET /advisories?lang=` | Replaces the hardcoded "Dr. Sahay" advice |
 | Call Sahay | `WS /voice/call?lang=en\|hi\|ta` (voice service) | 16 kHz mono PCM16 both ways; events `transcript`, `heard`, `latency`, `ended`. The mic path needs a real microphone and could not be exercised by automation |
 
-Device only (no backend): language and consent, location, medicine comparison (demo sample data, "confirm with your doctor or pharmacist"), dose reminders, family profiles.
+Device only (no backend): language, consent and location. Medicines, reminders, family members and the Care plan are on the server (see the sections below).
 
-Removed because they break the guardrails or have no backend: the "Dr. Sahay" persona and clinical advice text, symptom-to-department routing, seeded fake appointments, reminders and family members, six of the nine languages (only Tamil, Hindi, English remain).
+Removed because they break the guardrails: the "Dr. Sahay" persona and clinical advice text, symptom-to-department routing, seeded fake appointments, six of the nine languages (only Tamil, Hindi, English remain).
 
 ### Nearest hospital: real names, one demo Desk
 
@@ -79,6 +79,6 @@ Tabs depend on the login role (`apps/desk/README.md` has the table); the API enf
 ## Known gaps (backend work, not done here)
 
 - `GET /patients/{phone}/appointments` and `PATCH` cancel/reschedule are open endpoints; anyone who knows a number can list that patient's bookings. The app gates its own lookup with the demo OTP but the API does not enforce it. Needs a patient token check (owner: API session).
-- No patient age. A switched-off Desk login keeps working until its token expires (12 h). `POST /calls` and `POST /appointments` take no token (the voice service has none), so anyone who knows the API can post a fake call or booking.
+- A switched-off Desk login keeps working until its token expires (12 h). `POST /calls` and `POST /appointments` take no token (the voice service has none), so anyone who knows the API can post a fake call or booking.
 - WhatsApp confirmation is still a log line (P1-8 needs keys), so the booking screen says "show this code at the counter" only.
-- Medicines, reminders, family members and the Care plan are on the server (see the patient-app section below). The old local-only copies of reminders and family profiles in `storageService` are no longer read.
+- The old local-only copies of reminders and family profiles in `storageService` are no longer read.

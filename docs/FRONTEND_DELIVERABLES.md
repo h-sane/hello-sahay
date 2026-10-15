@@ -1,11 +1,13 @@
 # Front-end Deliverables (for the AI Studio designer)
 
-Every screen we need designed, for three surfaces. Feature detail: [`PATIENT_APP_SPEC.md`](PATIENT_APP_SPEC.md). API names: [`ARCHITECTURE.md`](ARCHITECTURE.md) §5.
+Every screen we need designed, for three surfaces. Feature detail: [`PATIENT_APP_SPEC.md`](PATIENT_APP_SPEC.md). API names: [`ARCHITECTURE.md`](ARCHITECTURE.md) §6.
+
+> **Status 2026-10-15:** delivered and built. The AI Studio prototypes were imported, wired to the API and rebuilt in the large-type kit (`apps/patient-web`, `apps/desk`, `apps/admin`). This list stays as the screen reference; the priority order at the end is historical.
 
 ## How to hand screens over
 1. Design in Google AI Studio. Export the code and screenshots.
 2. Put them in `design/ai-studio/<surface>/` and commit once as `chore: import AI Studio UI prototype (pre-event reference)`. Later design updates get their own commits.
-3. The AI Studio code is a **visual reference only** (it is web React wired to Gemini with the key in the browser). The real screens are rebuilt in Expo (patient app) and Next.js (Desk/admin). So: prioritise clear screens and states over working code.
+3. The AI Studio code is a **visual reference only** (it is web React wired to Gemini with the key in the browser). The real screens are rebuilt in Vite (patient app, Desk) and a static page (admin). So: prioritise clear screens and states over working code.
 4. Name screenshots `<number>-<screen>-<state>.png`, e.g. `03-chat-answer.png`, `03-chat-fallback.png`.
 
 ## Visual direction

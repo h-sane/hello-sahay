@@ -34,7 +34,9 @@ issue per task card. Voice (2026-10-14): `services/voice` runs the English/Hindi
 
 **Hospitals tab (2026-10-15):** scheme tags come from Tamil Nadu's own CMCHIS empanelment list (`data/schemes/`, matcher `services/api/app/schemes.py`); unmatched hospitals say "Scheme cover not confirmed". The map is real (Leaflet + OpenStreetMap tiles), cards are phone-width, and Call buttons dial the demo number without showing it. Verified in a 375 px frame against a local API; booking was driven only to the date-and-time step.
 
-**Patient app tabs 3, 4, 5, 1 and elderly-friendly UI (2026-10-15):** Ask Sahay answers from the verified corpus first, then live official government websites (gov.in, nic.in, cmchistn.com only) with the page link cited. Medicines uses real data (246k brands, official PMBI Jan Aushadhi list) and reads label photos with Nova vision; the label's printed price is shown. My Health has server-side family members, reminders with an "I took it" log, in-app alerts, editable details and the Care plan (demo payment upgrades the parent's number and shows in the admin console). Home reflects all of it. Every screen uses the large-type kit in `apps/patient-web/src/components/ui.tsx`. Verified in a 390 px frame against a local API; not yet merged to `main`, not tried on a real phone. See `.claude/handoffs/2026-10-15_session_21.md`.
+**Patient app tabs 3, 4, 5, 1 and elderly-friendly UI (2026-10-15):** Ask Sahay answers from the verified corpus first, then live official government websites (gov.in, nic.in, cmchistn.com only) with the page link cited. Medicines uses real data (246k brands, official PMBI Jan Aushadhi list) and reads label photos with Nova vision; the label's printed price is shown. My Health has server-side family members, reminders with an "I took it" log, in-app alerts, editable details and the Care plan (demo payment upgrades the parent's number and shows in the admin console). Home reflects all of it. Every screen uses the large-type kit in `apps/patient-web/src/components/ui.tsx`. Verified in a 390 px frame against a local API; merged to `main`, not tried on a real phone. See `.claude/handoffs/2026-10-15_session_21.md`.
+
+**Docs audit (2026-10-15):** `docs/ARCHITECTURE.md` rewritten as built with an architecture and a data flow diagram (`docs/diagrams/`); every doc and README reconciled with the code at `8e99d39`; `docs/PRODUCT_FEATURES.md` carries a built/demo/not-built status per feature. Not built yet: WhatsApp confirmation, Razorpay, keypad fallback, voice advisory answers.
 
 **Local setup:** `docker compose up -d` (Postgres on host port **5433**), copy
 `.env.example` to `.env`, then `python scripts/check_setup.py` (needs boto3 and
@@ -60,6 +62,7 @@ INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
 | [`docs/PRODUCT_FEATURES.md`](docs/PRODUCT_FEATURES.md) | Every feature per app (helpline, patient app, Desk, admin, `/call`) with tier and task card |
 | [`docs/FRONTEND_INTEGRATION.md`](docs/FRONTEND_INTEGRATION.md) | How the teammate frontends are wired to the API, run commands, known gaps |
 | [`docs/BUSINESS.md`](docs/BUSINESS.md) | Business decisions: who pays, pricing, go-to-market, competitors, jury answers, open questions |
+| [`docs/diagrams/`](docs/diagrams/) | Architecture and data flow diagrams (archify HTML + PNG, generated from the JSON beside them); `docs/ARCHITECTURE.md` embeds them |
 
 ## Team and tools
 
@@ -67,7 +70,7 @@ INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
   reviews, docs and hard bugs.
 - Gemini / Antigravity implement and research, working from the task cards in
   `docs/IMPLEMENTATION_PHASES.md`. Review their commits against the API
-  contract in `docs/ARCHITECTURE.md` §5.
+  contract in `docs/ARCHITECTURE.md` §6.
 - One teammate designs screens in Google AI Studio; output lands in
   `design/ai-studio/` as a visual reference only.
 
@@ -102,26 +105,28 @@ INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
   stored by default), minimal personal data, no secrets or real patient data in
   the repo. Seed data is clearly labelled DEMO DATA.
 
-## Repository map (planned; see brief §7.2)
+## Repository map
 
 | Path | Role |
 |---|---|
-| `apps/patient/` | Expo React Native patient app |
-| `apps/web/` | Next.js: `/desk` hospital dashboard, `/admin` our console, `/call` browser "Call Sahay" demo |
-| `apps/patient-web/` | Teammate's patient web app, wired to the API (Vite, :5174). See `docs/FRONTEND_INTEGRATION.md` |
-| `apps/desk/` | Teammate's Sahay Desk, wired to the API (Vite, :5173) |
+| `apps/patient/` | Earlier Expo shell, superseded, not deployed |
+| `apps/web/` | Earlier Next.js Desk, admin and call demo, superseded, not deployed |
+| `apps/patient-web/` | Patient app, wired to the API (Vite, :5174; Android APK via Capacitor). See `docs/FRONTEND_INTEGRATION.md` |
+| `apps/desk/` | Sahay Desk, wired to the API (Vite, :5173), role-based tabs |
 | `apps/admin/` | Hello Sahay admin console for our team: overview, hospitals, payments, all calls and transcripts, Care plan. One static `index.html`, no build; API is `services/api/app/routers/admin.py` |
 | `design/ai-studio/` | AI Studio screen exports (visual reference, pre-event commit) |
-| `services/api/` | FastAPI: facilities, slots, bookings, schemes, advisories RAG |
-| `services/voice/` | WebSocket voice pipeline: Transcribe → safety gate → Bedrock tools → TTS |
+| `services/api/` | FastAPI: facilities, slots, bookings, auth, chat RAG, medicines, Care plan, admin API |
+| `services/voice/` | CallSession pipeline (STT → safety gate → Bedrock tools → TTS) and the Exotel phone bridge |
 | `data/seed/` | Demo district data (DEMO DATA) |
-| `data/advisories/` | Government advisory sources with issuer, URL, date |
-| `docs/` | Project brief, proposals, architecture notes |
+| `data/advisories/`, `data/medicines/`, `data/schemes/` | Advisory sources, medicine and Jan Aushadhi data, CMCHIS hospital list |
+| `deploy/` | Lightsail stack, Caddy, self-updating deploy script, Android build notes |
+| `scripts/` | Loaders, `call_trace.py`, `sim_call.py`, `check_setup.py` |
+| `docs/` | Project brief, architecture and diagrams, features, business |
 | `.claude/handoffs/` | Session handoffs (gitignored) |
 
 ## Stack
 
-FastAPI + PostgreSQL/pgvector · Next.js · Expo · AWS Bedrock (LLM) · Amazon
+FastAPI + PostgreSQL/pgvector · Vite + React (+ Capacitor for Android) · AWS Bedrock (LLM) · Amazon
 Transcribe (Hindi/English speech-to-text) · Amazon Polly (Hindi/English speech) ·
 Sarvam (Tamil speech-to-text `saarika:v2.5` and text-to-speech `bulbul:v3`;
 verified 2026-10-14, ₹100 free credit) · WhatsApp Cloud API · AWS Mumbai region. Secrets live in

@@ -1,5 +1,7 @@
 # Patient app fix plan, tab by tab
 
+**Status 2026-10-15: all six tabs and the elderly-friendly pass are done** (sessions 18, 19, 21). Open: merge to `main` happened with the docs audit; a real-phone test of the APK and the Care plan flow is still to do.
+
 Source: Hussain's critique list of 2026-10-15. One session per tab. Each tab ends
 with a handoff, a commit, and a check on a phone-width screen (360 x 740).
 
@@ -47,6 +49,8 @@ stored only on the phone, with no number. There is no care plan, no payment and 
 "monitored" state anywhere in the app or API.
 
 ## Tab 0: First open
+
+**Status: done 2026-10-15** (session_18, `655d13b`). Language, About you (all required), mobile number, random 6-digit code shown on screen in demo mode, saved profile.
 
 Build:
 1. Step order: language, then "About you" (name, age, gender, village, mobile number,

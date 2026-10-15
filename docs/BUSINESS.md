@@ -32,7 +32,7 @@ Patients never pay for care. A free multilingual voice helpline sends patients t
 
 **Fee trigger:** the ₹40 fee is charged only when the hospital marks the patient arrived on Sahay Desk. In the demo, marking a patient arrived adds a ₹40 line in the admin payments screen.
 
-**Payments in the demo:** Razorpay test mode, so the model is shown working without real money.
+**Payments in the demo:** the Care plan payment is a demo record (`DEMO-PAY-n`; Razorpay keys are not set up). Hospital subscription and arrival-fee lines are computed in the admin console from the partner flag and arrived appointments, so the model shows working without real money.
 
 ## 4. Pricing logic
 

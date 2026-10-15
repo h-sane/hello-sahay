@@ -2,12 +2,14 @@
 
 Everything the patient app needs, in one list. Architecture and API: [`ARCHITECTURE.md`](ARCHITECTURE.md). Screens for the designer: [`FRONTEND_DELIVERABLES.md`](FRONTEND_DELIVERABLES.md).
 
+> **Status 2026-10-15:** built as a Vite web app wrapped for Android with Capacitor (`apps/patient-web`), not Expo. Per-feature status is in [`PRODUCT_FEATURES.md`](PRODUCT_FEATURES.md). Where this spec differs from the app: sign-in uses a random 6-digit code shown on screen (not a fixed `123456`); the 3-checks-a-day limit and the government services hub are not built; reminders raise in-app alerts, with no loud alarm or WhatsApp; the Care plan payment is a demo; strings live in `apps/patient-web/src/translations`.
+
 ## 1. Who it is for
 - Rural patients and elderly users on **low-end Android phones**, often first-time smartphone users, many who read little or no English.
 - Their **children in cities**, who pay for the Care plan and watch over their parents' medicines.
 
 ## 2. Design rules (non-negotiable)
-- **Languages:** Tamil, Hindi, English at launch; every string in translation files (`i18n/ta.json`, `hi.json`, `en.json`), none hard-coded. Language picked on first launch, changeable from every screen's header.
+- **Languages:** Tamil, Hindi, English at launch; every string in translation files (`apps/patient-web/src/translations`), none hard-coded. Language picked on first launch, changeable from every screen's header.
 - **Voice everywhere:** a microphone button on every input and a speaker button on every answer (read aloud).
 - **Big and simple:** body text ≥ 18sp, buttons ≥ 56dp tall, high contrast, icons with text labels, at most 4 options per screen, no hidden gestures.
 - **Works on poor networks:** loading states on everything, retry on failure, last results cached for offline viewing.
@@ -21,7 +23,7 @@ Everything the patient app needs, in one list. Architecture and API: [`ARCHITECT
 |---|---|
 | Language picker | 3 large buttons with the language name in its own script |
 | Consent screen | Plain-language DPDP consent: what we store (name, phone, appointments, chats) and what we don't (no recordings); accept to continue |
-| Phone login | Phone number + OTP (demo OTP `123456` during the hackathon) |
+| Phone login | Phone number + a random 6-digit code (valid 5 minutes, 5 tries); shown on screen in demo mode because India SMS needs DLT registration |
 | Profile | Name, village, age (optional), family member's phone (optional) |
 
 ### 3.2 Home (free)

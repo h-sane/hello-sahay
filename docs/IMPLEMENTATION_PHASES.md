@@ -2,9 +2,28 @@
 
 How we build Hello Sahay in the 24 hours. Each task card is written so an implementing agent (Gemini / Antigravity) can pick it up cold: it names the folder, the inputs, and how we know it's done.
 
-Read first: [`ARCHITECTURE.md`](ARCHITECTURE.md) (API contract §5, data model §4, rules §3) and [`PATIENT_APP_SPEC.md`](PATIENT_APP_SPEC.md).
+Read first: [`ARCHITECTURE.md`](ARCHITECTURE.md) (API contract §6, data model §5, rules §3) and [`PATIENT_APP_SPEC.md`](PATIENT_APP_SPEC.md).
 
 Which features each app gets, with tier and card number: [`PRODUCT_FEATURES.md`](PRODUCT_FEATURES.md). Business decisions: [`BUSINESS.md`](BUSINESS.md).
+
+## Card status (2026-10-15, checked against the code)
+
+| Cards | Status |
+|---|---|
+| P0-1 to P0-3 | Done |
+| P0-4 | Folder and README only; the AI Studio prototypes were imported straight into `apps/patient-web` and `apps/desk` |
+| P1-1 to P1-4 | Done (API, seed data, booking, safety gate) |
+| P1-5, P1-6 | Done: English, Hindi and Tamil on a real phone number (Exotel) and in the browser; Tamil and `lang=auto` use Sarvam STT |
+| P1-7 | Done (call log with trace, handoff queue, emergency redirect) |
+| P1-8 | **Not built**: WhatsApp confirmation is a log stub (needs keys) |
+| P1-9, P1-10 | Done (10 official documents, `/chat` with citations, plus a live official-site search) |
+| P1-11 | Done in `apps/desk` (Vite, role-based), not `apps/web/desk` |
+| P1-12 to P1-14 | Done in `apps/patient-web` (Vite + Capacitor), not Expo; appointments cancel in the app, reschedule is API-only |
+| P2-1 to P2-3 | Done with 246k real brands, the PMBI list and a vision label scan; NPPA ceiling prices not loaded; no 3-checks-a-day limit |
+| P2-4 | Partial: family, Care plan with a demo payment, reminders, "I took it", in-app alerts; no Razorpay, loud alarm or WhatsApp |
+| P2-5 | Done as the static `apps/admin` console (overview, hospitals, logins, payments, calls, Care plan); no add/edit hospital, no content tab |
+| P2-6 | Partial: advisories feed yes; services hub and Kendra locator no |
+| P2-7 | Partial: Exotel number yes (Twilio dropped); rate limits no |
 
 ## Rules for every task
 1. Work on the `development` branch; commit after each finished card with a clear message (`feat(api): booking endpoints`). Push. Judges read the history.
