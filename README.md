@@ -4,8 +4,8 @@
 
 Hello Sahay is a free AI voice helpline for rural patients in Tamil, Hindi and
 English. It finds nearby government and private hospitals, checks which ones
-accept PM-JAY / CMCHIS scheme cards, books the appointment and sends a WhatsApp
-confirmation. Hospitals manage bookings on the **Sahay Desk** dashboard.
+accept PM-JAY / CMCHIS scheme cards and books the appointment on the call
+(WhatsApp confirmation is next). Hospitals manage bookings on the **Sahay Desk** dashboard.
 
 The AI never diagnoses or gives treatment advice. Health information is read
 from government advisories with the source named, and emergencies are
@@ -16,6 +16,16 @@ Built at **Founder's Code 2026** (SMIT Chennai), Rural Healthcare domain.
 ## Status
 
 Built and hosted for the hackathon: the helpline answers on a real number (044-481-36970, English / Hindi / Tamil), the patient app runs on the web and as an Android APK, and Sahay Desk and the admin console are live. WhatsApp confirmation and the real Care plan payment are not wired yet; see [what is built per app](docs/PRODUCT_FEATURES.md).
+
+## Try it
+
+| What | Where | Demo login (DEMO DATA, password `demo1234`) |
+|---|---|---|
+| Helpline | Call **044-481-36970** from any phone | none |
+| Patient app (web) | https://sahay.13-127-85-246.sslip.io | any mobile number; the one-time code is shown on screen |
+| Patient app (Android) | APK on the [latest release](https://github.com/h-sane/hello-sahay/releases/latest) | same as web |
+| Sahay Desk | https://sahaydesk.13-127-85-246.sslip.io | `reception@sunrise.demo` (receptionist), `desk7@sahay.demo` (hospital admin), `harini@sunrise.demo` (doctor) |
+| Admin console | https://hellosahay.13-127-85-246.sslip.io | `admin@sahay.demo` |
 
 Docs: [architecture and diagrams](docs/ARCHITECTURE.md) · [features and status](docs/PRODUCT_FEATURES.md) · [patient app spec](docs/PATIENT_APP_SPEC.md) ·
 [frontend wiring](docs/FRONTEND_INTEGRATION.md) · [implementation phases](docs/IMPLEMENTATION_PHASES.md) · [business](docs/BUSINESS.md) · [full brief](docs/PROJECT_BRIEF.md).
