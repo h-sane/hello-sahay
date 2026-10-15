@@ -16,14 +16,17 @@ The dev server proxies `/api` to `http://localhost:8001` (set `SAHAY_API_ORIGIN`
 
 | Screen | Endpoint |
 |---|---|
-| Hospitals, Home, Emergency (nearest government facility first) | `GET /facilities?lat&lng` |
+| Hospitals, Home, Emergency | `GET /places/nearby-hospitals?lat&lng` (real OpenStreetMap hospitals, CMCHIS tags), `GET /config/contacts` |
 | Booking (department, doctor, day, slot, patient) | `GET /facilities/{id}/slots`, `POST /appointments` |
-| My Health, appointments | `GET /patients/{phone}/appointments`, `PATCH /appointments/{id}` (cancel), `POST /auth/otp/*` |
-| Ask Sahay, voice question | `POST /chat` (cited answers; emergency and symptom messages get the fixed safe reply) |
+| First open, My Health appointments | `POST /auth/otp/*`, `PUT /patients/me`, `GET /patients/{phone}/appointments`, `PATCH /appointments/{id}` (cancel) |
+| Ask Sahay | `POST /chat` (cited answers; emergency and symptom messages get the fixed safe reply) |
+| Medicines | `GET /medicines/search`, `POST /medicines/scan` |
+| My Health: family, Care plan, reminders, alerts | `/family`, `/care/*`, `/reminders`, `/notifications` |
 | Home advisory card | `GET /advisories?lang=` |
+| Start call | `WS /voice/call` (voice service) |
 
-Kept on the device only: language and consent, location, medicine comparison (demo data, always "confirm with your doctor or pharmacist"), dose reminders and family profiles.
+Full screen-to-endpoint map: `docs/FRONTEND_INTEGRATION.md`. Kept on the device only: language, consent and location.
 
-Not available yet, shown honestly: WhatsApp confirmation (needs keys), online booking at facilities that are not Sahay Desk partners (the app shows their phone number instead).
+Not available yet, shown honestly: WhatsApp confirmation (needs keys), real payment for the Care plan (demo payment), sign-in code by SMS (shown on screen).
 
 `npm run lint` type-checks the project.

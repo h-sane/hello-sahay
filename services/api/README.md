@@ -1,7 +1,7 @@
 # services/api — Backend API (FastAPI)
 
-Facilities, slots, bookings, patients, auth, calls and the Desk live socket. Chat, medicines, Care plan and payments land here as their task cards ship.
-Contract: `docs/ARCHITECTURE.md` §4 (data model) and §5 (endpoints).
+Facilities, slots, bookings, patients, auth, calls, the Desk live socket, cited chat, medicines, family and Care plan, reminders, in-app alerts and the admin console API.
+Contract: `docs/ARCHITECTURE.md` §5 (data model) and §6 (endpoints).
 
 ## Run
 
@@ -52,7 +52,7 @@ Send the token as `Authorization: Bearer <token>`.
 - Slots exist for the next 7 days for every partner doctor: created at start-up and every 6 hours (`app/slots.py`), never removed.
 - The demo hospital is the first partner facility (`app/demo.py`): `POST /calls` without a `facility_id` is filed under it, and `GET /places/nearby-hospitals` points every real hospital's `book_facility_id` at it.
 - Every booking, change and call is pushed as `{"type":"appointment","appointment":{…}}` or `{"type":"call","call":{…}}` to that facility's sockets. The hub is in-process, so run one uvicorn worker.
-- `app/notify.py:send_whatsapp` only logs until P1-8 fills it in.
+- `app/notify.py:send_whatsapp` only logs; WhatsApp confirmation is not wired yet (needs keys). In-app alerts are real (`app_notification`).
 - `GET /facilities` lists government types (PHC, CHC, GH) before private, then nearest first when `lat`/`lng` are given.
 
 ## Chat and advisories (P1-10)
@@ -76,4 +76,4 @@ AWS_PROFILE=personal-bedrock python scripts/ingest_advisories.py [--dir DIR] [--
 
 ## Layout
 
-`app/main.py` wires the routers under `/api/v1`; `app/routers/` has one file per domain (`facilities`, `booking`, `auth`, `live`, `calls`, `chat`); `app/chat/` holds Bedrock access, chunking and the chat pipeline; `app/models.py` and `app/db.py` hold the tables and session; `app/safety/` is the emergency/symptom gate.
+`app/main.py` wires the routers under `/api/v1`; `app/routers/` has one file per domain (`facilities`, `booking`, `auth`, `live`, `calls`, `chat`, `patients`, `places`, `admin`, `users`, `doctors`, `medicines`, `care`, `reminders`, `config`); `app/chat/` holds Bedrock access, chunking and the chat pipeline, `app/live_search.py` the official-site live search; `app/models.py`, `app/models_patient_app.py` and `app/db.py` hold the tables and session; `app/schemes.py` matches hospitals to the CMCHIS list; `app/slots.py` keeps slots fresh; `app/safety/` is the emergency/symptom gate.

@@ -1,4 +1,6 @@
-# apps/web — Sahay Desk + Admin + browser call demo (Next.js)
+# apps/web — earlier Sahay Desk + Admin + browser call demo (Next.js)
+
+> **Superseded, not deployed.** The live Desk is `apps/desk` (Vite, role-based) and the admin console is `apps/admin`. This folder still builds and runs against the API; it is kept as the first implementation.
 
 Routes: `/desk` (hospital staff), `/admin` (our team), `/call` (browser "Call Sahay").
 Screens: `docs/FRONTEND_DELIVERABLES.md` §B and §C. Task cards: P1-11, P2-5.

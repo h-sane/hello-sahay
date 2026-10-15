@@ -1,11 +1,11 @@
 # services/voice — Voice pipeline
 
-Browser/app audio over WebSocket → Amazon Transcribe (ta/hi/en-IN) → safety gate → Bedrock with tools → Polly (hi/en) / Sarvam or Google (ta) → audio back.
-Flow: `docs/ARCHITECTURE.md` §2.1. Task cards: P1-5 to P1-8.
+Phone or browser audio over WebSocket → speech-to-text (Sarvam `saarika:v2.5` for Tamil and `lang=auto`; Amazon Transcribe for fixed English/Hindi) → safety gate → Bedrock Nova Pro with tools → Polly (en/hi) or Sarvam `bulbul:v3` (ta) → audio back.
+Flow: `docs/ARCHITECTURE.md` §2.1 and the diagrams in `docs/diagrams/`. Task cards: P1-5 to P1-8.
 
 ## Demo phone number (task card P2-7 bonus)
 
-Two providers share one bridge, `telephony/phone_bridge.py`. Each call is a `CallSession` (the same pipeline the browser page uses) at 8 kHz; language is `?lang=en|hi|ta` (Twilio: on the `/incoming` webhook URL; Exotel: on the `/exotel` URL), default `en`.
+Two providers share one bridge, `telephony/phone_bridge.py` (Exotel is the one in use; the Twilio endpoints are kept but Twilio was dropped, see decision log 24). Each call is a `CallSession` (the same pipeline the browser page uses) at 8 kHz; language is `?lang=en|hi|ta` (Twilio: on the `/incoming` webhook URL; Exotel: on the `/exotel` URL), default `en`.
 
 | Provider | Number | Caller needs | Entry point |
 |---|---|---|---|

@@ -2,6 +2,8 @@
 
 > Handoff for Claude Code. Covers the event rules, every decision made so far, the product, the business case, competitors, architecture, build plan and open questions.
 > **Status legend:** ✅ decided · 🟡 proposed, waiting for team confirmation · ❓ open
+>
+> **Status 2026-10-15:** this is the planning brief written before the build. The decision log (section 11) is still the source of truth for product decisions and now lists the decisions made since (rows 23 onward). Where section 7 differs from the code, the code wins: see [`ARCHITECTURE.md`](ARCHITECTURE.md) for the system as built and [`PRODUCT_FEATURES.md`](PRODUCT_FEATURES.md) for what is built per app.
 
 ---
 
@@ -212,39 +214,40 @@ Ideas considered and rejected, so nobody re-proposes them:
 ### 7.1 Stack (✅ unless marked)
 | Layer | Choice | Notes |
 |---|---|---|
-| Patient app | **Expo (React Native)** | UI prototyped first in **Google AI Studio**. Use the prototype as a **UI and flow reference only**: it generates React *web* code wired to Gemini, often with the API key in the browser. Don't keep its architecture. Commit the AI Studio export as its own commit ("UI prototype from AI Studio"). Demo on a physical Android phone (Expo Go or a local APK build; don't depend on EAS cloud build queues) |
-| Hospital dashboard | **Next.js** | |
+| Patient app | ~~Expo (React Native)~~ → **Vite + React web app, wrapped for Android with Capacitor** (built, see decision log 23) | UI prototyped first in **Google AI Studio**. Use the prototype as a **UI and flow reference only**: it generates React *web* code wired to Gemini, often with the API key in the browser. Don't keep its architecture. Commit the AI Studio export as its own commit ("UI prototype from AI Studio"). Demo on a physical Android phone (Expo Go or a local APK build; don't depend on EAS cloud build queues) |
+| Hospital dashboard | ~~Next.js~~ → **Vite + React** (`apps/desk`), plus a static admin console (`apps/admin`) | Built; see decision log 23 |
 | Backend API | 🟡 **FastAPI (Python)** | Team already uses it; assumed, confirm |
 | Database | PostgreSQL (+ **pgvector** for RAG) | Local Docker for dev; RDS or EC2 for the demo |
 | LLM | **AWS Bedrock** | Small, fast model (Haiku-class) for live voice turns; larger model for RAG answers and medicine OCR. Verify region availability and that the $200 credits cover Bedrock (promo credits sometimes exclude Marketplace models) |
-| Speech-to-text | **Amazon Transcribe streaming** | Supports hi-IN, ta-IN, en-IN (plus te, kn, ml, bn, mr, gu) with streaming. Verify streaming language identification; otherwise use a language-choice prompt at call start |
+| Speech-to-text | **Amazon Transcribe streaming** for English and Hindi on fixed-language calls; **Sarvam `saarika:v2.5`** for Tamil and for `lang=auto` phone calls (built) | Supports hi-IN, ta-IN, en-IN (plus te, kn, ml, bn, mr, gu) with streaming. Verify streaming language identification; otherwise use a language-choice prompt at call start |
 | Text-to-speech, Hindi + English | **Amazon Polly** | Polly lists only **hi-IN and en-IN** among Indian languages |
-| Text-to-speech, Tamil | ❓ **Sarvam (Bulbul)** or **Google Cloud TTS** | **Polly has no Tamil.** Sarvam also gives an "Indian AI stack" pitch line. Check free tier and keys early |
+| Text-to-speech, Tamil | ✅ **Sarvam `bulbul:v3`** (decided and built) | **Polly has no Tamil.** Sarvam also gives an "Indian AI stack" pitch line. Check free tier and keys early |
 | Speech-to-speech | Not used | AWS forum answer (a year old) says Nova Sonic supports English only |
 | Voice orchestration | Self-built WebSocket pipeline or open-source **Pipecat / LiveKit** | **Don't** use a ready-made agent platform (Vapi, Bolna) as the core; the FAQ gives it less credit |
 | OCR (medicine strip) | Bedrock vision model, or Amazon Textract | Printed text only. Extract brand, composition, strength, form → match against the generics table |
 | Embeddings | 🟡 Bedrock multilingual embeddings (Cohere Embed Multilingual or Titan v2) | Verify Hindi and Tamil quality |
 | Messaging | **WhatsApp Cloud API test number** (Meta) | Hussain has set up the WhatsApp Business API before. A test number can message only a few verified recipients, which is fine for the demo. **SMS in India needs DLT registration**, so don't plan on SMS for the demo |
-| Telephony | Bonus only | **A real Indian number won't be ready in 24h.** Exotel needs business KYC (2–3 business days); trial accounts get shared numbers, limited minutes, no WhatsApp. Twilio India numbers also need regulatory docs. **Main demo = browser or in-app "Call Sahay" streaming audio through the same pipeline.** Optional: a Twilio trial number |
-| Hosting | AWS (Mumbai region preferred) | Data residency is a DPDP pitch point |
+| Telephony | Bonus only | **A real Indian number won't be ready in 24h.** Exotel needs business KYC (2–3 business days); trial accounts get shared numbers, limited minutes, no WhatsApp. Twilio India numbers also need regulatory docs. **Main demo = browser or in-app "Call Sahay" streaming audio through the same pipeline.** Optional: a Twilio trial number. *As built: Exotel's Indian number 044-481-36970 reaches the same pipeline; Twilio was dropped.* |
+| Hosting | AWS (Mumbai region preferred) | Data residency is a DPDP pitch point. *As built: one Lightsail instance in ap-south-1, deploys from `main`* |
 
-### 7.2 Suggested repo layout
+### 7.2 Repo layout (as built)
 ```
 hello-sahay/
   apps/
-    patient/        # Expo RN app
-    desk/           # Next.js hospital dashboard (also hosts the web "Call Sahay" demo page)
+    patient-web/    # patient app: Vite + React, Android APK via Capacitor
+    desk/           # Sahay Desk: Vite + React, role-based tabs
+    admin/          # Hello Sahay admin console: one static index.html
+    web/, patient/  # earlier Next.js and Expo builds, not deployed
   services/
-    api/            # FastAPI: facilities, doctors, slots, bookings, patients, schemes, advisories RAG, medicine OCR
-    voice/          # WebSocket voice pipeline: audio in → Transcribe → safety gate → Bedrock (tools) → TTS → audio out
-  data/
-    seed/           # demo district: facilities, doctors, slots, scheme empanelment (marked as DEMO DATA)
-    advisories/     # government advisory source docs + metadata (title, issuing body, URL, date)
-    generics/       # Jan Aushadhi product list (composition, strength, form, MRP)
-  docs/             # this file, pitch notes, architecture diagram
+    api/            # FastAPI: facilities, slots, bookings, patients, auth, chat RAG, medicines, Care plan, admin
+    voice/          # CallSession pipeline (pipeline/) + phone bridge (telephony/)
+  data/             # seed/ (DEMO DATA), advisories/, medicines/, schemes/
+  deploy/           # Lightsail stack: docker compose, Caddy, self-updating deploy script
+  scripts/          # loaders, call_trace.py, sim_call.py
+  docs/             # this file, ARCHITECTURE.md, diagrams/
 ```
 
-### 7.3 Voice call flow
+### 7.3 Voice call flow (design; as built see `services/voice/README.md`)
 1. **Consent and language:** "This call is handled by Sahay's AI assistant… say your language / press 1 Hindi, 2 Tamil, 3 English." Detect automatically if Transcribe language identification works.
 2. Audio streams to Transcribe; transcript chunks go to the **safety gate** (emergency detector + symptom/diagnosis-request detector).
 3. If it's safe, the transcript goes to the Bedrock LLM with a strict system prompt and **tools**:
@@ -389,12 +392,22 @@ hello-sahay/
 | 11 | Hospital pricing model (hybrid suggested) and numbers | ❓ |
 | 12 | Go-to-market wedge: forward each hospital's existing number to Sahay; shared helpline aggregation next | ✅ |
 | 13 | MVP languages: Hindi, Tamil, English | ✅ |
-| 14 | Stack: AWS-first (Transcribe, Polly for hi/en, Bedrock); Tamil text-to-speech via Sarvam or Google; Mumbai region if possible | ✅ (Tamil provider ❓) |
-| 15 | Patient app: a real Expo React Native app; UI prototyped in Google AI Studio (reference only, committed separately), built with Claude Code | ✅ |
-| 16 | Backend FastAPI; dashboard Next.js; Postgres + pgvector | 🟡 |
+| 14 | Stack: AWS-first (Transcribe, Polly for hi/en, Bedrock); Tamil text-to-speech via Sarvam or Google; Mumbai region if possible | ✅ (Tamil provider settled in 25) |
+| 15 | Patient app: a real Expo React Native app; UI prototyped in Google AI Studio (reference only, committed separately), built with Claude Code | ✅ (superseded by 23) |
+| 16 | Backend FastAPI; dashboard Next.js; Postgres + pgvector | ✅ FastAPI and Postgres; dashboard superseded by 23 |
 | 17 | Demo: browser or in-app "Call Sahay" through the real pipeline; real phone number is a bonus (KYC delays) | ✅ |
 | 18 | Build the voice pipeline ourselves (WebSocket / Pipecat / LiveKit), not a ready-made agent platform | ✅ |
 | 19 | Tiers P0 / P1 / P2 as in Section 8.1 | ✅ |
 | 20 | Promote PM-JAY / CMCHIS lookup to P0; demote medicine OCR + generics to P2 | 🟡 |
 | 21 | WhatsApp for confirmations; no SMS for the demo (DLT) | ✅ |
 | 22 | Possible partners: iKure, Karma (rural reach); state 104 operators (business-to-government) | ✅ |
+| 23 | Frontends built as Vite apps, not Expo and Next.js: patient app is a web app wrapped for Android with Capacitor; Desk is Vite; admin console is one static page | ✅ |
+| 24 | Telephony: Exotel Indian number (044-481-36970) reaches the same CallSession pipeline over WebSocket; Twilio dropped | ✅ |
+| 25 | Tamil: Sarvam for speech-to-text and text-to-speech; `lang=auto` phone calls use Sarvam to detect English, Hindi or Tamil | ✅ |
+| 26 | Hosting: one AWS Lightsail instance in ap-south-1; pushing to `main` redeploys within a minute | ✅ |
+| 27 | One demo hospital (Sunrise Nursing Home) receives every booking and call; hospital names, distance and scheme tags are real (OpenStreetMap, CMCHIS list), doctors, slots and bookings are demo | ✅ |
+| 28 | Hospital roles: Hello Sahay `admin`, then `hospital_admin`, `receptionist`, `nurse`, `doctor` (doctor sees only own patients) | ✅ |
+| 29 | Ask Sahay answers from the verified corpus first, then a live search limited to official government sites with the page cited | ✅ |
+| 30 | Medicines use real data (246k brands, PMBI list); a vision model only reads the label, a fixed program picks the generic | ✅ |
+| 31 | Care plan ₹149/month paid by a family member; payment is a demo until Razorpay keys exist; patient sign-in code shown on screen because India SMS needs DLT | ✅ |
+| 32 | Every call keeps a timestamped trace in the backend; no audio is stored | ✅ |

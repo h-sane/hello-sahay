@@ -15,19 +15,35 @@ Built at **Founder's Code 2026** (SMIT Chennai), Rural Healthcare domain.
 
 ## Status
 
-Work in progress during the hackathon. Plans:
-[architecture](docs/ARCHITECTURE.md) · [patient app spec](docs/PATIENT_APP_SPEC.md) ·
-[implementation phases](docs/IMPLEMENTATION_PHASES.md) · [screens to design](docs/FRONTEND_DELIVERABLES.md) ·
-[full brief](docs/PROJECT_BRIEF.md).
+Built and hosted for the hackathon: the helpline answers on a real number (044-481-36970, English / Hindi / Tamil), the patient app runs on the web and as an Android APK, and Sahay Desk and the admin console are live. WhatsApp confirmation and the real Care plan payment are not wired yet; see [what is built per app](docs/PRODUCT_FEATURES.md).
 
-## Planned structure
+Docs: [architecture and diagrams](docs/ARCHITECTURE.md) · [features and status](docs/PRODUCT_FEATURES.md) · [patient app spec](docs/PATIENT_APP_SPEC.md) ·
+[frontend wiring](docs/FRONTEND_INTEGRATION.md) · [implementation phases](docs/IMPLEMENTATION_PHASES.md) · [business](docs/BUSINESS.md) · [full brief](docs/PROJECT_BRIEF.md).
+
+## Structure
 
 | Path | What it is |
 |---|---|
-| `apps/patient/` | Patient mobile app (Expo React Native) |
-| `apps/web/` | Hospital dashboard (`/desk`) and admin console (`/admin`) (Next.js) |
-| `services/api/` | Backend API (FastAPI) |
-| `services/voice/` | Voice pipeline (speech-to-text, safety gate, LLM tools, text-to-speech) |
-| `data/` | Demo seed data and government advisory sources |
+| `apps/patient-web/` | Patient app (Vite + React; Android APK via Capacitor in `android/`) |
+| `apps/desk/` | Sahay Desk, the hospital dashboard (Vite + React) |
+| `apps/admin/` | Hello Sahay admin console (one static page) |
+| `apps/web/`, `apps/patient/` | Earlier Next.js and Expo builds, not deployed |
+| `services/api/` | Backend API (FastAPI, PostgreSQL + pgvector) |
+| `services/voice/` | Voice pipeline and phone bridge (speech-to-text, safety gate, LLM tools, text-to-speech) |
+| `data/` | Demo seed data, advisories, medicine and scheme data |
+| `deploy/` | One-box Lightsail hosting stack; pushing to `main` deploys |
+| `scripts/` | Loaders, call trace and simulation tools |
 
-Setup and run instructions will be added as each part lands.
+## Run locally
+
+```bash
+docker compose up -d                         # Postgres + pgvector on port 5433
+cp .env.example .env                         # then fill in the keys
+python scripts/check_setup.py                # DB, Bedrock, embeddings, Polly, Transcribe
+python scripts/load_seed.py                  # demo hospital, doctors, slots
+AWS_PROFILE=personal-bedrock python -m uvicorn app.main:app --app-dir services/api --port 8001
+(cd apps/patient-web && npm install && npm run dev)   # http://localhost:5174
+(cd apps/desk && npm install && npm run dev)         # http://localhost:5173
+```
+
+Voice: see `services/voice/README.md`; hosting and the APK: `deploy/README.md`.
