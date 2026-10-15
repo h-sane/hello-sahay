@@ -1,0 +1,502 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Hello Sahay: Data Flow",
+    "output": "docs/diagrams/dataflow.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/h-sane/hello-sahay.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "8e99d39109fa621ad7287a5d2eb4395ec1b5b590"
+    },
+    "viewBox": [
+      1085,
+      670
+    ]
+  },
+  "stages": [
+    {
+      "label": "Sources"
+    },
+    {
+      "label": "Entry"
+    },
+    {
+      "label": "Process"
+    },
+    {
+      "label": "Store"
+    },
+    {
+      "label": "Consume"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "caller",
+      "type": "external",
+      "label": "Caller",
+      "sublabel": "phone audio",
+      "stage": 0,
+      "row": 0,
+      "tag": "PII"
+    },
+    {
+      "id": "app",
+      "type": "frontend",
+      "label": "Patient app",
+      "sublabel": "taps, photo, GPS",
+      "stage": 0,
+      "row": 1,
+      "tag": "JWT",
+      "sources": [
+        {
+          "path": "apps/patient-web/src/services/api.ts",
+          "line": 3,
+          "label": "API base"
+        }
+      ],
+      "yOffset": 57
+    },
+    {
+      "id": "staff",
+      "type": "frontend",
+      "label": "Hospital staff",
+      "sublabel": "Desk + admin logins",
+      "stage": 0,
+      "row": 2,
+      "tag": "role login",
+      "sources": [
+        {
+          "path": "apps/desk/src/api.js",
+          "line": 2,
+          "label": "API base"
+        }
+      ],
+      "yOffset": 40
+    },
+    {
+      "id": "gov",
+      "type": "external",
+      "label": "Official sources",
+      "sublabel": "advisories, CMCHIS, PMBI",
+      "stage": 0,
+      "row": 3,
+      "tag": "public",
+      "sources": [
+        {
+          "path": "data/advisories/sources.csv",
+          "line": 1,
+          "label": "issuer, url, date per file"
+        },
+        {
+          "path": "data/schemes/cmchis_hospitals.json",
+          "line": 1,
+          "label": "CMCHIS list"
+        }
+      ]
+    },
+    {
+      "id": "voice",
+      "type": "backend",
+      "label": "Voice service",
+      "sublabel": "phone bridge + browser",
+      "stage": 1,
+      "row": 0,
+      "tag": "not stored",
+      "sources": [
+        {
+          "path": "services/voice/pipeline/server.py",
+          "line": 29,
+          "label": "/call"
+        },
+        {
+          "path": "services/voice/telephony/phone_bridge.py",
+          "line": 125,
+          "label": "/exotel"
+        }
+      ]
+    },
+    {
+      "id": "loaders",
+      "type": "backend",
+      "label": "Loader scripts",
+      "sublabel": "chunk, embed, load",
+      "stage": 1,
+      "row": 3,
+      "tag": "offline",
+      "sources": [
+        {
+          "path": "scripts/ingest_advisories.py",
+          "line": 1,
+          "label": "advisory chunks + Titan v2"
+        },
+        {
+          "path": "scripts/load_medicines.py",
+          "line": 30,
+          "end_line": 59,
+          "label": "brands + PMBI"
+        },
+        {
+          "path": "scripts/load_seed.py",
+          "line": 44,
+          "label": "demo hospital"
+        }
+      ]
+    },
+    {
+      "id": "stt",
+      "type": "cloud",
+      "label": "Speech to text",
+      "sublabel": "Sarvam / Transcribe",
+      "stage": 1,
+      "row": 1,
+      "sources": [
+        {
+          "path": "services/voice/pipeline/session.py",
+          "line": 88,
+          "label": "picks the transcriber"
+        },
+        {
+          "path": "services/voice/pipeline/stt.py",
+          "line": 17,
+          "label": "TranscribeStt"
+        }
+      ],
+      "tag": "ta, hi, en"
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "Safety gate",
+      "sublabel": "before the model",
+      "stage": 2,
+      "row": 0,
+      "tag": "fixed reply",
+      "sources": [
+        {
+          "path": "services/api/app/safety/__init__.py",
+          "line": 53,
+          "label": "check()"
+        },
+        {
+          "path": "services/voice/pipeline/session.py",
+          "line": 372,
+          "end_line": 383,
+          "label": "emergency path"
+        }
+      ]
+    },
+    {
+      "id": "llm",
+      "type": "cloud",
+      "label": "AWS Bedrock",
+      "sublabel": "Nova, Titan, vision",
+      "stage": 2,
+      "row": 1,
+      "sources": [
+        {
+          "path": "services/voice/pipeline/llm.py",
+          "line": 20,
+          "end_line": 26,
+          "label": "converse (voice)"
+        },
+        {
+          "path": "services/api/app/chat/bedrock.py",
+          "line": 25,
+          "end_line": 44,
+          "label": "embed, generate, vision"
+        }
+      ],
+      "tag": "rephrase only"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Backend API",
+      "sublabel": "rules, booking, answers",
+      "stage": 2,
+      "row": 2,
+      "sources": [
+        {
+          "path": "services/api/app/main.py",
+          "line": 35,
+          "end_line": 38,
+          "label": "routers under /api/v1"
+        }
+      ],
+      "tag": "FastAPI"
+    },
+    {
+      "id": "records",
+      "type": "database",
+      "label": "Calls and records",
+      "sublabel": "calls, visits, family",
+      "stage": 3,
+      "row": 2,
+      "tag": "PII",
+      "sources": [
+        {
+          "path": "services/api/app/models.py",
+          "line": 100,
+          "label": "call table"
+        },
+        {
+          "path": "services/api/app/models.py",
+          "line": 86,
+          "label": "appointment table"
+        },
+        {
+          "path": "services/api/app/models_patient_app.py",
+          "line": 50,
+          "label": "care_plan table"
+        }
+      ]
+    },
+    {
+      "id": "ref",
+      "type": "database",
+      "label": "Reference data",
+      "sublabel": "facilities, advisories",
+      "stage": 3,
+      "row": 3,
+      "tag": "public",
+      "sources": [
+        {
+          "path": "services/api/app/models.py",
+          "line": 118,
+          "label": "advisory_chunk"
+        },
+        {
+          "path": "services/api/app/models_patient_app.py",
+          "line": 14,
+          "label": "brand_medicine"
+        }
+      ]
+    },
+    {
+      "id": "reply",
+      "type": "external",
+      "label": "Caller hears",
+      "sublabel": "in the caller language",
+      "stage": 4,
+      "row": 0,
+      "sources": [
+        {
+          "path": "services/voice/pipeline/tts.py",
+          "line": 9,
+          "label": "Polly voice"
+        },
+        {
+          "path": "services/voice/pipeline/sarvam.py",
+          "line": 28,
+          "label": "Tamil TTS"
+        }
+      ],
+      "tag": "Polly, Sarvam",
+      "yOffset": 57
+    },
+    {
+      "id": "staffout",
+      "type": "frontend",
+      "label": "Desk and admin",
+      "sublabel": "visits, calls, fees",
+      "stage": 4,
+      "row": 1,
+      "sources": [
+        {
+          "path": "services/api/app/routers/live.py",
+          "line": 42,
+          "label": "WS /live/desk"
+        },
+        {
+          "path": "services/api/app/routers/admin.py",
+          "line": 16,
+          "end_line": 17,
+          "label": "Rs 2,999 + Rs 40 fees"
+        }
+      ],
+      "tag": "role token",
+      "yOffset": 30
+    },
+    {
+      "id": "appout",
+      "type": "frontend",
+      "label": "Patient app",
+      "sublabel": "health, alerts, answers",
+      "stage": 4,
+      "row": 3,
+      "sources": [
+        {
+          "path": "apps/patient-web/src/services/api.ts",
+          "line": 3,
+          "label": "API base"
+        }
+      ],
+      "tag": "patient token",
+      "yOffset": 57
+    }
+  ],
+  "flows": [
+    {
+      "id": "call-audio",
+      "from": "caller",
+      "to": "voice",
+      "label": "call audio",
+      "classification": "voice, PII",
+      "variant": "security"
+    },
+    {
+      "id": "to-stt",
+      "from": "voice",
+      "to": "stt",
+      "label": "caller audio",
+      "classification": "not stored",
+      "variant": "emphasis",
+      "labelAt": [
+        315,
+        201
+      ]
+    },
+    {
+      "id": "transcript",
+      "from": "stt",
+      "to": "gate",
+      "label": "transcript",
+      "classification": "text",
+      "variant": "emphasis"
+    },
+    {
+      "id": "clear-text",
+      "from": "gate",
+      "to": "llm",
+      "label": "clear text",
+      "classification": "no emergency",
+      "labelAt": [
+        530,
+        201
+      ]
+    },
+    {
+      "id": "fixed-reply",
+      "from": "gate",
+      "to": "reply",
+      "label": "fixed reply",
+      "classification": "emergency",
+      "variant": "security"
+    },
+    {
+      "id": "spoken-reply",
+      "from": "llm",
+      "to": "reply",
+      "label": "spoken reply",
+      "classification": "cited",
+      "variant": "emphasis"
+    },
+    {
+      "id": "tool-calls",
+      "from": "llm",
+      "to": "api",
+      "label": "tool calls",
+      "classification": "find, book",
+      "labelAt": [
+        530,
+        328
+      ]
+    },
+    {
+      "id": "app-requests",
+      "from": "app",
+      "to": "api",
+      "label": "requests",
+      "classification": "REST + JWT",
+      "variant": "emphasis"
+    },
+    {
+      "id": "staff-actions",
+      "from": "staff",
+      "to": "api",
+      "label": "desk actions",
+      "classification": "arrive, users"
+    },
+    {
+      "id": "write-records",
+      "from": "api",
+      "to": "records",
+      "label": "records",
+      "classification": "PII, no audio",
+      "variant": "security"
+    },
+    {
+      "id": "public-docs",
+      "from": "gov",
+      "to": "loaders",
+      "label": "documents",
+      "classification": "public",
+      "variant": "dashed"
+    },
+    {
+      "id": "load-reference",
+      "from": "loaders",
+      "to": "ref",
+      "label": "chunks, lists",
+      "classification": "batch",
+      "variant": "dashed"
+    },
+    {
+      "id": "records-to-staff",
+      "from": "records",
+      "to": "staffout",
+      "label": "calls, visits",
+      "variant": "emphasis",
+      "labelSegment": 1,
+      "classification": "own hospital"
+    },
+    {
+      "id": "records-to-app",
+      "from": "records",
+      "to": "appout",
+      "label": "my visits",
+      "labelSegment": 1
+    },
+    {
+      "id": "ref-to-app",
+      "from": "ref",
+      "to": "appout",
+      "label": "cited",
+      "variant": "dashed",
+      "labelSegment": 0
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Sensitive data",
+      "items": [
+        "Call audio is transcribed and discarded; only the transcript and a timing trace are stored",
+        "Phone numbers and names live in the calls and records store",
+        "A hospital login reads only its own facility; a doctor login only its own patients"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety path",
+      "items": [
+        "Every utterance passes the safety gate before the model sees it",
+        "Emergency or symptom text gets a fixed reply and a handoff; the model is never asked",
+        "The same gate protects the written chat in the patient app"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Reads the diagram leaves out",
+      "items": [
+        "The API reads reference data and bookings to answer; reads are shown as the outputs they feed",
+        "The admin console derives fees from partners and arrivals: Rs 2,999 a month and Rs 40 per arrival",
+        "Reference data is loaded in batches, never written by a patient request"
+      ]
+    }
+  ]
+}

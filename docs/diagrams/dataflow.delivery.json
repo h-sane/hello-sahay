@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "07840e24-680b-4812-a7df-8f26fccd31cf",
+  "status": "current",
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\dataflow.json",
+  "output": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\dataflow.html",
+  "specification": {
+    "sha256": "15406bb1bf0e29deff3f993123b07226a8e8f1a61b37413905679c8ae53e2da5",
+    "bytes": 11912
+  },
+  "artifact": {
+    "sha256": "e5f50f05919cd74d2df37479b2d0c8c464df792224178195eb2b34fc7568a228",
+    "bytes": 780294
+  }
+}

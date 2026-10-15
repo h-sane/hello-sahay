@@ -1,0 +1,619 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Hello Sahay: System Architecture",
+    "output": "docs/diagrams/architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/h-sane/hello-sahay.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "8e99d39109fa621ad7287a5d2eb4395ec1b5b590"
+    }
+  },
+  "components": [
+    {
+      "id": "caller",
+      "type": "external",
+      "label": "Caller",
+      "sublabel": "any phone, any language",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        150,
+        60
+      ]
+    },
+    {
+      "id": "exotel",
+      "type": "external",
+      "label": "Exotel voicebot",
+      "sublabel": "044-481-36970",
+      "pos": [
+        260,
+        40
+      ],
+      "size": [
+        150,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/voice/telephony/phone_bridge.py",
+          "line": 125,
+          "label": "/exotel WebSocket endpoint"
+        }
+      ]
+    },
+    {
+      "id": "patient",
+      "type": "frontend",
+      "label": "Sahay patient app",
+      "sublabel": "Vite web + Android APK",
+      "pos": [
+        600,
+        40
+      ],
+      "size": [
+        150,
+        60
+      ],
+      "sources": [
+        {
+          "path": "apps/patient-web/src/services/api.ts",
+          "line": 3,
+          "label": "API base /api/v1"
+        }
+      ]
+    },
+    {
+      "id": "desk",
+      "type": "frontend",
+      "label": "Sahay Desk",
+      "sublabel": "hospital staff, by role",
+      "pos": [
+        840,
+        40
+      ],
+      "size": [
+        150,
+        60
+      ],
+      "sources": [
+        {
+          "path": "apps/desk/src/api.js",
+          "line": 2,
+          "label": "API base /api/v1"
+        }
+      ]
+    },
+    {
+      "id": "admin",
+      "type": "frontend",
+      "label": "Admin console",
+      "sublabel": "Hello Sahay team",
+      "pos": [
+        1080,
+        40
+      ],
+      "size": [
+        150,
+        60
+      ],
+      "sources": [
+        {
+          "path": "apps/admin/index.html",
+          "line": 82,
+          "label": "calls /api/v1/admin"
+        }
+      ]
+    },
+    {
+      "id": "caddy",
+      "type": "cloud",
+      "label": "Caddy",
+      "sublabel": "HTTPS front door for the three sites and the phone line",
+      "pos": [
+        200,
+        170
+      ],
+      "size": [
+        1000,
+        60
+      ],
+      "sources": [
+        {
+          "path": "deploy/Caddyfile",
+          "line": 5,
+          "end_line": 18,
+          "label": "routes /api /voice /exotel"
+        }
+      ]
+    },
+    {
+      "id": "bridge",
+      "type": "backend",
+      "label": "Phone bridge",
+      "sublabel": "/exotel WebSocket :8000",
+      "pos": [
+        260,
+        300
+      ],
+      "size": [
+        150,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/voice/telephony/phone_bridge.py",
+          "line": 125,
+          "label": "/exotel handler"
+        }
+      ]
+    },
+    {
+      "id": "voice",
+      "type": "backend",
+      "label": "Voice service",
+      "sublabel": "/call WebSocket :8002",
+      "pos": [
+        520,
+        300
+      ],
+      "size": [
+        150,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/voice/pipeline/server.py",
+          "line": 29,
+          "label": "/call handler"
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "Safety gate",
+      "sublabel": "runs before any model",
+      "tag": "108 / fixed reply",
+      "pos": [
+        40,
+        430
+      ],
+      "size": [
+        150,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/api/app/safety/__init__.py",
+          "line": 53,
+          "label": "check()"
+        },
+        {
+          "path": "services/voice/pipeline/session.py",
+          "line": 372,
+          "end_line": 383,
+          "label": "gate before the LLM"
+        }
+      ]
+    },
+    {
+      "id": "session",
+      "type": "backend",
+      "label": "CallSession",
+      "sublabel": "one pipeline for phone and browser calls",
+      "pos": [
+        260,
+        430
+      ],
+      "size": [
+        560,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/voice/pipeline/session.py",
+          "line": 79,
+          "label": "CallSession"
+        },
+        {
+          "path": "services/voice/pipeline/session.py",
+          "line": 88,
+          "label": "picks Sarvam or Transcribe"
+        }
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Backend API",
+      "sublabel": "FastAPI :8001, /api/v1",
+      "pos": [
+        900,
+        430
+      ],
+      "size": [
+        360,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/api/app/main.py",
+          "line": 35,
+          "end_line": 38,
+          "label": "routers under /api/v1"
+        }
+      ]
+    },
+    {
+      "id": "db",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "+ pgvector",
+      "pos": [
+        1330,
+        430
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/api/app/db.py",
+          "line": 14,
+          "label": "engine"
+        },
+        {
+          "path": "services/api/app/models.py",
+          "line": 118,
+          "label": "advisory_chunk vectors"
+        }
+      ]
+    },
+    {
+      "id": "transcribe",
+      "type": "cloud",
+      "label": "Amazon Transcribe",
+      "sublabel": "STT en, hi (browser)",
+      "pos": [
+        260,
+        600
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/voice/pipeline/stt.py",
+          "line": 17,
+          "label": "TranscribeStt"
+        }
+      ]
+    },
+    {
+      "id": "sarvam",
+      "type": "external",
+      "label": "Sarvam",
+      "sublabel": "STT + TTS, Tamil and auto",
+      "pos": [
+        420,
+        600
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/voice/pipeline/sarvam.py",
+          "line": 28,
+          "end_line": 42,
+          "label": "bulbul TTS, saarika STT"
+        }
+      ]
+    },
+    {
+      "id": "polly",
+      "type": "cloud",
+      "label": "Amazon Polly",
+      "sublabel": "TTS en, hi",
+      "pos": [
+        580,
+        600
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/voice/pipeline/tts.py",
+          "line": 9,
+          "label": "Kajal neural voice"
+        }
+      ]
+    },
+    {
+      "id": "bedrock",
+      "type": "cloud",
+      "label": "AWS Bedrock",
+      "sublabel": "Nova Pro/Lite, Titan v2",
+      "pos": [
+        740,
+        600
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/voice/pipeline/llm.py",
+          "line": 20,
+          "label": "converse (voice)"
+        },
+        {
+          "path": "services/api/app/chat/bedrock.py",
+          "line": 25,
+          "end_line": 44,
+          "label": "embed, generate, vision"
+        }
+      ]
+    },
+    {
+      "id": "osm",
+      "type": "external",
+      "label": "OpenStreetMap",
+      "sublabel": "nearby hospitals",
+      "pos": [
+        930,
+        600
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/api/app/routers/places.py",
+          "line": 23,
+          "label": "Nominatim search"
+        }
+      ]
+    },
+    {
+      "id": "exa",
+      "type": "external",
+      "label": "Exa",
+      "sublabel": "official gov pages only",
+      "pos": [
+        1090,
+        600
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "services/api/app/live_search.py",
+          "line": 14,
+          "end_line": 33,
+          "label": "gov.in / nic.in filter"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Lightsail box, ap-south-1 (docker compose, deploys from main)",
+      "wraps": [
+        "caddy",
+        "bridge",
+        "voice",
+        "gate",
+        "session",
+        "api",
+        "db"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "caller-to-exotel",
+      "from": "caller",
+      "to": "exotel",
+      "label": "call",
+      "variant": "emphasis"
+    },
+    {
+      "id": "exotel-to-caddy",
+      "from": "exotel",
+      "to": "caddy",
+      "label": "wss",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "patient-to-caddy",
+      "from": "patient",
+      "to": "caddy",
+      "label": "REST + voice",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "desk-to-caddy",
+      "from": "desk",
+      "to": "caddy",
+      "label": "REST + live WS",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "admin-to-caddy",
+      "from": "admin",
+      "to": "caddy",
+      "label": "REST",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "caddy-to-bridge",
+      "from": "caddy",
+      "to": "bridge",
+      "label": "/exotel",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "caddy-to-voice",
+      "from": "caddy",
+      "to": "voice",
+      "label": "/voice",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "caddy-to-api",
+      "from": "caddy",
+      "to": "api",
+      "label": "/api",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "bridge-to-session",
+      "from": "bridge",
+      "to": "session",
+      "label": "8 kHz audio",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "voice-to-session",
+      "from": "voice",
+      "to": "session",
+      "label": "16 kHz audio",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "session-to-gate",
+      "from": "session",
+      "to": "gate",
+      "label": "check",
+      "variant": "security"
+    },
+    {
+      "id": "session-to-transcribe",
+      "from": "session",
+      "to": "transcribe",
+      "label": "audio",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "session-to-sarvam",
+      "from": "session",
+      "to": "sarvam",
+      "label": "audio, text",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "session-to-polly",
+      "from": "session",
+      "to": "polly",
+      "label": "text",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "session-to-bedrock",
+      "from": "session",
+      "to": "bedrock",
+      "label": "converse",
+      "toSide": "top",
+      "fromSide": "bottom"
+    },
+    {
+      "id": "session-to-api",
+      "from": "session",
+      "to": "api",
+      "label": "tools, call log",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "api-to-db",
+      "from": "api",
+      "to": "db",
+      "label": "SQL"
+    },
+    {
+      "id": "api-to-bedrock",
+      "from": "api",
+      "to": "bedrock",
+      "label": "chat, scan",
+      "toSide": "right",
+      "fromSide": "bottom"
+    },
+    {
+      "id": "api-to-osm",
+      "from": "api",
+      "to": "osm",
+      "label": "places",
+      "variant": "dashed"
+    },
+    {
+      "id": "api-to-exa",
+      "from": "api",
+      "to": "exa",
+      "label": "live search",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Helpline path",
+      "items": [
+        "Phone call to Exotel, then wss through Caddy to the phone bridge, then one CallSession",
+        "With lang=auto Sarvam hears every language and speaks Tamil; Polly speaks English and Hindi",
+        "The model acts only through tool calls to the same API the apps use, so a booking shows on the Desk live"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Safety and grounding",
+      "items": [
+        "The gate runs on every utterance before the model, on calls and in /chat",
+        "Answers come from the cited local corpus first, then official government sites only",
+        "Medicine matching is a fixed program; the model only reads the label"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Demo wiring, honestly",
+      "items": [
+        "One demo hospital, Sunrise Nursing Home, receives every booking and call",
+        "WhatsApp confirmation is a log stub; the Care plan payment is a demo, not Razorpay",
+        "Patient sign-in code is shown on screen because India SMS needs DLT registration"
+      ]
+    }
+  ]
+}

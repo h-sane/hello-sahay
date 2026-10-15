@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "80a91c90-8834-4bf7-b82c-b3055fb68e23",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.json",
+  "output": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.html",
+  "specification": {
+    "sha256": "a5af407e10a1738d5b524e8eab780f6983ede824a0bfe217e987aff708cc8cd4",
+    "bytes": 13413
+  },
+  "artifact": {
+    "sha256": "88a6c5412678122560547af8807daf283deb43079f1c4cd8b04849b6f7ea6216",
+    "bytes": 792679
+  }
+}
