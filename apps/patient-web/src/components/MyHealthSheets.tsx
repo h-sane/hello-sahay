@@ -87,7 +87,33 @@ export const FamilySheet: React.FC<{ lang: Language; member?: FamilyMemberRow; o
   );
 };
 
-/** Demo payment: Pay is the payment. The server marks the number as Care plan (pro) straight away. */
+const CHECKOUT_JS = 'https://checkout.razorpay.com/v1/checkout.js';
+
+/** Opens Razorpay checkout and resolves with the signed proof, or rejects when the person closes it. */
+function razorpayCheckout(o: { key_id: string; order_id: string; amount: number; currency: string }, name: string): Promise<Record<string, string>> {
+  const w = window as unknown as { Razorpay?: new (opts: object) => { open: () => void } };
+  const load = w.Razorpay
+    ? Promise.resolve()
+    : new Promise<void>((ok, fail) => {
+        const s = document.createElement('script');
+        s.src = CHECKOUT_JS;
+        s.onload = () => ok();
+        s.onerror = () => fail(new Error('Could not load the payment window. Check your internet and try again.'));
+        document.head.appendChild(s);
+      });
+  return load.then(
+    () =>
+      new Promise((ok, fail) => {
+        new w.Razorpay!({
+          key: o.key_id, order_id: o.order_id, amount: o.amount, currency: o.currency, name: 'Hello Sahay', description: name,
+          handler: (r: Record<string, string>) => ok(r),
+          modal: { ondismiss: () => fail(new Error('Payment cancelled')) },
+        }).open();
+      }),
+  );
+}
+
+/** Pay is the payment in demo mode; with Razorpay keys on the server it opens Razorpay (test mode takes no real money). The server then marks the number as Care plan (pro). */
 export const PaySheet: React.FC<{ lang: Language; price: number; phone?: string; name?: string; onClose: () => void }> = ({
   lang, price, phone: initialPhone = '', name, onClose,
 }) => {
@@ -102,7 +128,9 @@ export const PaySheet: React.FC<{ lang: Language; price: number; phone?: string;
     setBusy(true);
     setError('');
     try {
-      const r = await patientApi.payCarePlan(phone);
+      const order = await patientApi.careOrder();
+      const proof = order.mode === 'razorpay' ? await razorpayCheckout(order, 'Care plan') : {};
+      const r = await patientApi.payCarePlan(phone, proof);
       setDone(r.plan);
       await refresh();
     } catch (e) {

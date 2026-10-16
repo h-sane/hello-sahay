@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { AlertOctagon, CalendarCheck, HeartHandshake, MessageSquareHeart, Mic, Phone, Pill, Users } from 'lucide-react';
+import { AlertOctagon, CalendarCheck, CreditCard, HeartHandshake, MapPin, MessageSquareHeart, Mic, Phone, Pill, Stethoscope, Users } from 'lucide-react';
 import { Hospital, Language, UserCoordinates, UserSettings } from '../types';
 import { ParentStatus, patientApi } from '../services/patientApi';
 import { useAppData } from '../components/AppData';
-import { BigButton, Card, Title, pick } from '../components/ui';
+import { BigButton, Card, SectionTitle, Title, pick } from '../components/ui';
 import type { NavTab } from '../components/BottomNav';
 
 interface HomeViewProps {
@@ -140,6 +140,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
         <BigButton variant="soft" onClick={() => onNavigate('ask-sahay')} icon={<MessageSquareHeart className="w-7 h-7" />}>{L({ en: 'Ask a health question', hi: 'स्वास्थ्य का सवाल पूछें', ta: 'சுகாதாரக் கேள்வி கேள்' })}</BigButton>
         <BigButton variant="soft" onClick={() => onNavigate('medicines')} icon={<Pill className="w-7 h-7" />}>{L({ en: 'Check a medicine price', hi: 'दवा की कीमत देखें', ta: 'மருந்தின் விலையைப் பார்' })}</BigButton>
         <BigButton variant="soft" onClick={() => onNavigate('my-health')} icon={<Users className="w-7 h-7" />}>{L({ en: 'My family and Care plan', hi: 'मेरा परिवार और केयर प्लान', ta: 'என் குடும்பம் மற்றும் கேர் திட்டம்' })}</BigButton>
+      </div>
+
+      <SectionTitle>{L({ en: 'Government services', hi: 'सरकारी सेवाएँ', ta: 'அரசு சேவைகள்' })}</SectionTitle>
+      <div className="space-y-3">
+        <BigButton variant="soft" href="https://beneficiary.nha.gov.in" icon={<CreditCard className="w-7 h-7" />}>{L({ en: 'Check my Ayushman card', hi: 'आयुष्मान कार्ड जाँचें', ta: 'ஆயுஷ்மான் அட்டையைப் பார்' })}</BigButton>
+        <BigButton variant="soft" href="https://esanjeevani.mohfw.gov.in" icon={<Stethoscope className="w-7 h-7" />}>{L({ en: 'Free doctor on video (eSanjeevani)', hi: 'मुफ़्त वीडियो डॉक्टर (eSanjeevani)', ta: 'இலவச வீடியோ மருத்துவர் (eSanjeevani)' })}</BigButton>
+        <BigButton variant="soft" href="https://janaushadhi.gov.in/KendraDetails.aspx" icon={<MapPin className="w-7 h-7" />}>{L({ en: 'Find a Jan Aushadhi shop', hi: 'जन औषधि केंद्र खोजें', ta: 'ஜன் ஔஷதி கடையைக் கண்டுபிடி' })}</BigButton>
       </div>
     </div>
   );

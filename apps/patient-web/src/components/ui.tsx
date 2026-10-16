@@ -59,7 +59,7 @@ export const BigButton: React.FC<BigButtonProps> = ({
   );
   if (href) {
     return (
-      <a href={href} className={cls}>
+      <a href={href} className={cls} {...(href.startsWith('http') && { target: '_blank', rel: 'noopener noreferrer' })}>
         {body}
       </a>
     );

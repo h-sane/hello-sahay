@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from ..common import IST, day_range, normalize_phone, today_ist
 from ..db import get_session
 from ..models import Appointment, Doctor, Facility, Patient, Slot
-from ..notify import send_whatsapp
+from ..notify import appointment_text, send_whatsapp
 from ..security import FRONT_DESK_ROLES, check_facility, optional_claims, require_front_desk, require_staff
 from .live import push
 
@@ -107,7 +107,7 @@ def book(body: BookIn, session: Session = Depends(get_session)):
     session.add(appt)
     session.commit()
     out = _load(session, appt.id)
-    send_whatsapp(patient.phone, "booking_confirmed", appointment_id=appt.id)
+    send_whatsapp(patient.phone, "booking_confirmed", appointment_text("booking_confirmed", out), appointment_id=appt.id)
     push([out["facility"]["id"]], {"type": "appointment", "appointment": out})
     return out
 
@@ -195,7 +195,8 @@ def change(appointment_id: int, body: PatchIn, session: Session = Depends(get_se
     session.commit()
     out = _load(session, appt.id)
     if body.action in ("cancel", "reschedule"):
-        send_whatsapp(out["patient"]["phone"], f"appointment_{body.action}", appointment_id=appt.id)
+        kind = f"appointment_{body.action}"
+        send_whatsapp(out["patient"]["phone"], kind, appointment_text(kind, out), appointment_id=appt.id)
     push(facilities, {"type": "appointment", "appointment": out})
     return out
 

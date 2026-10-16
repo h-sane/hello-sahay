@@ -1,12 +1,15 @@
-"""Family members, the Care plan (a demo payment that upgrades a parent) and in-app notifications."""
+"""Family members, the Care plan (a Razorpay test or demo payment that upgrades a parent) and in-app notifications."""
+import os
 from datetime import datetime
 from typing import Literal
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from .. import payments
 from ..common import IST, normalize_phone, today_ist
 from ..db import get_session
 from ..models import Appointment, Patient, Payment, Reminder, Slot
@@ -112,21 +115,58 @@ def delete_family(member_id: int, patient: Patient = Depends(me), session: Sessi
 
 class PayIn(BaseModel):
     parent_phone: str = Field(min_length=10, max_length=20)
+    razorpay_order_id: str | None = None
+    razorpay_payment_id: str | None = None
+    razorpay_signature: str | None = None
+
+
+@router.post("/care/order")
+def order(patient: Patient = Depends(me), session: Session = Depends(get_session)):
+    """Starts a Razorpay checkout. mode 'demo' means no keys are configured and /care/pay takes no payment proof."""
+    if not payments.enabled():
+        return {"mode": "demo"}
+    payment = Payment(payer_type="patient", payer_id=patient.id, kind="premium", amount=CARE_PLAN_RS, status="created")
+    session.add(payment)
+    session.flush()
+    try:
+        rzp = payments.create_order(CARE_PLAN_RS, f"care-{payment.id}")
+    except httpx.HTTPError:
+        raise HTTPException(502, "payment service is not reachable, try again")
+    payment.razorpay_ref = rzp["id"]
+    session.commit()
+    return {"mode": "razorpay", "key_id": os.environ["RAZORPAY_KEY_ID"], "order_id": rzp["id"],
+            "amount": rzp["amount"], "currency": "INR"}
+
+
+def _paid_payment(session: Session, patient: Patient, body: PayIn) -> Payment:
+    """Demo: a new paid row. Razorpay: the order's row, once the checkout signature checks out."""
+    if not payments.enabled():
+        payment = Payment(payer_type="patient", payer_id=patient.id, kind="premium", amount=CARE_PLAN_RS, status="paid")
+        session.add(payment)
+        session.flush()
+        payment.razorpay_ref = f"DEMO-PAY-{payment.id}"
+        return payment
+    if not (body.razorpay_order_id and body.razorpay_payment_id and body.razorpay_signature
+            and payments.signature_ok(body.razorpay_order_id, body.razorpay_payment_id, body.razorpay_signature)):
+        raise HTTPException(402, "payment could not be verified")
+    payment = session.scalar(select(Payment).where(Payment.razorpay_ref == body.razorpay_order_id,
+                                                   Payment.payer_id == patient.id, Payment.status == "created"))
+    if payment is None:
+        raise HTTPException(402, "this payment was already used or is not yours")
+    payment.status, payment.razorpay_ref = "paid", body.razorpay_payment_id
+    return payment
 
 
 @router.post("/care/pay")
 def pay(body: PayIn, patient: Patient = Depends(me), session: Session = Depends(get_session)):
-    """Demo payment: pressing Pay is the payment. The parent's number becomes Care plan (pro) at once, and stays
-    so for a number that has no account yet until that person signs in."""
+    """Adds the parent's number to the Care plan (pro) once paid, and keeps it so for a number with no account yet
+    until that person signs in. Without Razorpay keys, pressing Pay is the (demo) payment."""
     parent_phone = _phone(body.parent_phone)
     existing = session.scalar(select(CarePlan).where(CarePlan.payer_phone == patient.phone,
                                                      CarePlan.parent_phone == parent_phone, CarePlan.active))
     if existing:
         return {"already_active": True, "plan": _plan_json(session, existing)}
-    payment = Payment(payer_type="patient", payer_id=patient.id, kind="premium", amount=CARE_PLAN_RS, status="paid")
-    session.add(payment)
-    session.flush()
-    payment.razorpay_ref = f"DEMO-PAY-{payment.id}"
+    payment = _paid_payment(session, patient, body)
     plan = CarePlan(payer_phone=patient.phone, parent_phone=parent_phone, amount=CARE_PLAN_RS, payment_id=payment.id)
     session.add(plan)
     parent = session.scalar(select(Patient).where(Patient.phone == parent_phone))

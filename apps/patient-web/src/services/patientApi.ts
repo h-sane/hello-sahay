@@ -103,8 +103,11 @@ export const patientApi = {
   editFamily: (id: number, m: { name: string; phone?: string; relation?: string }) =>
     request<FamilyMemberRow>(`/family/${id}`, { method: 'PUT', body: m }),
   deleteFamily: (id: number) => request<null>(`/family/${id}`, { method: 'DELETE' }),
-  payCarePlan: (parentPhone: string) =>
-    request<{ already_active: boolean; plan: CarePlanInfo }>('/care/pay', { method: 'POST', body: { parent_phone: parentPhone } }),
+  careOrder: () =>
+    request<{ mode: 'demo' } | { mode: 'razorpay'; key_id: string; order_id: string; amount: number; currency: string }>(
+      '/care/order', { method: 'POST' }),
+  payCarePlan: (parentPhone: string, proof: Record<string, string> = {}) =>
+    request<{ already_active: boolean; plan: CarePlanInfo }>('/care/pay', { method: 'POST', body: { parent_phone: parentPhone, ...proof } }),
   stopCarePlan: (id: number) => request<null>(`/care/plans/${id}`, { method: 'DELETE' }),
   parents: () => request<ParentStatus[]>('/care/parents'),
   notifications: () => request<NotificationRow[]>('/notifications'),

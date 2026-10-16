@@ -38,7 +38,7 @@ Languages: Tamil, Hindi, English. Not an emergency service. Phone number 044-481
 | Department by keyword table | Fixed lookup, never an AI judgement | P0 | P1-2 | Built |
 | Cited health answers by voice | Close to verbatim advisories, source named aloud | P0 | P1-9, P1-10 | Not built on the call (a health question gets the fixed "ask your PHC or call 104" reply plus a callback); built in the patient app chat |
 | Symptom questions | Fixed safe reply: nearest PHC / 108, offer to book, or human | P0 | P1-4 | Built |
-| WhatsApp confirmation | Sent on booking | P0 | P1-8 | Not built (`app/notify.py` only logs; needs WhatsApp keys) |
+| WhatsApp confirmation | Sent on booking | P0 | P1-8 | Built, not verified live: `app/notify.py` sends a text in the patient's language on book, reschedule and cancel through the WhatsApp Cloud API. Free on Meta's test number to verified recipients who messaged it within 24 hours. Needs a fresh `WHATSAPP_TOKEN` (the temporary one expires after 24 hours) |
 | Keypad fallback | Press-to-confirm for accents or speech difficulty | P0 | P1-5 | Not built |
 | Human handoff | Call lands in the Desk callback queue with the reason; three unanswered turns also hand off and hang up | P0 | P1-7 | Built |
 | Call log and trace | Transcript, outcome and a timestamped trace per call; read with `scripts/call_trace.py`; no audio stored | P0 | P1-7 | Built |
@@ -63,14 +63,14 @@ Design rules (all screens): Tamil / Hindi / English; read-aloud on answers; larg
 | 3 checks a day free | Limit before the Care plan | P2 | P2-2 | Not built (no limit) |
 | Price comparison | Brand price vs Jan Aushadhi price and saving | P2 | P2-2 | Built (inside Medicines) |
 | Advisories feed | Government advisories with citations | P2 | P2-6 | Built (Home card, `GET /advisories`) |
-| Government services hub | PM-JAY card check, eSanjeevani, Kendra locator | P2 | P2-6 | Not built |
+| Government services hub | Home section with links to the PM-JAY card check, eSanjeevani and the Jan Aushadhi Kendra locator (official sites, open in a new tab) | P2 | P2-6 | Built |
 
 ### Care plan (₹149/month, usually paid by a family member)
 
 | Feature | Detail | Tier | Card | Status |
 |---|---|---|---|---|
 | Family | Server-side members with name, mobile, relation | P2 | P2-4 | Built |
-| Pay for a parent | Child adds the parent's number and pays; parent's app shows who is looking after them | P2 | P2-4 | Demo (pressing Pay records a `DEMO-PAY-n` payment; Razorpay not wired) |
+| Pay for a parent | Child adds the parent's number and pays; parent's app shows who is looking after them | P2 | P2-4 | Demo until Razorpay test keys are set: pressing Pay records a `DEMO-PAY-n` payment. With `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` (test mode, no real money) `POST /care/order` opens Razorpay checkout and `/care/pay` verifies the signature (built, signature check unit-tested, checkout not yet tried with real keys) |
 | Medicine reminders | Times per medicine, "I took it" log, due-now alerts | P2 | P2-4 | Built (in-app alerts, no loud alarm or spoken reminder) |
 | Family alerts | "I took it" and Care plan events notify the people paying | P2 | P2-4 | Built in-app; no WhatsApp |
 | Unlimited composition checks | Removes the free limit | P2 | P2-4 | Not built (no limit to remove) |
