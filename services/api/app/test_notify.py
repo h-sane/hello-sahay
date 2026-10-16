@@ -1,8 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from . import notify
 
-APPT = {"patient": {"language": "hi", "phone": "+919876543210"}, "slot": {"start": datetime(2026, 10, 17, 10, 30)},
+APPT = {"patient": {"language": "hi", "phone": "+919876543210"}, "slot": {"start": datetime(2026, 10, 17, 5, 0, tzinfo=timezone.utc)},
         "doctor": {"name": "Dr. Meena"}, "hospital_label": None, "facility": {"name": "Sunrise Nursing Home"}}
 
 

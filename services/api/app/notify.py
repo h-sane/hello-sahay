@@ -4,6 +4,8 @@ import threading
 
 import httpx
 
+from .common import IST
+
 log = logging.getLogger("sahay.notify")
 
 GRAPH_URL = "https://graph.facebook.com/v21.0/{}/messages"
@@ -32,7 +34,7 @@ def appointment_text(template: str, appt: dict) -> str | None:
     texts = _TEXT.get(template)
     if texts is None:
         return None
-    start = appt["slot"]["start"]
+    start = appt["slot"]["start"].astimezone(IST)
     return texts.get(appt["patient"]["language"] or "en", texts["en"]).format(
         doctor=appt["doctor"]["name"], hospital=appt["hospital_label"] or appt["facility"]["name"],
         when=f"{start:%d %b, %I:%M %p}")
