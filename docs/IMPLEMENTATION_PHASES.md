@@ -1,6 +1,6 @@
 # Implementation Phases
 
-How we build Hello Sahay in the 24 hours. Each task card is written so an implementing agent (Gemini / Antigravity) can pick it up cold: it names the folder, the inputs, and how we know it's done.
+How we build the Hello Sahay prototype. Each task card is written so an implementing agent (Gemini / Antigravity) can pick it up cold: it names the folder, the inputs, and how we know it's done.
 
 Read first: [`ARCHITECTURE.md`](ARCHITECTURE.md) (API contract §6, data model §5, rules §3) and [`PATIENT_APP_SPEC.md`](PATIENT_APP_SPEC.md).
 
@@ -34,15 +34,15 @@ Which features each app gets, with tier and card number: [`PRODUCT_FEATURES.md`]
 
 ## Checkpoints
 
-| Time | Jury moment | Must be true |
-|---|---|---|
-| Wed 7:00 PM | Challenge 1 release | Phase 1 cards P1-1 to P1-5 done: helpline books a slot in one language, Desk shows it |
-| Wed 12:00 AM | Challenge 2 release | Phase 1 complete (all three languages, chat with citations, WhatsApp, emergency gate, patient app core) |
-| Thu 6:00 AM | Challenge 3 release | **Feature freeze.** Phase 2 only where stable |
-| Thu 9:00 AM | Final jury | Demo rehearsed twice, backup video recorded |
-| Thu 10–11 AM | Submission | README run steps, proposal PDF, repo link |
+| Milestone | Must be true |
+|---|---|
+| First booking | Phase 1 cards P1-1 to P1-5 done: helpline books a slot in one language, Desk shows it |
+| Core complete | Phase 1 complete (all three languages, chat with citations, WhatsApp, emergency gate, patient app core) |
+| Feature freeze | Phase 2 only where stable |
+| Demo | Demo rehearsed twice, backup video recorded |
+| Submission | README run steps, deck PDF, repo link |
 
-Surprise challenges take priority over Phase 2 when they land. The backend owner triages them first.
+New requirements from the judges take priority over Phase 2 when they land. The backend owner triages them first.
 
 ---
 
@@ -55,7 +55,7 @@ Surprise challenges take priority over Phase 2 when they land. The backend owner
 | P0-3 | Postgres + pgvector in Docker (`docker-compose.yml`) | `docker compose up` gives a DB the API can reach |
 | P0-4 | Import the AI Studio prototype into `design/ai-studio/` as its own commit | Commit `chore: import AI Studio UI prototype (pre-event reference)` |
 
-## Phase 1 — Essential building blocks (by midnight)
+## Phase 1 — Essential building blocks
 
 ### Backend and data
 | Card | What | Done when |
@@ -91,7 +91,7 @@ Surprise challenges take priority over Phase 2 when they land. The backend owner
 | P1-13 | **Ask Sahay chat** screen on `/chat` with source chips and the fallback/emergency states | Matches P1-10 results on the phone |
 | P1-14 | **Appointments** screen: list, book, reschedule, cancel | Booking from the app shows up on the Desk |
 
-## Phase 2 — Added by importance (midnight → 6 AM freeze)
+## Phase 2 — Added by importance
 
 Build in this order; stop at freeze.
 

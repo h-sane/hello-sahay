@@ -147,11 +147,11 @@ Conventions: appointment JSON is `{id, status, source, reason_text, arrived_at, 
 
 | Decision | Why |
 |---|---|
-| One FastAPI backend, one router file per domain | Surprise challenges add a module, not a service |
+| One FastAPI backend, one router file per domain | A new requirement adds a module, not a service |
 | Safety gate is plain code (keyword lists per language), runs before the model, shared by voice and chat | The domain rule is no AI medical decisions; deterministic is provable |
 | Department chosen by keyword table, not the model | Picking a department from symptoms is triage |
 | Composition match is exact on salts + strength + form, by a fixed program | "Similar" medicines with a different salt or strength are unsafe; the model only reads the label |
-| Self-built voice pipeline (no Vapi/Bolna) | Hackathon rule: ready-made agent platforms earn less credit |
+| Self-built voice pipeline (no Vapi/Bolna) | Judges credit a self-built core; ready-made agent platforms earn less |
 | Sarvam for Tamil STT and TTS and for `lang=auto` STT; Transcribe + Polly for fixed English/Hindi | Transcribe has no Tamil streaming; Polly has no Tamil |
 | Exotel for the real number | Indian number, no international calling, works from any Indian phone; Twilio was dropped |
 | Answers come from corpus first, then official-host live search | Fresh government information without letting a private or news page be cited |

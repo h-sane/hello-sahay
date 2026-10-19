@@ -120,7 +120,7 @@ Login is email + password; the hospital comes from the token, never from the req
 | Government options shown before private | `find_facilities` / `GET /facilities` ordering |
 | Every fact comes from a stored or official source, never model memory | Advisory corpus, official-host live search, facility, medicine tables |
 | DPDP privacy | Call-start notice, transcripts only (no audio), minimal data, AWS Mumbai |
-| Modular for surprise challenges | One FastAPI backend, a router per domain |
+| Modular for new requirements | One FastAPI backend, a router per domain |
 | Demo data clearly labelled | `data/seed/` marked DEMO DATA; demo wiring stated in `ARCHITECTURE.md` §2.1 |
 
 ## Still open

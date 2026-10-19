@@ -11,11 +11,11 @@ The AI never diagnoses or gives treatment advice. Health information is read
 from government advisories with the source named, and emergencies are
 redirected to 108 / 112 immediately.
 
-Built at **Founder's Code 2026** (SMIT Chennai), Rural Healthcare domain.
+A prototype for **Dexathon 2026**, Healthcare theme.
 
 ## Status
 
-Built and hosted for the hackathon: the helpline answers on a real number (044-481-36970, English / Hindi / Tamil), the patient app runs on the web and as an Android APK, and Sahay Desk and the admin console are live. WhatsApp confirmation and the real Care plan payment are not wired yet; see [what is built per app](docs/PRODUCT_FEATURES.md).
+Built and hosted as a working prototype: the helpline answers on a real number (044-481-36970, English / Hindi / Tamil), the patient app runs on the web and as an Android APK, and Sahay Desk and the admin console are live. WhatsApp confirmation and the real Care plan payment are not wired yet; see [what is built per app](docs/PRODUCT_FEATURES.md).
 
 ## Try it
 

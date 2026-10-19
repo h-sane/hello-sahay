@@ -56,11 +56,10 @@ Patients never pay for care. A free multilingual voice helpline sends patients t
    - State health missions and 104 operators for business-to-government.
 4. **Business member's task during the hackathon:** call 2–3 local clinics for real quotes on receptionist salary, missed calls and willingness to pay. Real interviews are the strongest pitch evidence.
 
-## 6. Hackathon scoring context
+## 6. Judging context (Dexathon 2026)
 
-- Track: Tech + Business; combined teams are judged on product and business plan.
-- Work done during the event carries the highest weight; show what existed before.
-- Tech scoring: 80% core work, 20% jury assessment of quality improvements (security, privacy, affordability, accessibility).
+- The idea deck, the prototype and the business plan are all judged.
+- Quality beyond the core counts: security, privacy, affordability, accessibility.
 - Ready-made agent platforms (Vapi, Bolna) as the core earn less credit, so the voice pipeline is built by us.
 
 ## 7. Competitive position

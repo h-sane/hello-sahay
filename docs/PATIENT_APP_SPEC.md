@@ -103,5 +103,5 @@ Links with short explanations: PM-JAY card check, CMCHIS, eSanjeevani, Jan Ausha
 ## 5. Every screen's states
 Each screen must be designed for: **loading**, **empty** (no appointments yet, no results), **error** (no network, server down, OCR failed: "Couldn't read the strip, type the name instead"), **success**, and **limit reached** (paywall) where relevant.
 
-## 6. Out of scope for the hackathon
+## 6. Out of scope for the prototype
 Handwritten prescription reading, teleconsultation, online medicine ordering, iOS build, real SMS (needs DLT registration).

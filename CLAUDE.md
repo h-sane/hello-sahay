@@ -11,8 +11,9 @@ PM-JAY / CMCHIS scheme coverage, books appointments and sends WhatsApp
 confirmations. **Sahay Desk** is the paid hospital dashboard; **Sahay** is the
 patient app.
 
-- Built for **Founder's Code 2026** (24-hour hackathon, SMIT Chennai, 14–15 Oct
-  2026), Tech + Business track, domain Rural Healthcare.
+- Prototype for **Dexathon 2026** (Sathyabama): round 1 is the idea deck, round 2
+  the online prototype, round 3 a 24-hour on-site build. Theme Healthcare,
+  software category, focus on rural patients.
 - Full product, business and technical brief: [`docs/PROJECT_BRIEF.md`](docs/PROJECT_BRIEF.md).
   Its section 11 (decision log) is the source of truth for product decisions.
 - Business model in one line: patients never pay; small private hospitals pay
@@ -76,20 +77,20 @@ INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
 - One teammate designs screens in Google AI Studio; output lands in
   `design/ai-studio/` as a visual reference only.
 
-## Hackathon rules that shape how we work
+## Dexathon rules that shape how we work
 
 1. **Commit early and often, with clear messages.** Judges inspect GitHub
-   history and give the most weight to work done during the event. Never
+   history. Never
    squash or rewrite history.
 2. **Show what existed before the event.** Anything pre-existing (AI Studio UI
    prototype, templates, copied code) goes in its own clearly-named commit
    (e.g. `chore: import AI Studio UI prototype (pre-event reference)`).
 3. **Build the core ourselves.** Do not use a ready-made agent platform (Vapi,
    Bolna) as the core voice pipeline; ready-made tools earn less credit.
-4. **Keep it modular.** The jury releases surprise challenges at 7 PM, midnight
-   and 6 AM. New requirements must slot in without rewrites.
+4. **Keep it modular.** The on-site round can add new requirements at short
+   notice; they must slot in without rewrites.
 5. **P0 end to end before P1.** Tiers and the demo script are in
-   `docs/PROJECT_BRIEF.md` §8. Feature freeze at 6 AM Thursday.
+   `docs/PROJECT_BRIEF.md` §8. Freeze features well before each demo.
 
 ## Safety guardrails (hard requirements, never relax)
 
@@ -181,7 +182,7 @@ overwrite each other.
 ## Session handoffs (mandatory, every session)
 
 **Every session ends with a handoff.** This is not a judgment call for this
-project: the team works in many short sessions across a 24-hour event, and
+project: the team works in many short sessions across the Dexathon rounds, and
 context must never be lost.
 
 - **Every response, not just the session end:** each session ends every turn by

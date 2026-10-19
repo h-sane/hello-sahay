@@ -1,4 +1,4 @@
-# Hello Sahay — Project Handoff (Founder's Code 2026)
+# Hello Sahay — Project Brief (Dexathon 2026)
 
 > Handoff for Claude Code. Covers the event rules, every decision made so far, the product, the business case, competitors, architecture, build plan and open questions.
 > **Status legend:** ✅ decided · 🟡 proposed, waiting for team confirmation · ❓ open
@@ -10,43 +10,24 @@
 ## 0. How Claude Code should use this file
 1. Read the whole file before planning. Section 11 (decision log) is the source of truth.
 2. **Plan before coding.** Propose the repo structure and a task breakdown mapped to the P0/P1/P2 tiers (Section 8), then build P0 end to end before touching P1.
-3. **Commit early and often, with clear messages.** Judges inspect GitHub history and give the most weight to work done during the event (Section 1).
+3. **Commit early and often, with clear messages.** Judges inspect GitHub history (Section 1).
 4. Never let the AI make medical decisions (Section 4). Treat these guardrails as hard requirements.
 5. If something here is marked "verify", check it (docs, console) before building on it.
 
 ---
 
 ## 1. Event context
-- **Event:** Founder's Code 2026, a 24-hour hackathon at Sri Muthukumaran Institute of Technology (SMIT), Chennai.
-- **Track:** Tech + Business. Team of 4; one member must represent the Business/Sales side.
-- **Domain chosen:** ✅ **Rural Healthcare**. Official brief: "Improve access to essential healthcare information and services for rural and underserved communities." Examples given: health-service navigation, maternal follow-up reminders, multilingual preventive-care information, community health-worker support.
-- **Domain rule:** "No unsupported diagnosis, treatment advice or autonomous medical decisions."
-- **Judging:**
-  - Combined teams are judged on both the product and the business plan.
-  - Work completed during the hackathon gets the highest weight.
-  - Old code, AI and open-source tools are allowed, but you must show what existed before the event. Ready-made tools alone earn less credit.
-  - GitHub with clear commits is required.
-  - Tech scoring is planned as **80% core work + 20% jury assessment of quality improvements** (security, privacy, affordability, accessibility).
-  - The jury can set surprise tasks.
-- **Schedule:**
-
-| Time | Event |
-|---|---|
-| Wed 14 Oct, 11:00 AM | Hackathon begins |
-| 11:30 AM | Jury topic validation |
-| 1:00–1:45 PM | Lunch |
-| **2:30 PM** | **First jury evaluation** |
-| 5:30–7:00 PM | Training tracks |
-| **7:00 PM** | **Challenge 1 release** |
-| 8:00–8:45 PM | Dinner |
-| **12:00 AM** | **Challenge 2 release** |
-| **6:00 AM (Thu)** | **Challenge 3 release** |
-| **9:00 AM** | **Final jury evaluation** |
-| **10:00–11:00 AM** | **Final submission window** |
-| 11:00 AM–12:30 PM | Final presentations |
-
-- **Proposal format** (1 page each, submitted as a PDF on Prosculpt.ai): Topic Title · Domain · Problem Statement · Proposed Solution · Technical Approach (Stack, Key Features, MVP Feasibility) · Business Approach (Target Customers, Revenue Model, GTM) · Expected Impact · Challenges & Risks.
-- **Architecture implication of the surprise challenges:** keep the system modular so new requirements can be added without rewrites.
+- **Event:** Dexathon 2026 (Sathyabama). Hello Sahay is our prototype for it.
+- **Rounds:** 1, idea deck (PPT); 2, working prototype, judged online; 3, a 24-hour on-site build that extends the prototype.
+- **Theme:** ✅ **Healthcare**, software category. Our focus: access to essential healthcare information and services for rural and underserved patients (health-service navigation, booking, scheme coverage, multilingual advisories).
+- **Our domain rule:** no unsupported diagnosis, treatment advice or autonomous medical decisions.
+- **What judges look at:**
+  - The product and the business plan together.
+  - A public GitHub repository with clear commits; anything pre-existing is shown in its own commit.
+  - A self-built core; ready-made tools alone earn less credit.
+  - Quality beyond the core: security, privacy, affordability, accessibility.
+- **Vision for round 3:** healthcare is the first service; the same helpline grows into a general helper for rural, urban and elderly people, with more services and languages.
+- **Architecture implication:** keep the system modular so new requirements can be added without rewrites.
 
 ---
 
@@ -315,32 +296,31 @@ hello-sahay/
 
 ### 8.3 Team of 4 (suggested roles)
 1. **Voice pipeline:** Transcribe ↔ safety gate ↔ Bedrock tools ↔ text-to-speech; latency.
-2. **Backend API + data:** FastAPI, Postgres, seed data, RAG ingestion, booking tools; first responder for the surprise challenges.
+2. **Backend API + data:** FastAPI, Postgres, seed data, RAG ingestion, booking tools; first responder for new requirements.
 3. **Frontends:** Sahay Desk (Next.js) and the patient app (Expo), using the AI Studio prototype as reference.
 4. **Business:** clinic calls and interviews, pricing and unit economics, competitor slide, pitch deck, demo script; owns the jury story.
 
-### 8.4 Timeline vs. checkpoints
-- **By 2:30 PM (first jury):** architecture diagram, repo with commits, AI Studio UI prototype, seed data, a "hello world" voice round-trip in one language.
-- **By 7 PM (Challenge 1):** P0 booking flow working in one language end to end; Desk shows bookings.
-- **By midnight (Challenge 2):** all 3 languages, RAG with citations, emergency gate, WhatsApp confirmation.
-- **Overnight:** P1 patient app; hardening; latency tuning.
-- **By 6 AM (Challenge 3):** feature freeze on P0/P1; P2 only if stable.
-- **6–9 AM:** demo rehearsals, fallbacks (recorded backup video of the demo), deck final.
-- **10–11 AM:** final submission.
+### 8.4 Milestones
+1. **Foundations:** architecture diagram, repo with commits, AI Studio UI prototype, seed data, a "hello world" voice round-trip in one language.
+2. **First booking:** P0 booking flow working in one language end to end; Desk shows bookings.
+3. **Core complete:** all 3 languages, RAG with citations, emergency gate, WhatsApp confirmation.
+4. **Patient app and hardening:** P1 patient app; hardening; latency tuning.
+5. **Feature freeze:** P0/P1 frozen; P2 only if stable.
+6. **Demo ready:** demo rehearsals, fallbacks (recorded backup video of the demo), deck final, submission.
 
 ### 8.5 Known risks and mitigations
 | Risk | Mitigation |
 |---|---|
-| No Indian phone number in 24h | Browser / in-app call is the main demo; telephony trial is a bonus |
+| No Indian phone number in time for the demo | Browser / in-app call is the main demo; telephony trial is a bonus |
 | Voice latency or accuracy in a noisy hall | Small model, streaming, short prompts, headset mic, test early on venue Wi-Fi; keypad fallback |
 | Tamil text-to-speech not on AWS | Sarvam or Google TTS; get API keys in the first hour |
 | Bedrock credits or region gaps | Verify in the first hour; pick a region with the needed models |
-| Claude Pro usage limits with 4 people on Opus | Use Opus for architecture and hard bugs; route routine code to other tools (Trae / DeepSeek); avoid a 3 AM stall |
+| Claude Pro usage limits with 4 people on Opus | Use Opus for architecture and hard bugs; route routine code to other tools (Trae / DeepSeek); avoid a late-night stall |
 | WhatsApp test-number limits | Pre-verify demo recipients' numbers |
 | SMS DLT registration | Don't use SMS for the demo |
-| Integration bugs late at night | P0 end to end first; feature freeze at 6 AM |
+| Integration bugs late at night | P0 end to end first; feature freeze before the demo |
 | Jury reads "alternatives" as treatment advice | Use "same-composition generic finder" wording + pharmacist disclaimer |
-| Surprise challenges | Modular services; the backend owner handles them first |
+| New requirements in the on-site round | Modular services; the backend owner handles them first |
 
 ---
 
