@@ -16,8 +16,9 @@ patient app.
   software category, focus on rural patients.
 - Full product, business and technical brief: [`docs/PROJECT_BRIEF.md`](docs/PROJECT_BRIEF.md).
   Its section 11 (decision log) is the source of truth for product decisions.
-- Business model in one line: patients never pay; small private hospitals pay
-  ₹2,999/month for Sahay Desk plus ₹40 per helpline patient who actually arrives.
+- Business model in one line: patients never pay; private clinics and
+  hospitals pay a monthly Sahay Desk fee by tier (proposed ₹999 / ₹2,499 / ₹4,999) plus ₹30-50
+  per helpline patient who actually arrives; see `docs/BUSINESS.md` "Hospital tiers"
 
 ## Current state
 

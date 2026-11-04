@@ -13,7 +13,7 @@ Sources: [`PROJECT_BRIEF.md`](PROJECT_BRIEF.md) (decision log §11, tiers §8.1)
 |---|---|---|---|---|
 | 1 | **Hello Sahay helpline** (voice) | Patients, any phone | `services/voice/` | Free for callers |
 | 2 | **Sahay patient app** (Vite web app + Android APK) | Rural patients, elderly users, their city-based children | `apps/patient-web/` | Free core; Care plan ₹149/month |
-| 3 | **Sahay Desk** (hospital web dashboard) | Hospital reception, nurses, doctors | `apps/desk/` | ₹2,999/month + ₹40 per arrived patient |
+| 3 | **Sahay Desk** (hospital web dashboard) | Hospital reception, nurses, doctors | `apps/desk/` | Tiered monthly fee + ₹30-50 per arrived patient (proposal; demo flat ₹2,999 + ₹40) |
 | 4 | **Admin console** (our team, web) | The Hello Sahay team | `apps/admin/` | Internal |
 | 5 | **Browser "Call Sahay"** | Patients in the app, judges, web visitors | `services/voice/` `/call`, patient app "Start call" | Free |
 
@@ -84,7 +84,7 @@ Login is email + password; the hospital comes from the token, never from the req
 | Feature | Detail | Tier | Card | Status |
 |---|---|---|---|---|
 | Today's appointments | By doctor and time, source badge (helpline / app / desk), live push | P0 | P1-11 | Built |
-| Check-in | Marks "patient arrived"; triggers the ₹40 fee (not for counter walk-ins) | P0 | P1-11 | Built |
+| Check-in | Marks "patient arrived"; triggers the arrival fee (not for counter walk-ins) | P0 | P1-11 | Built |
 | No-show and complete | Front desk marks no-show; front desk or the doctor marks complete | P0 | P1-11 | Built |
 | Walk-ins | Counter walk-in takes the doctor's free slot or an extra one | P1 | | Built |
 | Call logs and callbacks | Language, outcome, emergency flag; "Mark Called" saved on the server | P0 | P1-11 | Built |
@@ -101,7 +101,7 @@ Login is email + password; the hospital comes from the token, never from the req
 | Overview | Calls today and total, by language and outcome, emergencies, handoffs, patients, arrivals, no-show rate, revenue | P2 | P2-5 | Built |
 | Hospitals | Partner flag, calls, bookings, arrivals, no-shows, amount due | P2 | P2-5 | Built (read-only; no add/edit) |
 | Hospital logins | Create a hospital admin login, reset password, switch off | P2 | | Built |
-| Payments | Subscriptions, ₹40 arrival fees (derived), Care plan payments | P2 | P2-5 | Built |
+| Payments | Subscriptions, arrival fees (derived, flat ₹40 in the demo), Care plan payments | P2 | P2-5 | Built |
 | Calls | Every transcript including callers with no hospital | P2 | | Built |
 | Care plan | Subscribers and payer | P2 | P2-5 | Built |
 | Content | Advisory sources, re-index | P2 | P2-5 | Not built (corpus loaded by `scripts/ingest_advisories.py`) |
