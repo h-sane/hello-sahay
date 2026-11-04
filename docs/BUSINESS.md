@@ -34,7 +34,7 @@ Patients never pay for care. A free multilingual voice helpline sends patients t
 
 Jury feedback (round 1) asked why hospitals would pay and how clinics differ from hospitals, so the price depends on the facility's size. Prices exclude GST, as the competitors quote them.
 
-**How a facility is classified:** by the number of inpatient beds on its Clinical Establishments registration, a fact the hospital can show us.
+**How a facility is classified:** the hospital picks its own plan when it joins (it is the `plan` field on the facility, set by our team). The bed counts in the table are only a guide to which plan fits; we do not ask for or check bed numbers.
 
 | Tier | Who | Monthly | Per arrived patient | Helpline calls included a month |
 |---|---|---|---|---|
@@ -62,7 +62,7 @@ Sources read on 2026-11-04: elaior.com/clinic-management-software-price-india, v
 
 **Not yet verified:** consultation fees come from listings, not a survey; no source found for patients a day at a small-town clinic or for Tamil Nadu clinic counts by bed size (the state portal tncea.dmrhs.tn.gov.in is the place to look); the bed-size split is old.
 
-**Fee trigger:** the arrival fee is charged only when the hospital marks the patient arrived on Sahay Desk. **The demo does not show tiers yet:** the admin console and `services/api/app/routers/admin.py` still compute the earlier flat ₹2,999 a month and ₹40 per arrival for every partner. In the demo, marking a patient arrived adds a fee line in the admin payments screen.
+**Fee trigger:** the arrival fee is charged only when the hospital marks the patient arrived on Sahay Desk. **The demo applies the tiers:** the admin console computes fees from each partner's `plan` (`clinic`, `nursing_home`, `hospital`); an unset plan bills as a nursing home. Marking a patient arrived adds a fee line in the admin payments screen.
 
 **Payments in the demo:** the Care plan payment is a demo record (`DEMO-PAY-n`; Razorpay keys are not set up). Hospital subscription and arrival-fee lines are computed in the admin console from the partner flag and arrived appointments, so the model shows working without real money.
 

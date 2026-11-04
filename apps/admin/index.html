@@ -183,7 +183,7 @@ const VIEWS = {
   },
   async hospitals() {
     const h = await api("/admin/hospitals");
-    return `<h1>Hospitals</h1><p class="sub">Partners pay ${rs(2999)} a month plus ${rs(40)} for every patient who arrives.</p>
+    return `<h1>Hospitals</h1><p class="sub">Clinics pay ${rs(999)} a month, nursing homes ${rs(2499)}, hospitals ${rs(4999)}, plus ${rs(30)} to ${rs(50)} for every patient who arrives.</p>
     <div class="scroll"><table><thead><tr><th>Hospital</th><th>Status</th><th class="n">Calls</th><th class="n">Bookings</th><th class="n">Arrived</th><th class="n">No-shows</th><th class="n">Amount due</th></tr></thead><tbody>
     ${h.map(f => `<tr><td><b>${esc(f.name)}</b><br><span class="meta" style="color:var(--mute);font-size:15px">${esc(f.type)}${f.address ? " · " + esc(f.address) : ""}</span></td>
       <td>${f.is_partner ? `<span class="tag">Partner${f.plan ? " · " + esc(f.plan) : ""}</span>` : `<span class="tag grey">Listed</span>`}</td>
