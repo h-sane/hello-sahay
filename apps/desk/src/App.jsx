@@ -15,6 +15,7 @@ const TYPE_LABEL = {
   CHC: "Community Health Centre",
   GH: "Government Hospital",
   private: "Private facility",
+  clinic: "Clinic",
 };
 
 // What each role may open. The API enforces the same rules; this only decides what to show.
@@ -169,6 +170,7 @@ export default function App() {
   const markDone = (id) => run(() => api.act(id, "complete"));
   const markNoShow = (id) => run(() => api.act(id, "no_show"));
   const markCalledBack = (id) => run(() => api.callbackDone(id));
+  const setSeverity = (id, severity) => run(() => api.setSeverity(id, severity));
   const toggleDuty = (id, onDuty) => run(() => api.setDuty(id, onDuty));
 
   // A walk-in is at the counter now, so it lands on today's queue whatever day is on screen.
@@ -334,7 +336,7 @@ export default function App() {
             <DoctorsTab doctors={doctorsList} onToggleDuty={toggleDuty} />
           )}
           {activeTab === "callLogs" && (
-            <CallLogsTab callLogs={callLogs} onMarkCalled={markCalledBack} />
+            <CallLogsTab callLogs={callLogs} onMarkCalled={markCalledBack} onSetSeverity={setSeverity} />
           )}
           {activeTab === "history" && (
             <HistoryTab visits={pastVisits} isDoctor={isDoctor} />

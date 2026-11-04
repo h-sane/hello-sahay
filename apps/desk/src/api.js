@@ -62,6 +62,8 @@ export const api = {
   calls: () => request("/calls?limit=100"),
   callbackDone: (id) =>
     request(`/calls/${id}`, { method: "PATCH", body: { callback_done: true } }),
+  setSeverity: (id, severity) =>
+    request(`/calls/${id}`, { method: "PATCH", body: { severity } }),
   walkIn: (body) => request("/appointments/walk-in", { method: "POST", body }),
   act: (id, action) =>
     request(`/appointments/${id}`, { method: "PATCH", body: { action } }),

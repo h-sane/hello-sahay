@@ -14,6 +14,9 @@ function LanguageBadge({ language }) {
     Tamil: "bg-purple-100 text-purple-900 border-purple-200",
     Hindi: "bg-orange-100 text-orange-900 border-orange-200",
     English: "bg-blue-100 text-blue-900 border-blue-200",
+    Malayalam: "bg-teal-100 text-teal-900 border-teal-200",
+    Kannada: "bg-yellow-100 text-yellow-900 border-yellow-200",
+    Telugu: "bg-pink-100 text-pink-900 border-pink-200",
   };
   return (
     <span
@@ -23,6 +26,35 @@ function LanguageBadge({ language }) {
     >
       {language}
     </span>
+  );
+}
+
+// ─── Urgency (set by the voice assistant, staff can correct it) ───
+const SEVERITY = { mild: "Mild", moderate: "Moderate", serious: "Serious" };
+const SEVERITY_STYLE = {
+  mild: "bg-emerald-50 text-emerald-800 border-emerald-200",
+  moderate: "bg-amber-50 text-amber-900 border-amber-300",
+  serious: "bg-rose-100 text-rose-900 border-rose-300",
+};
+
+function SeverityPicker({ value, onChange }) {
+  return (
+    <select
+      aria-label="Urgency of this call"
+      title="Set by the voice assistant. Change it if it is wrong."
+      value={value || ""}
+      onChange={(e) => onChange(e.target.value)}
+      className={`px-3 py-1.5 rounded-full text-base font-bold border cursor-pointer ${
+        SEVERITY_STYLE[value] || "bg-slate-50 text-slate-600 border-slate-300"
+      }`}
+    >
+      {!value && <option value="">Not rated</option>}
+      {Object.entries(SEVERITY).map(([key, label]) => (
+        <option key={key} value={key}>
+          {label}
+        </option>
+      ))}
+    </select>
   );
 }
 
@@ -66,7 +98,7 @@ function OutcomeBadge({ outcome }) {
 }
 
 // ─── Main Component ──────────────────────────────────
-export default function CallLogsTab({ callLogs, onMarkCalled }) {
+export default function CallLogsTab({ callLogs, onMarkCalled, onSetSeverity }) {
   const pendingCallbacks = callLogs.filter(
     (l) => l.outcome === "Needs Callback"
   ).length;
@@ -102,7 +134,7 @@ export default function CallLogsTab({ callLogs, onMarkCalled }) {
       {/* ── Table Container (Fully Responsive with Touch Scroll) ── */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse min-w-[700px]">
+          <table className="w-full border-collapse min-w-[820px]">
             <thead>
               <tr className="bg-slate-100 border-b border-slate-200">
                 <th className="text-left py-4 px-5 text-sm font-black text-slate-700 uppercase tracking-wider">
@@ -113,6 +145,9 @@ export default function CallLogsTab({ callLogs, onMarkCalled }) {
                 </th>
                 <th className="text-left py-4 px-5 text-sm font-black text-slate-700 uppercase tracking-wider">
                   Call Summary & Reason
+                </th>
+                <th className="text-left py-4 px-5 text-sm font-black text-slate-700 uppercase tracking-wider">
+                  Urgency
                 </th>
                 <th className="text-left py-4 px-5 text-sm font-black text-slate-700 uppercase tracking-wider">
                   Outcome & Status
@@ -156,6 +191,11 @@ export default function CallLogsTab({ callLogs, onMarkCalled }) {
                     </p>
                   </td>
 
+                  {/* Urgency */}
+                  <td className="py-4 px-5 whitespace-nowrap">
+                    <SeverityPicker value={log.severity} onChange={(v) => onSetSeverity(log.id, v)} />
+                  </td>
+
                   {/* Outcome */}
                   <td className="py-4 px-5 whitespace-nowrap">
                     <OutcomeBadge outcome={log.outcome} />
@@ -193,7 +233,7 @@ export default function CallLogsTab({ callLogs, onMarkCalled }) {
               ))}
               {callLogs.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="py-12 px-5 text-center text-lg font-medium text-slate-500">
+                  <td colSpan={6} className="py-12 px-5 text-center text-lg font-medium text-slate-500">
                     No calls yet. Calls to the Hello Sahay helpline will appear here as they happen.
                   </td>
                 </tr>

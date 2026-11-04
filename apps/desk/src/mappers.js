@@ -48,7 +48,7 @@ const OUTCOME = {
   handed_off: "Needs Callback",
   info_given: "Information Given",
 };
-const LANG = { ta: "Tamil", hi: "Hindi", en: "English" };
+const LANG = { ta: "Tamil", hi: "Hindi", en: "English", ml: "Malayalam", kn: "Kannada", te: "Telugu" };
 
 export function toCallRow(c) {
   let outcome = OUTCOME[c.outcome] || "Information Given";
@@ -67,6 +67,7 @@ export function toCallRow(c) {
     language: LANG[c.language] || "English",
     summary: c.summary || "No summary recorded for this call.",
     outcome,
+    severity: c.severity,
   };
 }
 

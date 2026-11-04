@@ -55,6 +55,8 @@ tr:last-child td{border-bottom:0}
 .call>button{all:unset;display:grid;grid-template-columns:1fr auto;gap:6px 12px;padding:14px 18px;width:100%;box-sizing:border-box;cursor:pointer}
 .call>button:focus-visible{outline:3px solid var(--accent);outline-offset:-3px;border-radius:14px}
 .call .meta{color:var(--mute);font-size:15px}
+.call .sev{padding:0 18px 12px;color:var(--mute);font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.call .sev select{font:inherit;padding:4px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
 .call .tags{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}
 .tr{padding:4px 18px 16px;border-top:1px solid var(--line)}
 .turn{margin:10px 0;max-width:70ch}.turn small{display:block;color:var(--mute);font-weight:600}
@@ -80,7 +82,8 @@ tr:last-child td{border-bottom:0}
 <div id="app"></div>
 <script>
 const API = "/api/v1";
-const LANG = {ta: "Tamil", hi: "Hindi", en: "English", unknown: "Not set"};
+const LANG = {ta: "Tamil", hi: "Hindi", en: "English", ml: "Malayalam", kn: "Kannada", te: "Telugu", unknown: "Not set"};
+const SEVERITY = {mild: "Mild", moderate: "Moderate", serious: "Serious"};
 const OUTCOME = {booked: "Booked", info_given: "Info given", emergency: "Emergency", handed_off: "Handed off", unknown: "No outcome"};
 const KIND = {subscription: "Subscription", arrival_fee: "Arrival fees", premium: "Care plan"};
 const TABS = [["overview", "Overview"], ["hospitals", "Hospitals"], ["logins", "Hospital logins"], ["payments", "Payments"], ["calls", "Calls"], ["premium", "Care plan"]];
@@ -239,6 +242,10 @@ const VIEWS = {
         <span class="meta">${esc(x.summary || "No summary")}</span></span>
         <span class="tags">${x.emergency ? `<span class="tag red">Emergency</span>` : ""}${x.handoff ? `<span class="tag amber">Handoff</span>` : ""}
         <span class="tag ${x.outcome ? "" : "grey"}">${esc(OUTCOME[x.outcome || "unknown"])}</span></span></button>
+        <div class="sev"><label for="sev${x.id}">Urgency, set by the voice assistant</label>
+          <select id="sev${x.id}" data-sev="${x.id}">${x.severity ? "" : `<option value="">Not rated</option>`}
+          ${Object.entries(SEVERITY).map(([k, l]) => `<option value="${k}" ${x.severity === k ? "selected" : ""}>${l}</option>`).join("")}</select>
+          <span class="meta" role="status"></span></div>
         <div class="tr" hidden>${transcript(x.transcript)}</div></div>`).join("")
       : `<p class="empty">No calls match this filter.</p>`}`;
   },
@@ -303,7 +310,15 @@ function bind(v) {
   v.querySelectorAll(".filters button").forEach(b => b.onclick = () => { callFilter = b.dataset.f; show(); });
   v.querySelectorAll(".call > button").forEach(b => b.onclick = () => {
     const open = b.getAttribute("aria-expanded") === "true";
-    b.setAttribute("aria-expanded", String(!open)); b.nextElementSibling.hidden = open;
+    b.setAttribute("aria-expanded", String(!open)); b.parentElement.querySelector(".tr").hidden = open;
+  });
+  v.querySelectorAll("[data-sev]").forEach(sel => sel.onchange = async () => {
+    const note = sel.nextElementSibling;
+    note.textContent = "Saving…";
+    try {
+      await api("/calls/" + sel.dataset.sev, {method: "PATCH", body: JSON.stringify({severity: sel.value})});
+      note.textContent = "Saved";
+    } catch (x) { note.textContent = x.message; }
   });
 }
 
