@@ -159,6 +159,13 @@ local API, then read the call with `call_trace.py latest --base <that API>`.
   read it again (the ids stay in the result so it can still book).
 - **Short, natural speech.** Addresses are cut to three meaningful parts (`tools.short_address`: no pincode, district,
   state or country) and only given on request; distances come as `distance_text` ("800 metres", "2.4 km"); Hindi
-  "आपके पास तीन ..." (you own three) is rewritten to "आपके नज़दीक" in `session._think`.
+  "आपके पास तीन ..." and "आपके पास में तीन ..." (you own three) are rewritten to "आपके नज़दीक" in `session._think`.
+- **Part of the day.** `get_slots` takes `time_of_day` (morning, afternoon, evening) and searches every day for it, so
+  "any evening slot, any day" works; `preferred_time` stays for an exact clock time. The disclaimer, when the caller's first
+  sentence already told the problem, is introduced by `prompts.DISCLAIMER_INTRO` ("Before I answer, I have one important
+  notice") so it is not mistaken for the answer.
+- **Demo schedule** (`services/api/app/slots.py`): each partner doctor has one weekly day off and about a third of the
+  remaining slots are already taken (`blocked`), a fixed function of doctor and time. Mornings 09:00-13:00 and evenings
+  16:00-18:00 both exist.
 - Replay a conversation against the real Nova model with a stubbed API by copying the pattern in `test_pipeline.py`
   (`make_session`) and calling `session._turn(text)` per caller sentence.

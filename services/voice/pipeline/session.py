@@ -55,7 +55,7 @@ _CLOSING = re.compile(r"thank|bye|that's all|that is all|nothing else|no thanks|
                       r"നന്ദി|ഇനി ഒന്നുമില്ല|മതി$|ബൈ$|ಧನ್ಯವಾದ|ಥ್ಯಾಂಕ್ಸ್|ಬೇರೇನೂ ಬೇಡ|ಸಾಕು$|ಬಾಯ್$|"
                       r"ధన్యవాదాలు|థ్యాంక్స్|ఇంకేమీ వద్దు|చాలు$|బై$", re.I)
 # "आपके पास तीन क्लीनिक हैं" means "you own three clinics"; the model keeps writing it for "three clinics near you"
-_HI_NEARBY = re.compile(r"आपके पास(?= (?:एक|दो|तीन|चार|\d))")
+_HI_NEARBY = re.compile(r"आपके पास(?: में)?(?= (?:एक|दो|तीन|चार|\d))")
 CLOSING_MAX_WORDS = 6  # a longer sentence is a new request that merely contains a thanks
 
 
@@ -447,7 +447,7 @@ class CallSession:
             if named or len(text.split()) < MIN_WORDS_TO_SWITCH:
                 await self._say(prompts.AFTER_LANGUAGE[self.lang], lat, t0)
                 return  # only a language was said; the problem comes next turn
-            await self._say(prompts.DISCLAIMER[self.lang], lat, t0)  # the sentence already told the problem: do not ask for it
+            await self._say(f"{prompts.DISCLAIMER_INTRO[self.lang]} {prompts.DISCLAIMER[self.lang]}", lat, t0)  # the problem is already told: announce the notice, do not ask for it
         note = ""
         if gate.flag == "symptom":
             await self._say(gate.reply, lat, t0, lang=gate_lang)

@@ -1,5 +1,9 @@
 """Appointment slots for partner doctors: 15 minutes each, 09:00-13:00 and 16:00-18:00 IST.
 
+Demo doctors are not on duty every minute: each has one weekly day off, and about a third of the remaining slots are
+already taken (status blocked) by walk-ins and earlier bookings. Both are a fixed function of doctor and time, so
+re-running never changes an answer.
+
 Slots are created ahead of time and only ever added (booked and past ones are history), so this can run at every
 start-up, every few hours and from the seed loader without touching anything that already exists.
 """
@@ -13,7 +17,7 @@ from sqlalchemy.orm import Session
 
 from .common import IST, today_ist
 from .db import SessionLocal
-from .models import Doctor, Facility, Slot
+from .models import Appointment, Doctor, Facility, Slot
 
 log = logging.getLogger("sahay.slots")
 DAYS_AHEAD = 7
@@ -31,6 +35,14 @@ def _day_slots(day):
             t += step
 
 
+def _day_off(doctor_id: int, day) -> bool:
+    return day.weekday() == (doctor_id * 3) % 7
+
+
+def _taken(doctor_id: int, start: datetime) -> bool:
+    return (doctor_id * 7 + start.toordinal() * 5 + start.hour * 3 + start.minute // 15 * 2) % 10 < 3
+
+
 def ensure_slots(session: Session, days: int = DAYS_AHEAD, doctor_ids: list[int] | None = None) -> int:
     """Create the missing slots for today and the next days-1 days. Returns how many were added."""
     query = select(Doctor.id).join(Facility, Facility.id == Doctor.facility_id).where(Facility.is_partner.is_(True))
@@ -43,12 +55,25 @@ def ensure_slots(session: Session, days: int = DAYS_AHEAD, doctor_ids: list[int]
     first = datetime.combine(today, time.min, IST)
     have = set(session.execute(
         select(Slot.doctor_id, Slot.start).where(Slot.doctor_id.in_(ids), Slot.start >= first)).all())
-    added = [Slot(doctor_id=did, start=start, end=end, status="open")
+    added = [Slot(doctor_id=did, start=start, end=end, status="blocked" if _taken(did, start) else "open")
              for did in ids for d in range(days) for start, end in _day_slots(today + timedelta(days=d))
-             if (did, start) not in have]
+             if (did, start) not in have and not _day_off(did, start.date())]
     session.add_all(added)
+    _apply_schedule(session, ids, first)
     session.commit()
     return len(added)
+
+
+def _apply_schedule(session: Session, ids: list[int], first: datetime) -> None:
+    """Bring slots made before the schedule existed in line with it; booked slots are never touched."""
+    free = select(Slot).where(Slot.doctor_id.in_(ids), Slot.start >= first, Slot.status == "open",
+                              Slot.id.not_in(select(Appointment.slot_id)))
+    for slot in session.scalars(free):
+        local = slot.start.astimezone(IST)
+        if _day_off(slot.doctor_id, local.date()):
+            session.delete(slot)
+        elif _taken(slot.doctor_id, local):
+            slot.status = "blocked"
 
 
 def _refresh() -> None:

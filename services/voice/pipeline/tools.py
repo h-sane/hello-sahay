@@ -30,6 +30,7 @@ GENERIC_AREAS = {"chennai", "madras", "tamilnadu", "kerala", "karnataka", "andhr
                  "bangalore", "bengaluru", "hyderabad", "coimbatore", "madurai"}
 SLOTS_OFFERED = 3  # slots read out in one answer
 SLOT_DAYS = 7  # how far ahead a caller's doctor or time wish is searched
+DAY_PARTS = {"morning": (0, 12), "afternoon": (12, 16), "evening": (16, 24)}  # local hours, start inclusive
 TIME_WINDOW_MIN = 45  # a slot this close to the preferred time counts as that time
 NEARBY_TIMEOUT_S = 25  # the first real-hospital lookup for an area goes to OpenStreetMap; later ones are cached
 GOVERNMENT_KINDS = ("government", "phc")
@@ -146,6 +147,8 @@ TOOL_SPECS = [
                              "department": {**_S, "description": "The department in the chosen place's entry from find_facilities"},
                              "doctor_name": {**_S, "description": "Preferred doctor, only if the caller named one; it is a preference, not a requirement"},
                              "preferred_time": {**_S, "description": "Preferred time as 24-hour HH:MM, only if the caller gave one"},
+                             "time_of_day": {"type": "string", "enum": list(DAY_PARTS),
+                                             "description": "Only if the caller wants a part of the day (\"evening\", \"after work\") rather than a clock time; searched on every day"},
                              "date": {**_S, "description": "YYYY-MM-DD, only if the caller asked for a particular day"},
                              "avoid_dates": {"type": "array", "items": _S,
                                              "description": "YYYY-MM-DD days the caller ruled out (\"not Thursday\"); they stay ruled out"}},
@@ -402,7 +405,7 @@ class Tools:
 
     async def t_get_slots(self, facility_id: int, department: str, doctor_name: str | None = None,
                           preferred_time: str | None = None, date: str | None = None,
-                          avoid_dates: list[str] | None = None) -> dict:
+                          avoid_dates: list[str] | None = None, time_of_day: str | None = None) -> dict:
         today = datetime.now(IST).date()
         days = [(today + timedelta(days=i)).isoformat() for i in range(SLOT_DAYS)]
         if date and date not in days:
@@ -433,6 +436,13 @@ class Tools:
             if not slots:
                 return {"result": "none_that_day", "slots": [], "days_with_slots": free_days,
                         "note": "Nothing is free that day. Say which days are free and ask which one the caller wants."}
+        if time_of_day in DAY_PARTS:
+            begin, stop = DAY_PARTS[time_of_day]
+            in_part = [s for s in slots if begin <= local(s).hour < stop]
+            if not in_part:
+                return {"result": "none_in_that_part", "slots": [], "days_with_slots": free_days,
+                        "note": f"No {time_of_day} slot is free here. Say so and offer another place or another time of day."}
+            slots = in_part
         pool, result, doctor = slots, "any", None
         if doctor_name:
             # A doctor the caller names is a preference. If that doctor is not here the caller is never told so:

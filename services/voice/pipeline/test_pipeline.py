@@ -827,7 +827,7 @@ def test_malayalam_and_kannada_have_every_spoken_line_and_use_sarvam_for_speech(
     from pipeline.sarvam import CODES, SarvamStt
 
     assert set(CODES) == {"ta", "ml", "kn", "te"}
-    for table in (prompts.GREETING, prompts.WELCOME, prompts.DISCLAIMER, prompts.ASK_PROBLEM, prompts.AFTER_LANGUAGE, prompts.UNVERIFIED, prompts.FILLER, prompts.UNCLEAR, prompts.GIVE_UP,
+    for table in (prompts.GREETING, prompts.WELCOME, prompts.DISCLAIMER, prompts.DISCLAIMER_INTRO, prompts.ASK_PROBLEM, prompts.AFTER_LANGUAGE, prompts.UNVERIFIED, prompts.FILLER, prompts.UNCLEAR, prompts.GIVE_UP,
                   prompts.GOODBYE, prompts.GREETING_FALLBACK, llm.FALLBACK, REPLIES["emergency"], REPLIES["symptom"]):
         assert {"ml", "kn", "te"} <= set(table), table
     assert {"ml", "kn", "te"} <= {code for code, _ in prompts.AUTO_GREETING}
@@ -960,7 +960,7 @@ def test_a_caller_who_skips_the_language_question_and_describes_the_problem_stil
 
     s = asyncio.run(go())
     # the sentence already told the problem, so the disclaimer is not followed by "what is troubling you?"
-    assert spoken(s) == [prompts.DISCLAIMER["en"], "Which area are you in?", "Which area are you in?"]
+    assert spoken(s) == [f'{prompts.DISCLAIMER_INTRO["en"]} {prompts.DISCLAIMER["en"]}', "Which area are you in?", "Which area are you in?"]
 
 
 def test_the_disclaimer_is_said_only_once_and_a_call_with_a_fixed_language_opens_with_it_in_the_greeting():
@@ -1070,6 +1070,14 @@ def test_a_day_with_no_slot_names_the_days_that_are_free_instead_of_refusing():
     assert [s["slot_id"] for s in _get_slots(slots, date=_day(3))["slots"]] == [2]
 
 
+def test_an_evening_wish_skips_the_morning_slots_on_every_day():
+    slots = [_slot(1, "Dr A", 9, 1), _slot(2, "Dr A", 17, 1), _slot(3, "Dr A", 9, 2), _slot(4, "Dr A", 16, 3)]
+    out = _get_slots(slots, time_of_day="evening")
+    assert [s["slot_id"] for s in out["slots"]] == [2, 4] and out["result"] == "any"
+    none = _get_slots([_slot(1, "Dr A", 9, 1)], time_of_day="evening")
+    assert none["result"] == "none_in_that_part" and none["days_with_slots"]
+
+
 def _day(offset):
     from datetime import datetime, timedelta
     from pipeline.tools import IST
@@ -1125,11 +1133,11 @@ def test_an_existing_appointment_is_put_in_front_of_the_model_after_the_disclaim
 
 def test_hindi_replies_say_near_you_not_you_have_for_nearby_places():
     async def agent(system, messages, tools):
-        return "आपके पास तीन क्लीनिक हैं। आपके पास दवा है।"
+        return "आपके पास में तीन क्लीनिक हैं। आपके पास तीन क्लीनिक हैं। आपके पास दवा है।"
 
     async def go():
         s, _, _ = make_session(agent, [], lang="hi")
         await s._turn("सिर में दर्द है")
         return s
 
-    assert spoken(asyncio.run(go()))[-1] == "आपके नज़दीक तीन क्लीनिक हैं। आपके पास दवा है।"
+    assert spoken(asyncio.run(go()))[-1] == "आपके नज़दीक तीन क्लीनिक हैं। आपके नज़दीक तीन क्लीनिक हैं। आपके पास दवा है।"

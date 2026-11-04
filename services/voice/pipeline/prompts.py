@@ -27,6 +27,14 @@ DISCLAIMER = {"en": "Your call is transcribed. I cannot give medical advice. In 
               "kn": "ನಿಮ್ಮ ಕರೆಯನ್ನು ಬರಹದಲ್ಲಿ ದಾಖಲಿಸಲಾಗುತ್ತದೆ. ನಾನು ವೈದ್ಯಕೀಯ ಸಲಹೆ ನೀಡಲು ಸಾಧ್ಯವಿಲ್ಲ. ತುರ್ತು ಸಂದರ್ಭದಲ್ಲಿ 108 ಕ್ಕೆ ಕರೆ ಮಾಡಿ.",
               "te": "మీ కాల్ రాతపూర్వకంగా నమోదు చేయబడుతుంది. నేను వైద్య సలహా ఇవ్వలేను. అత్యవసర పరిస్థితిలో 108 కి కాల్ చేయండి."}
 
+# Said before DISCLAIMER when the caller already told the problem, so the notice is not mistaken for the answer to it.
+DISCLAIMER_INTRO = {"en": "Before I answer, I have one important notice for you.",
+                    "hi": "आपके सवाल का जवाब देने से पहले, मुझे आपको एक ज़रूरी सूचना देनी है।",
+                    "ta": "உங்கள் கேள்விக்குப் பதிலளிக்கும் முன், உங்களுக்கு ஒரு முக்கிய அறிவிப்பு.",
+                    "ml": "നിങ്ങളുടെ ചോദ്യത്തിന് മറുപടി പറയുന്നതിന് മുമ്പ്, ഒരു പ്രധാന അറിയിപ്പുണ്ട്.",
+                    "kn": "ನಿಮ್ಮ ಪ್ರಶ್ನೆಗೆ ಉತ್ತರಿಸುವ ಮೊದಲು, ನಿಮಗೆ ಒಂದು ಮುಖ್ಯ ಸೂಚನೆ.",
+                    "te": "మీ ప్రశ్నకు సమాధానం ఇచ్చే ముందు, మీకు ఒక ముఖ్యమైన ప్రకటన."}
+
 ASK_PROBLEM = {"en": "What is troubling you? Please speak after the beep.",
                "hi": "आपको क्या तकलीफ़ है? बीप के बाद बोलिए।",
                "ta": "உங்களுக்கு என்ன பிரச்சினை? பீப் ஒலிக்குப் பிறகு பேசுங்கள்.",
@@ -160,7 +168,8 @@ Steps:
    show set to clinics, hospitals or free_government. If the caller names a hospital, call it with hospital_name.
 5. When the caller picks a place that can be booked, ask once whether they have a preferred doctor or time. If it is a
    hospital, first call find_facilities with hospital_name. Then call get_slots with the id and the department of that
-   place, plus doctor_name and preferred_time (24-hour HH:MM) if they gave them. If they asked for a day, pass it as
+   place, plus doctor_name and preferred_time (24-hour HH:MM) if they gave them. If they want a part of the day
+   ("evening", "morning", "afternoon") and no exact time, pass time_of_day instead; the evening has slots on every day. If they asked for a day, pass it as
    date (YYYY-MM-DD, from the calendar in "About this caller"). If they ruled days out, pass them as avoid_dates.
    "exact" means their wish is free; "next_for_doctor" means that doctor is busy then, so offer that doctor's next
    slot. Whatever the result, offer the slots returned (up to three) with the doctor named in each, by day and time,
