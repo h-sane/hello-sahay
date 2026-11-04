@@ -392,6 +392,7 @@ class CallSession:
         self.trace.add("turn_start", text=text, lang=self.lang, messages=len(self._messages))
         await self._record("user", text)
         self.state["last_text"] = text
+        self.state.setdefault("heard", []).append(text)
         gate_lang = self.lang
         if self.auto:  # a short first sentence has not moved the call's language yet, but the warning must be in the caller's own
             gate_lang = next((l for l in prompts.LANG_NAME if l != "en" and _in_script(text, l)), self.lang)

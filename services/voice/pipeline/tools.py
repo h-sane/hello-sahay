@@ -102,7 +102,7 @@ TOOL_SPECS = [
         "inputSchema": _obj({"reason": {**_S, "description": "Reason for the visit in English, in the caller's meaning (translate it), e.g. \"mild fever and headache\""},
                              "severity": {"type": "string", "enum": ["mild", "moderate", "serious"],
                                           "description": "Your reading of how urgent the caller's words are; not a diagnosis"},
-                             "village": {**_S, "description": "Specific area, village or landmark the caller said, written in English letters (e.g. Broadway, Mannady); leave out when use_live_location is true"},
+                             "village": {**_S, "description": "Specific area, village or landmark the caller said, written in English letters, exactly the place the caller said (never guess one); leave out when use_live_location is true"},
                              "use_live_location": {"type": "boolean",
                                                    "description": "True once the caller confirmed the live location from the app"},
                              "show": {"type": "string", "enum": list(SHOWS),
@@ -219,6 +219,9 @@ class Tools:
                        "say": "That is a whole city or district. Ask for the specific area in it, such as a locality or landmark."}
         if _squash(village) in GENERIC_AREAS:
             return None, too_general
+        if not self._said_by_caller(village, profile):
+            return None, {"error": "location_needed",
+                          "say": "The caller has not told you that place. Ask for their specific area and use only what they say."}
         coords = place_for(village)
         if coords is None:
             try:
@@ -233,6 +236,23 @@ class Tools:
                     "error": "area_not_found", "say": "That area was not found. Ask for a nearby well known area or landmark."}
             coords = (g["lat"], g["lng"])
         return (*coords, village.strip()), None
+
+    def _said_by_caller(self, place: str, profile: dict) -> bool:
+        """The model once picked an area it had read in its own instructions. In an all-Latin call the place must be
+        one the caller said (near misses count: speech-to-text spells names its own way); an app profile's place and an
+        area found earlier also count. A call in a native script is not checked: the model transliterates there."""
+        heard = self.state.get("heard") or []
+        if not heard or not all(t.isascii() for t in heard):
+            return True
+        known = {_squash(x) for x in (profile.get("village"), profile.get("place"), self.state.get("village")) if x}
+        key = _squash(place)
+        if key in known:
+            return True
+        words = [_squash(w) for w in " ".join(heard).split()]
+        heard_text = "".join(words)
+        return bool(key) and (key in heard_text or any(
+            difflib.SequenceMatcher(None, key, "".join(words[i:i + n])).ratio() >= 0.8
+            for n in (1, 2, 3) for i in range(len(words) - n + 1)))
 
     async def _demo_id(self, hospitals: list[dict]) -> int | None:
         """Demo wiring: every private hospital the caller hears books into the one demo hospital's Desk."""
@@ -265,7 +285,9 @@ class Tools:
         if show == "clinics" and not hospital_name:
             clinics = await self._clinics(lat, lng, department)
             if clinics:
-                return {**out, "clinics": clinics}
+                return {**out, "clinics": clinics,
+                        "say": "Name them with their distance. Then end with this one question, in the caller's language: "
+                               "\"Shall I book one of these, or would you like to hear about hospitals too?\""}
             out.update(show="hospitals", note="No partner clinic is near this area. Say so, then offer the hospitals below.")
         hospitals = await self._nearby(lat, lng, 10)
         if hospital_name:
@@ -279,6 +301,7 @@ class Tools:
         if show == "free_government":
             free = [h for h in hospitals if h.get("kind") in GOVERNMENT_KINDS][:2]
             return {**out, "free_government_hospitals": [self._view(h, None, department) for h in free],
+                    "say": "Name each with its distance and address. Say it cannot be booked and the caller can walk in.",
                     **({} if free else {"note": "No government hospital was found nearby."})}
         demo_id = await self._demo_id(hospitals)
         if not hospitals:  # lookup down or empty: the demo hospital is named under its own name
@@ -288,7 +311,10 @@ class Tools:
             if demo is None:
                 return {**out, "error": "no hospital can take bookings right now; offer a callback"}
             hospitals = [{"name": demo["name"], "address": demo["address"], "kind": "private", "distance_km": None}]
-        return {**out, "hospitals": [self._view(h, demo_id, department) for h in hospitals[:2]]}
+        return {**out, "hospitals": [self._view(h, demo_id, department) for h in hospitals[:2]],
+                "say": "Name them with distance and say which is government (free) and which is private. Then end with this one "
+                       "question, in the caller's language: \"Shall I book one of these, or would you like to hear about the "
+                       "nearest free government hospitals?\""}
 
     async def _pick(self, hospital_name: str, hospitals: list[dict], department: str) -> dict:
         """The caller chose a place. A listed clinic or hospital is taken as listed; any other name is accepted as said."""

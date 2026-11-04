@@ -1004,3 +1004,23 @@ def test_booking_with_a_placeholder_name_is_refused_so_the_model_has_to_ask():
         return await Tools(_slots_api([_slot(1, "Dr A", 10)]), "en", {"phone": "9876543210"}).call(
             "book_appointment", {"slot_id": 1, "name": "Anonymous", "village": "P", "reason_text": "fever"})
     assert asyncio.run(go())["error"] == "name_needed"
+
+
+def test_an_area_the_caller_never_said_is_refused_so_the_model_cannot_pick_one_from_its_own_instructions():
+    api = _places_api(HOSPITALS)
+    state = {"heard": ["I have a cold and mild fever since yesterday"]}
+    out, _ = _find(api, state, village="Paranur", severity="mild")
+    assert out["error"] == "location_needed" and "lat" not in state
+
+
+def test_an_area_the_caller_said_passes_even_when_speech_to_text_spells_it_differently():
+    for said, model in (("Broadway", "Broadway"), ("it is near mannadi", "Mannady"), ("Paris Corner please", "Parrys Corner")):
+        state = {"heard": ["I have fever", said]}
+        out, _ = _find(_places_api(HOSPITALS), state, village=model, severity="moderate")
+        assert "hospitals" in out, said
+
+
+def test_the_saved_village_from_the_app_profile_counts_as_said_and_native_script_calls_are_not_checked():
+    state = {"heard": ["yes"], "profile": {"village": "Paranur"}}
+    assert "hospitals" in _find(_places_api(HOSPITALS), state, village="Paranur")[0]
+    assert "hospitals" in _find(_places_api(HOSPITALS), {"heard": ["எனக்கு காய்ச்சல்"]}, village="Paranur")[0]
