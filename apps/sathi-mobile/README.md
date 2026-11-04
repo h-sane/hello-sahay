@@ -16,7 +16,7 @@ Release APK (signed with the same key as the patient app, settings in `~/.gradle
 ```
 $env:VITE_API_URL='https://<host>/api/v1'; npx vite build; npx cap sync android
 cd android; .\gradlew.bat assembleRelease -PreactNativeArchitectures=arm64-v8a
-# androidppuild\outputspkeleasepp-release.apk
+# android/app/build/outputs/apk/release/app-release.apk
 ```
 
 - API: `services/api/app/routers/sathi.py` (this app) and `routers/services.py` (the patient side). Endpoint list: `docs/FRONTEND_INTEGRATION.md`.
