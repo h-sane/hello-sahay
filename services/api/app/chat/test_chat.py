@@ -46,6 +46,7 @@ def test_chunks_stay_under_the_limit_and_overlap():
     ("ta", "CMCHIS தகுதி என்ன"),
     ("kn", "CMCHIS ಅರ್ಹತೆ ಏನು"),
     ("ml", "CMCHIS അർഹത എന്താണ്"),
+    ("te", "CMCHIS అర్హత ఏమిటి"),
 ])
 def test_cmchis_eligibility_gets_the_fixed_reply_without_retrieval(lang, message):
     out = service.answer(None, message, lang)  # no session: retrieval must not run
