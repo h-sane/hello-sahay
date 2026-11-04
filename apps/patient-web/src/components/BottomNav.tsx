@@ -59,7 +59,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab, c
               aria-current={isActive ? 'page' : undefined}
             >
               <Icon className="h-7 w-7" strokeWidth={2.2} aria-hidden />
-              <span className="px-0.5 text-center text-[14px] font-bold leading-[1.1]">
+              <span className={`px-0.5 text-center font-bold leading-[1.1] ${currentLang === 'ml' || currentLang === 'kn' ? 'text-[13px]' : 'text-[14px]'}`}>
               {tab.label}
               </span>
             </button>
