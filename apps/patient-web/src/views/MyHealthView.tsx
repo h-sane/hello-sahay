@@ -15,6 +15,7 @@ interface MyHealthViewProps {
   onUpdateSettings: (updated: Partial<UserSettings>) => void;
   onNavigate: (tab: NavTab) => void;
   onOpenLocationSelector: () => void;
+  embedded?: boolean;
 }
 
 type Section = null | 'visits' | 'medicines' | 'family' | 'care' | 'more';
@@ -22,7 +23,7 @@ type Section = null | 'visits' | 'medicines' | 'family' | 'care' | 'more';
 const todayIso = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 const clock = (hhmm: string) => `${Number(hhmm.slice(0, 2)) % 12 || 12}:${hhmm.slice(3)} ${Number(hhmm.slice(0, 2)) < 12 ? 'AM' : 'PM'}`;
 
-export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSettings, onUpdateSettings, onNavigate, onOpenLocationSelector }) => {
+export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSettings, onUpdateSettings, onNavigate, onOpenLocationSelector, embedded = false }) => {
   const L = (o: { en: string; hi: string; ta: string; kn: string; ml: string; te: string }) => pick(currentLang, o);
   const { care, appointments, reminders, family, refresh, refreshAppointments, refreshReminders, refreshFamily } = useAppData();
   const [cancelling, setCancelling] = useState<Appointment | null>(null);
@@ -102,11 +103,22 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
     <div>
       {section === null && (
         <>
-      <Title sub={userSettings.userPhone}>
-        {userSettings.userName
-          ? L({ en: `Hello, ${userSettings.userName}`, hi: `नमस्ते, ${userSettings.userName}`, ta: `வணக்கம், ${userSettings.userName}`, kn: `ನಮಸ್ಕಾರ, ${userSettings.userName}`, ml: `നമസ്കാരം, ${userSettings.userName}`, te: `నమస్కారం, ${userSettings.userName}` })
-          : L({ en: 'My Health', hi: 'मेरा स्वास्थ्य', ta: 'என் ஆரோக்கியம்', kn: 'ನನ್ನ ಆರೋಗ್ಯ', ml: 'എന്റെ ആരോഗ്യം', te: 'నా ఆరోగ్యం' })}
-      </Title>
+      {embedded ? (
+        <div className="mb-4 pt-2">
+          <SectionTitle>
+            {L({ en: 'My Health', hi: 'मेरा स्वास्थ्य', ta: 'என் நலம்', kn: 'ನನ್ನ ಆರೋಗ್ಯ', ml: 'എന്റെ ആരോഗ്യം', te: 'నా ఆరోగ్యం' })}
+          </SectionTitle>
+          <p className="text-base font-semibold text-slate-600 mb-2">
+            {userSettings.userName ? `${userSettings.userName} · ` : ''}{userSettings.userPhone || ''}
+          </p>
+        </div>
+      ) : (
+        <Title sub={userSettings.userPhone}>
+          {userSettings.userName
+            ? L({ en: `Hello, ${userSettings.userName}`, hi: `नमस्ते, ${userSettings.userName}`, ta: `வணக்கம், ${userSettings.userName}`, kn: `ನಮಸ್ಕಾರ, ${userSettings.userName}`, ml: `നമസ്കാരം, ${userSettings.userName}`, te: `నమస్కారం, ${userSettings.userName}` })
+            : L({ en: 'My Health', hi: 'मेरा स्वास्थ्य', ta: 'என் ஆரோக்கியம்', kn: 'ನನ್ನ ಆರೋಗ್ಯ', ml: 'എന്റെ ആരോഗ്യം', te: 'నా ఆరోగ్యం' })}
+        </Title>
+      )}
 
       {care?.monitored_by && (
         <Card tone="teal" className="mb-4">

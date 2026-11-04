@@ -16,6 +16,7 @@ import { BookingModal } from './views/BookingModal';
 import { AskSahayView } from './views/AskSahayView';
 import { VoiceCallView } from './views/VoiceCallView';
 import { MedicinesView } from './views/MedicinesView';
+import { ServicesView } from './views/ServicesView';
 import { MyHealthView } from './views/MyHealthView';
 import { EmergencyView } from './views/EmergencyView';
 import { AppDataProvider } from './components/AppData';
@@ -157,6 +158,8 @@ export default function App() {
         onOpenLocationModal={() => setShowLocationModal(true)}
         onOpenLanguageModal={() => setShowLanguageModal(true)}
         onOpenEmergency={() => setShowEmergencyModal(true)}
+        onOpenMyHealth={() => setCurrentTab('my-health')}
+        isMyHealthActive={currentTab === 'my-health'}
         isOnline={isOnline}
         onNavigateHome={() => setCurrentTab('home')}
       />
@@ -181,6 +184,7 @@ export default function App() {
             onSelectHospitalForBooking={(hospital) => setSelectedHospitalForBooking(hospital)}
             onOpenLocationSelector={() => setShowLocationModal(true)}
             onOpenVoiceCall={() => setShowVoiceCallModal(true)}
+            onUpdateSettings={handleUpdateSettings}
           />
         )}
 
@@ -205,6 +209,16 @@ export default function App() {
 
         {currentTab === 'medicines' && (
           <MedicinesView currentLang={settings.language} />
+        )}
+
+        {currentTab === 'services' && (
+          <ServicesView
+            currentLang={settings.language}
+            userSettings={settings}
+            userCoordinates={userCoordinates}
+            onOpenVoiceCall={() => setShowVoiceCallModal(true)}
+            onOpenEmergency={() => setShowEmergencyModal(true)}
+          />
         )}
 
         {currentTab === 'my-health' && (

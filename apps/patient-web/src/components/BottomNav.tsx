@@ -1,9 +1,9 @@
 import React from 'react';
-import { Home, Building2, MessageSquareHeart, Pill, UserCheck } from 'lucide-react';
+import { Home, Building2, MessageSquareHeart, Pill, HandHelping } from 'lucide-react';
 import { Language } from '../types';
 import { pick } from './ui';
 
-export type NavTab = 'home' | 'hospitals' | 'ask-sahay' | 'medicines' | 'my-health';
+export type NavTab = 'home' | 'hospitals' | 'ask-sahay' | 'medicines' | 'services' | 'my-health';
 
 interface BottomNavProps {
   currentTab: NavTab;
@@ -34,9 +34,9 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab, c
       icon: Pill,
     },
     {
-      id: 'my-health' as NavTab,
-      label: pick(currentLang, { en: 'My Health', hi: 'मेरा', ta: 'என் நலம்', kn: 'ನನ್ನ ಆರೋಗ್ಯ', ml: 'എന്റെ ആരോഗ്യം', te: 'నా ఆరోగ్యం' }),
-      icon: UserCheck,
+      id: 'services' as NavTab,
+      label: pick(currentLang, { en: 'Services', hi: 'सेवाएँ', ta: 'சேவைகள்', kn: 'ಸೇವೆಗಳು', ml: 'സേവനങ്ങൾ', te: 'సేవలు' }),
+      icon: HandHelping,
     },
   ];
 

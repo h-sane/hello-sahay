@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertOctagon, CalendarCheck, CreditCard, HeartHandshake, MapPin, MessageSquareHeart, Mic, Phone, Pill, Stethoscope, Users } from 'lucide-react';
+import { AlertOctagon, CalendarCheck, CreditCard, HandHelping, HeartHandshake, MapPin, MessageSquareHeart, Mic, Phone, Pill, Stethoscope, Users } from 'lucide-react';
 import { Hospital, Language, UserCoordinates, UserSettings } from '../types';
 import { ParentStatus, patientApi } from '../services/patientApi';
 import { useAppData } from '../components/AppData';
@@ -16,12 +16,13 @@ interface HomeViewProps {
   onSelectHospitalForBooking: (hospital: Hospital) => void;
   onOpenLocationSelector: () => void;
   onOpenVoiceCall: () => void;
+  onUpdateSettings: (updated: Partial<UserSettings>) => void;
 }
 
 const todayIso = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
 export const HomeView: React.FC<HomeViewProps> = ({
-  currentLang, userSettings, nearestHospital, onNavigate, onOpenEmergency, onSelectHospitalForBooking, onOpenVoiceCall,
+  currentLang, userSettings, nearestHospital, onNavigate, onOpenEmergency, onSelectHospitalForBooking, onOpenLocationSelector, onOpenVoiceCall, onUpdateSettings,
 }) => {
   const L = (o: { en: string; hi: string; ta: string; kn: string; ml: string; te: string }) => pick(currentLang, o);
   const { contacts, care, appointments, reminders, family } = useAppData();
@@ -113,7 +114,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <p className="text-xl font-extrabold text-teal-950">
                   {p.doses_today > 0
                     ? L({ en: `${p.taken_today} of ${p.doses_today} medicines taken today`, hi: `आज ${p.doses_today} में से ${p.taken_today} दवाएँ ली`, ta: `இன்று ${p.doses_today} இல் ${p.taken_today} மருந்துகள்`, kn: `ಇಂದು ${p.doses_today} ರಲ್ಲಿ ${p.taken_today} ಔಷಧಗಳನ್ನು ತೆಗೆದುಕೊಂಡಿದ್ದಾರೆ`, ml: `ഇന്ന് ${p.doses_today}ൽ ${p.taken_today} മരുന്നുകൾ കഴിച്ചു`, te: `ఈ రోజు ${p.doses_today} లో ${p.taken_today} మందులు తీసుకున్నారు` })
-                    : L({ en: 'No medicine reminders set', hi: 'कोई दवा रिमाइंडर नहीं', ta: 'மருந்து நினைவூட்டல் இல்லை', kn: 'ಔಷಧ ಜ್ಞಾಪನೆಗಳಿಲ್ಲ', ml: 'മരുന്ന് ഓർമ്മപ്പെടുത്തലുകൾ ഇല്ല', te: 'మందుల రిమైండర్‌లు లేవు' })}
+                    : L({ en: 'No medicine reminders set', hi: 'कोई दवा रिमाइंडर नहीं', ta: 'மருந்து நினைவூட்டல் இல்லை', kn: 'ಔಷಧ ಜ್ಞಾಪನೆಗಳಿಲ್ಲ', ml: 'മരുന്ന് ഓർമ്മപ്പെടുത്തലുകൾ ഇല്ല', te: 'ಮందుల రిమైండర్‌లు లేవు' })}
                 </p>
               </Card>
             </button>
@@ -141,8 +142,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       <div className="space-y-3">
         <BigButton variant="soft" onClick={() => onNavigate('ask-sahay')} icon={<MessageSquareHeart className="w-7 h-7" />}>{L({ en: 'Ask a health question', hi: 'स्वास्थ्य का सवाल पूछें', ta: 'சுகாதாரக் கேள்வி கேள்', kn: 'ಆರೋಗ್ಯದ ಪ್ರಶ್ನೆ ಕೇಳಿ', ml: 'ആരോഗ്യ ചോദ്യം ചോദിക്കൂ', te: 'ఆరోగ్య ప్రశ్న అడగండి' })}</BigButton>
-        <BigButton variant="soft" onClick={() => onNavigate('medicines')} icon={<Pill className="w-7 h-7" />}>{L({ en: 'Check a medicine price', hi: 'दवा की कीमत देखें', ta: 'மருந்தின் விலையைப் பார்', kn: 'ಔಷಧದ ಬೆಲೆ ನೋಡಿ', ml: 'മരുന്നിന്റെ വില നോക്കൂ', te: 'మందుల ధరను తనిఖీ చేయండి' })}</BigButton>
-        <BigButton variant="soft" onClick={() => onNavigate('my-health')} icon={<Users className="w-7 h-7" />}>{L({ en: 'My family and Care plan', hi: 'मेरा परिवार और केयर प्लान', ta: 'என் குடும்பம் மற்றும் கேர் திட்டம்', kn: 'ನನ್ನ ಕುಟುಂಬ ಮತ್ತು ಕೇರ್ ಪ್ಲಾನ್', ml: 'എന്റെ കുടുംബവും കെയർ പ്ലാനും', te: 'నా కుటుంబం మరియు కేర్ ప్లాన్' })}</BigButton>
+        <BigButton variant="soft" onClick={() => onNavigate('medicines')} icon={<Pill className="w-7 h-7" />}>{L({ en: 'Check a medicine price', hi: 'दवा की कीमत देखें', ta: 'மருந்தின் விலையைப் பார்', kn: 'ಔಷಧದ ಬೆಲೆ ನೋಡಿ', ml: 'മരുന്നಿന്റെ വില നോക്കൂ', te: 'మందుల ధరను తనిఖీ చేయండి' })}</BigButton>
+        <BigButton variant="soft" onClick={() => onNavigate('services')} icon={<HandHelping className="w-7 h-7" />}>{L({ en: 'Home Care & Support Services', hi: 'होम केयर और सहायता सेवाएँ', ta: 'வீட்டுப் பராமரிப்பு & உதவிச் சேவைகள்', kn: 'ಮನೆ ಆರೈಕೆ ಮತ್ತು ಬೆಂಬಲ ಸೇವೆಗಳು', ml: 'ഹോം കെയർ & സപ്പോർട്ട് സേവനങ്ങൾ', te: 'హోమ్ కేర్ & సపోర్ట్ సేవలు' })}</BigButton>
       </div>
 
       <SectionTitle>{L({ en: 'Government services', hi: 'सरकारी सेवाएँ', ta: 'அரசு சேவைகள்', kn: 'ಸರ್ಕಾರಿ ಸೇವೆಗಳು', ml: 'സർക്കാർ സേവനങ്ങൾ', te: 'ప్రభుత్వ సేవలు' })}</SectionTitle>

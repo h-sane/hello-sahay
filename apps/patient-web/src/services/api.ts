@@ -163,6 +163,10 @@ export const api = {
     }),
   saveProfile: (p: { name: string; age: number; gender: 'female' | 'male' | 'other'; village: string; language?: string }) =>
     request<ApiPatient>('/patients/me', { method: 'PUT', body: p }),
+  getPatient: (phone: string) =>
+    request<{ registered: boolean; name?: string; village?: string; language?: string; location_live?: boolean; lat?: number; lng?: number }>(
+      `/patients/${encodeURIComponent(phone)}`
+    ),
   // The helpline reads this when the same number calls, so it can confirm the live location instead of asking.
   pushLocation: (phone: string, coords: { latitude: number; longitude: number }) =>
     request<{ ok: boolean }>(`/patients/${encodeURIComponent(phone)}/location`, {

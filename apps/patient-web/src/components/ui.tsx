@@ -3,7 +3,7 @@ import { AlertTriangle, CheckCircle2, Info, Loader2, X, XCircle } from 'lucide-r
 import { Language } from '../types';
 
 /** Pick the string for the current language; other languages fall back to English. */
-export function pick<T>(lang: Language, o: { en: T; hi: T; ta: T; kn: T; ml: T; te: T }): T {
+export function pick<T>(lang: Language, o: { en: T } & Partial<Record<Language, T>>): T {
   return (o as Record<string, T>)[lang] ?? o.en;
 }
 
