@@ -128,6 +128,8 @@ export const api = {
     request<ApiNearbyHospital[]>(
       `/places/nearby-hospitals?lat=${coords.latitude}&lng=${coords.longitude}&limit=${limit}`
     ),
+  placeSearch: (q: string) =>
+    request<{ name: string; detail: string; lat: number; lng: number }[]>(`/places/search?q=${encodeURIComponent(q)}`),
   slots: (facilityId: number, date: string) =>
     request<ApiSlot[]>(`/facilities/${facilityId}/slots?date=${date}`),
   book: (body: {

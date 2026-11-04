@@ -26,6 +26,7 @@ RADII_M = [3_000, 10_000, 30_000, 80_000]  # small first: Nominatim returns 40 m
 OVERPASS_RETRY_S = 300
 _overpass_down_until = 0.0
 OVERPASS_TIMEOUT_S = 10  # the public servers are often overloaded; fail over fast
+PHOTON_URL = "https://photon.komoot.io/api/"
 SOUTH_INDIA_BOX = "74.0,19.9,84.8,8.0"  # left,top,right,bottom: the five states the helpline serves
 TOO_GENERAL = {"city", "state", "state_district", "county", "region", "province", "country"}  # "Chennai" is not a place to walk to
 _geocoded: dict[str, dict] = {}
@@ -189,3 +190,51 @@ def geocode(q: str = Query(..., min_length=2, max_length=120)):
             h = hits[0]
             _geocoded[key] = {"found": True, "name": h.get("name") or q, "lat": float(h["lat"]), "lng": float(h["lon"])}
     return _geocoded[key]
+
+
+_suggested: dict[str, list[dict]] = {}
+
+
+def _photon(q: str) -> list[dict]:
+    query = urllib.parse.urlencode({"q": q, "limit": 12, "lang": "en", "bbox": "74.0,8.0,84.8,19.9"})
+    req = urllib.request.Request(f"{PHOTON_URL}?{query}", headers={"User-Agent": "HelloSahay/1.0"})
+    with urllib.request.urlopen(req, timeout=8) as r:
+        features = json.load(r)["features"]
+    return [{"name": f["properties"]["name"], "detail": ", ".join(filter(None, [f["properties"].get("district") or f["properties"].get("county"), f["properties"].get("state")])),
+             "lat": f["geometry"]["coordinates"][1], "lng": f["geometry"]["coordinates"][0]}
+            for f in features
+            if f["properties"].get("countrycode") == "IN" and f["properties"].get("osm_key") == "place" and f["properties"].get("name")]
+
+
+def _nominatim_places(q: str) -> list[dict]:
+    query = urllib.parse.urlencode({"q": q, "format": "jsonv2", "limit": 8, "countrycodes": "in", "addressdetails": 1,
+                                    "viewbox": SOUTH_INDIA_BOX, "bounded": 1})
+    req = urllib.request.Request(f"{SEARCH_URL}?{query}", headers={"User-Agent": "HelloSahay/1.0"})
+    with urllib.request.urlopen(req, timeout=10) as r:
+        hits = json.load(r)
+    return [{"name": h.get("name") or h["display_name"].split(", ")[0],
+             "detail": ", ".join(filter(None, [(h.get("address") or {}).get("state_district") or (h.get("address") or {}).get("county"), (h.get("address") or {}).get("state")])),
+             "lat": float(h["lat"]), "lng": float(h["lon"])} for h in hits]
+
+
+@router.get("/places/search")
+def search_places(q: str = Query(..., min_length=2, max_length=80)):
+    """Places in south India matching what the patient typed, for the "Where are you?" picker: exact matches from
+    Nominatim first, then Photon's spelling-tolerant ones ("Manadi" finds Manali and Mannadi), both OpenStreetMap."""
+    key = q.strip().lower()
+    if key not in _suggested:
+        found, failures = [], 0
+        for source in (_nominatim_places, _photon):
+            try:
+                found += source(q)
+            except Exception:
+                failures += 1
+        if failures == 2:
+            raise HTTPException(503, "place search is busy, try again")
+        seen, unique = set(), []
+        for p in found:
+            if (p["name"].lower(), p["detail"]) not in seen:
+                seen.add((p["name"].lower(), p["detail"]))
+                unique.append(p)
+        _suggested[key] = unique[:8]
+    return _suggested[key]

@@ -114,6 +114,7 @@ All under `/api/v1`; `GET /health` also at the root. JSON in and out. "Open" mea
 | Group | Endpoints | Auth |
 |---|---|---|
 | Facilities | `GET /facilities?lat&lng&department&scheme&kind&partner_only&max_km&nearest_first`, `GET /places/geocode?q`, `GET /facilities/{id}/slots?date&department` | open |
+| Place search ("Where are you?") | `GET /places/search?q` (OpenStreetMap: Nominatim exact matches plus Photon spelling-tolerant ones, cached in memory) | built |
 | Real hospitals | `GET /places/nearby-hospitals?lat&lng&limit` (OpenStreetMap Overpass with a Nominatim fallback, CMCHIS tags, cached 1 h per ~1 km cell) | open |
 | Booking | `POST /appointments`, `PATCH /appointments/{id}` (reschedule, cancel, arrived, complete, no_show), `POST /appointments/walk-in`, `GET /appointments?date&history`, `GET /patients/{phone}/appointments` | open to book / reschedule / cancel; Desk token for arrived, complete, no_show, list, walk-in |
 | Patients | `GET /patients/{phone}` (registered, name, village, `location_live`), `PUT /patients/{phone}/location`, `PUT /patients/me` | open / patient token |
