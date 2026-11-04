@@ -66,10 +66,15 @@ Twilio: Console → Home → Make a voice call → Receive a call → Custom. Ex
    is looked up in the local table (`villages.csv`: demo district plus about 30 Chennai areas, fuzzy matched) and otherwise
    on OpenStreetMap through `GET /places/geocode`, which also refuses cities and districts.
 5. **What is offered** (`tools.t_find_facilities`):
-   - mild: the two nearest **partner clinics** within 15 km (`GET /facilities?kind=clinic&partner_only=true`), bookable.
+   - mild: up to three **partner clinics** under 3 km (`GET /facilities?kind=clinic&partner_only=true&max_km=3&use_demo_distance=true`), bookable.
+     **Prototype wiring:** every seeded clinic has a fixed distance from any caller (`facility.demo_distance_km`, set in
+     `data/seed/facilities.csv`): three are under 3 km (0.8, 1.6 and 2.4) and the other twelve are 3.6 to 15 km away, so the
+     same three are offered wherever the call comes from (Tambaram, George Town, anywhere) and no street address is spoken.
+     Clear the column to use the clinics' real coordinates again.
      The agent then asks "book one of these, or hear about hospitals too?"; hospitals come on request (`show=hospitals`).
      No partner clinic nearby: it says so and offers hospitals.
-   - moderate: the two nearest real hospitals (OpenStreetMap), government (free) and private, nearest first, then "book
+   - moderate: the real hospitals within 3 km (OpenStreetMap, up to three; when none is that close, the two nearest with a
+     note), government (free) and private, nearest first, then "book
      one, or hear about the nearest free government hospitals?" (`show=free_government`). Clinics on request.
    - serious: "call 108 now or go to <nearest hospital>, <distance>, <address>; a person will call back", then the call
      ends. Nothing is bookable. The deterministic emergency gate (word lists, six languages) says the fixed 108 line first
@@ -87,7 +92,7 @@ Twilio: Console → Home → Make a voice call → Receive a call → Custom. Ex
 9. After a booking, a short thanks (`session._CLOSING`) is answered with a fixed goodbye and the call hangs up, with no model
    round trip. Choosing another slot reschedules (`PATCH /appointments/{id}`) instead of creating a second booking.
 
-Verified 2026-11-04: offline pytest (72 tests) and scripted calls with the real Nova model and a stubbed API in English
+Verified 2026-11-04: offline pytest (76 tests) and scripted calls with the real Nova model and a stubbed API in English
 (mild, moderate, serious, government pick) and Tamil (mild). Not verified: a real phone call, the live OpenStreetMap
 geocode, the seeded clinics against the real database, the Desk and admin severity control in a browser.
 

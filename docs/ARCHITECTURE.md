@@ -41,7 +41,7 @@ Entry: a caller dials **080-472-90138** (Exotel) or taps "Start call" in the pat
 2. The caller's number comes from the carrier (Exotel `start.from`) and is never asked for. `GET /patients/{phone}` tells the call whether the caller has the app and where they are; a live location (pushed within 90 minutes; the Android app reports it every 30 minutes from a background worker, even when closed) is confirmed once, otherwise the village is asked.
 3. **Safety gate on every utterance, before the model.** Emergency words: say 108 / 112, flag the call as an emergency and queue a human callback, then name the nearest hospital. Symptom questions: fixed safe reply. The model also reads a **severity** (mild, moderate, serious) from the caller's words; it only orders what is offered and is editable on the call record.
 4. Department comes from a fixed keyword table (`data/seed/department_keywords.csv`), never from the model.
-5. `find_facilities` offers by severity: mild gets the nearest partner clinics (bookable), moderate the nearest real hospitals (OpenStreetMap) with the free government ones on request, serious gets 108 and the nearest hospital. Government hospitals are information only. The area must be specific (not a whole city).
+5. `find_facilities` offers by severity: mild gets up to three partner clinics under 3 km (bookable; **prototype wiring:** each seeded clinic has a fixed `demo_distance_km`, so the same clinics are near any caller), moderate the real hospitals within 3 km (OpenStreetMap) with the free government ones on request, serious gets 108 and the nearest hospital. Government hospitals are information only. The area must be specific (not a whole city).
 6. `get_slots` honours `doctor_name` and `preferred_time`; `book_appointment` uses the call's number. **Demo wiring:** doctors, slots and booking are always the one demo hospital's (Sunrise Nursing Home); the real hospital's name the caller chose is saved as `appointment.hospital_label`. A doctor who is not there is never refused: the free doctor in the closest slot is booked and named.
 7. A second slot choice reschedules (`PATCH /appointments/{id}`); a short thanks after a booking gets a fixed goodbye and hang-up.
 8. The call record with transcript, outcome and a timestamped `trace` is posted to `POST /calls`; handoffs land in the Desk callback queue. No audio is stored.
@@ -113,7 +113,7 @@ All under `/api/v1`; `GET /health` also at the root. JSON in and out. "Open" mea
 
 | Group | Endpoints | Auth |
 |---|---|---|
-| Facilities | `GET /facilities?lat&lng&department&scheme&kind&partner_only&max_km&nearest_first`, `GET /places/geocode?q`, `GET /facilities/{id}/slots?date&department` | open |
+| Facilities | `GET /facilities?lat&lng&department&scheme&kind&partner_only&max_km&nearest_first&use_demo_distance`, `GET /places/geocode?q`, `GET /facilities/{id}/slots?date&department` | open |
 | Place search ("Where are you?") | `GET /places/search?q` (OpenStreetMap: Nominatim exact matches plus Photon spelling-tolerant ones, cached in memory) | built |
 | Real hospitals | `GET /places/nearby-hospitals?lat&lng&limit` (OpenStreetMap Overpass with a Nominatim fallback, CMCHIS tags, cached 1 h per ~1 km cell) | open |
 | Booking | `POST /appointments`, `PATCH /appointments/{id}` (reschedule, cancel, arrived, complete, no_show), `POST /appointments/walk-in`, `GET /appointments?date&history`, `GET /patients/{phone}/appointments` | open to book / reschedule / cancel; Desk token for arrived, complete, no_show, list, walk-in |
