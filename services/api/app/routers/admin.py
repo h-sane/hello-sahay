@@ -150,6 +150,7 @@ def all_calls(limit: int = Query(100, ge=1, le=500), emergency: bool | None = No
         query = query.where(Call.emergency.is_(emergency))
     return [{"id": c.id, "patient_phone": phone, "facility": facility, "language": c.language,
              "outcome": c.outcome, "emergency": c.emergency, "handoff": c.handoff, "callback_done": c.callback_done,
+             "severity": c.severity,
              "summary": c.summary,
              "transcript": c.transcript, "started_at": c.started_at, "duration_s": c.duration_s}
             for c, phone, facility in session.execute(query)]

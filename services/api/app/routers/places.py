@@ -22,6 +22,9 @@ router = APIRouter()
 
 SEARCH_URL = "https://nominatim.openstreetmap.org/search"
 HALF_SPANS_DEG = [0.12, 0.4, 1.0]
+SOUTH_INDIA_BOX = "74.0,19.9,84.8,8.0"  # left,top,right,bottom: the five states the helpline serves
+TOO_GENERAL = {"city", "state", "state_district", "county", "region", "province", "country"}  # "Chennai" is not a place to walk to
+_geocoded: dict[str, dict] = {}
 CACHE_TTL_S = 3600
 _cache: dict[tuple[float, float], tuple[float, list[dict]]] = {}
 
@@ -114,3 +117,26 @@ def nearby_hospitals(
                     "phone": phone, "book_facility_id": partner.id if partner else None})
     out.sort(key=lambda h: h["distance_km"])
     return out[:limit]
+
+
+@router.get("/places/geocode")
+def geocode(q: str = Query(..., min_length=2, max_length=120)):
+    """Coordinates of an area a caller named. A whole city or district is refused: the nearest hospital to "Chennai" is a guess."""
+    key = q.strip().lower()
+    if key not in _geocoded:
+        query = urllib.parse.urlencode({"q": q, "format": "jsonv2", "limit": 1, "countrycodes": "in",
+                                        "viewbox": SOUTH_INDIA_BOX, "bounded": 1})
+        req = urllib.request.Request(f"{SEARCH_URL}?{query}", headers={"User-Agent": "HelloSahay/1.0"})
+        try:
+            with urllib.request.urlopen(req, timeout=15) as r:
+                hits = json.load(r)
+        except Exception:
+            raise HTTPException(503, "area lookup is busy, try again")
+        if not hits:
+            _geocoded[key] = {"found": False, "reason": "not_found"}
+        elif hits[0].get("addresstype") in TOO_GENERAL:
+            _geocoded[key] = {"found": False, "reason": "too_general", "name": hits[0].get("name")}
+        else:
+            h = hits[0]
+            _geocoded[key] = {"found": True, "name": h.get("name") or q, "lat": float(h["lat"]), "lng": float(h["lon"])}
+    return _geocoded[key]

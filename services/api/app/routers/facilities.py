@@ -27,6 +27,10 @@ def list_facilities(
     lng: float | None = Query(None, ge=-180, le=180),
     department: str | None = None,
     scheme: Literal["pmjay", "cmchis"] | None = None,
+    kind: str | None = Query(None, description="facility type, e.g. clinic"),
+    partner_only: bool = False,
+    max_km: float | None = Query(None, gt=0),
+    nearest_first: bool = False,
     limit: int = Query(20, ge=1, le=100),
     session: Session = Depends(get_session),
 ):
@@ -38,6 +42,8 @@ def list_facilities(
             continue
         if scheme and not getattr(f, scheme):
             continue
+        if (kind and f.type.lower() != kind.lower()) or (partner_only and not f.is_partner):
+            continue
         near = lat is not None and f.lat is not None and f.lng is not None
         out.append({
             "id": f.id, "name": f.name, "type": f.type, "address": f.address,
@@ -46,8 +52,10 @@ def list_facilities(
             "is_partner": f.is_partner, "is_government": f.type in GOVERNMENT_TYPES,
             "distance_km": round(_km(lat, lng, f.lat, f.lng), 1) if near else None,
         })
-    # Free government options before private ones, then nearest first.
-    out.sort(key=lambda r: (not r["is_government"],
+    if max_km is not None:
+        out = [r for r in out if r["distance_km"] is not None and r["distance_km"] <= max_km]
+    # Free government options before private ones (unless nearest_first), then nearest first.
+    out.sort(key=lambda r: (not r["is_government"] and not nearest_first,
                             r["distance_km"] if r["distance_km"] is not None else math.inf,
                             r["name"]))
     return out[:limit]

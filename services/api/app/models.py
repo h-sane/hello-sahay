@@ -110,6 +110,7 @@ class Call(Base):
     emergency: Mapped[bool] = mapped_column(Boolean, default=False)
     handoff: Mapped[bool] = mapped_column(Boolean, default=False)
     callback_done: Mapped[bool] = mapped_column(Boolean, default=False)  # a person rang the caller back
+    severity: Mapped[str | None] = mapped_column(String(10))  # mild / moderate / serious: the voice agent's reading of the caller's words; staff can correct it
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     duration_s: Mapped[int | None] = mapped_column(Integer)
     trace: Mapped[list | None] = mapped_column(JSON)  # timestamped events from the voice service: what was heard, said, called and how long it took
