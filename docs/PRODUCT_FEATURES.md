@@ -86,9 +86,11 @@ Login is email + password; the hospital comes from the token, never from the req
 | Today's appointments | By doctor and time, source badge (helpline / app / desk), live push | P0 | P1-11 | Built |
 | Check-in | Marks "patient arrived"; triggers the arrival fee (not for counter walk-ins) | P0 | P1-11 | Built |
 | No-show and complete | Front desk marks no-show; front desk or the doctor marks complete | P0 | P1-11 | Built |
-| Walk-ins | Counter walk-in takes the doctor's free slot or an extra one | P1 | | Built |
+| Walk-in queue | Counter walk-ins join a per-doctor queue numbered W1, W2... (no slot used); Call in and Done track the room | P1 | | Built |
+| Doctor timetables | Per doctor: appointments only, or partial with a walk-in break after every few slots (slot length, break length, hours, days off, apply to all); breaks are never offered to the helpline or app | P1 | | Built |
+| Live queue | One lane per doctor for today: A and W numbers, who is in the room, how long the doctor is free before the next appointment | P1 | | Built |
 | Call logs and callbacks | Language, outcome, emergency flag; "Mark Called" saved on the server | P0 | P1-11 | Built |
-| Doctors | On-duty switch stops new bookings | P1 | P1-3 | Built (no per-slot calendar editing) |
+| Doctors | On-duty switch stops new bookings; timetable editor (see Doctor timetables); languages spoken shown | P1 | P1-3 | Built |
 | Past visits | Earlier days, newest first | P1 | | Built |
 | Users and roles | Hospital admin creates receptionist, nurse and doctor logins, resets passwords, switches logins off | P1 | | Built |
 | Settings | Hospital profile, departments, scheme flags, plan | P2 | P2-5 | Not built |

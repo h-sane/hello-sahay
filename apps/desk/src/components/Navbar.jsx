@@ -7,12 +7,14 @@ import {
   Building2,
   History,
   UserCog,
+  ListOrdered,
   X,
 } from "lucide-react";
 
 const TAB_DEFS = {
-  appointments: { label: "Appointments & Schedule", doctorLabel: "My Appointments", icon: Calendar },
-  doctors: { label: "Doctors & Open Slots", icon: Users },
+  queue: { label: "Live Queue", doctorLabel: "My Queue", icon: ListOrdered },
+  appointments: { label: "Appointments", doctorLabel: "My Appointments", icon: Calendar },
+  doctors: { label: "Doctors & Timetables", icon: Users },
   callLogs: { label: "Voice AI Call Logs", icon: PhoneIncoming },
   history: { label: "Past Visits", doctorLabel: "My Past Patients", icon: History },
   users: { label: "Users", icon: UserCog },

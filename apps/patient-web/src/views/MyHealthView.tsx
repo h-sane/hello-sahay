@@ -56,6 +56,7 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
     ({
       booked: L({ en: 'Booked', hi: 'बुक है', ta: 'பதிவாகியுள்ளது', kn: 'ಬುಕ್ ಆಗಿದೆ', ml: 'ബുക്ക് ചെയ്തു', te: 'బుక్ అయింది' }),
       arrived: L({ en: 'Visited', hi: 'आ चुके', ta: 'வந்தீர்கள்', kn: 'ಬಂದಿದ್ದೀರಿ', ml: 'വന്നിരുന്നു', te: 'సందర్శించారు' }),
+      in_consult: L({ en: 'Visited', hi: 'आ चुके', ta: 'வந்தீர்கள்', kn: 'ಬಂದಿದ್ದೀರಿ', ml: 'വന്നിരുന്നു', te: 'సందర్శించారు' }),
       completed: L({ en: 'Visited', hi: 'आ चुके', ta: 'வந்தீர்கள்', kn: 'ಬಂದಿದ್ದೀರಿ', ml: 'വന്നിരുന്നു', te: 'సందర్శించారు' }),
       cancelled: L({ en: 'Cancelled', hi: 'रद्द', ta: 'ரத்து செய்யப்பட்டது', kn: 'ರದ್ದಾಗಿದೆ', ml: 'റദ്ദാക്കി', te: 'రద్దు చేయబడింది' }),
       no_show: L({ en: 'Missed', hi: 'छूट गया', ta: 'தவறியது', kn: 'ತಪ್ಪಿಹೋಯಿತು', ml: 'മുടങ്ങി', te: 'హాజరుకాలేదు' }),

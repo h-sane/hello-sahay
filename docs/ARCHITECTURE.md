@@ -56,7 +56,7 @@ First open: language, consent, profile (name, age, gender, village, mobile), the
 
 ### 2.3 Hospital and admin web
 
-- **Sahay Desk** (`apps/desk`, tabs by login role): appointments with live push, mark arrived / no-show / complete, walk-ins, doctor on-duty switch, call logs and callbacks, past visits, and (hospital admin only) Users. A `doctor` login sees only its own patients.
+- **Sahay Desk** (`apps/desk`, tabs by login role): live queue per doctor (appointments A1.., walk-ins W1.., advice on free time), appointments with live push, mark arrived / call in / complete / no-show, per-doctor timetables (appointments only, or with walk-in breaks), doctor on-duty switch, call logs and callbacks, past visits, and (hospital admin only) Users. A `doctor` login sees only its own patients.
 - **Admin console** (`apps/admin`, Hello Sahay `admin` login): overview, hospitals, hospital logins, payments, calls with transcripts, Care plan subscribers. Subscription and arrival-fee lines, priced by each hospital's `plan` (tiers in `docs/BUSINESS.md`) are derived from the partner flag and arrived appointments; counter walk-ins carry no fee.
 
 ## 3. The "verified, cited, never from model memory" rule
@@ -116,7 +116,7 @@ All under `/api/v1`; `GET /health` also at the root. JSON in and out. "Open" mea
 | Facilities | `GET /facilities?lat&lng&department&scheme&kind&partner_only&max_km&nearest_first&use_demo_distance`, `GET /places/geocode?q`, `GET /facilities/{id}/slots?date&department` | open |
 | Place search ("Where are you?") | `GET /places/search?q` (OpenStreetMap: Nominatim exact matches plus Photon spelling-tolerant ones, cached in memory) | built |
 | Real hospitals | `GET /places/nearby-hospitals?lat&lng&limit` (OpenStreetMap Overpass with a Nominatim fallback, CMCHIS tags, cached 1 h per ~1 km cell) | open |
-| Booking | `POST /appointments`, `PATCH /appointments/{id}` (reschedule, cancel, arrived, complete, no_show), `POST /appointments/walk-in`, `GET /appointments?date&history`, `GET /patients/{phone}/appointments` | open to book / reschedule / cancel; Desk token for arrived, complete, no_show, list, walk-in |
+| Booking | `POST /appointments`, `PATCH /appointments/{id}` (reschedule, cancel, arrived, start, complete, no_show), `POST/GET/PATCH /walk-ins`, `PUT /doctors/{id}/schedule`, `POST /schedule/preview`, `GET /appointments?date&history`, `GET /patients/{phone}/appointments` | open to book / reschedule / cancel; Desk token for arrived, complete, no_show, list, walk-in |
 | Patients | `GET /patients/{phone}` (registered, name, village, `location_live`), `PUT /patients/{phone}/location`, `PUT /patients/me` | open / patient token |
 | Auth | `POST /auth/login` (Desk or admin), `POST /auth/otp/request`, `POST /auth/otp/verify` | open |
 | Chat | `POST /chat {message, lang}` → `{answer, citations[], safety_flag, grounded}`, `GET /advisories?lang` | open |

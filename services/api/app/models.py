@@ -19,6 +19,7 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    UniqueConstraint,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column
@@ -55,6 +56,8 @@ class Doctor(Base):
     department: Mapped[str] = mapped_column(String(100))
     languages: Mapped[list[str]] = mapped_column(ARRAY(String), default=list)
     on_duty: Mapped[bool] = mapped_column(Boolean, default=True)  # false: no new bookings (leave, day off)
+    # Timetable set in Sahay Desk (shape and rules in slots.py day_plan); None: the untouched demo default.
+    schedule: Mapped[dict | None] = mapped_column(JSON)
 
 
 class Slot(Base):
@@ -93,10 +96,29 @@ class Appointment(Base):
     slot_id: Mapped[int] = mapped_column(ForeignKey("slot.id"), index=True)
     source: Mapped[str] = mapped_column(String(10))  # helpline / app / desk
     reason_text: Mapped[str | None] = mapped_column(Text)
-    status: Mapped[str] = mapped_column(String(12), default="booked")  # booked/arrived/completed/no_show/cancelled
+    status: Mapped[str] = mapped_column(String(12), default="booked")  # booked/arrived/in_consult/completed/no_show/cancelled
     arrived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Demo wiring: the real hospital the patient chose or was told. The slot itself is at the demo hospital's Desk.
     hospital_label: Mapped[str | None] = mapped_column(String(200))
+
+
+class WalkIn(Base):
+    """A patient who came to the counter without an appointment. Joins the doctor's queue as W<number> for that day."""
+    __tablename__ = "walk_in"
+    __table_args__ = (UniqueConstraint("facility_id", "day", "number"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    facility_id: Mapped[int] = mapped_column(ForeignKey("facility.id"), index=True)
+    doctor_id: Mapped[int] = mapped_column(ForeignKey("doctor.id"), index=True)
+    day: Mapped[date] = mapped_column(Date, index=True)  # IST calendar day; the number restarts at 1 each day
+    number: Mapped[int] = mapped_column(Integer)
+    name: Mapped[str] = mapped_column(String(200))
+    phone: Mapped[str | None] = mapped_column(String(20))
+    reason_text: Mapped[str | None] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(10), default="waiting")  # waiting / in_consult / done / left
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Call(Base):

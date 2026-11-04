@@ -64,7 +64,7 @@ export interface ApiNearbyHospital {
 
 export interface ApiAppointment {
   id: number;
-  status: 'booked' | 'arrived' | 'completed' | 'no_show' | 'cancelled';
+  status: 'booked' | 'arrived' | 'in_consult' | 'completed' | 'no_show' | 'cancelled';
   source: 'helpline' | 'app' | 'desk';
   reason_text: string | null;
   hospital_label: string | null; // the hospital the patient chose; the slot itself is at the demo hospital

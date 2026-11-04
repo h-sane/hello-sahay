@@ -21,15 +21,34 @@ export const dayLabel = (iso) =>
 const STATUS = {
   booked: "Booked",
   arrived: "Arrived",
+  in_consult: "With doctor",
   completed: "Completed",
   no_show: "No-show",
   cancelled: "Cancelled",
 };
 
+export const LANG = { ta: "Tamil", hi: "Hindi", en: "English", ml: "Malayalam", kn: "Kannada", te: "Telugu" };
+
+export const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+// "17:40" from the timetable preview -> "5:40 PM"
+export const hhmm = (text) => {
+  const [h, m] = text.split(":").map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+};
+
+export function scheduleSummary(s) {
+  const base = `${s.slot_minutes}-minute slots`;
+  return s.mode === "partial"
+    ? `${base}, ${s.run} then a ${s.break_minutes}-minute walk-in break`
+    : `${base}, appointments only`;
+}
+
 export function toRow(a, token) {
   return {
     id: a.id,
     token,
+    language: LANG[a.patient.language] || null,
     patientName: a.patient.name || "Unnamed patient",
     phone: a.patient.phone,
     doctor: a.doctor.name,
@@ -48,8 +67,6 @@ const OUTCOME = {
   handed_off: "Needs Callback",
   info_given: "Information Given",
 };
-const LANG = { ta: "Tamil", hi: "Hindi", en: "English", ml: "Malayalam", kn: "Kannada", te: "Telugu" };
-
 export function toCallRow(c) {
   let outcome = OUTCOME[c.outcome] || "Information Given";
   if (c.emergency) outcome = OUTCOME.emergency;
@@ -79,6 +96,9 @@ export function toDoctor(d) {
     specialty: d.department,
     onDuty: d.on_duty,
     hasLogin: d.has_login,
+    languages: (d.languages || []).map((l) => LANG[l] || l),
+    schedule: d.schedule,
+    scheduleCustom: d.schedule_custom,
     bookedSlots: d.booked_slots,
     openSlots: d.open_slots,
     totalSlots: total,

@@ -64,7 +64,7 @@ export interface Appointment {
   timeSlot: string;
   patientName: string;
   patientPhone: string;
-  status: 'booked' | 'arrived' | 'completed' | 'cancelled' | 'no_show';
+  status: 'booked' | 'arrived' | 'in_consult' | 'completed' | 'cancelled' | 'no_show';
   referenceCode: string;
 }
 

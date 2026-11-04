@@ -71,15 +71,16 @@ Tabs depend on the login role (`apps/desk/README.md` has the table); the API enf
 | Screen | Backend | Notes |
 |---|---|---|
 | Sign in | `POST /auth/login` | Hospital logins only; the Hello Sahay admin is refused with a message |
-| Appointments | `GET /appointments?date`, `PATCH ... arrived / complete / no_show` | Day arrows in the header. Token number is the position in the day's queue. A doctor sees only their own patients and cannot mark arrivals |
-| Walk-in | `POST /appointments/walk-in` | Pick a doctor on duty; no slot to choose, so it works after hours. Source `desk`, marked arrived, no arrival fee |
-| Doctors | `GET /doctors?date`, `PATCH /doctors/{id}` | Every doctor with booked/open slots; the on-duty switch stops new bookings from the helpline and app |
+| Live queue | `GET /appointments`, `GET /walk-ins`, `PATCH /appointments/{id}` (`arrived`, `start`, `complete`, `no_show`), `PATCH /walk-ins/{id}` | Today only. One lane per doctor: appointments A1, A2... (time order), walk-ins W1, W2... (arrival order), advice on how long the doctor is free before the next appointment |
+| Appointments | `GET /appointments?date`, `PATCH ... arrived / start / complete / no_show` | Day arrows in the header. The number is A1, A2... per doctor. A doctor sees only their own patients and cannot mark arrivals |
+| Add walk-in | `POST /walk-ins` | Name, doctor on duty, optional phone and reason. Takes no slot (the timetable breaks are for them), no arrival fee |
+| Doctors & timetables | `GET /doctors?date`, `PATCH /doctors/{id}`, `PUT /doctors/{id}/schedule`, `POST /schedule/preview` | Every doctor with booked/open slots and their timetable; the on-duty switch stops new bookings; Set timetable edits mode, slot length, walk-in breaks, hours and days off, with a live preview of the day |
 | Call logs | `GET /calls`, `PATCH /calls/{id}` | Handoffs show as callbacks and "Mark Called" is saved on the server; emergencies read "Told to call 108" |
 | Past visits / My past patients | `GET /appointments?history=true` | Everything before today, newest first (300 at most); doctors get only their own |
 | Users (hospital admin only) | `GET/POST/PATCH /users` | Add receptionist, nurse or doctor logins (a new doctor gets a doctor record and slots), reset a password, switch a login off |
 | Live badge | `WS /live/desk/{id}?token=` | Any pushed booking or call refetches; reconnects every 3 s |
 
-`arrived` is only sent when staff press Mark Arrived, because it triggers the Rs 40 fee (not for counter walk-ins).
+`arrived` is only sent when staff press Mark Arrived, because it triggers the Rs 40 fee (walk-ins are not appointments and carry no fee).
 
 ## Known gaps (backend work, not done here)
 

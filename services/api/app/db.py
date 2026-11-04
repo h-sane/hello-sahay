@@ -43,6 +43,7 @@ def init_db() -> None:
                     "ALTER TABLE desk_user ADD COLUMN IF NOT EXISTS active boolean NOT NULL DEFAULT true",
                     "ALTER TABLE desk_user ALTER COLUMN role TYPE varchar(20)",
                     "ALTER TABLE doctor ADD COLUMN IF NOT EXISTS on_duty boolean NOT NULL DEFAULT true",
+                    "ALTER TABLE doctor ADD COLUMN IF NOT EXISTS schedule json",
                     "ALTER TABLE appointment ADD COLUMN IF NOT EXISTS hospital_label varchar(200)",
                     "ALTER TABLE call ADD COLUMN IF NOT EXISTS callback_done boolean NOT NULL DEFAULT false",
                     "ALTER TABLE call ADD COLUMN IF NOT EXISTS trace json",

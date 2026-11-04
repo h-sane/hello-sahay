@@ -1,4 +1,4 @@
-"""Sahay Desk API against the real database: roles, users, doctors, walk-ins, calls and the live socket.
+"""Sahay Desk API against the real database: roles, users, doctors, appointment status changes, calls and the live socket.
 
 Needs the seeded demo hospital (python scripts/load_seed.py) and skips itself when the database is not there.
 Everything these tests create is removed again.
@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import delete, select, text
+from sqlalchemy import delete, select, text, update
 from starlette.websockets import WebSocketDisconnect
 
 from .common import IST, today_ist
@@ -58,10 +58,11 @@ def hospital_admin(client):
 @pytest.fixture(scope="module")
 def made():
     """Collects what a test creates so the module cleans up afterwards."""
-    ids = {"users": [], "doctors": [], "patients": [], "calls": [], "facilities": []}
+    ids = {"users": [], "doctors": [], "patients": [], "calls": [], "facilities": [], "slots": []}
     yield ids
     with SessionLocal() as s:
         s.execute(delete(Appointment).where(Appointment.patient_id.in_(ids["patients"])))
+        s.execute(update(Slot).where(Slot.id.in_(ids["slots"])).values(status="open"))
         s.execute(delete(Call).where(Call.id.in_(ids["calls"])))
         s.execute(delete(Patient).where(Patient.id.in_(ids["patients"])))
         s.execute(delete(DeskUser).where(DeskUser.id.in_(ids["users"])))
@@ -84,6 +85,19 @@ def create_user(client, headers, made, role, **extra):
         if r.json()["doctor_id"]:
             made["doctors"].append(r.json()["doctor_id"])
     return r, email
+
+
+def book_for(client, made, doctor_id, phone):
+    """Books the doctor's first open slot in the future through the public booking call; returns the appointment."""
+    with SessionLocal() as s:
+        slot_id = s.scalar(select(Slot.id).where(Slot.doctor_id == doctor_id, Slot.status == "open",
+                                                 Slot.start > datetime.now(IST)).order_by(Slot.start))
+    r = client.post("/api/v1/appointments", json={"patient": {"name": "Desk Test", "phone": phone},
+                                                  "slot_id": slot_id, "source": "app"})
+    assert r.status_code == 201, r.text
+    made["slots"].append(slot_id)
+    made["patients"].append(r.json()["patient"]["id"])
+    return r.json()
 
 
 def tomorrow_doctors(department):
@@ -194,43 +208,34 @@ def test_front_desk_sees_every_doctor(client):
     assert len({a["doctor"]["id"] for a in appts}) > 1
 
 
-def test_arrive_complete_and_who_may(client, hospital_admin, made):
+def test_arrive_start_complete_and_who_may(client, made):
     reception, _ = login(client, "reception@sunrise.demo")
     doc_h, doc = login(client, "harini@sunrise.demo")
     other_h, _ = login(client, "karthik@sunrise.demo")
-    walk = client.post("/api/v1/appointments/walk-in", headers=reception, json={
-        "patient": {"name": "Walk Test", "phone": "9000011111"}, "doctor_id": doc["doctor_id"]})
-    assert walk.status_code == 201, walk.text
-    a = walk.json()
-    with SessionLocal() as s:
-        made["patients"].append(a["patient"]["id"])
-    assert a["status"] == "arrived" and a["source"] == "desk" and a["arrived_at"]
-    # a doctor cannot complete another doctor's patient, nor mark arrivals
-    assert client.patch(f"/api/v1/appointments/{a['id']}", json={"action": "complete"}, headers=other_h).status_code == 403
-    assert client.patch(f"/api/v1/appointments/{a['id']}", json={"action": "no_show"}, headers=doc_h).status_code in (403, 409)
-    done = client.patch(f"/api/v1/appointments/{a['id']}", json={"action": "complete"}, headers=doc_h)
+    a = book_for(client, made, doc["doctor_id"], "9000011111")
+    url = f"/api/v1/appointments/{a['id']}"
+    assert client.patch(url, json={"action": "arrived"}).status_code in (401, 409)  # no login at all
+    assert client.patch(url, json={"action": "start"}, headers=reception).status_code == 409  # not arrived yet
+    assert client.patch(url, json={"action": "arrived"}, headers=reception).json()["status"] == "arrived"
+    # a doctor cannot see another doctor's patient, nor mark arrivals
+    assert client.patch(url, json={"action": "start"}, headers=other_h).status_code == 403
+    assert client.patch(url, json={"action": "no_show"}, headers=doc_h).status_code in (403, 409)
+    assert client.patch(url, json={"action": "start"}, headers=doc_h).json()["status"] == "in_consult"
+    assert client.patch(url, json={"action": "cancel"}).status_code == 409  # in the room: no longer cancellable
+    done = client.patch(url, json={"action": "complete"}, headers=doc_h)
     assert done.status_code == 200 and done.json()["status"] == "completed"
-    assert client.patch(f"/api/v1/appointments/{a['id']}", json={"action": "complete"}, headers=doc_h).status_code == 409
-    # no login at all cannot mark arrival
-    assert client.patch(f"/api/v1/appointments/{a['id']}", json={"action": "arrived"}).status_code in (401, 409)
+    assert client.patch(url, json={"action": "complete"}, headers=doc_h).status_code == 409
 
 
-def test_walk_in_works_when_the_day_is_full_and_pays_no_fee(client, hospital_admin, made):
-    r, _ = create_user(client, hospital_admin, made, "doctor", doctor={"department": "General Medicine"})
-    doctor_id = r.json()["doctor_id"]
-    with SessionLocal() as s:  # every slot used up
-        s.execute(text("UPDATE slot SET status='blocked' WHERE doctor_id=:d"), {"d": doctor_id})
-        s.commit()
-    admin_h = login(client, "admin@sahay.demo")[0]
-    before = next(f for f in client.get("/api/v1/admin/hospitals", headers=admin_h).json() if f["id"] == FACILITY)
+def test_a_patient_in_the_room_still_counts_as_an_arrival_for_billing(client, admin, made):
     reception, _ = login(client, "reception@sunrise.demo")
-    w = client.post("/api/v1/appointments/walk-in", headers=reception, json={
-        "patient": {"name": "Late Walk", "phone": "9000022222"}, "doctor_id": doctor_id, "reason_text": "evening"})
-    assert w.status_code == 201, w.text
-    made["patients"].append(w.json()["patient"]["id"])
-    after = next(f for f in client.get("/api/v1/admin/hospitals", headers=admin_h).json() if f["id"] == FACILITY)
+    _, doc = login(client, "harini@sunrise.demo")
+    before = next(f for f in client.get("/api/v1/admin/hospitals", headers=admin).json() if f["id"] == FACILITY)
+    a = book_for(client, made, doc["doctor_id"], "9000022222")
+    for action in ("arrived", "start"):
+        client.patch(f"/api/v1/appointments/{a['id']}", json={"action": action}, headers=reception)
+    after = next(f for f in client.get("/api/v1/admin/hospitals", headers=admin).json() if f["id"] == FACILITY)
     assert after["arrivals"] == before["arrivals"] + 1
-    assert after["amount_due_rs"] == before["amount_due_rs"]  # counter walk-ins are not billed
 
 
 def test_off_duty_doctor_takes_no_bookings(client, hospital_admin, made):
@@ -240,8 +245,7 @@ def test_off_duty_doctor_takes_no_bookings(client, hospital_admin, made):
     assert client.patch(f"/api/v1/doctors/{did}", json={"on_duty": False}, headers=hospital_admin).json()["on_duty"] is False
     assert did not in tomorrow_doctors("Ophthalmology")
     reception, _ = login(client, "reception@sunrise.demo")
-    off = client.post("/api/v1/appointments/walk-in", headers=reception, json={
-        "patient": {"name": "Off Duty", "phone": "9000033333"}, "doctor_id": did})
+    off = client.post("/api/v1/walk-ins", headers=reception, json={"name": "Off Duty", "doctor_id": did})
     assert off.status_code == 409
     client.patch(f"/api/v1/doctors/{did}", json={"on_duty": True}, headers=hospital_admin)
     assert did in tomorrow_doctors("Ophthalmology")
