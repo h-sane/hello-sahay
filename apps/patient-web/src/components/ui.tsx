@@ -3,17 +3,17 @@ import { AlertTriangle, CheckCircle2, Info, Loader2, X, XCircle } from 'lucide-r
 import { Language } from '../types';
 
 /** Pick the string for the current language; other languages fall back to English. */
-export function pick<T>(lang: Language, o: { en: T; hi: T; ta: T; kn: T; ml: T }): T {
+export function pick<T>(lang: Language, o: { en: T; hi: T; ta: T; kn: T; ml: T; te: T }): T {
   return (o as Record<string, T>)[lang] ?? o.en;
 }
 
-const DEPARTMENT_TEXT: Record<string, { en: string; hi: string; ta: string; kn: string; ml: string }> = {
-  'General Medicine': { en: 'General Medicine', hi: 'सामान्य चिकित्सा', ta: 'பொது மருத்துவம்', kn: 'ಸಾಮಾನ್ಯ ವೈದ್ಯಕೀಯ', ml: 'ജനറൽ മെഡിസിൻ' },
-  Obstetrics: { en: 'Obstetrics', hi: 'प्रसूति', ta: 'மகப்பேறு', kn: 'ಪ್ರಸೂತಿ', ml: 'പ്രസവചികിത്സ' },
-  Paediatrics: { en: 'Paediatrics', hi: 'बाल रोग', ta: 'குழந்தை நலம்', kn: 'ಮಕ್ಕಳ ಆರೋಗ್ಯ', ml: 'ശിശുരോഗം' },
-  Orthopaedics: { en: 'Orthopaedics', hi: 'हड्डी रोग', ta: 'எலும்பு மருத்துவம்', kn: 'ಮೂಳೆ ಚಿಕಿತ್ಸೆ', ml: 'അസ്ഥിരോഗം' },
-  Dental: { en: 'Dental', hi: 'दंत', ta: 'பல் மருத்துவம்', kn: 'ಹಲ್ಲಿನ ಚಿಕಿತ್ಸೆ', ml: 'ദന്തചികിത്സ' },
-  Ophthalmology: { en: 'Ophthalmology', hi: 'नेत्र रोग', ta: 'கண் மருத்துவம்', kn: 'ಕಣ್ಣಿನ ಚಿಕಿತ್ಸೆ', ml: 'നേത്രചികിത്സ' },
+const DEPARTMENT_TEXT: Record<string, { en: string; hi: string; ta: string; kn: string; ml: string; te: string }> = {
+  'General Medicine': { en: 'General Medicine', hi: 'सामान्य चिकित्सा', ta: 'பொது மருத்துவம்', kn: 'ಸಾಮಾನ್ಯ ವೈದ್ಯಕೀಯ', ml: 'ജനറൽ മെഡിസിൻ', te: 'సాధారణ వైద్యం' },
+  Obstetrics: { en: 'Obstetrics', hi: 'प्रसूति', ta: 'மகப்பேறு', kn: 'ಪ್ರಸೂತಿ', ml: 'പ്രസവചികിത്സ', te: 'ప్రసూతి' },
+  Paediatrics: { en: 'Paediatrics', hi: 'बाल रोग', ta: 'குழந்தை நலம்', kn: 'ಮಕ್ಕಳ ಆರೋಗ್ಯ', ml: 'ശിശുരോഗം', te: 'పిల్లల వైద్యం' },
+  Orthopaedics: { en: 'Orthopaedics', hi: 'हड्डी रोग', ta: 'எலும்பு மருத்துவம்', kn: 'ಮೂಳೆ ಚಿಕಿತ್ಸೆ', ml: 'അസ്ഥിരോഗം', te: 'ఎముకల వైద్యం' },
+  Dental: { en: 'Dental', hi: 'दंत', ta: 'பல் மருத்துவம்', kn: 'ಹಲ್ಲಿನ ಚಿಕಿತ್ಸೆ', ml: 'ദന്തചികിത്സ', te: 'దంత వైద్యం' },
+  Ophthalmology: { en: 'Ophthalmology', hi: 'नेत्र रोग', ta: 'கண் மருத்துவம்', kn: 'ಕಣ್ಣಿನ ಚಿಕಿತ್ಸೆ', ml: 'നേത്രചികിത്സ', te: 'కంటి వైద్యం' },
 };
 
 /** A department name from the API, shown in the current language when we know it. */

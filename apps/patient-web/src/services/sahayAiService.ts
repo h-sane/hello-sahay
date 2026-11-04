@@ -18,7 +18,7 @@ export interface DoctorAdviceResponse {
   recommendedReason?: string;
 }
 
-const API_LANGS = ['en', 'hi', 'ta', 'kn', 'ml'];
+const API_LANGS = ['en', 'hi', 'ta', 'kn', 'ml', 'te'];
 const apiLang = (lang: Language) => (API_LANGS.includes(lang) ? lang : 'en');
 
 const REASON: Record<string, string> = {

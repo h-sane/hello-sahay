@@ -23,7 +23,7 @@ const todayIso = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/
 const clock = (hhmm: string) => `${Number(hhmm.slice(0, 2)) % 12 || 12}:${hhmm.slice(3)} ${Number(hhmm.slice(0, 2)) < 12 ? 'AM' : 'PM'}`;
 
 export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSettings, onUpdateSettings, onNavigate, onOpenLocationSelector }) => {
-  const L = (o: { en: string; hi: string; ta: string; kn: string; ml: string }) => pick(currentLang, o);
+  const L = (o: { en: string; hi: string; ta: string; kn: string; ml: string; te: string }) => pick(currentLang, o);
   const { care, appointments, reminders, family, refresh, refreshAppointments, refreshReminders, refreshFamily } = useAppData();
   const [cancelling, setCancelling] = useState<Appointment | null>(null);
   const [busy, setBusy] = useState(false);
@@ -48,16 +48,16 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
   const [showEarlier, setShowEarlier] = useState(false);
 
   const dateLabel = (iso: string) =>
-    new Date(`${iso}T00:00:00+05:30`).toLocaleDateString(currentLang === 'ta' ? 'ta-IN' : currentLang === 'hi' ? 'hi-IN' : currentLang === 'kn' ? 'kn-IN' : currentLang === 'ml' ? 'ml-IN' : 'en-IN', {
+    new Date(`${iso}T00:00:00+05:30`).toLocaleDateString(currentLang === 'ta' ? 'ta-IN' : currentLang === 'hi' ? 'hi-IN' : currentLang === 'kn' ? 'kn-IN' : currentLang === 'ml' ? 'ml-IN' : currentLang === 'te' ? 'te-IN' : 'en-IN', {
       weekday: 'long', day: 'numeric', month: 'long',
     });
   const statusWord = (s: Appointment['status']) =>
     ({
-      booked: L({ en: 'Booked', hi: 'बुक है', ta: 'பதிவாகியுள்ளது', kn: 'ಬುಕ್ ಆಗಿದೆ', ml: 'ബുക്ക് ചെയ്തു' }),
-      arrived: L({ en: 'Visited', hi: 'आ चुके', ta: 'வந்தீர்கள்', kn: 'ಬಂದಿದ್ದೀರಿ', ml: 'വന്നിരുന്നു' }),
-      completed: L({ en: 'Visited', hi: 'आ चुके', ta: 'வந்தீர்கள்', kn: 'ಬಂದಿದ್ದೀರಿ', ml: 'വന്നിരുന്നു' }),
-      cancelled: L({ en: 'Cancelled', hi: 'रद्द', ta: 'ரத்து செய்யப்பட்டது', kn: 'ರದ್ದಾಗಿದೆ', ml: 'റദ്ദാക്കി' }),
-      no_show: L({ en: 'Missed', hi: 'छूट गया', ta: 'தவறியது', kn: 'ತಪ್ಪಿಹೋಯಿತು', ml: 'മുടങ്ങി' }),
+      booked: L({ en: 'Booked', hi: 'बुक है', ta: 'பதிவாகியுள்ளது', kn: 'ಬುಕ್ ಆಗಿದೆ', ml: 'ബുക്ക് ചെയ്തു', te: 'బుక్ అయింది' }),
+      arrived: L({ en: 'Visited', hi: 'आ चुके', ta: 'வந்தீர்கள்', kn: 'ಬಂದಿದ್ದೀರಿ', ml: 'വന്നിരുന്നു', te: 'సందర్శించారు' }),
+      completed: L({ en: 'Visited', hi: 'आ चुके', ta: 'வந்தீர்கள்', kn: 'ಬಂದಿದ್ದೀರಿ', ml: 'വന്നിരുന്നു', te: 'సందర్శించారు' }),
+      cancelled: L({ en: 'Cancelled', hi: 'रद्द', ta: 'ரத்து செய்யப்பட்டது', kn: 'ರದ್ದಾಗಿದೆ', ml: 'റദ്ദാക്കി', te: 'రద్దు చేయబడింది' }),
+      no_show: L({ en: 'Missed', hi: 'छूट गया', ta: 'தவறியது', kn: 'ತಪ್ಪಿಹೋಯಿತು', ml: 'മുടങ്ങി', te: 'హాజరుకాలేదు' }),
     })[s];
 
   const confirmCancel = async () => {
@@ -81,7 +81,7 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
   const markTaken = async (id: number, t: string) => { await patientApi.markTaken(id, t).catch(() => {}); await refreshReminders(); };
 
   const nameFor = (phone: string, given: string | null) =>
-    given || family.find((f) => f.phone === phone)?.name || L({ en: 'Your family member', hi: 'आपके परिवार का सदस्य', ta: 'உங்கள் குடும்ப உறுப்பினர்', kn: 'ನಿಮ್ಮ ಕುಟುಂಬದ ಸದಸ್ಯರು', ml: 'നിങ്ങളുടെ കുടുംബാംഗം' });
+    given || family.find((f) => f.phone === phone)?.name || L({ en: 'Your family member', hi: 'आपके परिवार का सदस्य', ta: 'உங்கள் குடும்ப உறுப்பினர்', kn: 'ನಿಮ್ಮ ಕುಟುಂಬದ ಸದಸ್ಯರು', ml: 'നിങ്ങളുടെ കുടുംബാംഗം', te: 'మీ కుటుంబ సభ్యులు' });
 
   const apptCard = (a: Appointment, canCancel: boolean) => (
     <Card key={a.id}>
@@ -92,7 +92,7 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
       <p className="mt-2 inline-block rounded-full bg-slate-100 px-3 py-1 text-lg font-bold text-slate-800">{statusWord(a.status)}</p>
       {canCancel && (
         <div className="mt-3">
-          <BigButton variant="secondary" small onClick={() => setCancelling(a)}>{L({ en: 'Cancel this visit', hi: 'यह मुलाक़ात रद्द करें', ta: 'இந்த வருகையை ரத்து செய்', kn: 'ಈ ಭೇಟಿಯನ್ನು ರದ್ದು ಮಾಡಿ', ml: 'ഈ സന്ദർശനം റദ്ദാക്കുക' })}</BigButton>
+          <BigButton variant="secondary" small onClick={() => setCancelling(a)}>{L({ en: 'Cancel this visit', hi: 'यह मुलाक़ात रद्द करें', ta: 'இந்த வருகையை ரத்து செய்', kn: 'ಈ ಭೇಟಿಯನ್ನು ರದ್ದು ಮಾಡಿ', ml: 'ഈ സന്ദർശനം റദ്ദാക്കുക', te: 'ఈ సందర్శనను రద్దు చేయండి' })}</BigButton>
         </div>
       )}
     </Card>
@@ -104,8 +104,8 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
         <>
       <Title sub={userSettings.userPhone}>
         {userSettings.userName
-          ? L({ en: `Hello, ${userSettings.userName}`, hi: `नमस्ते, ${userSettings.userName}`, ta: `வணக்கம், ${userSettings.userName}`, kn: `ನಮಸ್ಕಾರ, ${userSettings.userName}`, ml: `നമസ്കാരം, ${userSettings.userName}` })
-          : L({ en: 'My Health', hi: 'मेरा स्वास्थ्य', ta: 'என் ஆரோக்கியம்', kn: 'ನನ್ನ ಆರೋಗ್ಯ', ml: 'എന്റെ ആരോഗ്യം' })}
+          ? L({ en: `Hello, ${userSettings.userName}`, hi: `नमस्ते, ${userSettings.userName}`, ta: `வணக்கம், ${userSettings.userName}`, kn: `ನಮಸ್ಕಾರ, ${userSettings.userName}`, ml: `നമസ്കാരം, ${userSettings.userName}`, te: `నమస్కారం, ${userSettings.userName}` })
+          : L({ en: 'My Health', hi: 'मेरा स्वास्थ्य', ta: 'என் ஆரோக்கியம்', kn: 'ನನ್ನ ಆರೋಗ್ಯ', ml: 'എന്റെ ആരോഗ്യം', te: 'నా ఆరోగ్యం' })}
       </Title>
 
       {care?.monitored_by && (
@@ -118,6 +118,7 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
               ta: `${nameFor(care.monitored_by.payer_phone, care.monitored_by.payer_name)} உங்கள் ஆரோக்கியத்தைக் கவனித்துக் கொள்கிறார்`,
               kn: `${nameFor(care.monitored_by.payer_phone, care.monitored_by.payer_name)} ನಿಮ್ಮ ಆರೋಗ್ಯವನ್ನು ನೋಡಿಕೊಳ್ಳುತ್ತಿದ್ದಾರೆ`,
               ml: `${nameFor(care.monitored_by.payer_phone, care.monitored_by.payer_name)} നിങ്ങളുടെ ആരോഗ്യം ശ്രദ്ധിക്കുന്നുണ്ട്`,
+              te: `${nameFor(care.monitored_by.payer_phone, care.monitored_by.payer_name)} మీ ఆరోగ్యాన్ని సంరక్షిస్తున్నారు`,
             })}
           </p>
           <p className="mt-2 text-lg text-teal-950">
@@ -127,6 +128,7 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
               ta: 'அவர் உங்கள் மருந்து நினைவூட்டல்கள் மற்றும் முன்பதிவுகளைப் பார்க்கலாம். உங்களிடம் கேர் திட்டம் உள்ளது.',
               kn: 'ಅವರು ನಿಮ್ಮ ಔಷಧದ ನೆನಪಿನ ಸೂಚನೆಗಳನ್ನು ಮತ್ತು ಭೇಟಿಗಳನ್ನು ನೋಡಬಹುದು. ನಿಮ್ಮಲ್ಲಿ ಕೇರ್ ಪ್ಲಾನ್ ಇದೆ.',
               ml: 'അവർക്ക് നിങ്ങളുടെ മരുന്ന് ഓർമ്മപ്പെടുത്തലുകളും ബുക്കിംഗുകളും കാണാം. നിങ്ങൾക്ക് കെയർ പ്ലാൻ ഉണ്ട്.',
+              te: 'వారు మీ మందుల రిమైండర్‌లు మరియు అపాయింట్‌మెంట్‌లను చూడగలరు. మీ వద్ద కేర్ ప్లాన్ ఉంది.',
             })}
           </p>
         </Card>
@@ -137,11 +139,11 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
       {section === null && (
         <div className="space-y-3">
           {[
-            { key: 'visits', Icon: CalendarCheck, label: L({ en: 'My visits', hi: 'मेरी मुलाक़ातें', ta: 'என் வருகைகள்', kn: 'ನನ್ನ ಭೇಟಿಗಳು', ml: 'എന്റെ സന്ദർശനങ്ങൾ' }), note: upcoming.length ? L({ en: `${upcoming.length} booked`, hi: `${upcoming.length} बुक`, ta: `${upcoming.length} பதிவு`, kn: `${upcoming.length} ಬುಕ್`, ml: `${upcoming.length} ബുക്കിംഗ്` }) : '' },
-            { key: 'medicines', Icon: Pill, label: L({ en: 'My medicines', hi: 'मेरी दवाएँ', ta: 'என் மருந்துகள்', kn: 'ನನ್ನ ಔಷಧಗಳು', ml: 'എന്റെ മരുന്നുകൾ' }), note: reminders.length ? L({ en: `${reminders.length} reminders`, hi: `${reminders.length} रिमाइंडर`, ta: `${reminders.length} நினைவூட்டல்`, kn: `${reminders.length} ನೆನಪಿನ ಸೂಚನೆ`, ml: `${reminders.length} ഓർമ്മപ്പെടുത്തൽ` }) : '' },
-            { key: 'family', Icon: Users, label: L({ en: 'My family', hi: 'मेरा परिवार', ta: 'என் குடும்பம்', kn: 'ನನ್ನ ಕುಟುಂಬ', ml: 'എന്റെ കുടുംബം' }), note: family.length ? String(family.length) : '' },
-            { key: 'care', Icon: HeartHandshake, label: L({ en: 'Care plan', hi: 'केयर प्लान', ta: 'கேர் திட்டம்', kn: 'ಕೇರ್ ಪ್ಲಾನ್', ml: 'കെയർ പ്ലാൻ' }), note: care?.is_pro ? L({ en: 'Active', hi: 'चालू', ta: 'செயலில்', kn: 'ಚಾಲ್ತಿಯಲ್ಲಿದೆ', ml: 'സജീവം' }) : '' },
-            { key: 'more', Icon: Settings, label: L({ en: 'My details and more', hi: 'मेरी जानकारी और अन्य', ta: 'என் விவரங்கள் மற்றும் பல', kn: 'ನನ್ನ ವಿವರಗಳು ಮತ್ತು ಇನ್ನಷ್ಟು', ml: 'എന്റെ വിവരങ്ങളും മറ്റും' }), note: '' },
+            { key: 'visits', Icon: CalendarCheck, label: L({ en: 'My visits', hi: 'मेरी मुलाक़ातें', ta: 'என் வருகைகள்', kn: 'ನನ್ನ ಭೇಟಿಗಳು', ml: 'എന്റെ സന്ദർശനങ്ങൾ', te: 'నా సందర్శనలు' }), note: upcoming.length ? L({ en: `${upcoming.length} booked`, hi: `${upcoming.length} बुक`, ta: `${upcoming.length} பதிவு`, kn: `${upcoming.length} ಬುಕ್`, ml: `${upcoming.length} ബുക്കിംഗ്`, te: `${upcoming.length} బుక్ అయ్యాయి` }) : '' },
+            { key: 'medicines', Icon: Pill, label: L({ en: 'My medicines', hi: 'मेरी दवाएँ', ta: 'என் மருந்துகள்', kn: 'ನನ್ನ ಔಷಧಗಳು', ml: 'എന്റെ മരുന്നുകൾ', te: 'నా మందులు' }), note: reminders.length ? L({ en: `${reminders.length} reminders`, hi: `${reminders.length} रिमाइंडर`, ta: `${reminders.length} நினைவூட்டல்`, kn: `${reminders.length} ನೆನಪಿನ ಸೂಚನೆ`, ml: `${reminders.length} ഓർമ്മപ്പെടുത്തൽ`, te: `${reminders.length} రిమైండర్‌లు` }) : '' },
+            { key: 'family', Icon: Users, label: L({ en: 'My family', hi: 'मेरा परिवार', ta: 'என் குடும்பம்', kn: 'ನನ್ನ ಕುಟುಂಬ', ml: 'എന്റെ കുടുംബം', te: 'నా కుటుంబం' }), note: family.length ? String(family.length) : '' },
+            { key: 'care', Icon: HeartHandshake, label: L({ en: 'Care plan', hi: 'केयर प्लान', ta: 'கேர் திட்டம்', kn: 'ಕೇರ್ ಪ್ಲಾನ್', ml: 'കെയർ പ്ലാൻ', te: 'కేర్ ప్లాన్' }), note: care?.is_pro ? L({ en: 'Active', hi: 'चालू', ta: 'செயலில்', kn: 'ಚಾಲ್ತಿಯಲ್ಲಿದೆ', ml: 'സജീവം', te: 'యాక్టివ్' }) : '' },
+            { key: 'more', Icon: Settings, label: L({ en: 'My details and more', hi: 'मेरी जानकारी और अन्य', ta: 'என் விவரங்கள் மற்றும் பல', kn: 'ನನ್ನ ವಿವರಗಳು ಮತ್ತು ಇನ್ನಷ್ಟು', ml: 'എന്റെ വിവരങ്ങളും മറ്റും', te: 'నా వివరాలు మరియు మరిన్ని' }), note: '' },
           ].map(({ key, Icon, label, note }) => (
             <button
               key={key}
@@ -159,20 +161,20 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
       {section !== null && (
         <div className="mb-2">
           <BigButton variant="secondary" small onClick={() => setSection(null)} icon={<ArrowLeft className="w-6 h-6" />}>
-            {L({ en: 'Back', hi: 'वापस', ta: 'பின்னே', kn: 'ಹಿಂದೆ', ml: 'തിരികെ' })}
+            {L({ en: 'Back', hi: 'वापस', ta: 'பின்னே', kn: 'ಹಿಂದೆ', ml: 'തിരികെ', te: 'వెనుకకు' })}
           </BigButton>
         </div>
       )}
 
       {section === 'visits' && (
         <>
-      <SectionTitle>{L({ en: 'My visits', hi: 'मेरी मुलाक़ातें', ta: 'என் வருகைகள்', kn: 'ನನ್ನ ಭೇಟಿಗಳು', ml: 'എന്റെ സന്ദർശനങ്ങൾ' })}</SectionTitle>
+      <SectionTitle>{L({ en: 'My visits', hi: 'मेरी मुलाक़ातें', ta: 'என் வருகைகள்', kn: 'ನನ್ನ ಭೇಟಿಗಳು', ml: 'എന്റെ സന്ദർശനങ്ങൾ', te: 'నా సందర్శనలు' })}</SectionTitle>
       <div className="space-y-4">
         {upcoming.length === 0 && (
           <Card>
-            <p className="text-xl text-slate-900">{L({ en: 'You have no visit booked.', hi: 'कोई मुलाक़ात बुक नहीं है।', ta: 'முன்பதிவு எதுவும் இல்லை.', kn: 'ಯಾವುದೇ ಭೇಟಿ ಬುಕ್ ಆಗಿಲ್ಲ.', ml: 'ബുക്ക് ചെയ്ത സന്ദർശനം ഒന്നുമില്ല.' })}</p>
+            <p className="text-xl text-slate-900">{L({ en: 'You have no visit booked.', hi: 'कोई मुलाक़ात बुक नहीं है।', ta: 'முன்பதிவு எதுவும் இல்லை.', kn: 'ಯಾವುದೇ ಭೇಟಿ ಬುಕ್ ಆಗಿಲ್ಲ.', ml: 'ബുക്ക് ചെയ്ത സന്ദർശനം ഒന്നുമില്ല.', te: 'మీకు ఎలాంటి సందర్శన బుక్ కాలేదు.' })}</p>
             <div className="mt-3">
-              <BigButton onClick={() => onNavigate('hospitals')} icon={<CalendarPlus className="w-7 h-7" />}>{L({ en: 'Find a hospital', hi: 'अस्पताल खोजें', ta: 'மருத்துவமனையைத் தேடு', kn: 'ಆಸ್ಪತ್ರೆ ಹುಡುಕಿ', ml: 'ആശുപത്രി കണ്ടെത്തുക' })}</BigButton>
+              <BigButton onClick={() => onNavigate('hospitals')} icon={<CalendarPlus className="w-7 h-7" />}>{L({ en: 'Find a hospital', hi: 'अस्पताल खोजें', ta: 'மருத்துவமனையைத் தேடு', kn: 'ಆಸ್ಪತ್ರೆ ಹುಡುಕಿ', ml: 'ആശുപത്രി കണ്ടെത്തുക', te: 'ఆసుపత్రిని కనుగొనండి' })}</BigButton>
             </div>
           </Card>
         )}
@@ -180,7 +182,7 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
         {earlier.length > 0 && (
           <>
             <BigButton variant="quiet" onClick={() => setShowEarlier(!showEarlier)}>
-              {showEarlier ? L({ en: 'Hide earlier visits', hi: 'पुरानी मुलाक़ातें छिपाएँ', ta: 'பழைய வருகைகளை மறை', kn: 'ಹಳೆಯ ಭೇಟಿಗಳನ್ನು ಮರೆಮಾಡಿ', ml: 'പഴയ സന്ദർശനങ്ങൾ മറയ്ക്കുക' }) : L({ en: `Show earlier visits (${earlier.length})`, hi: `पुरानी मुलाक़ातें देखें (${earlier.length})`, ta: `பழைய வருகைகளைக் காட்டு (${earlier.length})`, kn: `ಹಳೆಯ ಭೇಟಿಗಳನ್ನು ತೋರಿಸಿ (${earlier.length})`, ml: `പഴയ സന്ദർശനങ്ങൾ കാണിക്കുക (${earlier.length})` })}
+              {showEarlier ? L({ en: 'Hide earlier visits', hi: 'पुरानी मुलाक़ातें छिपाएँ', ta: 'பழைய வருகைகளை மறை', kn: 'ಹಳೆಯ ಭೇಟಿಗಳನ್ನು ಮರೆಮಾಡಿ', ml: 'പഴയ സന്ദർശനങ്ങൾ മറയ്ക്കുക', te: 'మునుపటి సందర్శనలను దాచండి' }) : L({ en: `Show earlier visits (${earlier.length})`, hi: `पुरानी मुलाक़ातें देखें (${earlier.length})`, ta: `பழைய வருகைகளைக் காட்டு (${earlier.length})`, kn: `ಹಳೆಯ ಭೇಟಿಗಳನ್ನು ತೋರಿಸಿ (${earlier.length})`, ml: `പഴയ സന്ദർശനങ്ങൾ കാണിക്കുക (${earlier.length})`, te: `మునుపటి సందర్శనలను చూపించు (${earlier.length})` })}
             </BigButton>
             {showEarlier && earlier.map((a) => apptCard(a, false))}
           </>
@@ -191,10 +193,10 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
 
       {section === 'medicines' && (
         <>
-      <SectionTitle>{L({ en: 'My medicines', hi: 'मेरी दवाएँ', ta: 'என் மருந்துகள்', kn: 'ನನ್ನ ಔಷಧಗಳು', ml: 'എന്റെ മരുന്നുകൾ' })}</SectionTitle>
+      <SectionTitle>{L({ en: 'My medicines', hi: 'मेरी दवाएँ', ta: 'என் மருந்துகள்', kn: 'ನನ್ನ ಔಷಧಗಳು', ml: 'എന്റെ മരുന്നുകൾ', te: 'నా మందులు' })}</SectionTitle>
       <div className="space-y-4">
         {reminders.length === 0 && (
-          <Card><p className="text-xl text-slate-900">{L({ en: 'No medicine reminders yet.', hi: 'अभी कोई दवा रिमाइंडर नहीं है।', ta: 'மருந்து நினைவூட்டல்கள் இல்லை.', kn: 'ಇನ್ನೂ ಔಷಧದ ನೆನಪಿನ ಸೂಚನೆ ಇಲ್ಲ.', ml: 'മരുന്ന് ഓർമ്മപ്പെടുത്തലുകൾ ഇതുവരെ ഇല്ല.' })}</p></Card>
+          <Card><p className="text-xl text-slate-900">{L({ en: 'No medicine reminders yet.', hi: 'अभी कोई दवा रिमाइंडर नहीं है।', ta: 'மருந்து நினைவூட்டல்கள் இல்லை.', kn: 'ಇನ್ನೂ ಔಷಧದ ನೆನಪಿನ ಸೂಚನೆ ಇಲ್ಲ.', ml: 'മരുന്ന് ഓർമ്മപ്പെടുത്തലുകൾ ഇതുവരെ ഇല്ല.', te: 'ఇంకా మందుల రిమైండర్‌లు లేవు.' })}</p></Card>
         )}
         {reminders.map((r) => (
           <Card key={r.id}>
@@ -206,10 +208,10 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
                   <li key={t} className="flex items-center justify-between gap-3">
                     <span className="text-xl font-bold text-slate-900">{clock(t)}</span>
                     {taken ? (
-                      <span className="rounded-full bg-emerald-100 px-4 py-2 text-lg font-bold text-emerald-900">✓ {L({ en: 'Taken', hi: 'ले ली', ta: 'சாப்பிட்டேன்', kn: 'ತೆಗೆದುಕೊಂಡೆ', ml: 'കഴിച്ചു' })}</span>
+                      <span className="rounded-full bg-emerald-100 px-4 py-2 text-lg font-bold text-emerald-900">✓ {L({ en: 'Taken', hi: 'ले ली', ta: 'சாப்பிட்டேன்', kn: 'ತೆಗೆದುಕೊಂಡೆ', ml: 'കഴിച്ചു', te: 'వేసుకున్నాను' })}</span>
                     ) : (
                       <button onClick={() => markTaken(r.id, t)} className="min-h-14 rounded-2xl border-2 border-teal-800 px-5 text-lg font-bold text-teal-900 active:bg-teal-50">
-                        {L({ en: 'I took it', hi: 'ले ली', ta: 'சாப்பிட்டேன்', kn: 'ತೆಗೆದುಕೊಂಡೆ', ml: 'കഴിച്ചു' })}
+                        {L({ en: 'I took it', hi: 'ले ली', ta: 'சாப்பிட்டேன்', kn: 'ತೆಗೆದುಕೊಂಡೆ', ml: 'കഴിച്ചു', te: 'వేసుకున్నాను' })}
                       </button>
                     )}
                   </li>
@@ -217,19 +219,19 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
               })}
             </ul>
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <BigButton variant="secondary" small icon={<Pencil className="w-5 h-5" />} onClick={() => setReminderSheet({ editing: r })}>{L({ en: 'Change', hi: 'बदलें', ta: 'மாற்று', kn: 'ಬದಲಿಸಿ', ml: 'മാറ്റുക' })}</BigButton>
-              <BigButton variant="secondary" small icon={<Trash2 className="w-5 h-5" />} onClick={() => removeReminder(r.id)}>{L({ en: 'Remove', hi: 'हटाएँ', ta: 'நீக்கு', kn: 'ತೆಗೆದುಹಾಕಿ', ml: 'നീക്കുക' })}</BigButton>
+              <BigButton variant="secondary" small icon={<Pencil className="w-5 h-5" />} onClick={() => setReminderSheet({ editing: r })}>{L({ en: 'Change', hi: 'बदलें', ta: 'மாற்று', kn: 'ಬದಲಿಸಿ', ml: 'മാറ്റുക', te: 'మార్చండి' })}</BigButton>
+              <BigButton variant="secondary" small icon={<Trash2 className="w-5 h-5" />} onClick={() => removeReminder(r.id)}>{L({ en: 'Remove', hi: 'हटाएँ', ta: 'நீக்கு', kn: 'ತೆಗೆದುಹಾಕಿ', ml: 'നീക്കുക', te: 'తొలగించండి' })}</BigButton>
             </div>
           </Card>
         ))}
-        <BigButton onClick={() => setReminderSheet({})} icon={<BellPlus className="w-7 h-7" />}>{L({ en: 'Add a medicine reminder', hi: 'दवा रिमाइंडर जोड़ें', ta: 'மருந்து நினைவூட்டலைச் சேர்', kn: 'ಔಷಧದ ನೆನಪಿನ ಸೂಚನೆ ಸೇರಿಸಿ', ml: 'മരുന്ന് ഓർമ്മപ്പെടുത്തൽ ചേർക്കുക' })}</BigButton>
+        <BigButton onClick={() => setReminderSheet({})} icon={<BellPlus className="w-7 h-7" />}>{L({ en: 'Add a medicine reminder', hi: 'दवा रिमाइंडर जोड़ें', ta: 'மருந்து நினைவூட்டலைச் சேர்', kn: 'ಔಷಧದ ನೆನಪಿನ ಸೂಚನೆ ಸೇರಿಸಿ', ml: 'മരുന്ന് ഓർമ്മപ്പെടുത്തൽ ചേർക്കുക', te: 'మందుల రిమైండర్‌ను జోడించండి' })}</BigButton>
       </div>
         </>
       )}
 
       {section === 'family' && (
         <>
-      <SectionTitle>{L({ en: 'My family', hi: 'मेरा परिवार', ta: 'என் குடும்பம்', kn: 'ನನ್ನ ಕುಟುಂಬ', ml: 'എന്റെ കുടുംബം' })}</SectionTitle>
+      <SectionTitle>{L({ en: 'My family', hi: 'मेरा परिवार', ta: 'என் குடும்பம்', kn: 'ನನ್ನ ಕುಟುಂಬ', ml: 'എന്റെ കുടുംബം', te: 'నా కుటుంబం' })}</SectionTitle>
       <div className="space-y-4">
         {family.map((m) => (
           <Card key={m.id}>
@@ -238,24 +240,24 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
             <div className="mt-3 space-y-3">
               {m.phone && (
                 <BigButton small icon={<HeartHandshake className="w-6 h-6" />} onClick={() => setPaySheet({ phone: m.phone ?? undefined, name: m.name })}>
-                  {L({ en: 'Care plan for them', hi: 'उनके लिए केयर प्लान', ta: 'அவர்களுக்கு கேர் திட்டம்', kn: 'ಅವರಿಗೆ ಕೇರ್ ಪ್ಲಾನ್', ml: 'അവർക്കുള്ള കെയർ പ്ലാൻ' })}
+                  {L({ en: 'Care plan for them', hi: 'उनके लिए केयर प्लान', ta: 'அவர்களுக்கு கேர் திட்டம்', kn: 'ಅವರಿಗೆ ಕೇರ್ ಪ್ಲಾನ್', ml: 'അവർക്കുള്ള കെയർ പ്ലാൻ', te: 'వారి కోసం కేర్ ప్లాన్' })}
                 </BigButton>
               )}
               <div className="grid grid-cols-2 gap-3">
-                <BigButton variant="secondary" small icon={<Pencil className="w-5 h-5" />} onClick={() => setFamilySheet({ member: m })}>{L({ en: 'Change', hi: 'बदलें', ta: 'மாற்று', kn: 'ಬದಲಿಸಿ', ml: 'മാറ്റുക' })}</BigButton>
-                <BigButton variant="secondary" small icon={<Trash2 className="w-5 h-5" />} onClick={() => removeFamily(m.id)}>{L({ en: 'Remove', hi: 'हटाएँ', ta: 'நீக்கு', kn: 'ತೆಗೆದುಹಾಕಿ', ml: 'നീക്കുക' })}</BigButton>
+                <BigButton variant="secondary" small icon={<Pencil className="w-5 h-5" />} onClick={() => setFamilySheet({ member: m })}>{L({ en: 'Change', hi: 'बदलें', ta: 'மாற்று', kn: 'ಬದಲಿಸಿ', ml: 'മാറ്റുക', te: 'మార్చండి' })}</BigButton>
+                <BigButton variant="secondary" small icon={<Trash2 className="w-5 h-5" />} onClick={() => removeFamily(m.id)}>{L({ en: 'Remove', hi: 'हटाएँ', ta: 'நீக்கு', kn: 'ತೆಗೆದುಹಾಕಿ', ml: 'നീക്കുക', te: 'తొలగించండి' })}</BigButton>
               </div>
             </div>
           </Card>
         ))}
-        <BigButton variant="secondary" onClick={() => setFamilySheet({})} icon={<UserPlus className="w-7 h-7" />}>{L({ en: 'Add family member', hi: 'परिवार का सदस्य जोड़ें', ta: 'குடும்ப உறுப்பினரைச் சேர்', kn: 'ಕುಟುಂಬದ ಸದಸ್ಯರನ್ನು ಸೇರಿಸಿ', ml: 'കുടുംബാംഗത്തെ ചേർക്കുക' })}</BigButton>
+        <BigButton variant="secondary" onClick={() => setFamilySheet({})} icon={<UserPlus className="w-7 h-7" />}>{L({ en: 'Add family member', hi: 'परिवार का सदस्य जोड़ें', ta: 'குடும்ப உறுப்பினரைச் சேர்', kn: 'ಕುಟುಂಬದ ಸದಸ್ಯರನ್ನು ಸೇರಿಸಿ', ml: 'കുടുംബാംഗത്തെ ചേർക്കുക', te: 'కుటుంబ సభ్యుడిని జోడించండి' })}</BigButton>
       </div>
         </>
       )}
 
       {section === 'care' && (
         <>
-      <SectionTitle>{L({ en: 'Care plan', hi: 'केयर प्लान', ta: 'கேர் திட்டம்', kn: 'ಕೇರ್ ಪ್ಲಾನ್', ml: 'കെയർ പ്ലാൻ' })}</SectionTitle>
+      <SectionTitle>{L({ en: 'Care plan', hi: 'केयर प्लान', ta: 'கேர் திட்டம்', kn: 'ಕೇರ್ ಪ್ಲಾನ್', ml: 'കെയർ പ്ലാൻ', te: 'కేర్ ప్లాన్' })}</SectionTitle>
       <div className="space-y-4">
         <Card tone="teal">
           <p className="text-xl text-teal-950">
@@ -265,11 +267,12 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
               ta: 'பெற்றோரைப் பிரிந்து வாழ்கிறீர்களா? அவர்களுக்கு கேர் திட்டம் வாங்கி அவர்களின் மருந்து நினைவூட்டல்கள், வருகைகளைப் பாருங்கள்.',
               kn: 'ತಂದೆ-ತಾಯಿಯಿಂದ ದೂರ ಇದ್ದೀರಾ? ಅವರಿಗಾಗಿ ಕೇರ್ ಪ್ಲಾನ್ ತೆಗೆದುಕೊಂಡು ಅವರ ಔಷಧದ ನೆನಪಿನ ಸೂಚನೆಗಳು ಮತ್ತು ಭೇಟಿಗಳನ್ನು ನೋಡಿ.',
               ml: 'മാതാപിതാക്കളിൽ നിന്ന് അകലെയാണോ താമസിക്കുന്നത്? അവർക്കായി കെയർ പ്ലാൻ എടുത്ത് അവരുടെ മരുന്ന് ഓർമ്മപ്പെടുത്തലുകളും സന്ദർശനങ്ങളും കാണുക.',
+              te: 'తల్లిదండ్రులకు దూరంగా ఉంటున్నారా? వారి కోసం కేర్ ప్లాన్ చెల్లించండి మరియు వారి మందుల రిమైండర్‌లు, సందర్శనలను చూడండి.',
             })}
           </p>
           <div className="mt-4">
             <BigButton onClick={() => setPaySheet({})} icon={<HeartHandshake className="w-7 h-7" />}>
-              {L({ en: `Pay ₹${care?.plan_price_rs ?? 149} for a parent`, hi: `माता-पिता के लिए ₹${care?.plan_price_rs ?? 149}`, ta: `பெற்றோருக்கு ₹${care?.plan_price_rs ?? 149}`, kn: `ತಂದೆ-ತಾಯಿಗೆ ₹${care?.plan_price_rs ?? 149}`, ml: `മാതാപിതാക്കൾക്ക് ₹${care?.plan_price_rs ?? 149}` })}
+              {L({ en: `Pay ₹${care?.plan_price_rs ?? 149} for a parent`, hi: `माता-पिता के लिए ₹${care?.plan_price_rs ?? 149}`, ta: `பெற்றோருக்கு ₹${care?.plan_price_rs ?? 149}`, kn: `ತಂದೆ-ತಾಯಿಗೆ ₹${care?.plan_price_rs ?? 149}`, ml: `മാതാപിതാക്കൾക്ക് ₹${care?.plan_price_rs ?? 149}`, te: `తల్లిదండ్రుల కోసం ₹${care?.plan_price_rs ?? 149}` })}
             </BigButton>
           </div>
         </Card>
@@ -278,22 +281,22 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
           return (
             <Card key={p.id}>
               <p className="text-2xl font-extrabold text-slate-900">{nameFor(p.parent_phone, status?.name ?? p.parent_name)}</p>
-              <p className="text-lg font-semibold text-emerald-800">{L({ en: 'On the Care plan', hi: 'केयर प्लान पर', ta: 'கேர் திட்டத்தில்', kn: 'ಕೇರ್ ಪ್ಲಾನ್ ಇದೆ', ml: 'കെയർ പ്ലാനിൽ' })}</p>
+              <p className="text-lg font-semibold text-emerald-800">{L({ en: 'On the Care plan', hi: 'केयर प्लान पर', ta: 'கேர் திட்டத்தில்', kn: 'ಕೇರ್ ಪ್ಲಾನ್ ಇದೆ', ml: 'കെയർ പ്ലാനിൽ', te: 'కేర్ ప్లాన్‌లో ఉన్నారు' })}</p>
               {status && !status.signed_in && (
-                <p className="mt-2 text-lg text-slate-800">{L({ en: 'They have not opened Sahay yet.', hi: 'उन्होंने अभी सहाय नहीं खोला है।', ta: 'அவர்கள் இன்னும் சஹாயைத் திறக்கவில்லை.', kn: 'ಅವರು ಇನ್ನೂ ಸಹಾಯ್ ತೆರೆದಿಲ್ಲ.', ml: 'അവർ ഇതുവരെ സഹായ് തുറന്നിട്ടില്ല.' })}</p>
+                <p className="mt-2 text-lg text-slate-800">{L({ en: 'They have not opened Sahay yet.', hi: 'उन्होंने अभी सहाय नहीं खोला है।', ta: 'அவர்கள் இன்னும் சஹாயைத் திறக்கவில்லை.', kn: 'ಅವರು ಇನ್ನೂ ಸಹಾಯ್ ತೆರೆದಿಲ್ಲ.', ml: 'അവർ ഇതുവരെ സഹായ് തുറന്നിട്ടില്ല.', te: 'వారు ఇంకా సహాయ్ తెరవలేదు.' })}</p>
               )}
               {status && status.doses_today > 0 && (
                 <p className="mt-2 text-xl font-bold text-slate-900">
-                  {L({ en: `Took ${status.taken_today} of ${status.doses_today} medicines today`, hi: `आज ${status.doses_today} में से ${status.taken_today} दवाएँ लीं`, ta: `இன்று ${status.doses_today} மருந்தில் ${status.taken_today} சாப்பிட்டார்`, kn: `ಇಂದು ${status.doses_today} ಔಷಧಗಳಲ್ಲಿ ${status.taken_today} ತೆಗೆದುಕೊಂಡಿದ್ದಾರೆ`, ml: `ഇന്ന് ${status.doses_today} മരുന്നിൽ ${status.taken_today} കഴിച്ചു` })}
+                  {L({ en: `Took ${status.taken_today} of ${status.doses_today} medicines today`, hi: `आज ${status.doses_today} में से ${status.taken_today} दवाएँ लीं`, ta: `இன்று ${status.doses_today} மருந்தில் ${status.taken_today} சாப்பிட்டார்`, kn: `ಇಂದು ${status.doses_today} ಔಷಧಗಳಲ್ಲಿ ${status.taken_today} ತೆಗೆದುಕೊಂಡಿದ್ದಾರೆ`, ml: `ഇന്ന് ${status.doses_today} മരുന്നിൽ ${status.taken_today} കഴിച്ചു`, te: `ఈ రోజు ${status.doses_today} మందులలో ${status.taken_today} వేసుకున్నారు` })}
                 </p>
               )}
               {status?.next_appointment && (
                 <p className="mt-1 text-lg text-slate-800">
-                  {L({ en: 'Next visit', hi: 'अगली मुलाक़ात', ta: 'அடுத்த வருகை', kn: 'ಮುಂದಿನ ಭೇಟಿ', ml: 'അടുത്ത സന്ദർശനം' })}:{' '}
+                  {L({ en: 'Next visit', hi: 'अगली मुलाक़ात', ta: 'அடுத்த வருகை', kn: 'ಮುಂದಿನ ಭೇಟಿ', ml: 'അടുത്ത സന്ദർശനം', te: 'తదుపరి సందర్శన' })}:{' '}
                   {new Date(status.next_appointment.start).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' })}
                 </p>
               )}
-              <div className="mt-3"><BigButton variant="secondary" small onClick={() => stopPlan(p.id)}>{L({ en: 'Stop Care plan', hi: 'केयर प्लान बंद करें', ta: 'கேர் திட்டத்தை நிறுத்து', kn: 'ಕೇರ್ ಪ್ಲಾನ್ ನಿಲ್ಲಿಸಿ', ml: 'കെയർ പ്ലാൻ നിർത്തുക' })}</BigButton></div>
+              <div className="mt-3"><BigButton variant="secondary" small onClick={() => stopPlan(p.id)}>{L({ en: 'Stop Care plan', hi: 'केयर प्लान बंद करें', ta: 'கேர் திட்டத்தை நிறுத்து', kn: 'ಕೇರ್ ಪ್ಲಾನ್ ನಿಲ್ಲಿಸಿ', ml: 'കെയർ പ്ലാൻ നിർത്തുക', te: 'కేర్ ప్లాన్ ఆపివేయండి' })}</BigButton></div>
             </Card>
           );
         })}
@@ -303,22 +306,22 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
 
       {section === 'more' && (
         <>
-      <SectionTitle>{L({ en: 'More', hi: 'और', ta: 'மேலும்', kn: 'ಇನ್ನಷ್ಟು', ml: 'കൂടുതൽ' })}</SectionTitle>
+      <SectionTitle>{L({ en: 'More', hi: 'और', ta: 'மேலும்', kn: 'ಇನ್ನಷ್ಟು', ml: 'കൂടുതൽ', te: 'మరిన్ని' })}</SectionTitle>
       <div className="space-y-3">
-        <BigButton variant="secondary" onClick={() => setShowDetails(true)} icon={<Pencil className="w-7 h-7" />}>{L({ en: 'My details', hi: 'मेरी जानकारी', ta: 'என் விவரங்கள்', kn: 'ನನ್ನ ವಿವರಗಳು', ml: 'എന്റെ വിവരങ്ങൾ' })}</BigButton>
-        <BigButton variant="secondary" onClick={onOpenLocationSelector}>{L({ en: 'Change my area', hi: 'मेरा क्षेत्र बदलें', ta: 'என் பகுதியை மாற்று', kn: 'ನನ್ನ ಪ್ರದೇಶ ಬದಲಿಸಿ', ml: 'എന്റെ പ്രദേശം മാറ്റുക' })}</BigButton>
-        <BigButton variant="secondary" onClick={() => onNavigate('ask-sahay')}>{L({ en: 'Ask about health schemes', hi: 'स्वास्थ्य योजनाओं के बारे में पूछें', ta: 'சுகாதாரத் திட்டங்கள் பற்றி கேள்', kn: 'ಆರೋಗ್ಯ ಯೋಜನೆಗಳ ಬಗ್ಗೆ ಕೇಳಿ', ml: 'ആരോഗ്യ പദ്ധതികളെക്കുറിച്ച് ചോദിക്കൂ' })}</BigButton>
+        <BigButton variant="secondary" onClick={() => setShowDetails(true)} icon={<Pencil className="w-7 h-7" />}>{L({ en: 'My details', hi: 'मेरी जानकारी', ta: 'என் விவரங்கள்', kn: 'ನನ್ನ ವಿವರಗಳು', ml: 'എന്റെ വിവരങ്ങൾ', te: 'నా వివరాలు' })}</BigButton>
+        <BigButton variant="secondary" onClick={onOpenLocationSelector}>{L({ en: 'Change my area', hi: 'मेरा क्षेत्र बदलें', ta: 'என் பகுதியை மாற்று', kn: 'ನನ್ನ ಪ್ರದೇಶ ಬದಲಿಸಿ', ml: 'എന്റെ പ്രദേശം മാറ്റുക', te: 'నా ప్రాంతాన్ని మార్చండి' })}</BigButton>
+        <BigButton variant="secondary" onClick={() => onNavigate('ask-sahay')}>{L({ en: 'Ask about health schemes', hi: 'स्वास्थ्य योजनाओं के बारे में पूछें', ta: 'சுகாதாரத் திட்டங்கள் பற்றி கேள்', kn: 'ಆರೋಗ್ಯ ಯೋಜನೆಗಳ ಬಗ್ಗೆ ಕೇಳಿ', ml: 'ആരോഗ്യ പദ്ധതികളെക്കുറിച്ച് ചോദിക്കൂ', te: 'ఆరోగ్య పథకాల గురించి అడగండి' })}</BigButton>
       </div>
         </>
       )}
 
       {cancelling && (
-        <Sheet title={L({ en: 'Cancel this visit?', hi: 'यह मुलाक़ात रद्द करें?', ta: 'இந்த வருகையை ரத்து செய்யவா?', kn: 'ಈ ಭೇಟಿಯನ್ನು ರದ್ದು ಮಾಡಬೇಕೇ?', ml: 'ഈ സന്ദർശനം റദ്ദാക്കട്ടെ?' })} closeLabel={L({ en: 'Close', hi: 'बंद करें', ta: 'மூடு', kn: 'ಮುಚ್ಚಿ', ml: 'അടയ്ക്കുക' })} onClose={() => setCancelling(null)}>
+        <Sheet title={L({ en: 'Cancel this visit?', hi: 'यह मुलाक़ात रद्द करें?', ta: 'இந்த வருகையை ரத்து செய்யவா?', kn: 'ಈ ಭೇಟಿಯನ್ನು ರದ್ದು ಮಾಡಬೇಕೇ?', ml: 'ഈ സന്ദർശനം റദ്ദാക്കട്ടെ?', te: 'ఈ సందర్శనను రద్దు చేయాలా?' })} closeLabel={L({ en: 'Close', hi: 'बंद करें', ta: 'மூடு', kn: 'ಮುಚ್ಚಿ', ml: 'അടയ്ക്കുക', te: 'మూసివేయి' })} onClose={() => setCancelling(null)}>
           <div className="space-y-4">
             <p className="text-xl text-slate-900">{cancelling.hospitalName} · {dateLabel(cancelling.date)} · {cancelling.timeSlot}</p>
             {error && <Notice tone="error">{error}</Notice>}
-            <BigButton variant="danger" busy={busy} onClick={confirmCancel}>{L({ en: 'Yes, cancel it', hi: 'हाँ, रद्द करें', ta: 'ஆம், ரத்து செய்', kn: 'ಹೌದು, ರದ್ದು ಮಾಡಿ', ml: 'അതെ, റദ്ദാക്കുക' })}</BigButton>
-            <BigButton variant="secondary" onClick={() => setCancelling(null)}>{L({ en: 'No, keep it', hi: 'नहीं, रखें', ta: 'வேண்டாம், வைத்திரு', kn: 'ಬೇಡ, ಹಾಗೇ ಇರಲಿ', ml: 'വേണ്ട, നിലനിർത്തുക' })}</BigButton>
+            <BigButton variant="danger" busy={busy} onClick={confirmCancel}>{L({ en: 'Yes, cancel it', hi: 'हाँ, रद्द करें', ta: 'ஆம், ரத்து செய்', kn: 'ಹೌದು, ರದ್ದು ಮಾಡಿ', ml: 'അതെ, റദ്ദാക്കുക', te: 'అవును, రద్దు చేయండి' })}</BigButton>
+            <BigButton variant="secondary" onClick={() => setCancelling(null)}>{L({ en: 'No, keep it', hi: 'नहीं, रखें', ta: 'வேண்டாம், வைத்திரு', kn: 'ಬೇಡ, ಹಾಗೇ ಇರಲಿ', ml: 'വേണ്ട, നിലനിർത്തുക', te: 'వద్దు, అలాగే ఉంచండి' })}</BigButton>
           </div>
         </Sheet>
       )}

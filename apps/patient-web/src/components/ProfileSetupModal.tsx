@@ -12,7 +12,7 @@ interface ProfileSetupModalProps {
   onDone: (profile: Partial<UserSettings>) => void;
 }
 
-const COPY: Record<'en' | 'hi' | 'ta' | 'kn' | 'ml', Record<string, string>> = {
+const COPY: Record<'en' | 'hi' | 'ta' | 'kn' | 'ml' | 'te', Record<string, string>> = {
   en: {
     step: 'Step',
     of: 'of 3',
@@ -168,6 +168,37 @@ const COPY: Record<'en' | 'hi' | 'ta' | 'kn' | 'ml', Record<string, string>> = {
     ageBad: '0 നും 120 നും ഇടയിലുള്ള പ്രായം നൽകുക.',
     privacy: 'നിങ്ങൾ ബുക്ക് ചെയ്യുന്ന ആശുപത്രിക്ക് മാത്രമേ നിങ്ങളുടെ വിവരങ്ങൾ ലഭിക്കൂ.',
   },
+  te: {
+    step: 'దశ',
+    of: '/ 3',
+    phoneTitle: 'మీ మొబైల్ నంబర్',
+    phoneHelp: 'మీ బుకింగ్ వివరాలను పంపడానికి మరియు మీరు కాల్ చేసినప్పుడు మిమ్మల్ని గుర్తించడానికి ఇది ఉపయోగపడుతుంది.',
+    phoneLabel: 'మొబైల్ నంబర్',
+    phoneBad: '10 అంకెల మొబైల్ నంబర్‌ను నమోదు చేయండి.',
+    sendCode: 'కోడ్‌ను పంపండి',
+    codeTitle: '6 అంకెల కోడ్‌ను నమోదు చేయండి',
+    codeFor: 'ఈ నంబర్‌కు కోడ్',
+    demoNote: 'ఈ డెమోలో SMS కనెక్ట్ కాలేదు. మీ కోడ్:',
+    useCode: 'దాన్ని నింపండి',
+    codeLabel: 'కోడ్',
+    verify: 'ధృవీకరించండి',
+    resend: 'కొత్త కోడ్‌ను పంపండి',
+    resendIn: 'కొత్త కోడ్ సమయం',
+    change: 'నంబర్‌ను మార్చండి',
+    detailsTitle: 'మీ గురించి',
+    detailsHelp: 'మీరు బుక్ చేసినప్పుడు వైద్యుడు ఈ వివరాలను చూస్తారు.',
+    name: 'పూర్తి పేరు',
+    age: 'వయస్సు',
+    gender: 'లింగం',
+    female: 'స్త్రీ',
+    male: 'పురుషుడు',
+    other: 'ఇతర',
+    village: 'గ్రామం లేదా పట్టణం',
+    save: 'సేవ్ చేసి కొనసాగించండి',
+    required: 'ప్రతి ఫీల్డ్‌ను పూరించండి.',
+    ageBad: '0 నుండి 120 మధ్య వయస్సును నమోదు చేయండి.',
+    privacy: 'మీ వివరాలు మీరు బుక్ చేసుకున్న ఆసుపత్రితో మాత్రమే పంచుకోబడతాయి.',
+  },
 };
 
 const RESEND_SECONDS = 30;
@@ -241,7 +272,7 @@ export const ProfileSetupModal: React.FC<ProfileSetupModalProps> = ({ currentLan
         age: ageNumber,
         gender,
         village: village.trim(),
-        language: ['ta', 'hi', 'kn', 'ml', 'en'].includes(currentLang) ? currentLang : undefined,
+        language: ['ta', 'hi', 'kn', 'ml', 'te', 'en'].includes(currentLang) ? currentLang : undefined,
       });
       onDone({
         userName: name.trim(),

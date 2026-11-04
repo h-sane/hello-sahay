@@ -15,27 +15,27 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab, c
   const tabs = [
     {
       id: 'home' as NavTab,
-      label: pick(currentLang, { en: 'Home', hi: 'होम', ta: 'முகப்பு', kn: 'ಮುಖಪುಟ', ml: 'ഹോം' }),
+      label: pick(currentLang, { en: 'Home', hi: 'होम', ta: 'முகப்பு', kn: 'ಮುಖಪುಟ', ml: 'ഹോം', te: 'హోమ్' }),
       icon: Home,
     },
     {
       id: 'hospitals' as NavTab,
-      label: pick(currentLang, { en: 'Hospitals', hi: 'अस्पताल', ta: 'மருத்துவ​மனை', kn: 'ಆಸ್ಪತ್ರೆ', ml: 'ആശുപത്രി' }),
+      label: pick(currentLang, { en: 'Hospitals', hi: 'अस्पताल', ta: 'மருத்துவ​மனை', kn: 'ಆಸ್ಪತ್ರೆ', ml: 'ആശുപത്രി', te: 'ఆసుపత్రి' }),
       icon: Building2,
     },
     {
       id: 'ask-sahay' as NavTab,
-      label: pick(currentLang, { en: 'Ask', hi: 'पूछें', ta: 'கேளுங்கள்', kn: 'ಕೇಳಿ', ml: 'ചോദിക്കൂ' }),
+      label: pick(currentLang, { en: 'Ask', hi: 'पूछें', ta: 'கேளுங்கள்', kn: 'ಕೇಳಿ', ml: 'ചോദിക്കൂ', te: 'అడగండి' }),
       icon: MessageSquareHeart,
     },
     {
       id: 'medicines' as NavTab,
-      label: pick(currentLang, { en: 'Medicine', hi: 'दवाएँ', ta: 'மருந்து', kn: 'ಔಷಧ', ml: 'മരുന്ന്' }),
+      label: pick(currentLang, { en: 'Medicine', hi: 'दवाएँ', ta: 'மருந்து', kn: 'ಔಷಧ', ml: 'മരുന്ന്', te: 'మందులు' }),
       icon: Pill,
     },
     {
       id: 'my-health' as NavTab,
-      label: pick(currentLang, { en: 'My Health', hi: 'मेरा', ta: 'என் நலம்', kn: 'ನನ್ನ ಆರೋಗ್ಯ', ml: 'എന്റെ ആരോഗ്യം' }),
+      label: pick(currentLang, { en: 'My Health', hi: 'मेरा', ta: 'என் நலம்', kn: 'ನನ್ನ ಆರೋಗ್ಯ', ml: 'എന്റെ ആരോഗ്യം', te: 'నా ఆరోగ్యం' }),
       icon: UserCheck,
     },
   ];
@@ -59,7 +59,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab, c
               aria-current={isActive ? 'page' : undefined}
             >
               <Icon className="h-7 w-7" strokeWidth={2.2} aria-hidden />
-              <span className={`px-0.5 text-center font-bold leading-[1.1] ${currentLang === 'ml' || currentLang === 'kn' ? 'text-[13px]' : 'text-[14px]'}`}>
+              <span className={`px-0.5 text-center font-bold leading-[1.1] ${currentLang === 'ml' || currentLang === 'kn' || currentLang === 'te' ? 'text-[13px]' : 'text-[14px]'}`}>
               {tab.label}
               </span>
             </button>

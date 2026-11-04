@@ -25,7 +25,7 @@ export default function App() {
   const [settings, setSettings] = useState<UserSettings>(() => {
     const saved = storageService.getSettings();
     // Tamil, Hindi, Kannada, Malayalam and English are supported; older saved settings may hold another language.
-    return ['ta', 'hi', 'kn', 'ml', 'en'].includes(saved.language) ? saved : { ...saved, language: 'en' as Language };
+    return ['ta', 'hi', 'kn', 'ml', 'te', 'en'].includes(saved.language) ? saved : { ...saved, language: 'en' as Language };
   });
   const [hospitalError, setHospitalError] = useState('');
   const [, setHospitalsVersion] = useState(0);

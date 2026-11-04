@@ -32,7 +32,7 @@ interface VoiceCallViewProps {
   onOpenEmergency: () => void;
 }
 
-const COPY: Record<'en' | 'hi' | 'ta' | 'kn' | 'ml', Record<string, string>> = {
+const COPY: Record<'en' | 'hi' | 'ta' | 'kn' | 'ml' | 'te', Record<string, string>> = {
   en: {
     title: 'Call Sahay',
     lead: 'Speak to the free health helpline. Sahay cannot give medical advice.',
@@ -108,10 +108,25 @@ const COPY: Record<'en' | 'hi' | 'ta' | 'kn' | 'ml', Record<string, string>> = {
     sahay: 'സഹായ്',
     emergency: 'അടിയന്തരമോ? 108 ൽ വിളിക്കുക',
   },
+  te: {
+    title: 'సహాయ్‌కి కాల్ చేయండి',
+    lead: 'ఉచిత ఆరోగ్య హెల్ప్‌లైన్‌తో మాట్లాడండి. సహాయ్ వైద్య సలహా ఇవ్వదు.',
+    start: 'కాల్ ప్రారంభించండి',
+    end: 'కాల్ ముగించండి',
+    idle: 'కనెక్ట్ కాలేదు',
+    connecting: 'కనెక్ట్ అవుతోంది…',
+    live: 'కనెక్ట్ అయింది. సహాయ్ మీకు స్వాగతం పలుకుతుంది, తర్వాత మాట్లాడండి.',
+    ended: 'కాల్ ముగిసింది',
+    mic: 'మైక్రోఫోన్ బ్లాక్ చేయబడింది. బ్రౌజర్ అడ్రస్ బార్‌లో అనుమతించి మళ్లీ ప్రయత్నించండి.',
+    unreachable: 'వాయిస్ సేవ అందుబాటులో లేదు. దయచేసి మళ్లీ ప్రయత్నించండి, లేదా అత్యవసరమైతే 108కి కాల్ చేయండి.',
+    you: 'మీరు',
+    sahay: 'సహాయ్',
+    emergency: 'అత్యవసరమా? 108కి కాల్ చేయండి',
+  },
 };
 
 export const VoiceCallView: React.FC<VoiceCallViewProps> = ({ currentLang, onClose, onOpenEmergency }) => {
-  const lang: 'en' | 'hi' | 'ta' | 'kn' | 'ml' = currentLang in COPY ? (currentLang as keyof typeof COPY) : 'en';
+  const lang: 'en' | 'hi' | 'ta' | 'kn' | 'ml' | 'te' = currentLang in COPY ? (currentLang as keyof typeof COPY) : 'en';
   const c = COPY[lang];
 
   const [state, setState] = useState<'idle' | 'connecting' | 'live' | 'ended'>('idle');
@@ -217,7 +232,7 @@ export const VoiceCallView: React.FC<VoiceCallViewProps> = ({ currentLang, onClo
   return (
     <Sheet
       title={c.title}
-      closeLabel={pick(currentLang, { en: 'Close', hi: 'बंद करें', ta: 'மூடு', kn: 'ಮುಚ್ಚಿ', ml: 'അടയ്ക്കുക' })}
+      closeLabel={pick(currentLang, { en: 'Close', hi: 'बंद करें', ta: 'மூடு', kn: 'ಮುಚ್ಚಿ', ml: 'അടയ്ക്കുക', te: 'మూసివేయి' })}
       onClose={() => {
         cleanup(true);
         onClose();
