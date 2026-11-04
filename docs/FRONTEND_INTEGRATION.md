@@ -34,7 +34,7 @@ Both dev servers proxy `/api` to `:8001` (and the patient app `/voice` to `:8002
 
 Device only (no backend): language, consent and location. Medicines, reminders, family members and the Care plan are on the server (see the sections below).
 
-Removed because they break the guardrails: the "Dr. Sahay" persona and clinical advice text, symptom-to-department routing, seeded fake appointments, six of the nine languages (only Tamil, Hindi, English remain).
+Removed because they break the guardrails: the "Dr. Sahay" persona and clinical advice text, symptom-to-department routing, seeded fake appointments, four of the nine languages (Tamil, Hindi, Kannada, Malayalam and English remain).
 
 ### Nearest hospital: real names, one demo Desk
 

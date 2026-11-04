@@ -26,7 +26,7 @@ interface HospitalsViewProps {
 type Filter = 'all' | 'government' | 'scheme' | 'emergency';
 
 type Copy = { subtitle: string; unconfirmed: string; sourceReal: string; sourceDemo: string; loadFailed: string };
-const COPY: Record<'en' | 'hi' | 'ta', Copy> = {
+const COPY: Record<'en' | 'hi' | 'ta' | 'kn' | 'ml', Copy> = {
   en: {
     subtitle: 'Hospitals near you. Government options come first.',
     unconfirmed: 'Scheme cover not confirmed. Ask the hospital.',
@@ -48,6 +48,28 @@ const COPY: Record<'en' | 'hi' | 'ta', Copy> = {
     sourceDemo: 'டெமோ தரவு. நேரத்தை தொலைபேசியில் உறுதி செய்யவும்.',
     loadFailed: 'மருத்துவமனைகளை ஏற்ற முடியவில்லை. இணைப்பை சரிபார்த்து மீண்டும் திறக்கவும்.',
   },
+  kn: {
+    subtitle: 'ನಿಮ್ಮ ಹತ್ತಿರದ ಆಸ್ಪತ್ರೆಗಳು. ಸರ್ಕಾರಿ ಆಸ್ಪತ್ರೆಗಳು ಮೊದಲು.',
+    unconfirmed: 'ಯೋಜನೆಯ ಖಚಿತತೆ ಇಲ್ಲ. ಆಸ್ಪತ್ರೆಯಲ್ಲಿ ಕೇಳಿ.',
+    sourceReal: 'ಹೆಸರು, ನಕ್ಷೆ: OpenStreetMap. ಯೋಜನೆ: ತಮಿಳುನಾಡು CMCHIS ಆಸ್ಪತ್ರೆ ಪಟ್ಟಿ.',
+    sourceDemo: 'ಡೆಮೊ ಡೇಟಾ. ಸಮಯವನ್ನು ಫೋನ್‌ನಲ್ಲಿ ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ.',
+    loadFailed: 'ಆಸ್ಪತ್ರೆಗಳನ್ನು ತೆರೆಯಲು ಆಗಲಿಲ್ಲ. ಇಂಟರ್ನೆಟ್ ಪರಿಶೀಲಿಸಿ, ಈ ಟ್ಯಾಬ್ ಮತ್ತೆ ತೆರೆಯಿರಿ.',
+  },
+  ml: {
+    subtitle: 'നിങ്ങളുടെ അടുത്തുള്ള ആശുപത്രികൾ. സർക്കാർ ആശുപത്രികൾ ആദ്യം.',
+    unconfirmed: 'പദ്ധതി ഉറപ്പില്ല. ആശുപത്രിയിൽ ചോദിക്കുക.',
+    sourceReal: 'പേര്, ഭൂപടം: OpenStreetMap. പദ്ധതി: തമിഴ്നാട് CMCHIS ആശുപത്രി പട്ടിക.',
+    sourceDemo: 'ഡെമോ ഡാറ്റ. സമയം ഫോണിൽ ഉറപ്പാക്കുക.',
+    loadFailed: 'ആശുപത്രികൾ തുറക്കാനായില്ല. ഇന്റർനെറ്റ് പരിശോധിച്ച് ഈ ടാബ് വീണ്ടും തുറക്കുക.',
+  },
+};
+
+const KIND_TEXT: Record<string, { en: string; hi: string; ta: string; kn: string; ml: string }> = {
+  'Government hospital': { en: 'Government hospital', hi: 'सरकारी अस्पताल', ta: 'அரசு மருத்துவமனை', kn: 'ಸರ್ಕಾರಿ ಆಸ್ಪತ್ರೆ', ml: 'സർക്കാർ ആശുപത്രി' },
+  'Primary health centre': { en: 'Primary health centre', hi: 'प्राथमिक स्वास्थ्य केंद्र', ta: 'ஆரம்ப சுகாதார நிலையம்', kn: 'ಪ್ರಾಥಮಿಕ ಆರೋಗ್ಯ ಕೇಂದ್ರ', ml: 'പ്രാഥമിക ആരോഗ്യ കേന്ദ്രം' },
+  'Community health centre': { en: 'Community health centre', hi: 'सामुदायिक स्वास्थ्य केंद्र', ta: 'சமுதாய சுகாதார நிலையம்', kn: 'ಸಮುದಾಯ ಆರೋಗ್ಯ ಕೇಂದ್ರ', ml: 'സാമൂഹിക ആരോഗ്യ കേന്ദ്രം' },
+  'Private hospital': { en: 'Private hospital', hi: 'निजी अस्पताल', ta: 'தனியார் மருத்துவமனை', kn: 'ಖಾಸಗಿ ಆಸ್ಪತ್ರೆ', ml: 'സ്വകാര്യ ആശുപത്രി' },
+  Hospital: { en: 'Hospital', hi: 'अस्पताल', ta: 'மருத்துவமனை', kn: 'ಆಸ್ಪತ್ರೆ', ml: 'ആശുപത്രി' },
 };
 
 const KIND_BY_CATEGORY: Record<Hospital['category'], string> = {
@@ -68,7 +90,8 @@ interface CardProps {
 
 const HospitalCard: React.FC<CardProps> = ({ hospital, lang, copy, saved, onToggleSave, onBook }) => {
   const { contacts } = useAppData();
-  const kind = hospital.kindLabel ?? KIND_BY_CATEGORY[hospital.category];
+  const kindEn = hospital.kindLabel ?? KIND_BY_CATEGORY[hospital.category];
+  const kind = KIND_TEXT[kindEn] ? pick(lang, KIND_TEXT[kindEn]) : kindEn;
   const address = hospital.address[lang] || hospital.address.en;
   const schemes = hospital.schemesSupported.join(' · ');
   const showUnconfirmed = hospital.schemesSupported.length === 0 && !!hospital.schemeChecked;
@@ -104,7 +127,7 @@ const HospitalCard: React.FC<CardProps> = ({ hospital, lang, copy, saved, onTogg
         <div className="mt-3 flex flex-wrap gap-2">
           {hospital.emergency24x7 && (
             <span className="rounded-xl border-2 border-red-300 bg-red-50 px-3 py-1 text-lg font-bold text-red-800">
-              {pick(lang, { en: 'Open 24 hours', hi: '24 घंटे खुला', ta: '24 மணி நேரமும் திறந்திருக்கும்' })}
+              {pick(lang, { en: 'Open 24 hours', hi: '24 घंटे खुला', ta: '24 மணி நேரமும் திறந்திருக்கும்', kn: '24 ಗಂಟೆಯೂ ತೆರೆದಿರುತ್ತದೆ', ml: '24 മണിക്കൂറും തുറന്നിരിക്കും' })}
             </span>
           )}
           {schemes && (
@@ -116,12 +139,12 @@ const HospitalCard: React.FC<CardProps> = ({ hospital, lang, copy, saved, onTogg
 
       <div className="mt-4 space-y-3">
         <BigButton onClick={() => onBook(hospital)} icon={<Calendar className="w-7 h-7" />}>
-          {pick(lang, { en: 'Book a visit', hi: 'समय बुक करें', ta: 'நேரம் பதிவு செய்' })}
+          {pick(lang, { en: 'Book a visit', hi: 'समय बुक करें', ta: 'நேரம் பதிவு செய்', kn: 'ಸಮಯ ಬುಕ್ ಮಾಡಿ', ml: 'സമയം ബുക്ക് ചെയ്യുക' })}
         </BigButton>
         <div className="grid grid-cols-2 gap-3">
           {callNumber && (
             <BigButton small variant="secondary" href={`tel:${callNumber}`} icon={<Phone className="w-5 h-5" />}>
-              {pick(lang, { en: 'Call', hi: 'कॉल', ta: 'அழை' })}
+              {pick(lang, { en: 'Call', hi: 'कॉल', ta: 'அழை', kn: 'ಕರೆ', ml: 'വിളിക്കുക' })}
             </BigButton>
           )}
           <BigButton
@@ -129,7 +152,7 @@ const HospitalCard: React.FC<CardProps> = ({ hospital, lang, copy, saved, onTogg
             href={`https://www.google.com/maps/dir/?api=1&destination=${hospital.latitude},${hospital.longitude}`}
             icon={<Navigation className="w-5 h-5" />}
           >
-            {pick(lang, { en: 'Directions', hi: 'रास्ता', ta: 'வழி' })}
+            {pick(lang, { en: 'Directions', hi: 'रास्ता', ta: 'வழி', kn: 'ದಾರಿ', ml: 'വഴി' })}
           </BigButton>
         </div>
       </div>
@@ -148,7 +171,7 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
   const [savedIds, setSavedIds] = useState<string[]>(storageService.getSavedHospitals());
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const copy = COPY[currentLang === 'hi' || currentLang === 'ta' ? currentLang : 'en'];
+  const copy = COPY[currentLang === 'hi' || currentLang === 'ta' || currentLang === 'kn' || currentLang === 'ml' ? currentLang : 'en'];
 
   const hospitals = hospitalService.search(searchQuery, {
     category: activeFilter === 'government' ? 'government' : 'all',
@@ -212,7 +235,7 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
         type="search"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder={pick(currentLang, { en: 'Search by name or town', hi: 'नाम या शहर से खोजें', ta: 'பெயர் அல்லது ஊர் மூலம் தேடு' })}
+        placeholder={pick(currentLang, { en: 'Search by name or town', hi: 'नाम या शहर से खोजें', ta: 'பெயர் அல்லது ஊர் மூலம் தேடு', kn: 'ಹೆಸರು ಅಥವಾ ಊರಿನಿಂದ ಹುಡುಕಿ', ml: 'പേരോ സ്ഥലമോ ഉപയോഗിച്ച് തിരയുക' })}
         aria-label={t('searchPlaceholder', currentLang)}
         className={inputCls}
       />
@@ -226,7 +249,7 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
         {chip('all', t('filterAll', currentLang))}
         {chip('government', t('filterGovt', currentLang))}
         {chip('scheme', 'CMCHIS · PM-JAY')}
-        {chip('emergency', pick(currentLang, { en: 'Open 24 hours', hi: '24 घंटे खुला', ta: '24 மணி நேரம்' }), true)}
+        {chip('emergency', pick(currentLang, { en: 'Open 24 hours', hi: '24 घंटे खुला', ta: '24 மணி நேரம்', kn: '24 ಗಂಟೆ', ml: '24 മണിക്കൂർ' }), true)}
       </div>
 
       <div className="mt-6">
@@ -243,9 +266,9 @@ export const HospitalsView: React.FC<HospitalsViewProps> = ({
           <div className="space-y-4">
             <HospitalMap hospitals={hospitals} user={userCoordinates} selectedId={selected?.id ?? null} onSelect={onPick} />
             <p className="flex flex-wrap gap-x-5 gap-y-1 text-lg text-slate-800">
-              <span className="inline-flex items-center gap-2"><span className="h-4 w-4 rounded-full bg-teal-700" />{pick(currentLang, { en: 'Government', hi: 'सरकारी', ta: 'அரசு' })}</span>
-              <span className="inline-flex items-center gap-2"><span className="h-4 w-4 rounded-full bg-slate-600" />{pick(currentLang, { en: 'Private', hi: 'निजी', ta: 'தனியார்' })}</span>
-              <span className="inline-flex items-center gap-2"><span className="h-4 w-4 rounded-full bg-blue-600" />{pick(currentLang, { en: 'You', hi: 'आप', ta: 'நீங்கள்' })}</span>
+              <span className="inline-flex items-center gap-2"><span className="h-4 w-4 rounded-full bg-teal-700" />{pick(currentLang, { en: 'Government', hi: 'सरकारी', ta: 'அரசு', kn: 'ಸರ್ಕಾರಿ', ml: 'സർക്കാർ' })}</span>
+              <span className="inline-flex items-center gap-2"><span className="h-4 w-4 rounded-full bg-slate-600" />{pick(currentLang, { en: 'Private', hi: 'निजी', ta: 'தனியார்', kn: 'ಖಾಸಗಿ', ml: 'സ്വകാര്യം' })}</span>
+              <span className="inline-flex items-center gap-2"><span className="h-4 w-4 rounded-full bg-blue-600" />{pick(currentLang, { en: 'You', hi: 'आप', ta: 'நீங்கள்', kn: 'ನೀವು', ml: 'നിങ്ങൾ' })}</span>
             </p>
             {selected && cardFor(selected)}
           </div>

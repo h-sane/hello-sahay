@@ -32,7 +32,7 @@ interface VoiceCallViewProps {
   onOpenEmergency: () => void;
 }
 
-const COPY: Record<'en' | 'hi' | 'ta', Record<string, string>> = {
+const COPY: Record<'en' | 'hi' | 'ta' | 'kn' | 'ml', Record<string, string>> = {
   en: {
     title: 'Call Sahay',
     lead: 'Speak to the free health helpline. Sahay cannot give medical advice.',
@@ -78,10 +78,40 @@ const COPY: Record<'en' | 'hi' | 'ta', Record<string, string>> = {
     sahay: 'சஹாய்',
     emergency: 'அவசரமா? 108 அழைக்கவும்',
   },
+  kn: {
+    title: 'ಸಹಾಯ್‌ಗೆ ಕರೆ ಮಾಡಿ',
+    lead: 'ಉಚಿತ ಆರೋಗ್ಯ ಸಹಾಯವಾಣಿಯೊಂದಿಗೆ ಮಾತನಾಡಿ. ಸಹಾಯ್ ವೈದ್ಯಕೀಯ ಸಲಹೆ ನೀಡುವುದಿಲ್ಲ.',
+    start: 'ಕರೆ ಪ್ರಾರಂಭಿಸಿ',
+    end: 'ಕರೆ ಮುಗಿಸಿ',
+    idle: 'ಸಂಪರ್ಕವಿಲ್ಲ',
+    connecting: 'ಸಂಪರ್ಕಿಸುತ್ತಿದೆ…',
+    live: 'ಸಂಪರ್ಕವಾಯಿತು. ಸಹಾಯ್ ಮೊದಲು ನಮಸ್ಕರಿಸುತ್ತದೆ, ನಂತರ ನೀವು ಮಾತನಾಡಿ.',
+    ended: 'ಕರೆ ಮುಗಿದಿದೆ',
+    mic: 'ಮೈಕ್ರೊಫೋನ್ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. ಬ್ರೌಸರ್‌ನ ವಿಳಾಸ ಪಟ್ಟಿಯಲ್ಲಿ ಅನುಮತಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
+    unreachable: 'ಧ್ವನಿ ಸೇವೆಯನ್ನು ತಲುಪಲಾಗಲಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ, ಅಥವಾ ತುರ್ತು ಸಂದರ್ಭದಲ್ಲಿ 108 ಕ್ಕೆ ಕರೆ ಮಾಡಿ.',
+    you: 'ನೀವು',
+    sahay: 'ಸಹಾಯ್',
+    emergency: 'ತುರ್ತು? 108 ಕ್ಕೆ ಕರೆ ಮಾಡಿ',
+  },
+  ml: {
+    title: 'സഹായ്‌യെ വിളിക്കുക',
+    lead: 'സൗജന്യ ആരോഗ്യ ഹെൽപ്‌ലൈനുമായി സംസാരിക്കുക. സഹായ് വൈദ്യോപദേശം നൽകില്ല.',
+    start: 'കോൾ തുടങ്ങുക',
+    end: 'കോൾ അവസാനിപ്പിക്കുക',
+    idle: 'ബന്ധപ്പെട്ടിട്ടില്ല',
+    connecting: 'ബന്ധപ്പെടുന്നു…',
+    live: 'ബന്ധപ്പെട്ടു. സഹായ് ആദ്യം അഭിവാദ്യം ചെയ്യും, പിന്നെ നിങ്ങൾ സംസാരിക്കുക.',
+    ended: 'കോൾ അവസാനിച്ചു',
+    mic: 'മൈക്രോഫോൺ തടഞ്ഞിരിക്കുന്നു. ബ്രൗസറിന്റെ വിലാസ ബാറിൽ അനുവദിച്ച ശേഷം വീണ്ടും ശ്രമിക്കുക.',
+    unreachable: 'വോയ്‌സ് സേവനത്തിൽ എത്താൻ കഴിഞ്ഞില്ല. വീണ്ടും ശ്രമിക്കുക, അല്ലെങ്കിൽ അടിയന്തര ഘട്ടത്തിൽ 108 ൽ വിളിക്കുക.',
+    you: 'നിങ്ങൾ',
+    sahay: 'സഹായ്',
+    emergency: 'അടിയന്തരമോ? 108 ൽ വിളിക്കുക',
+  },
 };
 
 export const VoiceCallView: React.FC<VoiceCallViewProps> = ({ currentLang, onClose, onOpenEmergency }) => {
-  const lang: 'en' | 'hi' | 'ta' = currentLang === 'hi' || currentLang === 'ta' ? currentLang : 'en';
+  const lang: 'en' | 'hi' | 'ta' | 'kn' | 'ml' = currentLang in COPY ? (currentLang as keyof typeof COPY) : 'en';
   const c = COPY[lang];
 
   const [state, setState] = useState<'idle' | 'connecting' | 'live' | 'ended'>('idle');
@@ -187,7 +217,7 @@ export const VoiceCallView: React.FC<VoiceCallViewProps> = ({ currentLang, onClo
   return (
     <Sheet
       title={c.title}
-      closeLabel={pick(currentLang, { en: 'Close', hi: 'बंद करें', ta: 'மூடு' })}
+      closeLabel={pick(currentLang, { en: 'Close', hi: 'बंद करें', ta: 'மூடு', kn: 'ಮುಚ್ಚಿ', ml: 'അടയ്ക്കുക' })}
       onClose={() => {
         cleanup(true);
         onClose();

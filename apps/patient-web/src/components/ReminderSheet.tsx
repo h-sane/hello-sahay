@@ -4,10 +4,10 @@ import { ReminderRow, patientApi } from '../services/patientApi';
 import { useAppData } from './AppData';
 import { BigButton, Field, Notice, Sheet, inputCls, pick } from './ui';
 
-const PRESETS: { time: string; en: string; hi: string; ta: string }[] = [
-  { time: '08:00', en: 'Morning · 8:00 AM', hi: 'सुबह · 8:00', ta: 'காலை · 8:00' },
-  { time: '14:00', en: 'Afternoon · 2:00 PM', hi: 'दोपहर · 2:00', ta: 'மதியம் · 2:00' },
-  { time: '20:00', en: 'Night · 8:00 PM', hi: 'रात · 8:00', ta: 'இரவு · 8:00' },
+const PRESETS: { time: string; en: string; hi: string; ta: string; kn: string; ml: string }[] = [
+  { time: '08:00', en: 'Morning · 8:00 AM', hi: 'सुबह · 8:00', ta: 'காலை · 8:00', kn: 'ಬೆಳಿಗ್ಗೆ · 8:00', ml: 'രാവിലെ · 8:00' },
+  { time: '14:00', en: 'Afternoon · 2:00 PM', hi: 'दोपहर · 2:00', ta: 'மதியம் · 2:00', kn: 'ಮಧ್ಯಾಹ್ನ · 2:00', ml: 'ഉച്ചയ്ക്ക് · 2:00' },
+  { time: '20:00', en: 'Night · 8:00 PM', hi: 'रात · 8:00', ta: 'இரவு · 8:00', kn: 'ರಾತ್ರಿ · 8:00', ml: 'രാത്രി · 8:00' },
 ];
 
 interface Props {
@@ -25,13 +25,13 @@ export const ReminderSheet: React.FC<Props> = ({ lang, editing, medicineName = '
   const [times, setTimes] = useState<string[]>(editing?.times ?? ['08:00']);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const L = (o: { en: string; hi: string; ta: string }) => pick(lang, o);
+  const L = (o: { en: string; hi: string; ta: string; kn: string; ml: string }) => pick(lang, o);
 
   const toggle = (t: string) => setTimes((cur) => (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t].sort()));
 
   const save = async () => {
     if (!name.trim() || times.length === 0) {
-      setError(L({ en: 'Write the medicine name and choose at least one time.', hi: 'दवा का नाम लिखें और कम से कम एक समय चुनें।', ta: 'மருந்தின் பெயரை எழுதி, குறைந்தது ஒரு நேரத்தைத் தேர்ந்தெடுக்கவும்.' }));
+      setError(L({ en: 'Write the medicine name and choose at least one time.', hi: 'दवा का नाम लिखें और कम से कम एक समय चुनें।', ta: 'மருந்தின் பெயரை எழுதி, குறைந்தது ஒரு நேரத்தைத் தேர்ந்தெடுக்கவும்.', kn: 'ಔಷಧದ ಹೆಸರು ಬರೆದು, ಕನಿಷ್ಠ ಒಂದು ಸಮಯ ಆರಿಸಿ.', ml: 'മരുന്നിന്റെ പേര് എഴുതി, ഒരു സമയമെങ്കിലും തിരഞ്ഞെടുക്കുക.' }));
       return;
     }
     setBusy(true);
@@ -50,16 +50,16 @@ export const ReminderSheet: React.FC<Props> = ({ lang, editing, medicineName = '
 
   return (
     <Sheet
-      title={editing ? L({ en: 'Change reminder', hi: 'रिमाइंडर बदलें', ta: 'நினைவூட்டலை மாற்று' }) : L({ en: 'Remind me', hi: 'मुझे याद दिलाएँ', ta: 'எனக்கு நினைவூட்டு' })}
-      closeLabel={L({ en: 'Close', hi: 'बंद करें', ta: 'மூடு' })}
+      title={editing ? L({ en: 'Change reminder', hi: 'रिमाइंडर बदलें', ta: 'நினைவூட்டலை மாற்று', kn: 'ಜ್ಞಾಪನೆ ಬದಲಿಸಿ', ml: 'ഓർമ്മപ്പെടുത്തൽ മാറ്റുക' }) : L({ en: 'Remind me', hi: 'मुझे याद दिलाएँ', ta: 'எனக்கு நினைவூட்டு', kn: 'ನನಗೆ ನೆನಪಿಸಿ', ml: 'എന്നെ ഓർമ്മിപ്പിക്കുക' })}
+      closeLabel={L({ en: 'Close', hi: 'बंद करें', ta: 'மூடு', kn: 'ಮುಚ್ಚಿ', ml: 'അടയ്ക്കുക' })}
       onClose={onClose}
     >
       <div className="space-y-5">
-        <Field label={L({ en: 'Medicine name', hi: 'दवा का नाम', ta: 'மருந்தின் பெயர்' })}>
+        <Field label={L({ en: 'Medicine name', hi: 'दवा का नाम', ta: 'மருந்தின் பெயர்', kn: 'ಔಷಧದ ಹೆಸರು', ml: 'മരുന്നിന്റെ പേര്' })}>
           <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} maxLength={200} />
         </Field>
         <div>
-          <p className="mb-2 text-lg font-bold text-slate-900">{L({ en: 'When do you take it?', hi: 'कब लेते हैं?', ta: 'எப்போது சாப்பிடுவீர்கள்?' })}</p>
+          <p className="mb-2 text-lg font-bold text-slate-900">{L({ en: 'When do you take it?', hi: 'कब लेते हैं?', ta: 'எப்போது சாப்பிடுவீர்கள்?', kn: 'ಯಾವಾಗ ತೆಗೆದುಕೊಳ್ಳುತ್ತೀರಿ?', ml: 'എപ്പോഴാണ് കഴിക്കുന്നത്?' })}</p>
           <div className="space-y-3">
             {PRESETS.map((p) => (
               <button
@@ -77,7 +77,7 @@ export const ReminderSheet: React.FC<Props> = ({ lang, editing, medicineName = '
           </div>
         </div>
         {error && <Notice tone="error">{error}</Notice>}
-        <BigButton onClick={save} busy={busy}>{L({ en: 'Save reminder', hi: 'रिमाइंडर सहेजें', ta: 'நினைவூட்டலைச் சேமி' })}</BigButton>
+        <BigButton onClick={save} busy={busy}>{L({ en: 'Save reminder', hi: 'रिमाइंडर सहेजें', ta: 'நினைவூட்டலைச் சேமி', kn: 'ಜ್ಞಾಪನೆ ಉಳಿಸಿ', ml: 'ഓർമ്മപ്പെടുത്തൽ സേവ് ചെയ്യുക' })}</BigButton>
       </div>
     </Sheet>
   );

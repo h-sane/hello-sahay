@@ -47,16 +47,16 @@ export const AlertBanner: React.FC<{ lang: Language }> = ({ lang }) => {
         <div className="mx-auto max-w-xl">
           <p className="flex items-center gap-3 text-xl font-extrabold text-amber-950">
             <Pill className="w-8 h-8 shrink-0" aria-hidden />
-            {pick(lang, { en: 'Time for your medicine', hi: 'दवा लेने का समय', ta: 'மருந்து சாப்பிடும் நேரம்' })}
+            {pick(lang, { en: 'Time for your medicine', hi: 'दवा लेने का समय', ta: 'மருந்து சாப்பிடும் நேரம்', kn: 'ಔಷಧ ತೆಗೆದುಕೊಳ್ಳುವ ಸಮಯ', ml: 'മരുന്ന് കഴിക്കാനുള്ള സമയം' })}
           </p>
           <p className="mt-1 text-xl text-amber-950">{due.r.medicine_name} · {label(due.t)}</p>
           <div className="mt-3 grid grid-cols-2 gap-3">
-            <BigButton onClick={took} busy={busy} small>{pick(lang, { en: 'I took it', hi: 'ले ली', ta: 'சாப்பிட்டேன்' })}</BigButton>
+            <BigButton onClick={took} busy={busy} small>{pick(lang, { en: 'I took it', hi: 'ले ली', ta: 'சாப்பிட்டேன்', kn: 'ತೆಗೆದುಕೊಂಡೆ', ml: 'കഴിച്ചു' })}</BigButton>
             <BigButton
               variant="secondary" small
               onClick={() => setSnoozed({ ...snoozed, [`${due.r.id}-${due.t}`]: Date.now() + SNOOZE_MIN * 60_000 })}
             >
-              {pick(lang, { en: 'Later', hi: 'बाद में', ta: 'பிறகு' })}
+              {pick(lang, { en: 'Later', hi: 'बाद में', ta: 'பிறகு', kn: 'ಆಮೇಲೆ', ml: 'പിന്നീട്' })}
             </BigButton>
           </div>
         </div>
@@ -75,7 +75,7 @@ export const AlertBanner: React.FC<{ lang: Language }> = ({ lang }) => {
           </p>
           {unread.body && <p className="mt-1 text-lg text-teal-950">{unread.body}</p>}
           <div className="mt-3">
-            <BigButton onClick={ok} small>{pick(lang, { en: 'OK', hi: 'ठीक है', ta: 'சரி' })}</BigButton>
+            <BigButton onClick={ok} small>{pick(lang, { en: 'OK', hi: 'ठीक है', ta: 'சரி', kn: 'ಸರಿ', ml: 'ശരി' })}</BigButton>
           </div>
         </div>
       </div>

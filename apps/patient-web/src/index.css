@@ -2,7 +2,7 @@
 
 @layer base {
   :root {
-    --font-sans: 'Plus Jakarta Sans', 'Noto Sans Tamil', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Plus Jakarta Sans', 'Noto Sans Tamil', 'Noto Sans Devanagari', 'Noto Sans Kannada', 'Noto Sans Malayalam', system-ui, -apple-system, sans-serif;
   }
   
   html {

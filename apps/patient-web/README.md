@@ -1,6 +1,6 @@
 # Sahay patient app (web)
 
-Mobile-first web app for patients, built from a teammate's AI Studio prototype and wired to the Hello Sahay API. Tamil, Hindi and English.
+Mobile-first web app for patients, built from a teammate's AI Studio prototype and wired to the Hello Sahay API. Tamil, Hindi, Kannada, Malayalam and English. Screen text is written inline as `pick(lang, { en, hi, ta, kn, ml })` (all five keys are required, so `npx tsc --noEmit` lists any missing translation).
 
 ## Run
 

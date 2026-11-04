@@ -15,27 +15,27 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab, c
   const tabs = [
     {
       id: 'home' as NavTab,
-      label: pick(currentLang, { en: 'Home', hi: 'होम', ta: 'முகப்பு' }),
+      label: pick(currentLang, { en: 'Home', hi: 'होम', ta: 'முகப்பு', kn: 'ಮುಖಪುಟ', ml: 'ഹോം' }),
       icon: Home,
     },
     {
       id: 'hospitals' as NavTab,
-      label: pick(currentLang, { en: 'Hospitals', hi: 'अस्पताल', ta: 'மருத்துவ​மனை' }),
+      label: pick(currentLang, { en: 'Hospitals', hi: 'अस्पताल', ta: 'மருத்துவ​மனை', kn: 'ಆಸ್ಪತ್ರೆ', ml: 'ആശുപത്രി' }),
       icon: Building2,
     },
     {
       id: 'ask-sahay' as NavTab,
-      label: pick(currentLang, { en: 'Ask', hi: 'पूछें', ta: 'கேளுங்கள்' }),
+      label: pick(currentLang, { en: 'Ask', hi: 'पूछें', ta: 'கேளுங்கள்', kn: 'ಕೇಳಿ', ml: 'ചോദിക്കൂ' }),
       icon: MessageSquareHeart,
     },
     {
       id: 'medicines' as NavTab,
-      label: pick(currentLang, { en: 'Medicine', hi: 'दवाएँ', ta: 'மருந்து' }),
+      label: pick(currentLang, { en: 'Medicine', hi: 'दवाएँ', ta: 'மருந்து', kn: 'ಔಷಧ', ml: 'മരുന്ന്' }),
       icon: Pill,
     },
     {
       id: 'my-health' as NavTab,
-      label: pick(currentLang, { en: 'My Health', hi: 'मेरा', ta: 'என் நலம்' }),
+      label: pick(currentLang, { en: 'My Health', hi: 'मेरा', ta: 'என் நலம்', kn: 'ನನ್ನ ಆರೋಗ್ಯ', ml: 'എന്റെ ആരോഗ്യം' }),
       icon: UserCheck,
     },
   ];

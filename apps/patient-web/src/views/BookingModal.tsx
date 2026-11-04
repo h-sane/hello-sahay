@@ -7,7 +7,7 @@ import { hospitalService } from '../services/hospitalService';
 import { storageService } from '../services/storageService';
 import { speechService } from '../services/speechService';
 import { useAppData } from '../components/AppData';
-import { BigButton, Field, Notice, Sheet, Spinner, inputCls, pick } from '../components/ui';
+import { BigButton, Field, Notice, Sheet, Spinner, departmentLabel, inputCls, pick } from '../components/ui';
 
 interface BookingModalProps {
   hospital: Hospital;
@@ -40,7 +40,7 @@ const Choice: React.FC<{ on: boolean; disabled?: boolean; onClick: () => void; c
 );
 
 export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLang, isOnline, onClose, onBookingComplete }) => {
-  const L = (o: { en: string; hi: string; ta: string }) => pick(currentLang, o);
+  const L = (o: { en: string; hi: string; ta: string; kn: string; ml: string }) => pick(currentLang, o);
   const settings = storageService.getSettings();
   const { family } = useAppData();
 
@@ -98,16 +98,16 @@ export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLan
 
   const confirm = async () => {
     setErrorMsg('');
-    if (!patientName.trim()) return setErrorMsg(L({ en: 'Write the patient name.', hi: 'मरीज़ का नाम लिखें।', ta: 'நோயாளியின் பெயரை எழுதுங்கள்.' }));
-    if (!patientPhone.trim()) return setErrorMsg(L({ en: 'Write a mobile number.', hi: 'मोबाइल नंबर लिखें।', ta: 'கைபேசி எண்ணை எழுதுங்கள்.' }));
-    if (selectedSlot === null) return setErrorMsg(L({ en: 'Choose a time.', hi: 'समय चुनें।', ta: 'நேரத்தைத் தேர்ந்தெடுங்கள்.' }));
+    if (!patientName.trim()) return setErrorMsg(L({ en: 'Write the patient name.', hi: 'मरीज़ का नाम लिखें।', ta: 'நோயாளியின் பெயரை எழுதுங்கள்.', kn: 'ರೋಗಿಯ ಹೆಸರನ್ನು ಬರೆಯಿರಿ.', ml: 'രോഗിയുടെ പേര് എഴുതുക.' }));
+    if (!patientPhone.trim()) return setErrorMsg(L({ en: 'Write a mobile number.', hi: 'मोबाइल नंबर लिखें।', ta: 'கைபேசி எண்ணை எழுதுங்கள்.', kn: 'ಮೊಬೈಲ್ ನಂಬರ್ ಬರೆಯಿರಿ.', ml: 'മൊബൈൽ നമ്പർ എഴുതുക.' }));
+    if (selectedSlot === null) return setErrorMsg(L({ en: 'Choose a time.', hi: 'समय चुनें।', ta: 'நேரத்தைத் தேர்ந்தெடுங்கள்.', kn: 'ಸಮಯವನ್ನು ಆಯ್ಕೆ ಮಾಡಿ.', ml: 'സമയം തിരഞ്ഞെടുക്കുക.' }));
     setBusy(true);
     try {
       const res = await api.book({
         patient: {
           name: patientName.trim(),
           phone: patientPhone.trim(),
-          language: ['ta', 'hi', 'en'].includes(currentLang) ? currentLang : undefined,
+          language: ['ta', 'hi', 'en', 'kn', 'ml'].includes(currentLang) ? currentLang : undefined,
         },
         slot_id: selectedSlot,
         hospital_name: hospital.isDemo ? undefined : hospital.name,
@@ -120,12 +120,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLan
       onBookingComplete(appointment);
     } catch (e: any) {
       if (e?.status === 409) {
-        setErrorMsg(L({ en: 'That time was just taken. Please choose another.', hi: 'वह समय अभी भर गया। दूसरा चुनें।', ta: 'அந்த நேரம் இப்போது நிரம்பிவிட்டது. வேறு நேரத்தைத் தேர்ந்தெடுங்கள்.' }));
+        setErrorMsg(L({ en: 'That time was just taken. Please choose another.', hi: 'वह समय अभी भर गया। दूसरा चुनें।', ta: 'அந்த நேரம் இப்போது நிரம்பிவிட்டது. வேறு நேரத்தைத் தேர்ந்தெடுங்கள்.', kn: 'ಆ ಸಮಯ ಈಗಷ್ಟೇ ತುಂಬಿದೆ. ಬೇರೆ ಸಮಯ ಆಯ್ಕೆ ಮಾಡಿ.', ml: 'ആ സമയം ഇപ്പോൾ നിറഞ്ഞു. മറ്റൊരു സമയം തിരഞ്ഞെടുക്കുക.' }));
         setSelectedSlot(null);
         setStep(3);
         loadSlots();
       } else if (e?.status === 422) {
-        setErrorMsg(L({ en: 'Write a valid 10 digit mobile number.', hi: '10 अंकों का सही मोबाइल नंबर लिखें।', ta: 'சரியான 10 இலக்க கைபேசி எண்ணை எழுதுங்கள்.' }));
+        setErrorMsg(L({ en: 'Write a valid 10 digit mobile number.', hi: '10 अंकों का सही मोबाइल नंबर लिखें।', ta: 'சரியான 10 இலக்க கைபேசி எண்ணை எழுதுங்கள்.', kn: 'ಸರಿಯಾದ 10 ಅಂಕಿಯ ಮೊಬೈಲ್ ನಂಬರ್ ಬರೆಯಿರಿ.', ml: 'ശരിയായ 10 അക്ക മൊബൈൽ നമ്പർ എഴുതുക.' }));
       } else {
         setErrorMsg(e?.message || 'Could not book. Please try again.');
       }
@@ -135,16 +135,16 @@ export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLan
   };
 
   const titles: Record<number, string> = {
-    1: L({ en: 'Which clinic?', hi: 'कौन सा विभाग?', ta: 'எந்தப் பிரிவு?' }),
-    2: L({ en: 'Which doctor?', hi: 'कौन सा डॉक्टर?', ta: 'எந்த மருத்துவர்?' }),
-    3: L({ en: 'Which day and time?', hi: 'कौन सा दिन और समय?', ta: 'எந்த நாள் மற்றும் நேரம்?' }),
-    4: L({ en: 'Who is the visit for?', hi: 'मुलाक़ात किसके लिए है?', ta: 'யாருக்கான வருகை?' }),
-    5: L({ en: 'Your visit is booked', hi: 'आपकी मुलाक़ात बुक हो गई', ta: 'உங்கள் வருகை பதிவாகிவிட்டது' }),
+    1: L({ en: 'Which clinic?', hi: 'कौन सा विभाग?', ta: 'எந்தப் பிரிவு?', kn: 'ಯಾವ ವಿಭಾಗ?', ml: 'ഏത് വിഭാഗം?' }),
+    2: L({ en: 'Which doctor?', hi: 'कौन सा डॉक्टर?', ta: 'எந்த மருத்துவர்?', kn: 'ಯಾವ ವೈದ್ಯರು?', ml: 'ഏത് ഡോക്ടർ?' }),
+    3: L({ en: 'Which day and time?', hi: 'कौन सा दिन और समय?', ta: 'எந்த நாள் மற்றும் நேரம்?', kn: 'ಯಾವ ದಿನ ಮತ್ತು ಸಮಯ?', ml: 'ഏത് ദിവസവും സമയവും?' }),
+    4: L({ en: 'Who is the visit for?', hi: 'मुलाक़ात किसके लिए है?', ta: 'யாருக்கான வருகை?', kn: 'ಯಾರಿಗಾಗಿ ಭೇಟಿ?', ml: 'ആർക്കുവേണ്ടിയാണ് സന്ദർശനം?' }),
+    5: L({ en: 'Your visit is booked', hi: 'आपकी मुलाक़ात बुक हो गई', ta: 'உங்கள் வருகை பதிவாகிவிட்டது', kn: 'ನಿಮ್ಮ ಭೇಟಿ ಬುಕ್ ಆಗಿದೆ', ml: 'നിങ്ങളുടെ സന്ദർശനം ബുക്ക് ചെയ്തു' }),
   };
-  const heading = step === 5 ? titles[5] : `${L({ en: 'Step', hi: 'चरण', ta: 'படி' })} ${step}/4 · ${titles[step]}`;
+  const heading = step === 5 ? titles[5] : `${L({ en: 'Step', hi: 'चरण', ta: 'படி', kn: 'ಹಂತ', ml: 'ഘട്ടം' })} ${step}/4 · ${titles[step]}`;
   const canContinue = step === 3 ? selectedSlot !== null : true;
   const hospitalName = hospital.nativeNames[currentLang] || hospital.name;
-  const closeLabel = L({ en: 'Close', hi: 'बंद करें', ta: 'மூடு' });
+  const closeLabel = L({ en: 'Close', hi: 'बंद करें', ta: 'மூடு', kn: 'ಮುಚ್ಚಿ', ml: 'അടയ്ക്കുക' });
 
   if (!bookable || !isOnline) {
     return (
@@ -152,11 +152,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLan
         <div className="space-y-4">
           <Notice tone="warn">
             {!isOnline
-              ? L({ en: 'You are offline. Connect to the internet to book.', hi: 'आप ऑफ़लाइन हैं। बुक करने के लिए इंटरनेट जोड़ें।', ta: 'நீங்கள் இணையம் இல்லாமல் உள்ளீர்கள். பதிவு செய்ய இணையத்தை இணைக்கவும்.' })
-              : L({ en: 'Booking is not available here yet. Please call or visit.', hi: 'यहाँ अभी बुकिंग उपलब्ध नहीं है। कृपया कॉल करें या जाएँ।', ta: 'இங்கே இன்னும் பதிவு இல்லை. அழைக்கவும் அல்லது நேரில் செல்லவும்.' })}
+              ? L({ en: 'You are offline. Connect to the internet to book.', hi: 'आप ऑफ़लाइन हैं। बुक करने के लिए इंटरनेट जोड़ें।', ta: 'நீங்கள் இணையம் இல்லாமல் உள்ளீர்கள். பதிவு செய்ய இணையத்தை இணைக்கவும்.', kn: 'ನೀವು ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ಇದ್ದೀರಿ. ಬುಕ್ ಮಾಡಲು ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕಿಸಿ.', ml: 'നിങ്ങൾ ഓഫ്‌ലൈനിലാണ്. ബുക്ക് ചെയ്യാൻ ഇന്റർനെറ്റ് ബന്ധിപ്പിക്കുക.' })
+              : L({ en: 'Booking is not available here yet. Please call or visit.', hi: 'यहाँ अभी बुकिंग उपलब्ध नहीं है। कृपया कॉल करें या जाएँ।', ta: 'இங்கே இன்னும் பதிவு இல்லை. அழைக்கவும் அல்லது நேரில் செல்லவும்.', kn: 'ಇಲ್ಲಿ ಇನ್ನೂ ಬುಕಿಂಗ್ ಇಲ್ಲ. ದಯವಿಟ್ಟು ಕರೆ ಮಾಡಿ ಅಥವಾ ನೇರವಾಗಿ ಹೋಗಿ.', ml: 'ഇവിടെ ഇതുവരെ ബുക്കിംഗ് ഇല്ല. ദയവായി വിളിക്കുക അല്ലെങ്കിൽ നേരിട്ട് പോകുക.' })}
           </Notice>
           {hospital.contactPhone && (
-            <BigButton href={`tel:${hospital.contactPhone}`} icon={<Phone className="w-7 h-7" />}>{L({ en: 'Call', hi: 'कॉल', ta: 'அழை' })}</BigButton>
+            <BigButton href={`tel:${hospital.contactPhone}`} icon={<Phone className="w-7 h-7" />}>{L({ en: 'Call', hi: 'कॉल', ta: 'அழை', kn: 'ಕರೆ', ml: 'വിളിക്കുക' })}</BigButton>
           )}
         </div>
       </Sheet>
@@ -170,15 +170,15 @@ export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLan
       {loadError && (
         <div className="mb-4 space-y-3">
           <Notice tone="error">{loadError}</Notice>
-          <BigButton variant="secondary" small onClick={loadSlots}>{L({ en: 'Try again', hi: 'फिर कोशिश करें', ta: 'மீண்டும் முயற்சி' })}</BigButton>
+          <BigButton variant="secondary" small onClick={loadSlots}>{L({ en: 'Try again', hi: 'फिर कोशिश करें', ta: 'மீண்டும் முயற்சி', kn: 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ', ml: 'വീണ്ടും ശ്രമിക്കുക' })}</BigButton>
         </div>
       )}
-      {!loadError && slotsByDay === null && step < 5 && <Spinner label={L({ en: 'Loading free times…', hi: 'खाली समय देख रहे हैं…', ta: 'காலி நேரங்களைப் பார்க்கிறோம்…' })} />}
+      {!loadError && slotsByDay === null && step < 5 && <Spinner label={L({ en: 'Loading free times…', hi: 'खाली समय देख रहे हैं…', ta: 'காலி நேரங்களைப் பார்க்கிறோம்…', kn: 'ಖಾಲಿ ಸಮಯಗಳನ್ನು ನೋಡುತ್ತಿದ್ದೇವೆ…', ml: 'ഒഴിവുള്ള സമയങ്ങൾ നോക്കുന്നു…' })} />}
 
       {slotsByDay !== null && step === 1 && (
         <div className="space-y-3">
           {departments.map((d) => (
-            <Choice key={d} on={selectedDept === d} onClick={() => { setSelectedDept(d); setSelectedDoctor(ANY_DOCTOR); setSelectedSlot(null); }}>{d}</Choice>
+            <Choice key={d} on={selectedDept === d} onClick={() => { setSelectedDept(d); setSelectedDoctor(ANY_DOCTOR); setSelectedSlot(null); }}>{departmentLabel(currentLang, d)}</Choice>
           ))}
         </div>
       )}
@@ -186,7 +186,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLan
       {slotsByDay !== null && step === 2 && (
         <div className="space-y-3">
           <Choice on={selectedDoctor === ANY_DOCTOR} onClick={() => { setSelectedDoctor(ANY_DOCTOR); setSelectedSlot(null); }}>
-            {L({ en: 'Any doctor', hi: 'कोई भी डॉक्टर', ta: 'எந்த மருத்துவரும்' })}
+            {L({ en: 'Any doctor', hi: 'कोई भी डॉक्टर', ta: 'எந்த மருத்துவரும்', kn: 'ಯಾವ ವೈದ್ಯರಾದರೂ ಸರಿ', ml: 'ഏത് ഡോക്ടറും മതി' })}
           </Choice>
           {doctors.map((d) => (
             <Choice key={d.id} on={selectedDoctor === d.id} onClick={() => { setSelectedDoctor(d.id); setSelectedSlot(null); }}>{d.name}</Choice>
@@ -209,13 +209,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLan
                   }`}
                 >
                   <span className="block">{dayLabel(day)}</span>
-                  <span className="block text-base font-semibold">{n === 0 ? L({ en: 'Full', hi: 'भरा', ta: 'நிரம்பியது' }) : L({ en: `${n} free`, hi: `${n} खाली`, ta: `${n} காலி` })}</span>
+                  <span className="block text-base font-semibold">{n === 0 ? L({ en: 'Full', hi: 'भरा', ta: 'நிரம்பியது', kn: 'ತುಂಬಿದೆ', ml: 'നിറഞ്ഞു' }) : L({ en: `${n} free`, hi: `${n} खाली`, ta: `${n} காலி`, kn: `${n} ಖಾಲಿ`, ml: `${n} ഒഴിവ്` })}</span>
                 </button>
               );
             })}
           </div>
           {shownSlots.length === 0 ? (
-            <Notice tone="info">{L({ en: 'No free times on this day. Try another day or doctor.', hi: 'इस दिन कोई खाली समय नहीं। दूसरा दिन या डॉक्टर चुनें।', ta: 'இந்த நாளில் காலி நேரம் இல்லை. வேறு நாள் அல்லது மருத்துவரைத் தேர்ந்தெடுங்கள்.' })}</Notice>
+            <Notice tone="info">{L({ en: 'No free times on this day. Try another day or doctor.', hi: 'इस दिन कोई खाली समय नहीं। दूसरा दिन या डॉक्टर चुनें।', ta: 'இந்த நாளில் காலி நேரம் இல்லை. வேறு நாள் அல்லது மருத்துவரைத் தேர்ந்தெடுங்கள்.', kn: 'ಈ ದಿನ ಖಾಲಿ ಸಮಯ ಇಲ್ಲ. ಬೇರೆ ದಿನ ಅಥವಾ ವೈದ್ಯರನ್ನು ಆಯ್ಕೆ ಮಾಡಿ.', ml: 'ഈ ദിവസം ഒഴിവുള്ള സമയമില്ല. മറ്റൊരു ദിവസമോ ഡോക്ടറെയോ തിരഞ്ഞെടുക്കുക.' })}</Notice>
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {shownSlots.map((s) => (
@@ -240,18 +240,18 @@ export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLan
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3">
             <Choice on={patientName === (settings.userName || '')} onClick={() => setPatientName(settings.userName || '')}>
-              {L({ en: 'Myself', hi: 'मेरे लिए', ta: 'எனக்கு' })}
+              {L({ en: 'Myself', hi: 'मेरे लिए', ta: 'எனக்கு', kn: 'ನನಗಾಗಿ', ml: 'എനിക്ക്' })}
             </Choice>
             {family.map((f) => (
               <Choice key={f.id} on={patientName === f.name} onClick={() => setPatientName(f.name)}>{f.name}</Choice>
             ))}
           </div>
-          <Field label={L({ en: 'Patient name', hi: 'मरीज़ का नाम', ta: 'நோயாளியின் பெயர்' })}>
+          <Field label={L({ en: 'Patient name', hi: 'मरीज़ का नाम', ta: 'நோயாளியின் பெயர்', kn: 'ರೋಗಿಯ ಹೆಸರು', ml: 'രോഗിയുടെ പേര്' })}>
             <input className={inputCls} value={patientName} onChange={(e) => setPatientName(e.target.value)} maxLength={200} />
           </Field>
           <Field
-            label={L({ en: 'Mobile number', hi: 'मोबाइल नंबर', ta: 'கைபேசி எண்' })}
-            hint={L({ en: 'Used only for this booking.', hi: 'केवल इस बुकिंग के लिए।', ta: 'இந்தப் பதிவிற்கு மட்டும்.' })}
+            label={L({ en: 'Mobile number', hi: 'मोबाइल नंबर', ta: 'கைபேசி எண்', kn: 'ಮೊಬೈಲ್ ನಂಬರ್', ml: 'മൊബൈൽ നമ്പർ' })}
+            hint={L({ en: 'Used only for this booking.', hi: 'केवल इस बुकिंग के लिए।', ta: 'இந்தப் பதிவிற்கு மட்டும்.', kn: 'ಈ ಬುಕಿಂಗ್‌ಗೆ ಮಾತ್ರ.', ml: 'ഈ ബുക്കിംഗിന് മാത്രം.' })}
           >
             <input className={inputCls} value={patientPhone} onChange={(e) => setPatientPhone(e.target.value)} inputMode="numeric" maxLength={15} />
           </Field>
@@ -261,15 +261,15 @@ export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLan
       {step === 5 && created && (
         <div className="space-y-4">
           <Notice tone="success">
-            {L({ en: 'Show this at the hospital counter.', hi: 'अस्पताल के काउंटर पर यह दिखाएँ।', ta: 'மருத்துவமனை கவுண்டரில் இதைக் காட்டுங்கள்.' })}
+            {L({ en: 'Show this at the hospital counter.', hi: 'अस्पताल के काउंटर पर यह दिखाएँ।', ta: 'மருத்துவமனை கவுண்டரில் இதைக் காட்டுங்கள்.', kn: 'ಆಸ್ಪತ್ರೆಯ ಕೌಂಟರ್‌ನಲ್ಲಿ ಇದನ್ನು ತೋರಿಸಿ.', ml: 'ആശുപത്രി കൗണ്ടറിൽ ഇത് കാണിക്കുക.' })}
           </Notice>
           <div className="rounded-3xl border-2 border-slate-300 p-5">
             <p className="text-2xl font-extrabold text-slate-900">{created.hospitalName}</p>
-            <p className="mt-1 text-xl text-slate-800">{created.department}{created.doctorName ? ` · ${created.doctorName}` : ''}</p>
+            <p className="mt-1 text-xl text-slate-800">{departmentLabel(currentLang, created.department)}{created.doctorName ? ` · ${created.doctorName}` : ''}</p>
             <p className="mt-3 text-2xl font-extrabold text-teal-900">{dayLabel(created.date)} · {created.timeSlot}</p>
-            <p className="mt-3 text-lg text-slate-700">{L({ en: 'Booking number', hi: 'बुकिंग नंबर', ta: 'பதிவு எண்' })}: <strong>{created.referenceCode}</strong></p>
+            <p className="mt-3 text-lg text-slate-700">{L({ en: 'Booking number', hi: 'बुकिंग नंबर', ta: 'பதிவு எண்', kn: 'ಬುಕಿಂಗ್ ನಂಬರ್', ml: 'ബുക്കിംഗ് നമ്പർ' })}: <strong>{created.referenceCode}</strong></p>
           </div>
-          <BigButton onClick={onClose} icon={<CheckCircle2 className="w-7 h-7" />}>{L({ en: 'Done', hi: 'ठीक है', ta: 'சரி' })}</BigButton>
+          <BigButton onClick={onClose} icon={<CheckCircle2 className="w-7 h-7" />}>{L({ en: 'Done', hi: 'ठीक है', ta: 'சரி', kn: 'ಸರಿ', ml: 'ശരി' })}</BigButton>
         </div>
       )}
 
@@ -278,12 +278,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ hospital, currentLan
       {step < 5 && (
         <div className="sticky bottom-0 mt-6 grid grid-cols-2 gap-3 bg-white pb-1 pt-3">
           {step > 1 ? (
-            <BigButton variant="secondary" onClick={() => setStep((step - 1) as 1 | 2 | 3 | 4)}>{L({ en: 'Back', hi: 'वापस', ta: 'பின்னே' })}</BigButton>
+            <BigButton variant="secondary" onClick={() => setStep((step - 1) as 1 | 2 | 3 | 4)}>{L({ en: 'Back', hi: 'वापस', ta: 'பின்னே', kn: 'ಹಿಂದೆ', ml: 'തിരികെ' })}</BigButton>
           ) : <span />}
           {step < 4 ? (
-            <BigButton disabled={!canContinue || slotsByDay === null} onClick={() => setStep((step + 1) as 2 | 3 | 4)}>{L({ en: 'Next', hi: 'आगे', ta: 'அடுத்து' })}</BigButton>
+            <BigButton disabled={!canContinue || slotsByDay === null} onClick={() => setStep((step + 1) as 2 | 3 | 4)}>{L({ en: 'Next', hi: 'आगे', ta: 'அடுத்து', kn: 'ಮುಂದೆ', ml: 'അടുത്തത്' })}</BigButton>
           ) : (
-            <BigButton busy={busy} onClick={confirm}>{L({ en: 'Book', hi: 'बुक करें', ta: 'பதிவு செய்' })}</BigButton>
+            <BigButton busy={busy} onClick={confirm}>{L({ en: 'Book', hi: 'बुक करें', ta: 'பதிவு செய்', kn: 'ಬುಕ್ ಮಾಡಿ', ml: 'ബുക്ക് ചെയ്യുക' })}</BigButton>
           )}
         </div>
       )}

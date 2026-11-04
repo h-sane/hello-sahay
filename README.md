@@ -2,7 +2,7 @@
 
 **One free number. Any language. Any hospital.**
 
-Hello Sahay is a free AI voice helpline for rural patients in Tamil, Hindi and
+Hello Sahay is a free AI voice helpline for rural patients in Tamil, Hindi, Kannada, Malayalam and
 English. It finds nearby government and private hospitals, checks which ones
 accept PM-JAY / CMCHIS scheme cards and books the appointment on the call
 (WhatsApp confirmation is next). Hospitals manage bookings on the **Sahay Desk** dashboard.

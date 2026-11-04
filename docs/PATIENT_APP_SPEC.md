@@ -9,7 +9,7 @@ Everything the patient app needs, in one list. Architecture and API: [`ARCHITECT
 - Their **children in cities**, who pay for the Care plan and watch over their parents' medicines.
 
 ## 2. Design rules (non-negotiable)
-- **Languages:** Tamil, Hindi, English at launch; every string in translation files (`apps/patient-web/src/translations`), none hard-coded. Language picked on first launch, changeable from every screen's header.
+- **Languages:** Tamil, Hindi, Kannada, Malayalam, English; every screen string carries all five (`pick(lang, { en, hi, ta, kn, ml })`). Language picked on first launch, changeable from every screen's header.
 - **Voice everywhere:** a microphone button on every input and a speaker button on every answer (read aloud).
 - **Big and simple:** body text ≥ 18sp, buttons ≥ 56dp tall, high contrast, icons with text labels, at most 4 options per screen, no hidden gestures.
 - **Works on poor networks:** loading states on everything, retry on failure, last results cached for offline viewing.
