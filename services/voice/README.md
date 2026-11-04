@@ -45,28 +45,60 @@ Twilio: Console → Home → Make a voice call → Receive a call → Custom. Ex
 `AWS_PROFILE=personal-bedrock python -m uvicorn pipeline.server:app --app-dir services/voice --port 8002`, open http://localhost:8002 (needs the API on :8001). Language: English/Hindi (Transcribe + Polly), Tamil (Sarvam, needs `SARVAM_API_KEY` in `.env`). Also the `/call` demo page.
 
 
-## Call flow (2026-10-15)
+## Call flow (rewritten 2026-11-04, severity routing)
 
-1. Greeting is short: with `lang=auto` (the default on the phone) one line per language, then "speak after the beep", then a beep.
-   The beep is generated in `session._beep`, so it works on every carrier. The mic stays muted until the beep has played.
-2. The caller's number comes from the carrier (Exotel `start.from`, Twilio `<Parameter name="from">`); the browser page has an
-   optional number field. It is never asked for when known. `GET /patients/{phone}` tells the call whether the caller is
-   registered in the Sahay app and where they are; a live location is confirmed once out loud, otherwise the village is asked.
-3. `find_facilities` names the **real** nearest hospital (OpenStreetMap via `GET /places/nearby-hospitals`, nearest first) as
-   `recommended`, plus the nearest government one as `free_government_option` when it is a different hospital. Every
-   hospital returned is bookable; a hospital the caller names through `hospital_name` is accepted as said even if it is not
-   on the list. If the lookup is down the demo hospital is named under its own name.
-4. `get_slots` honours `doctor_name` and `preferred_time`: `exact`, `next_for_doctor`, `any` or `none`. A doctor the
-   caller names who is not at the demo hospital is **never refused**: the doctor who is free in the closest slot is offered
-   and booked, and the confirmation names that doctor.
-5. `book_appointment` uses the call's number. **Demo wiring:** the doctors, slots and booking are always the one demo
-   hospital's (Sunrise Nursing Home, see `data/seed/README.md`); the caller is told the real hospital's name, which is saved
-   on the appointment as `hospital_label`. The booking shows in the patient app (`/patients/{phone}/appointments`), in the
-   demo hospital's Sahay Desk and in the assigned doctor's own login (for example `harini@sunrise.demo`, password
-   `demo1234`). Every call log lands on the same Desk, with "hospital: <name told>" in its summary.
-6. After a booking, a short thanks or goodbye from the caller (`session._CLOSING`, six words or fewer) is answered with a fixed
-   goodbye (`prompts.GOODBYE`) and the call hangs up, with no model round trip. Choosing another slot after booking
-   reschedules that appointment (`PATCH /appointments/{id}`) instead of creating a second one.
+1. **Welcome and language.** On the phone (`lang=auto`) the caller hears "Hello, welcome to Hello Sahay. For English, say
+   English." and one line per other language, then "After the beep, tell us in your own language what is troubling you"
+   and a beep. The beep is generated in `session._beep`; the mic stays muted until it has played. A patient normally just
+   describes the problem, so the first sentence gives **both** the language and the reason: the language's name in any
+   script (`pipeline/languages.py`) or, failing that, the language the speech-to-text detected.
+2. **Disclaimer in their language.** `prompts.DISCLAIMER[lang]`: the call is transcribed, no medical advice, call 108 in an
+   emergency. When the first sentence already told the problem, the disclaimer is followed straight by the model's answer
+   (the problem is never asked again); only a caller who just named a language also hears "What is troubling you?"
+   (`prompts.AFTER_LANGUAGE`). A call with a fixed language (browser page, `lang=hi`) gets the same text in
+   `prompts.GREETING`. The emergency check runs before this step, so "chest pain" is never held up by it.
+2b. **Existing appointment.** On connect the number is looked up (`GET /patients/{phone}/appointments`). If it has an
+   upcoming booked appointment, the model says it once right after the disclaimer and asks "details, or something new?"
+   (`prompts.caller_block`, step 0). Changing or cancelling goes to a person (`handoff_to_human`).
+3. **Reason, then severity.** The model reads the caller's own words (slang and regional words included) and sets
+   `severity` to mild, moderate or serious on `find_facilities`. This is not a diagnosis; it only decides what is offered
+   first, and the tag is saved on the call (`call.severity`) where Sahay Desk and the admin console can correct it. If it
+   cannot tell it asks once "mild, medium or very serious?". The tool arguments are written in English (reason) and
+   English letters (area) whatever language the call is in.
+4. **Location.** The app's live location when the number is registered (confirmed once out loud), otherwise a **specific**
+   area: a locality, village or landmark. A whole city ("Chennai") is refused and the caller is asked for the area. The area
+   is looked up in the local table (`villages.csv`: demo district plus about 30 Chennai areas, fuzzy matched) and otherwise
+   on OpenStreetMap through `GET /places/geocode`, which also refuses cities and districts.
+5. **What is offered** (`tools.t_find_facilities`):
+   - mild: up to three **partner clinics** under 3 km (`GET /facilities?kind=clinic&partner_only=true&max_km=3&use_demo_distance=true`), bookable.
+     **Prototype wiring:** every seeded clinic has a fixed distance from any caller (`facility.demo_distance_km`, set in
+     `data/seed/facilities.csv`): three are under 3 km (0.8, 1.6 and 2.4) and the other twelve are 3.6 to 15 km away, so the
+     same three are offered wherever the call comes from (Tambaram, George Town, anywhere) and no street address is spoken.
+     Clear the column to use the clinics' real coordinates again.
+     The agent then asks "book one of these, or hear about hospitals too?"; hospitals come on request (`show=hospitals`).
+     No partner clinic nearby: it says so and offers hospitals.
+   - moderate: the real hospitals within 3 km (OpenStreetMap, up to three; when none is that close, the two nearest with a
+     note), government (free) and private, nearest first, then "book
+     one, or hear about the nearest free government hospitals?" (`show=free_government`). Clinics on request.
+   - serious: "call 108 now or go to <nearest hospital>, <distance>, <address>; a person will call back", then the call
+     ends. Nothing is bookable. The deterministic emergency gate (word lists, six languages) says the fixed 108 line first
+     and then takes the same path, naming the hospital from the live location or after asking for the area (the call
+     ends after the hospital is named or after three turns).
+6. **Government hospitals are information only.** `can_book` is false and they carry no id, so no slot or appointment can
+   be made; the agent gives the name, distance and address and says to walk in. Clinics and private hospitals are bookable.
+7. `get_slots` honours `doctor_name` and `preferred_time`: `exact`, `next_for_doctor`, `any` or `none`. A doctor the caller
+   names who is not there is **never refused**: the doctor free in the closest slot is offered and booked.
+8. `book_appointment` uses the call's number and refuses a placeholder name ("Anonymous"): the agent must ask. **Partner
+   clinics** (15 seeded, `data/seed/`) are real Desk facilities with their own doctors, slots and hospital-admin login
+   (`desk<id>@sahay.demo`, password `demo1234`); the booking lands on that clinic's Desk and the confirmation names it.
+   **Demo wiring for private hospitals:** a real private hospital's name is told to the caller, but its doctors, slots and
+   booking are the one demo hospital's (Sunrise Nursing Home); the real name is saved as `hospital_label`.
+9. After a booking, a short thanks (`session._CLOSING`) is answered with a fixed goodbye and the call hangs up, with no model
+   round trip. Choosing another slot reschedules (`PATCH /appointments/{id}`) instead of creating a second booking.
+
+Verified 2026-11-04: offline pytest (76 tests) and scripted calls with the real Nova model and a stubbed API in English
+(mild, moderate, serious, government pick) and Tamil (mild). Not verified: a real phone call, the live OpenStreetMap
+geocode, the seeded clinics against the real database, the Desk and admin severity control in a browser.
 
 ## Call logging and monitoring (2026-10-15)
 
@@ -114,3 +146,26 @@ local API, then read the call with `call_trace.py latest --base <that API>`.
   carrier.
 - A turn slower than 3 s says "one moment please". Polly, Bedrock and Sarvam requests that stall start a second attempt
   (`hedge.py`); boto3 requests time out in 15 s.
+
+
+## Dynamic behaviour (2026-11-05, from real call 165)
+
+- **Rules the caller gives stick.** `get_slots` takes `date` and `avoid_dates` (the model gets today's date and the next
+  seven days with their dates in the caller block); avoided days are remembered in `state["avoid_dates"]` even if the model
+  forgets them. It offers up to three slots spread over different days and returns `days_with_slots`, so "no slot on
+  Friday" is only said when the tool says so. If a place has nothing that suits and the caller said any clinic is fine, the
+  model moves to the next listed clinic.
+- **No repeated lists.** The second identical `find_facilities` result carries `already_listed` and tells the model not to
+  read it again (the ids stay in the result so it can still book).
+- **Short, natural speech.** Addresses are cut to three meaningful parts (`tools.short_address`: no pincode, district,
+  state or country) and only given on request; distances come as `distance_text` ("800 metres", "2.4 km"); Hindi
+  "आपके पास तीन ..." and "आपके पास में तीन ..." (you own three) are rewritten to "आपके नज़दीक" in `session._think`.
+- **Part of the day.** `get_slots` takes `time_of_day` (morning, afternoon, evening) and searches every day for it, so
+  "any evening slot, any day" works; `preferred_time` stays for an exact clock time. The disclaimer, when the caller's first
+  sentence already told the problem, is introduced by `prompts.DISCLAIMER_INTRO` ("Before I answer, I have one important
+  notice") so it is not mistaken for the answer.
+- **Demo schedule** (`services/api/app/slots.py`): each partner doctor has one weekly day off and about a third of the
+  remaining slots are already taken (`blocked`), a fixed function of doctor and time. Mornings 09:00-13:00 and evenings
+  16:00-18:00 both exist.
+- Replay a conversation against the real Nova model with a stubbed API by copying the pattern in `test_pipeline.py`
+  (`make_session`) and calling `session._turn(text)` per caller sentence.

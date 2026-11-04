@@ -55,6 +55,7 @@ def main():
                     departments=r["departments"].split("|"),
                     pmjay=r["pmjay"] == "true", cmchis=r["cmchis"] == "true",
                     is_partner=r["is_partner"] == "true", plan=r["plan"] or None,
+                    demo_distance_km=float(r["demo_distance_km"]) if r.get("demo_distance_km") else None,
                 ),
             )
 
@@ -69,7 +70,11 @@ def main():
 
         partners = [f for f in facilities.values() if f.is_partner]
         session.flush()
-        for f in facilities.values():  # a hospital that stopped being a partner no longer takes bookings
+        # a clinic that left the seed (renamed) stops being a partner, so only the seeded clinics are offered
+        retired = list(session.scalars(select(Facility).where(Facility.type == "clinic", Facility.name.not_in(list(facilities)))))
+        for f in retired:
+            f.is_partner = False
+        for f in [*facilities.values(), *retired]:  # a hospital that stopped being a partner no longer takes bookings
             if not f.is_partner:
                 session.execute(delete(Slot).where(Slot.status == "open", Slot.id.not_in(select(Appointment.slot_id)), Slot.doctor_id.in_(
                     select(Doctor.id).where(Doctor.facility_id == f.id))))

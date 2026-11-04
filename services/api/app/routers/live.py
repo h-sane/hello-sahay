@@ -15,9 +15,11 @@ _rooms: dict[int, dict[WebSocket, int | None]] = defaultdict(dict)
 
 
 def _wanted(message: dict, doctor_id: int | None) -> bool:
-    """A doctor's socket only hears about that doctor's own appointments, never calls or other doctors."""
+    """A doctor's socket only hears about that doctor's own appointments and walk-ins, never calls or other doctors."""
     if doctor_id is None:
         return True
+    if message.get("type") == "walk_in":
+        return message["walk_in"]["doctor_id"] == doctor_id
     return message.get("type") == "appointment" and message["appointment"]["doctor"]["id"] == doctor_id
 
 

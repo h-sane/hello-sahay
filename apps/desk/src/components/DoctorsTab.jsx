@@ -1,4 +1,5 @@
-import { Clock, Users, Power } from "lucide-react";
+import { Clock, Users, Power, CalendarClock, Languages } from "lucide-react";
+import { scheduleSummary } from "../mappers";
 
 // A doctor is "available" when on duty with open slots; off duty takes no new bookings from the helpline or app.
 function state(doc) {
@@ -12,7 +13,7 @@ const PILL = {
   off: ["Off Duty", "bg-rose-50 text-rose-800 border-rose-200", "bg-rose-500"],
 };
 
-export default function DoctorsTab({ doctors, onToggleDuty }) {
+export default function DoctorsTab({ doctors, onToggleDuty, onEditSchedule, canEdit }) {
   const count = (k) => doctors.filter((d) => state(d) === k).length;
 
   return (
@@ -22,7 +23,7 @@ export default function DoctorsTab({ doctors, onToggleDuty }) {
         <div>
           <h2 className="text-2xl font-black text-slate-900">Doctors & Open Slots</h2>
           <p className="text-base text-slate-600 mt-1">
-            Every doctor at this hospital for the selected day. Switch a doctor off duty and the helpline and patient app stop booking them.
+            Every doctor at this hospital for the selected day. Switch a doctor off duty and the helpline and patient app stop booking them. Set a timetable to keep break time for walk-ins.
           </p>
         </div>
 
@@ -109,6 +110,19 @@ export default function DoctorsTab({ doctors, onToggleDuty }) {
                     <Clock className="w-5 h-5 text-slate-400 shrink-0" />
                     <span className="font-medium">{doc.timings}</span>
                   </div>
+                  <div className="flex items-start gap-3 text-slate-700">
+                    <CalendarClock className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                    <span className="flex-1">
+                      {scheduleSummary(doc.schedule)}
+                      {!doc.scheduleCustom && <span className="block text-sm text-slate-500">Standard demo timetable, not set by this hospital yet</span>}
+                    </span>
+                  </div>
+                  {doc.languages.length > 0 && (
+                    <div className="flex items-center gap-3 text-slate-700">
+                      <Languages className="w-5 h-5 text-slate-400 shrink-0" />
+                      <span>{doc.languages.join(", ")}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-3 text-slate-700">
                     <Users className="w-5 h-5 text-slate-400 shrink-0" />
                     <span>
@@ -121,6 +135,15 @@ export default function DoctorsTab({ doctors, onToggleDuty }) {
               </div>
 
               <div className="mt-5 pt-4 border-t border-slate-100">
+                {canEdit && (
+                  <button
+                    onClick={() => onEditSchedule(doc)}
+                    className="w-full mb-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-base font-bold text-blue-700 border-2 border-blue-200 hover:bg-blue-50 transition-colors"
+                  >
+                    <CalendarClock className="w-5 h-5" />
+                    Set timetable
+                  </button>
+                )}
                 <div className="flex justify-between text-sm font-bold text-slate-500 mb-1.5">
                   <span>Capacity</span>
                   <span>{Math.round(filled * 100)}% Filled</span>

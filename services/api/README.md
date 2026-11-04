@@ -35,13 +35,14 @@ Send the token as `Authorization: Bearer <token>`.
 | Endpoint | Rule |
 |---|---|
 | `GET /appointments?date` (`history=true` for earlier days) | Any hospital login, own facility only; a doctor login sees only their own patients. Admin may pass `facility_id` |
-| `PATCH /appointments/{id}` with `arrived`, `no_show` | Front desk (hospital admin, receptionist, nurse) of that facility; arrival triggers the per-patient fee, except counter walk-ins |
-| `PATCH /appointments/{id}` with `complete` | Front desk, or the appointment's own doctor; only after `arrived` |
-| `POST /appointments/walk-in` | Front desk: takes the doctor's free slot within 20 minutes or an extra slot now, marked arrived, source `desk` |
+| `PATCH /appointments/{id}` with `arrived`, `no_show` | Front desk (hospital admin, receptionist, nurse) of that facility; arrival triggers the per-patient fee, except appointments entered at the desk (source `desk`) |
+| `PATCH /appointments/{id}` with `start` (patient goes in, status `in_consult`) or `complete` | Front desk, or the appointment's own doctor; `start` only after `arrived`, `complete` after `arrived` or `start` |
+| `POST /walk-ins`, `GET /walk-ins?date`, `PATCH /walk-ins/{id}` (`start`, `done`, `left`) | Walk-in queue, no slot used, numbered W1, W2... per hospital per day. Front desk adds and marks `left`; a doctor sees and starts/finishes only their own |
+| `PUT /doctors/{id}/schedule`, `POST /schedule/preview` | Front desk of that hospital: set a doctor's timetable (mode `appointments` or `partial`, slot length, appointments before each walk-in break, break length, working windows, weekly days off, `apply_to_all`); the next 7 days of slots are re-laid and booked slots are kept. Preview returns one day without saving |
 | `GET /doctors?date`, `PATCH /doctors/{id}` (`on_duty`) | Any hospital login (a doctor sees and switches only themselves); an off-duty doctor gets no new bookings |
 | `GET /users`, `POST /users`, `PATCH /users/{id}` | Hospital admin (own facility) or Hello Sahay admin (`facility_id`); only the Hello Sahay admin creates a `hospital_admin` |
 | `GET /calls`, `GET /handoffs`, `PATCH /calls/{id}` (`callback_done`) | Front desk, own facility only; doctors get 403; admin sees all |
-| `WS /live/desk/{facility_id}?token=` | Token required, for that facility; a doctor's socket only hears about their own appointments |
+| `WS /live/desk/{facility_id}?token=` | Token required, for that facility; a doctor's socket only hears about their own appointments and walk-ins |
 | everything else | Open, because the voice service and the patient app call it without a desk login |
 
 ## Behaviour worth knowing

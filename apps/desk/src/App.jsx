@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Navbar from "./components/Navbar";
+import QueueTab from "./components/QueueTab";
+import ScheduleModal from "./components/ScheduleModal";
 import AppointmentsTab from "./components/AppointmentsTab";
 import DoctorsTab from "./components/DoctorsTab";
-import CallLogsTab from "./components/CallLogsTab";
 import HistoryTab from "./components/HistoryTab";
 import UsersTab from "./components/UsersTab";
 import LoginPage from "./components/LoginPage";
 import { api, liveSocketUrl, session as sessionStore } from "./api";
-import { ROLE_LABEL, todayIST, toCallRow, toDoctor, toRow } from "./mappers";
+import { ROLE_LABEL, todayIST, toDoctor, toRow } from "./mappers";
 import { MapPin, Menu, AlertCircle, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 const TYPE_LABEL = {
@@ -15,14 +16,15 @@ const TYPE_LABEL = {
   CHC: "Community Health Centre",
   GH: "Government Hospital",
   private: "Private facility",
+  clinic: "Clinic",
 };
 
 // What each role may open. The API enforces the same rules; this only decides what to show.
 const TABS_FOR = {
-  hospital_admin: ["appointments", "doctors", "callLogs", "history", "users"],
-  receptionist: ["appointments", "doctors", "callLogs", "history"],
-  nurse: ["appointments", "doctors", "callLogs", "history"],
-  doctor: ["appointments", "history"],
+  hospital_admin: ["queue", "appointments", "doctors", "history", "users"],
+  receptionist: ["queue", "appointments", "doctors", "history"],
+  nurse: ["queue", "appointments", "doctors", "history"],
+  doctor: ["queue", "appointments", "history"],
 };
 
 const isoDay = (d) => d.toLocaleDateString("en-CA");
@@ -36,12 +38,13 @@ export default function App() {
   const [auth, setAuth] = useState(sessionStore.get());
   const [hospital, setHospital] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("appointments");
+  const [activeTab, setActiveTab] = useState("queue");
   const [day, setDay] = useState(todayIST());
-  const [raw, setRaw] = useState({ appointments: [], doctors: [], calls: [], history: [] });
+  const [raw, setRaw] = useState({ appointments: [], doctors: [], history: [], walkIns: [] });
   const [loading, setLoading] = useState(false);
   const [live, setLive] = useState(false);
   const [error, setError] = useState("");
+  const [editing, setEditing] = useState(null);
 
   const facilityId = auth?.facility_id;
   const role = auth?.role;
@@ -53,7 +56,7 @@ export default function App() {
     setAuth(null);
     setHospital(null);
     setLive(false);
-    setActiveTab("appointments");
+    setActiveTab("queue");
     setMobileMenuOpen(false);
   }, []);
 
@@ -72,17 +75,17 @@ export default function App() {
   const refresh = useCallback(async () => {
     if (!facilityId) return;
     try {
-      const [appointments, doctors, calls, history] = await Promise.all([
+      const [appointments, doctors, history, walkIns] = await Promise.all([
         api.appointments(day),
-        isDoctor ? [] : api.doctors(day),
-        isDoctor ? [] : api.calls(),
+        api.doctors(day),
         tabRef.current === "history" ? api.history() : null,
+        api.walkIns(),
       ]);
-      setRaw((prev) => ({ appointments, doctors, calls, history: history ?? prev.history }));
+      setRaw((prev) => ({ appointments, doctors, history: history ?? prev.history, walkIns }));
     } catch (e) {
       fail(e);
     }
-  }, [facilityId, day, isDoctor, fail]);
+  }, [facilityId, day, fail]);
 
   const handleLogin = async (email, password) => {
     const res = await api.login(email, password);
@@ -121,6 +124,11 @@ export default function App() {
       })
       .catch(fail);
   }, [facilityId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // The queue is always today's, whatever day the other tabs were left on.
+  useEffect(() => {
+    if (activeTab === "queue") setDay(todayIST());
+  }, [activeTab]);
 
   // Refetch on first load, when the viewed day changes and when the history tab opens.
   useEffect(() => {
@@ -168,18 +176,19 @@ export default function App() {
   const markArrived = (id) => run(() => api.act(id, "arrived"));
   const markDone = (id) => run(() => api.act(id, "complete"));
   const markNoShow = (id) => run(() => api.act(id, "no_show"));
-  const markCalledBack = (id) => run(() => api.callbackDone(id));
   const toggleDuty = (id, onDuty) => run(() => api.setDuty(id, onDuty));
 
-  // A walk-in is at the counter now, so it lands on today's queue whatever day is on screen.
-  const addWalkIn = async ({ name, phone, doctorId, reason }) => {
-    await api.walkIn({
-      patient: { name, phone },
-      doctor_id: doctorId,
-      reason_text: reason || null,
-    });
-    setDay(todayIST());
+  const startVisit = (id) => run(() => api.act(id, "start"));
+  const actOnWalkIn = (id, action) => run(() => api.actWalkIn(id, action));
+  // Throws on a rejected walk-in so the form can show why; the queue refetches either way.
+  const addWalkIn = async (body) => {
+    await api.addWalkIn(body);
     await refresh();
+  };
+  const saveSchedule = async (id, body) => {
+    const saved = await api.saveSchedule(id, body);
+    await refresh();
+    return saved;
   };
 
   // A stored session from before roles existed has no usable role: back to sign-in.
@@ -192,19 +201,24 @@ export default function App() {
     );
   }
 
-  const ranked = raw.appointments
-    .filter((a) => a.status !== "cancelled")
-    .sort((a, b) => a.slot.start.localeCompare(b.slot.start) || a.id - b.id);
-  const tokenOf = new Map(ranked.map((a, i) => [a.id, i + 1]));
-  const appointments = raw.appointments.map((a) => toRow(a, tokenOf.get(a.id) ?? "–"));
-  const callLogs = raw.calls.map(toCallRow);
+  // A1, A2... per doctor in time order; cancelled ones keep their number so the rest never renumber.
+  const labelOf = new Map();
+  const perDoctor = new Map();
+  [...raw.appointments]
+    .sort((a, b) => a.slot.start.localeCompare(b.slot.start) || a.id - b.id)
+    .forEach((a) => {
+      const n = (perDoctor.get(a.doctor.id) ?? 0) + 1;
+      perDoctor.set(a.doctor.id, n);
+      labelOf.set(a.id, `A${n}`);
+    });
+  const appointments = raw.appointments.map((a) => toRow(a, labelOf.get(a.id)));
   const doctorsList = raw.doctors.map(toDoctor);
   const pastVisits = raw.history.map((a) => toRow(a, "–"));
 
   const tabTitles = {
-    appointments: isDoctor ? "My Appointments" : "Appointments & Live Queue",
-    doctors: "Doctors & Open Slots",
-    callLogs: "Voice AI Helpline Call Logs",
+    queue: isDoctor ? "My Queue" : "Live Queue",
+    appointments: isDoctor ? "My Appointments" : "Appointments",
+    doctors: "Doctors & Timetables",
     history: isDoctor ? "My Past Patients" : "Past Visits",
     users: "Staff Logins",
   };
@@ -319,22 +333,39 @@ export default function App() {
             </p>
           )}
 
+          {activeTab === "queue" && (
+            <QueueTab
+              appointments={raw.appointments}
+              walkIns={raw.walkIns}
+              doctors={doctorsList}
+              isDoctor={isDoctor}
+              act={{
+                arrive: markArrived,
+                start: startVisit,
+                done: markDone,
+                noShow: markNoShow,
+                walk: actOnWalkIn,
+                addWalkIn,
+              }}
+            />
+          )}
           {activeTab === "appointments" && (
             <AppointmentsTab
               appointments={appointments}
-              doctors={doctorsList}
               isDoctor={isDoctor}
               onArrive={markArrived}
+              onStart={startVisit}
               onDone={markDone}
               onNoShow={markNoShow}
-              onWalkIn={addWalkIn}
             />
           )}
           {activeTab === "doctors" && (
-            <DoctorsTab doctors={doctorsList} onToggleDuty={toggleDuty} />
-          )}
-          {activeTab === "callLogs" && (
-            <CallLogsTab callLogs={callLogs} onMarkCalled={markCalledBack} />
+            <DoctorsTab
+              doctors={doctorsList}
+              onToggleDuty={toggleDuty}
+              canEdit={!isDoctor}
+              onEditSchedule={setEditing}
+            />
           )}
           {activeTab === "history" && (
             <HistoryTab visits={pastVisits} isDoctor={isDoctor} />
@@ -350,6 +381,14 @@ export default function App() {
           )}
         </div>
       </main>
+      {editing && (
+        <ScheduleModal
+          doctor={editing}
+          doctorCount={doctorsList.length}
+          onClose={() => setEditing(null)}
+          onSave={saveSchedule}
+        />
+      )}
     </div>
   );
 }

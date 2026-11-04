@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.json",
-    "sha256": "4678177c4c4ec09028cac1832a6ae552438433bb3f5def7d6b0bfb5e4cb528b1",
-    "bytes": 13541
+    "sha256": "a23849cf8363389b951a17ccad99fe54611488b676bd5761f5232d429f2eccb9",
+    "bytes": 13228
   },
   "artifact": {
     "path": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.html",
-    "sha256": "43fc842baf8e3ebffedcfa14775feeb1e4ba4e2eb3c43f85f425016f40339bd0",
-    "bytes": 792727
+    "sha256": "f77e84a170e263aeb6dd9c3d6d2fc7d89a998b8a3beb468c1383fb97080159af",
+    "bytes": 793071
   },
   "gates": {
     "validate": "pass",
@@ -44,7 +44,7 @@
     "reason": "disabled"
   },
   "visualReview": "not-requested",
-  "durationMs": 6109,
+  "durationMs": 5484,
   "visualReviewRecommendation": {
     "action": "inspect-route-readability",
     "signals": {

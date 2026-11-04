@@ -38,13 +38,13 @@ def _counts(session: Session, column, *where) -> dict:
     return {key or "unknown": n for key, n in session.execute(query)}
 
 
-ARRIVED = ("arrived", "completed")
+ARRIVED = ("arrived", "in_consult", "completed")
 
 
 def _arrivals_by_facility(session: Session) -> dict[int, dict]:
     """Per facility: appointment counts by status, and 'billable' = patients Sahay sent who arrived.
 
-    Walk-ins entered at the counter (source desk) were not brought by Sahay, so they carry no arrival fee.
+    Appointments entered at the counter (source desk) were not brought by Sahay, so they carry no arrival fee; walk-ins (WalkIn) are not appointments at all.
     """
     rows = session.execute(
         select(Doctor.facility_id, Appointment.status, Appointment.source, func.count())
@@ -150,6 +150,7 @@ def all_calls(limit: int = Query(100, ge=1, le=500), emergency: bool | None = No
         query = query.where(Call.emergency.is_(emergency))
     return [{"id": c.id, "patient_phone": phone, "facility": facility, "language": c.language,
              "outcome": c.outcome, "emergency": c.emergency, "handoff": c.handoff, "callback_done": c.callback_done,
+             "severity": c.severity,
              "summary": c.summary,
              "transcript": c.transcript, "started_at": c.started_at, "duration_s": c.duration_s}
             for c, phone, facility in session.execute(query)]

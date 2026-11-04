@@ -24,10 +24,11 @@ from . import config, llm, prompts
 from .digits import digits_from_words
 from .gate import check
 from .grounding import ungrounded
+from .languages import language_named
 from .llm import run_agent
 from .sarvam import CODES as SARVAM_LANGS, SarvamStt, synthesize as synthesize_sarvam
 from .stt import TranscribeStt
-from .tools import Tools, nearest_place
+from .tools import Tools, calendar, nearest_place, when
 from .trace import Trace
 from .tts import synthesize
 
@@ -43,6 +44,7 @@ MIN_WORDS_TO_SWITCH = 3  # a one or two word utterance is too short to trust its
 MIN_WORDS_TO_SWITCH_LATER = 5  # after the caller's first sentence the language is theirs: only a whole sentence in another one moves it
 _SCRIPT = {"en": "LATIN", "hi": "DEVANAGARI", "ta": "TAMIL", "ml": "MALAYALAM", "kn": "KANNADA", "te": "TELUGU"}
 STRIKES_TO_HANG_UP = 3  # unclear sentences or repeated questions in a row before the call is handed to a person
+EMERGENCY_TURNS = 3  # after the 108 line the model gets this many turns to name the nearest hospital before the call ends
 NO_INPUT_S = 12.0  # silence after the beep before the caller is prompted again
 MAX_WAIT_FOR_STT_S = 2.5  # longest a finished sentence waits for the caller's next words still being transcribed
 FILLER_AFTER_S = 3.0  # a turn this slow gets a spoken "one moment" so the caller does not sit in silence
@@ -52,6 +54,8 @@ _CLOSING = re.compile(r"thank|bye|that's all|that is all|nothing else|no thanks|
                       r"धन्यवाद|शुक्रिया|अलविदा|बाय|और कुछ नहीं|बस इतना|"
                       r"നന്ദി|ഇനി ഒന്നുമില്ല|മതി$|ബൈ$|ಧನ್ಯವಾದ|ಥ್ಯಾಂಕ್ಸ್|ಬೇರೇನೂ ಬೇಡ|ಸಾಕು$|ಬಾಯ್$|"
                       r"ధన్యవాదాలు|థ్యాంక్స్|ఇంకేమీ వద్దు|చాలు$|బై$", re.I)
+# "आपके पास तीन क्लीनिक हैं" means "you own three clinics"; the model keeps writing it for "three clinics near you"
+_HI_NEARBY = re.compile(r"आपके पास(?: में)?(?= (?:एक|दो|तीन|चार|\d))")
 CLOSING_MAX_WORDS = 6  # a longer sentence is a new request that merely contains a thanks
 
 
@@ -86,6 +90,9 @@ class CallSession:
                  *, stt=None, agent=run_agent, tts=synthesize, http: httpx.AsyncClient | None = None):
         self._spoke_once = False  # the caller has had their first sentence heard; the language is settled by it
         self.auto = lang == "auto"  # language is detected per utterance and may change mid-call
+        self._lang_chosen = not self.auto  # an auto call's first caller sentence answers "which language?"
+        self._last_detected: str | None = None
+        self._emergency_turns = 0
         lang = "en" if self.auto else lang
         self.lang, self.in_rate, self.out_rate = lang, in_rate, out_rate
         self._send_audio, self._send_event = send_audio, send_event
@@ -214,6 +221,7 @@ class CallSession:
     async def prewarm(rate: int) -> None:
         sentences = [(s, lang) for lang, g in prompts.GREETING.items() for s in _SENTENCE.split(g)]
         sentences += [(s, lang) for lang, line in prompts.AUTO_GREETING for s in _SENTENCE.split(line)]
+        sentences += [(s, lang) for lang, g in prompts.AFTER_LANGUAGE.items() for s in _SENTENCE.split(g)]
         sentences += [(s, lang) for table in (prompts.FILLER, prompts.GIVE_UP) for lang, g in table.items()
                       for s in _SENTENCE.split(g)]
         sentences += [(s, lang) for lang, lines in prompts.UNCLEAR.items() for g in lines for s in _SENTENCE.split(g)]
@@ -229,9 +237,8 @@ class CallSession:
             log.exception("could not prewarm the model")
 
     def _system_prompt(self) -> str:
-        greeting = " ".join(t for _, t in prompts.AUTO_GREETING) if self.auto else prompts.GREETING[self.lang]
-        return prompts.SYSTEM.format(language=prompts.LANG_NAME[self.lang], greeting=greeting,
-                                     caller=prompts.caller_block(self.state))
+        self.state["today"], self.state["calendar"] = calendar()
+        return prompts.SYSTEM.format(language=prompts.LANG_NAME[self.lang], caller=prompts.caller_block(self.state))
 
     def _switch_language(self, lang: str) -> None:
         if lang != self.lang:
@@ -243,6 +250,7 @@ class CallSession:
         phone = self.state.get("phone")
         if not phone:
             return
+        await self._load_existing_appointment(phone)
         try:
             r = await self._http.get(f"/patients/{phone}")
             r.raise_for_status()
@@ -259,6 +267,24 @@ class CallSession:
         if self.state["profile"]["name"]:
             self.state.setdefault("name", self.state["profile"]["name"])
         log.info("caller is registered; live location %s", live)
+
+    async def _load_existing_appointment(self, phone: str) -> None:
+        """The caller's next booked appointment, if any: the model asks about it right after the disclaimer."""
+        try:
+            r = await self._http.get(f"/patients/{phone}/appointments")
+            r.raise_for_status()
+            rows = r.json()
+        except Exception:
+            log.exception("could not look up the caller's appointments")
+            return
+        now = datetime.now(timezone.utc)
+        upcoming = [a for a in rows if a["status"] == "booked" and datetime.fromisoformat(a["slot"]["start"]) > now]
+        if upcoming:
+            a = min(upcoming, key=lambda a: a["slot"]["start"])
+            self.state["existing"] = {"doctor": a["doctor"]["name"], "facility": a.get("hospital_label") or a["facility"]["name"],
+                                      "when": when(a["slot"]["start"])}
+            self._tools.facts.append(json.dumps(self.state["existing"], ensure_ascii=False))  # the model may name them
+            self.trace.add("existing_appointment", **self.state["existing"])
 
     async def _beep(self) -> None:
         if self.out_rate not in _BEEPS:
@@ -280,6 +306,7 @@ class CallSession:
         detected = getattr(self._stt, "detected", None)
         self.trace.add("stt_result", text=text, final=final, detected=detected,
                        speaking=self._speaking(), pending=len(self._pending), busy=self._busy)
+        self._last_detected = detected
         if self._busy:  # said or heard during our turn, before the beep: answering it next turn puts the call one behind
             self.trace.add("ignored_mid_turn", text=text)
             return
@@ -366,7 +393,7 @@ class CallSession:
         """The model's reply, with a spoken "one moment" if it takes too long."""
         filler = asyncio.create_task(self._filler())
         try:
-            return await self._grounded_reply()
+            return _HI_NEARBY.sub("आपके नज़दीक", await self._grounded_reply()) if self.lang == "hi" else await self._grounded_reply()
         finally:
             if self._filling:
                 await filler  # let the sentence finish; the reply is queued behind it
@@ -387,6 +414,7 @@ class CallSession:
         self.trace.add("turn_start", text=text, lang=self.lang, messages=len(self._messages))
         await self._record("user", text)
         self.state["last_text"] = text
+        self.state.setdefault("heard", []).append(text)
         gate_lang = self.lang
         if self.auto:  # a short first sentence has not moved the call's language yet, but the warning must be in the caller's own
             gate_lang = next((l for l in prompts.LANG_NAME if l != "en" and _in_script(text, l)), self.lang)
@@ -400,14 +428,26 @@ class CallSession:
         lat = {"gate": gate.flag}
         self.trace.add("gate", flag=gate.flag, lang=gate_lang)
         if gate.flag == "emergency":
-            self.state.update(emergency=True, handoff=True)
+            # The fixed 108 line first; then the model names the nearest hospital (EMERGENCY line of the caller block).
+            self.state.update(emergency=True, handoff=True, severity="serious")
+            self._lang_chosen = True
+            if self.auto and gate_lang != self.lang:
+                self._switch_language(gate_lang)
             await self._say(gate.reply, lat, t0, lang=gate_lang)
-            await self._finish()
-            return
-        if self.state.get("appointment_id") and len(text.split()) <= CLOSING_MAX_WORDS and _CLOSING.search(text):
+        elif self.state.get("appointment_id") and len(text.split()) <= CLOSING_MAX_WORDS and _CLOSING.search(text):
             await self._say(prompts.GOODBYE[self.lang], lat, t0)  # booked and thanked: greet back and hang up
             await self._finish()
             return
+        elif not self._lang_chosen:  # the caller's first sentence answers "which language?"
+            self._lang_chosen = self._spoke_once = True
+            named = language_named(text)
+            heard = named or (self._last_detected if self._last_detected in prompts.LANG_NAME else None)
+            if heard and heard != self.lang:
+                self._switch_language(heard)
+            if named or len(text.split()) < MIN_WORDS_TO_SWITCH:
+                await self._say(prompts.AFTER_LANGUAGE[self.lang], lat, t0)
+                return  # only a language was said; the problem comes next turn
+            await self._say(f"{prompts.DISCLAIMER_INTRO[self.lang]} {prompts.DISCLAIMER[self.lang]}", lat, t0)  # the problem is already told: announce the notice, do not ask for it
         note = ""
         if gate.flag == "symptom":
             await self._say(gate.reply, lat, t0, lang=gate_lang)
@@ -425,8 +465,10 @@ class CallSession:
         lat["llm_ms"] = round((time.perf_counter() - t1) * 1000)
         if self.state.get("emergency"):
             self.state["handoff"] = True
+            self._emergency_turns += 1
             await self._say(reply, lat, t0)
-            await self._finish()
+            if self.state.get("emergency_shown") or self._emergency_turns >= EMERGENCY_TURNS:
+                await self._finish()
             return
         for _ in range(2):  # the same question again means the caller is not answering it
             if not _similar(reply, self._last_reply, REPEAT_RATIO):
@@ -501,11 +543,12 @@ class CallSession:
     def _call_log(self) -> dict:
         s = self.state
         outcome = ("emergency" if s.get("emergency") else "booked" if s.get("appointment_id")
-                   else "handed_off" if s.get("handoff") else "info_given" if s.get("facility_id") else None)
+                   else "handed_off" if s.get("handoff") else "info_given" if s.get("severity") else None)
         summary = "; ".join(f"{k}: {s[k]}" for k in ("name", "village", "reason", "department", "hospital", "handoff_reason")
                             if s.get(k))
         return {"language": self.lang, "transcript": self.transcript, "summary": summary or None,
                 "outcome": outcome, "emergency": bool(s.get("emergency")), "handoff": bool(s.get("handoff")),
+                "severity": s.get("severity"),
                 "started_at": self._started.isoformat(),
                 "duration_s": round((datetime.now(timezone.utc) - self._started).total_seconds()),
                 "patient_phone": s.get("phone"), "facility_id": s.get("facility_id"), "trace": self.trace.events}

@@ -20,6 +20,9 @@ import { MyHealthView } from './views/MyHealthView';
 import { EmergencyView } from './views/EmergencyView';
 import { AppDataProvider } from './components/AppData';
 import { AlertBanner } from './components/AlertBanner';
+import { LocationSharingSheet } from './components/LocationSharing';
+import { backgroundLocation } from './services/backgroundLocation';
+import { BigButton, pick } from './components/ui';
 
 export default function App() {
   const [settings, setSettings] = useState<UserSettings>(() => {
@@ -33,16 +36,8 @@ export default function App() {
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   // User location state (persisted or auto-detected)
-  const [userCoordinates, setUserCoordinates] = useState<UserCoordinates>(() => {
-    const saved = locationService.getSavedLocation();
-    if (saved) return saved;
-    return {
-      latitude: 12.5113,
-      longitude: 79.8837,
-      districtDetected: 'Chengalpattu Rural, Tamil Nadu',
-      isLocating: false,
-    };
-  });
+  // null until the phone's GPS or the user's own choice gives a place; never a guessed default
+  const [userCoordinates, setUserCoordinates] = useState<UserCoordinates | null>(() => locationService.getSavedLocation());
 
   const [nearestHospital, setNearestHospital] = useState<Hospital | null>(null);
 
@@ -54,11 +49,13 @@ export default function App() {
   const [selectedHospitalForBooking, setSelectedHospitalForBooking] = useState<Hospital | null>(null);
   const [showVoiceCallModal, setShowVoiceCallModal] = useState<boolean>(false);
   const [showEmergencyModal, setShowEmergencyModal] = useState<boolean>(false);
+  const [askLocationSharing, setAskLocationSharing] = useState<boolean>(false);
 
   useEffect(() => { window.scrollTo(0, 0); }, [currentTab]);
 
   // Load facilities from the API, nearest first, whenever the location changes
   useEffect(() => {
+    if (!userCoordinates) return;
     let cancelled = false;
     hospitalService.load(userCoordinates).then(() => {
       if (cancelled) return;
@@ -71,7 +68,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [userCoordinates.latitude, userCoordinates.longitude]);
+  }, [userCoordinates?.latitude, userCoordinates?.longitude]);
 
   // Refresh this patient's appointments from the server once their number is verified
   useEffect(() => {
@@ -80,19 +77,27 @@ export default function App() {
 
   // Keep the helpline's view of this patient's location fresh while the app is open
   useEffect(() => {
-    if (!settings.userPhone || !settings.locationPermission) return;
+    if (!settings.userPhone || !settings.locationPermission || !userCoordinates) return;
     const push = () => api.pushLocation(settings.userPhone!, userCoordinates).catch(() => {});
     push();
     const timer = setInterval(push, 5 * 60 * 1000);
     return () => clearInterval(timer);
-  }, [settings.userPhone, settings.locationPermission, userCoordinates.latitude, userCoordinates.longitude]);
+  }, [settings.userPhone, settings.locationPermission, userCoordinates?.latitude, userCoordinates?.longitude]);
 
-  // Attempt live GPS detection on startup if the user has not yet saved a location
+  // Re-read the GPS on every launch so a patient who has moved is not left on yesterday's place;
+  // a place they picked by hand stays until they change it.
   useEffect(() => {
-    if (typeof navigator !== 'undefined' && 'geolocation' in navigator && !locationService.getSavedLocation()) {
+    if (!locationService.getSavedLocation()?.manual) {
       locationService.detectUserLocation().then(setUserCoordinates).catch(() => {});
     }
   }, []);
+
+  // Android: keep the background location worker signed in on every launch, and ask once, after sign-up, whether to start it
+  useEffect(() => {
+    if (!backgroundLocation.supported || !settings.userPhone || !settings.phoneVerified || !settings.profileComplete) return;
+    if (backgroundLocation.neverAsked()) setAskLocationSharing(true);
+    else backgroundLocation.resume(settings.userPhone);
+  }, [settings.userPhone, settings.phoneVerified, settings.profileComplete]);
 
   // Online / Offline listener
   useEffect(() => {
@@ -153,7 +158,7 @@ export default function App() {
       {/* Main Top Header */}
       <Header
         currentLang={settings.language}
-        locationLabel={userCoordinates.districtDetected?.split(',')[0]}
+        locationLabel={userCoordinates?.districtDetected?.split(',')[0]}
         onOpenLocationModal={() => setShowLocationModal(true)}
         onOpenLanguageModal={() => setShowLanguageModal(true)}
         onOpenEmergency={() => setShowEmergencyModal(true)}
@@ -167,14 +172,31 @@ export default function App() {
       <main className="flex-1 max-w-xl w-full mx-auto px-5 pt-6 pb-32">
         {hospitalError && (
           <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-800">
-            {hospitalError} Hospital list may be out of date. In an emergency, call 108.
+            {hospitalError} In an emergency, call 108.
+          </div>
+        )}
+        {!userCoordinates && ['home', 'hospitals', 'ask-sahay'].includes(currentTab) && (
+          <div className="rounded-2xl border-2 border-slate-400 bg-white p-5 space-y-4">
+            <p className="text-xl font-bold text-slate-900">
+              {pick(settings.language, {
+                en: 'Tell us where you are to see hospitals near you.',
+                hi: 'अपने पास के अस्पताल देखने के लिए बताइए कि आप कहाँ हैं।',
+                ta: 'அருகிலுள்ள மருத்துவமனைகளைப் பார்க்க நீங்கள் எங்கே இருக்கிறீர்கள் என்று சொல்லுங்கள்.',
+                kn: 'ಹತ್ತಿರದ ಆಸ್ಪತ್ರೆಗಳನ್ನು ನೋಡಲು ನೀವು ಎಲ್ಲಿದ್ದೀರಿ ಎಂದು ತಿಳಿಸಿ.',
+                ml: 'അടുത്തുള്ള ആശുപത്രികൾ കാണാൻ നിങ്ങൾ എവിടെയാണെന്ന് പറയൂ.',
+                te: 'దగ్గరలోని ఆసుపత్రులను చూడటానికి మీరు ఎక్కడ ఉన్నారో చెప్పండి.',
+              })}
+            </p>
+            <BigButton onClick={() => setShowLocationModal(true)}>
+              {pick(settings.language, { en: 'Set my location', hi: 'मेरी लोकेशन चुनें', ta: 'என் இருப்பிடத்தை அமை', kn: 'ನನ್ನ ಸ್ಥಳ ಹೊಂದಿಸಿ', ml: 'എന്റെ സ്ഥലം സജ്ജമാക്കുക', te: 'నా స్థానాన్ని సెట్ చేయండి' })}
+            </BigButton>
           </div>
         )}
         {currentTab === 'home' && (
           <HomeView
             currentLang={settings.language}
             userSettings={settings}
-            userCoordinates={userCoordinates}
+            userCoordinates={userCoordinates ?? undefined}
             nearestHospital={nearestHospital}
             onNavigate={(tab) => setCurrentTab(tab)}
             onOpenEmergency={() => setShowEmergencyModal(true)}
@@ -184,7 +206,7 @@ export default function App() {
           />
         )}
 
-        {currentTab === 'hospitals' && (
+        {userCoordinates && currentTab === 'hospitals' && (
           <HospitalsView
             currentLang={settings.language}
             userCoordinates={userCoordinates}
@@ -192,7 +214,7 @@ export default function App() {
           />
         )}
 
-        {currentTab === 'ask-sahay' && (
+        {userCoordinates && currentTab === 'ask-sahay' && (
           <AskSahayView
             currentLang={settings.language}
             userCoordinates={userCoordinates}
@@ -204,7 +226,7 @@ export default function App() {
         )}
 
         {currentTab === 'medicines' && (
-          <MedicinesView currentLang={settings.language} />
+          <MedicinesView currentLang={settings.language} userCoordinates={userCoordinates} onOpenLocationSelector={() => setShowLocationModal(true)} />
         )}
 
         {currentTab === 'my-health' && (
@@ -255,11 +277,15 @@ export default function App() {
       <LocationSelectorModal
         isOpen={showLocationModal && !showLanguageModal && !needsProfile}
         isInitialPopup={!locationService.getSavedLocation()}
-        currentCoords={userCoordinates}
+        currentCoords={userCoordinates ?? undefined}
         currentLang={settings.language}
         onSelectLocation={handleSelectLocation}
         onClose={() => setShowLocationModal(false)}
       />
+
+      {askLocationSharing && settings.userPhone && !showLanguageModal && !needsProfile && !showLocationModal && (
+        <LocationSharingSheet lang={settings.language} phone={settings.userPhone} onClose={() => setAskLocationSharing(false)} />
+      )}
 
       {/* Smart Appointment Booking Modal */}
       {selectedHospitalForBooking && (
@@ -288,7 +314,7 @@ export default function App() {
       {showEmergencyModal && (
         <EmergencyView
           currentLang={settings.language}
-          userCoordinates={userCoordinates}
+          userCoordinates={userCoordinates ?? undefined}
           onClose={() => setShowEmergencyModal(false)}
         />
       )}
