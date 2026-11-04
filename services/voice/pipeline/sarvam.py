@@ -1,4 +1,4 @@
-"""Tamil speech via Sarvam: saarika:v2.5 speech-to-text and bulbul:v3 text-to-speech (both request/response)."""
+"""Tamil, Malayalam and Kannada speech via Sarvam: saarika:v2.5 speech-to-text and bulbul:v3 text-to-speech (both request/response)."""
 import asyncio
 import audioop
 import base64
@@ -20,6 +20,7 @@ MAX_SPEECH_RMS = 3000  # the adaptive bar never rises above this; real callers m
 MIN_SPEECH_S = 0.25  # an utterance with less loud audio than this is a click or a distant voice, never sent
 QUIET_S = 0.6  # silence after speech that closes an utterance
 MAX_S = 20.0
+CODES = {"ta": "ta-IN", "ml": "ml-IN", "kn": "kn-IN"}
 
 
 def _headers() -> dict:
@@ -32,7 +33,7 @@ async def synthesize(text: str, lang: str, rate: int) -> bytes:
     async def post() -> httpx.Response:
         async with httpx.AsyncClient(timeout=20) as c:
             r = await c.post(f"{BASE}/text-to-speech", headers=_headers(), json={
-                "text": text, "target_language_code": "ta-IN", "model": "bulbul:v3", "speech_sample_rate": rate})
+                "text": text, "target_language_code": CODES[lang], "model": "bulbul:v3", "speech_sample_rate": rate})
             r.raise_for_status()
             return r
 
@@ -47,7 +48,7 @@ class SarvamStt:
 
     def __init__(self, lang: str, sample_rate: int):
         self.rate = sample_rate
-        self.code = "unknown" if lang == "auto" else "ta-IN"  # "unknown" lets Sarvam detect en/hi/ta per utterance
+        self.code = "unknown" if lang == "auto" else CODES[lang]  # "unknown" lets Sarvam detect the language per utterance
         self.detected: str | None = None
         self.busy = False  # the caller is mid-sentence or their words are being transcribed: do not answer yet
 

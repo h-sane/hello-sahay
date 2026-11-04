@@ -15,7 +15,7 @@ A prototype for **Dexathon 2026**, Healthcare theme.
 
 ## Status
 
-Built and hosted as a working prototype: the helpline answers on a real number (044-481-36970, English / Hindi / Tamil), the patient app runs on the web and as an Android APK, and Sahay Desk and the admin console are live. WhatsApp confirmation and the real Care plan payment are not wired yet; see [what is built per app](docs/PRODUCT_FEATURES.md).
+Built and hosted as a working prototype: the helpline answers on a real number (044-481-36970, English / Hindi / Tamil / Malayalam / Kannada), the patient app runs on the web and as an Android APK, and Sahay Desk and the admin console are live. WhatsApp confirmation and the real Care plan payment are not wired yet; see [what is built per app](docs/PRODUCT_FEATURES.md).
 
 ## Try it
 

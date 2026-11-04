@@ -41,6 +41,8 @@ issue per task card. Voice (2026-10-14): `services/voice` runs the English/Hindi
 
 **Issue sweep (2026-10-16):** all open issues audited against the code and closed with evidence. Added: WhatsApp text on book, reschedule and cancel (`services/api/app/notify.py`; needs a fresh `WHATSAPP_TOKEN`, not yet verified live), Razorpay test-mode checkout for the Care plan (`app/payments.py`, `/care/order`; demo payment until keys are set), and a Government services section on Home. Still not built: keypad fallback, voice advisory answers, the 3-free-checks limit, Jan Aushadhi Kendra finder by voice. **Docker is never run on Hussain's machine (no disk space).**
 
+**Malayalam and Kannada on the helpline (2026-11-04):** the voice agent now speaks and understands Malayalam and Kannada (Sarvam `ml-IN`/`kn-IN`, auto-detected with Tamil, Hindi and English): spoken lines, emergency and symptom word lists, WhatsApp texts and the `ml`/`kn` language value on calls and patients. Patient app and chat are unchanged. Verified with synthetic callers through the phone bridge and with pytest; not on a real phone. Feature 1 of the Dexathon improvement list.
+
 **Local setup:** `docker compose up -d` (Postgres on host port **5433**), copy
 `.env.example` to `.env`, then `python scripts/check_setup.py` (needs boto3 and
 psycopg or psycopg2) to confirm DB, Bedrock, embeddings, Polly and Transcribe.

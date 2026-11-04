@@ -25,7 +25,7 @@ class ProfileIn(BaseModel):
     age: int = Field(ge=0, le=120)
     gender: Literal["female", "male", "other"]
     village: str = Field(min_length=2, max_length=200)
-    language: Literal["ta", "hi", "en"] | None = None
+    language: Literal["ta", "hi", "en", "ml", "kn"] | None = None
 
 
 def _phone(raw: str) -> str:

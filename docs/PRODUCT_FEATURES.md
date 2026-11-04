@@ -23,12 +23,12 @@ Behind all five: one **backend API** (`services/api/`, FastAPI + PostgreSQL/pgve
 
 ## 1. Hello Sahay helpline (voice)
 
-Languages: Tamil, Hindi, English. Not an emergency service. Phone number 044-481-36970 (Exotel); also the browser call.
+Languages: Tamil, Hindi, English, Malayalam, Kannada (the last two added 2026-11-04 on the voice side only; Sarvam speech, verified with synthetic callers, not yet on a real phone; the patient app and chat stay Tamil / Hindi / English). Not an emergency service. Phone number 044-481-36970 (Exotel); also the browser call.
 
 | Feature | Detail | Tier | Card | Status |
 |---|---|---|---|---|
 | Call-start notice and language | Short greeting saying the call is transcribed, then a beep; with `lang=auto` the first sentence sets the language, later changes need a whole sentence in another script | P0 | P1-5, P1-6 | Built (spoken language detection replaced "press 1 / 2 / 3") |
-| Speech in, speech out | Sarvam hears Tamil and `lang=auto` calls; Transcribe hears English/Hindi browser calls; Polly speaks English/Hindi, Sarvam speaks Tamil | P0 | P1-5, P1-6 | Built |
+| Speech in, speech out | Sarvam hears Tamil, Malayalam, Kannada and `lang=auto` calls; Transcribe hears English/Hindi browser calls; Polly speaks English/Hindi, Sarvam speaks Tamil, Malayalam and Kannada | P0 | P1-5, P1-6 | Built |
 | Emergency gate | Runs before the model on every utterance in all three languages; says "Call 108 / 112", flags the call, queues a human callback | P0 | P1-4, P1-7 | Built |
 | Find a facility | Real nearest hospital (OpenStreetMap) as the recommendation, plus the nearest government one when different | P0 | P1-5 | Built |
 | "Which hospital takes my card" | `check_scheme_coverage` against Tamil Nadu's CMCHIS list | P0 | P1-5 | Built (PM-JAY has no open per-hospital list; tagged together with CMCHIS) |

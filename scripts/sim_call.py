@@ -19,7 +19,7 @@ from pathlib import Path
 import websockets
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "services" / "voice"))
-from pipeline import aws  # noqa: E402
+from pipeline import aws, sarvam  # noqa: E402
 
 RATE = 8000
 FRAME = 320  # 20 ms of 8 kHz 16-bit mono
@@ -27,6 +27,8 @@ VOICES = {"en": ("Kajal", "en-IN"), "hi": ("Kajal", "hi-IN")}
 
 
 def speech(text: str, lang: str) -> bytes:
+    if lang in sarvam.CODES:  # Tamil, Malayalam, Kannada: Sarvam's voice, as the helpline itself uses
+        return asyncio.run(sarvam.synthesize(text, lang, RATE))
     voice, code = VOICES[lang]
     return aws.client("polly").synthesize_speech(Text=text, VoiceId=voice, Engine="neural", OutputFormat="pcm",
                                                  SampleRate=str(RATE), LanguageCode=code)["AudioStream"].read()
@@ -43,13 +45,13 @@ async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--bridge", default="ws://localhost:8020/exotel")
     ap.add_argument("--phone", default="09361660147")
-    ap.add_argument("--lang", default="en", choices=["en", "hi"], help="language the caller speaks")
+    ap.add_argument("--lang", default="en", choices=["en", "hi", "ta", "ml", "kn"], help="language the caller speaks")
     ap.add_argument("--say", action="append", default=[], help="one sentence per turn, in order")
     ap.add_argument("--echo", type=float, default=0.0, help="seconds of line echo of the agent's voice (0 = none)")
     ap.add_argument("--echo-gain", type=float, default=0.5)
     ap.add_argument("--reply-wait", type=float, default=25.0, help="how long to wait for the last agent answer")
     a = ap.parse_args()
-    utterances = [speech(s, a.lang) for s in a.say]
+    utterances = [await asyncio.to_thread(speech, s, a.lang) for s in a.say]
 
     out_frames: collections.deque = collections.deque()  # (due time, 20 ms of echo)
     state = {"last_out": 0.0, "out_since": 0, "bursts": [], "burst_open": None}

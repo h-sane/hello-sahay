@@ -25,7 +25,7 @@ from .digits import digits_from_words
 from .gate import check
 from .grounding import ungrounded
 from .llm import run_agent
-from .sarvam import SarvamStt, synthesize as synthesize_ta
+from .sarvam import CODES as SARVAM_LANGS, SarvamStt, synthesize as synthesize_sarvam
 from .stt import TranscribeStt
 from .tools import Tools, nearest_place
 from .trace import Trace
@@ -38,10 +38,10 @@ BEEP_HZ, BEEP_S = 880, 0.25  # played when we finish talking: the caller's cue t
 _BEEPS: dict[int, bytes] = {}
 _AUDIO_CACHE: dict[tuple[str, str, int], bytes] = {}
 _SENTENCE = re.compile(r"(?<=[.!?।])\s+")
-KEPT_SCRIPTS = ("LATIN", "DEVANAGARI", "TAMIL")  # the three languages the helpline speaks; the detector also emits Gurmukhi etc. for noise
+KEPT_SCRIPTS = ("LATIN", "DEVANAGARI", "TAMIL", "MALAYALAM", "KANNADA")  # the languages the helpline speaks; the detector also emits Gurmukhi etc. for noise
 MIN_WORDS_TO_SWITCH = 3  # a one or two word utterance is too short to trust its detected language
 MIN_WORDS_TO_SWITCH_LATER = 5  # after the caller's first sentence the language is theirs: only a whole sentence in another one moves it
-_SCRIPT = {"en": "LATIN", "hi": "DEVANAGARI", "ta": "TAMIL"}
+_SCRIPT = {"en": "LATIN", "hi": "DEVANAGARI", "ta": "TAMIL", "ml": "MALAYALAM", "kn": "KANNADA"}
 STRIKES_TO_HANG_UP = 3  # unclear sentences or repeated questions in a row before the call is handed to a person
 NO_INPUT_S = 12.0  # silence after the beep before the caller is prompted again
 MAX_WAIT_FOR_STT_S = 2.5  # longest a finished sentence waits for the caller's next words still being transcribed
@@ -49,7 +49,8 @@ FILLER_AFTER_S = 3.0  # a turn this slow gets a spoken "one moment" so the calle
 REPEAT_RATIO = 0.85
 ECHO_RATIO = 0.7
 _CLOSING = re.compile(r"thank|bye|that's all|that is all|nothing else|no thanks|நன்றி|போதும்|வேறு எதுவும் இல்லை|பை$|"
-                      r"धन्यवाद|शुक्रिया|अलविदा|बाय|और कुछ नहीं|बस इतना", re.I)
+                      r"धन्यवाद|शुक्रिया|अलविदा|बाय|और कुछ नहीं|बस इतना|"
+                      r"നന്ദി|ഇനി ഒന്നുമില്ല|മതി$|ബൈ$|ಧನ್ಯವಾದ|ಥ್ಯಾಂಕ್ಸ್|ಬೇರೇನೂ ಬೇಡ|ಸಾಕು$|ಬಾಯ್$", re.I)
 CLOSING_MAX_WORDS = 6  # a longer sentence is a new request that merely contains a thanks
 
 
@@ -87,7 +88,7 @@ class CallSession:
         lang = "en" if self.auto else lang
         self.lang, self.in_rate, self.out_rate = lang, in_rate, out_rate
         self._send_audio, self._send_event = send_audio, send_event
-        self._stt = stt or (SarvamStt if lang == "ta" or self.auto else TranscribeStt)("auto" if self.auto else lang, in_rate)
+        self._stt = stt or (SarvamStt if lang in SARVAM_LANGS or self.auto else TranscribeStt)("auto" if self.auto else lang, in_rate)
         self._agent = agent
         self._tts_override = tts if tts is not synthesize else None
         self._end_silence = getattr(self._stt, "end_silence", END_SILENCE_S)
@@ -201,7 +202,7 @@ class CallSession:
         t0 = time.perf_counter()
         if not cached:  # greetings repeat on every call; synthesising them costs seconds of silence
             try:
-                _AUDIO_CACHE[key] = await (synthesize_ta if lang == "ta" else synthesize)(sentence, lang, rate)
+                _AUDIO_CACHE[key] = await (synthesize_sarvam if lang in SARVAM_LANGS else synthesize)(sentence, lang, rate)
             except Exception as e:
                 self.trace.add("error", where="tts", lang=lang, chars=len(sentence), error=repr(e))
                 raise
@@ -218,7 +219,7 @@ class CallSession:
         for s, lang in sentences:
             if s.strip() and (s, lang, rate) not in _AUDIO_CACHE:
                 try:
-                    _AUDIO_CACHE[(s, lang, rate)] = await (synthesize_ta if lang == "ta" else synthesize)(s, lang, rate)
+                    _AUDIO_CACHE[(s, lang, rate)] = await (synthesize_sarvam if lang in SARVAM_LANGS else synthesize)(s, lang, rate)
                 except Exception:
                     log.exception("could not prewarm %s greeting", lang)
         try:  # the first model call of a process pays for connection set-up; make that happen before a caller waits
@@ -385,7 +386,10 @@ class CallSession:
         self.trace.add("turn_start", text=text, lang=self.lang, messages=len(self._messages))
         await self._record("user", text)
         self.state["last_text"] = text
-        gate, gate_lang = check(text, self.lang), self.lang
+        gate_lang = self.lang
+        if self.auto:  # a short first sentence has not moved the call's language yet, but the warning must be in the caller's own
+            gate_lang = next((l for l in prompts.LANG_NAME if l != "en" and _in_script(text, l)), self.lang)
+        gate = check(text, gate_lang)
         if self.auto and gate.flag != "emergency":
             for other in prompts.LANG_NAME:  # a code-switched sentence can hide the emergency words from the detected language
                 alt = check(text, other)

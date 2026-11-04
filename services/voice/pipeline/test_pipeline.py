@@ -647,3 +647,65 @@ def test_after_the_first_sentence_only_a_whole_sentence_in_another_language_move
         return a, b, s.lang
 
     assert asyncio.run(go()) == ("en", "en", "ta")
+
+
+def test_malayalam_and_kannada_have_every_spoken_line_and_use_sarvam_for_speech():
+    from pipeline import llm, prompts
+    from pipeline.sarvam import CODES, SarvamStt
+
+    assert set(CODES) == {"ta", "ml", "kn"}
+    for table in (prompts.GREETING, prompts.UNVERIFIED, prompts.FILLER, prompts.UNCLEAR, prompts.GIVE_UP,
+                  prompts.GOODBYE, prompts.GREETING_FALLBACK, llm.FALLBACK, REPLIES["emergency"], REPLIES["symptom"]):
+        assert {"ml", "kn"} <= set(table), table
+    assert {"ml", "kn"} <= {code for code, _ in prompts.AUTO_GREETING}
+    for lang in ("ml", "kn"):
+        async def nothing(*a):
+            return None
+
+        s = CallSession(lang, nothing, nothing)
+        assert isinstance(s._stt, SarvamStt) and s._stt.code == CODES[lang]
+
+
+def test_an_emergency_in_malayalam_or_kannada_is_answered_in_that_language_without_the_model():
+    for lang, text in (("ml", "അച്ഛന് നെഞ്ചുവേദന ഉണ്ട്"), ("kn", "ಅಪ್ಪನಿಗೆ ಎದೆ ನೋವು ಬರುತ್ತಿದೆ"),
+                       ("ta", "நெஞ்சு வலி")):
+        posted: list = []
+
+        async def agent(*a):
+            raise AssertionError("the model must not run")
+
+        async def go():
+            s, _, _ = make_session(agent, posted, lang="auto")  # a short first sentence has not moved the language yet
+            await s._turn(text)
+            return s
+
+        s = asyncio.run(go())
+        assert spoken(s)[0] == REPLIES["emergency"][lang] and s.state["emergency"]
+
+
+def test_a_malayalam_or_kannada_sentence_moves_an_auto_call_and_the_script_check_accepts_it():
+    from pipeline.session import _clean, _in_script
+
+    assert _clean("എനിക്ക് പനി ഉണ്ട് doctor") == "എനിക്ക് പനി ഉണ്ട് doctor"
+    assert _clean("ನನಗೆ ಜ್ವರ ಇದೆ") == "ನನಗೆ ಜ್ವರ ಇದೆ"
+    assert _in_script("എനിക്ക് പനി ഉണ്ട്", "ml") and _in_script("ನನಗೆ ಜ್ವರ ಇದೆ", "kn")
+    assert not _in_script("fever since two days", "ml")
+
+    async def go():
+        s, _, _ = make_session(None, [], lang="auto")
+        s._stt.detected = "en"
+        await s._on_result("I have fever since two days", True)
+        s._stt.detected = "ml"
+        await s._on_result("എനിക്ക് രണ്ട് ദിവസമായി പനി ഉണ്ട്", True)
+        a = s.lang
+        s._stt.detected = "kn"
+        await s._on_result("ನನಗೆ ಎರಡು ದಿನದಿಂದ ಜ್ವರ ಇದೆ", True)
+        return a, s.lang
+
+    assert asyncio.run(go()) == ("ml", "kn")
+
+
+def test_dictated_digit_words_in_malayalam_and_kannada_become_digits():
+    from pipeline.digits import digits_from_words as d
+    assert d("ഒമ്പത് എട്ട് ഏഴ് ആറ് അഞ്ച്") == "98765"
+    assert d("ಒಂಬತ್ತು ಎಂಟು ಏಳು ಆರು ಐದು") == "98765"
