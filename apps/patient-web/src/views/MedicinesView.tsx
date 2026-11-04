@@ -1,12 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { BellPlus, Camera, Search } from 'lucide-react';
-import { Language } from '../types';
+import { Language, UserCoordinates } from '../types';
 import { MedicineItem, MedicineScan, MedicineSearch, patientApi } from '../services/patientApi';
 import { ReminderSheet } from '../components/ReminderSheet';
+import { JanAushadhiStores } from '../components/JanAushadhiStores';
 import { BigButton, Card, Field, Notice, Spinner, Title, inputCls, pick, rupees } from '../components/ui';
 
 interface MedicinesViewProps {
   currentLang: Language;
+  userCoordinates: UserCoordinates | null;
+  onOpenLocationSelector: () => void;
 }
 
 /** Shrink a phone photo before upload: label text stays readable at 1400 px and the file stays small. */
@@ -60,7 +63,7 @@ const PriceCompare: React.FC<{ item: MedicineItem; lang: Language }> = ({ item, 
   );
 };
 
-export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang }) => {
+export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang, userCoordinates, onOpenLocationSelector }) => {
   const L = (o: { en: string; hi: string; ta: string; kn: string; ml: string; te: string }) => pick(currentLang, o);
   const fileInput = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
@@ -123,6 +126,7 @@ export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang }) => 
   };
 
   const item = scan?.matches[0];
+  const showStores = !!item?.jan_aushadhi || !!results?.brands.some((b) => b.jan_aushadhi) || !!results?.generics.length;
 
   return (
     <div>
@@ -252,6 +256,12 @@ export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang }) => 
             </Card>
           )}
           <p className="text-base text-slate-700">{results.note}</p>
+        </div>
+      )}
+
+      {showStores && (
+        <div className="mt-6">
+          <JanAushadhiStores lang={currentLang} coords={userCoordinates} onOpenLocationSelector={onOpenLocationSelector} />
         </div>
       )}
 

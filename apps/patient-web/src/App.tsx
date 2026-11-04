@@ -226,7 +226,7 @@ export default function App() {
         )}
 
         {currentTab === 'medicines' && (
-          <MedicinesView currentLang={settings.language} />
+          <MedicinesView currentLang={settings.language} userCoordinates={userCoordinates} onOpenLocationSelector={() => setShowLocationModal(true)} />
         )}
 
         {currentTab === 'my-health' && (

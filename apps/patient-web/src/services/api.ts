@@ -36,6 +36,16 @@ export interface ApiSlot {
   department: string;
 }
 
+export interface ApiJanAushadhiStore {
+  name: string;
+  lat: number;
+  lng: number;
+  distance_km: number;
+  address: string | null;
+  phone: string | null;
+  opening_hours: string | null;
+}
+
 export interface ApiNearbyHospital {
   name: string;
   lat: number;
@@ -128,6 +138,8 @@ export const api = {
     request<ApiNearbyHospital[]>(
       `/places/nearby-hospitals?lat=${coords.latitude}&lng=${coords.longitude}&limit=${limit}`
     ),
+  nearbyJanAushadhi: (coords: { latitude: number; longitude: number }) =>
+    request<ApiJanAushadhiStore[]>(`/places/jan-aushadhi?lat=${coords.latitude}&lng=${coords.longitude}&limit=5`),
   placeSearch: (q: string) =>
     request<{ name: string; detail: string; lat: number; lng: number }[]>(`/places/search?q=${encodeURIComponent(q)}`),
   slots: (facilityId: number, date: string) =>

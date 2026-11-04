@@ -21,7 +21,7 @@ The dev server proxies `/api` to `http://localhost:8001` (set `SAHAY_API_ORIGIN`
 | Booking (department, doctor, day, slot, patient) | `GET /facilities/{id}/slots`, `POST /appointments` |
 | First open, My Health appointments | `POST /auth/otp/*`, `PUT /patients/me`, `GET /patients/{phone}/appointments`, `PATCH /appointments/{id}` (cancel) |
 | Ask Sahay | `POST /chat` (cited answers; emergency and symptom messages get the fixed safe reply) |
-| Medicines | `GET /medicines/suggest`, `GET /medicines/search`, `POST /medicines/scan` |
+| Medicines | `GET /places/jan-aushadhi`, `GET /medicines/suggest`, `GET /medicines/search`, `POST /medicines/scan` |
 | My Health: family, Care plan, reminders, alerts | `/family`, `/care/*`, `/reminders`, `/notifications` |
 | Home advisory card | `GET /advisories?lang=` |
 | Start call | `WS /voice/call` (voice service) |

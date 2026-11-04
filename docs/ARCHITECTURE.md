@@ -120,7 +120,7 @@ All under `/api/v1`; `GET /health` also at the root. JSON in and out. "Open" mea
 | Patients | `GET /patients/{phone}` (registered, name, village, `location_live`), `PUT /patients/{phone}/location`, `PUT /patients/me` | open / patient token |
 | Auth | `POST /auth/login` (Desk or admin), `POST /auth/otp/request`, `POST /auth/otp/verify` | open |
 | Chat | `POST /chat {message, lang}` → `{answer, citations[], safety_flag, grounded}`, `GET /advisories?lang` | open |
-| Medicines | `GET /medicines/suggest?q=` (type-ahead, tolerates misspellings), `GET /medicines/search?q=` (falls back to the closest spelling, returns `corrected_to`), `POST /medicines/scan {image}` | patient token |
+| Medicines | `GET /places/jan-aushadhi?lat=&lng=` (nearest Jan Aushadhi stores from OpenStreetMap, no token), `GET /medicines/suggest?q=` (type-ahead, tolerates misspellings), `GET /medicines/search?q=` (falls back to the closest spelling, returns `corrected_to`), `POST /medicines/scan {image}` | patient token |
 | Family and Care plan | `GET/POST /family`, `PUT/DELETE /family/{id}`, `GET /care/me`, `POST /care/pay`, `DELETE /care/plans/{id}`, `GET /care/parents` | patient token |
 | Reminders and alerts | `GET/POST /reminders`, `PUT/DELETE /reminders/{id}`, `POST /reminders/{id}/taken`, `GET /notifications`, `POST /notifications/read` | patient token |
 | Config | `GET /config/contacts` (helpline, emergency desk, hospital call number, 108, 112) | open |

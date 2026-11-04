@@ -54,6 +54,7 @@ All of these except search and config need the patient token (`Authorization: Be
 |---|---|---|
 | Ask Sahay | `POST /chat` | Safety gate, then the local advisory corpus, then a live search of official government sites (`live_search.py`, Exa public endpoint, results filtered to gov.in / nic.in / cmchistn.com). Citations carry `url` and `live: true` for live pages. Answers for the same question are cached 30 minutes |
 | Medicines search | `GET /medicines/search?q=` | Brands by name then salt (a misspelt name falls back to the closest real name and says so; `GET /medicines/suggest` feeds the chips under the box), plus Jan Aushadhi generics; each brand carries its cheapest same-contents Jan Aushadhi product and the saving per tablet/ml |
+| Jan Aushadhi stores | `GET /places/jan-aushadhi?lat=&lng=` | Stores whose OpenStreetMap name contains Aushadhi, nearest first, with directions and a call button when OSM lists a phone; shown under medicine results in `JanAushadhiStores.tsx` |
 | Medicines scan | `POST /medicines/scan` `{image: base64}` | Nova vision only reads the label; a fixed program matches composition, strength and form. Status `found / no_equivalent / brand_only / unreadable`. The label's own printed MRP is used when present |
 | Home, Emergency | `GET /config/contacts` | helpline, emergency desk, hospital call number, 108, 112. Numbers are dialled, never printed |
 | My Health: family | `GET/POST /family`, `PUT/DELETE /family/{id}` | name, optional mobile number, relation; private to the owner |

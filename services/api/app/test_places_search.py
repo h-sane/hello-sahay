@@ -37,3 +37,13 @@ def test_search_says_busy_when_both_are_down(monkeypatch):
     with pytest.raises(HTTPException) as e:
         places.search_places("Anywhere")
     assert e.value.status_code == 503
+
+
+def test_jan_aushadhi_stores_sorted_nearest_first_and_deduplicated(monkeypatch):
+    places._stores_cache.clear()
+    el = lambda name, lat: {"tags": {"name": name, "phone": "+91 44 0000 0000"}, "lat": lat, "lon": 80.27}
+    monkeypatch.setattr(places, "_stores_around", lambda lat, lng, radius: [el("Jan Aushadhi Kendra", 13.12), el("Jan Aushadhi Kendra", 13.12), el("Janaushadhi Store", 13.09)])
+    out = places.nearby_jan_aushadhi(lat=13.08, lng=80.27, limit=5)
+    assert [s["name"] for s in out] == ["Janaushadhi Store", "Jan Aushadhi Kendra"]
+    assert out[0]["distance_km"] < out[1]["distance_km"]
+    places._stores_cache.clear()

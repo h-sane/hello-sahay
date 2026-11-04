@@ -43,6 +43,10 @@ def _overpass(lat: float, lng: float, radius: int) -> list[dict]:
     around = f"(around:{radius},{lat},{lng})"
     query = (f'[out:json][timeout:25];(nwr{around}[amenity=hospital][name];nwr{around}[healthcare=hospital][name];'
              f'nwr{around}[amenity~"^(clinic|doctors)$"][name~"primary health|phc|health cent",i];);out center tags;')
+    return _overpass_post(query)
+
+
+def _overpass_post(query: str) -> list[dict]:
     body = urllib.parse.urlencode({"data": query}).encode()
     for url in OVERPASS_URLS:
         try:
@@ -244,3 +248,65 @@ def search_places(q: str = Query(..., min_length=2, max_length=80)):
                 unique.append(p)
         _suggested[key] = unique[:8]
     return _suggested[key]
+
+
+JAN_AUSHADHI_RADII_M = [5_000, 15_000, 40_000]
+_stores_cache: dict[tuple[float, float], tuple[float, list[dict]]] = {}
+
+
+def _store(el: dict, lat: float, lng: float) -> dict | None:
+    tags = el.get("tags", {})
+    pos = el if "lat" in el else el.get("center")
+    name = tags.get("name") or tags.get("name:en")
+    if not name or not pos:
+        return None
+    return {"name": name, "lat": float(pos["lat"]), "lng": float(pos["lon"]), "address": _address(tags),
+            "phone": tags.get("phone") or tags.get("contact:phone"), "opening_hours": tags.get("opening_hours"),
+            "distance_km": round(_km(lat, lng, float(pos["lat"]), float(pos["lon"])), 1)}
+
+
+def _stores_around(lat: float, lng: float, radius: int) -> list[dict]:
+    global _overpass_down_until
+    if time.time() >= _overpass_down_until:
+        around = f"(around:{radius},{lat},{lng})"
+        try:
+            return _overpass_post(f'[out:json][timeout:25];nwr{around}[name~"aushadh?i|aushadi|aushdhi",i];out center tags 60;')
+        except HTTPException:
+            _overpass_down_until = time.time() + OVERPASS_RETRY_S
+    span = radius / 111_000
+    try:
+        hits = _nominatim_get({"q": "jan aushadhi", "format": "jsonv2", "limit": 40, "bounded": 1, "addressdetails": 0,
+                               "viewbox": f"{lng - span},{lat + span},{lng + span},{lat - span}"}, 15)
+    except Exception:
+        raise HTTPException(503, "store lookup is busy, try again")
+    return [{"tags": {"name": h["name"], "addr:full": ", ".join(h["display_name"].split(", ")[1:4])},
+             "lat": h["lat"], "lon": h["lon"]} for h in hits if h.get("name") and "aushadh" in h["name"].lower()]
+
+
+@router.get("/places/jan-aushadhi")
+def nearby_jan_aushadhi(lat: float = Query(..., ge=-90, le=90), lng: float = Query(..., ge=-180, le=180),
+                        limit: int = Query(5, ge=1, le=10)):
+    """Government Jan Aushadhi Kendras near a point, from OpenStreetMap. Prices there are the PMBI list prices."""
+    key = (round(lat, 2), round(lng, 2))
+    hit = _stores_cache.get(key)
+    if hit and time.time() - hit[0] < CACHE_TTL_S:
+        return hit[1][:limit]
+    found, seen = [], set()
+    for radius in JAN_AUSHADHI_RADII_M:
+        try:
+            elements = _stores_around(lat, lng, radius)
+        except HTTPException:
+            if hit:
+                return hit[1][:limit]
+            raise
+        for el in elements:
+            store = _store(el, lat, lng)
+            ident = store and (store["name"].lower(), round(store["lat"], 4), round(store["lng"], 4))
+            if store and ident not in seen:
+                seen.add(ident)
+                found.append(store)
+        if len(found) >= 3:
+            break
+    found.sort(key=lambda s: s["distance_km"])
+    _stores_cache[key] = (time.time(), found)
+    return found[:limit]
