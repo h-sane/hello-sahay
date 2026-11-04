@@ -44,6 +44,8 @@ def test_chunks_stay_under_the_limit_and_overlap():
     ("en", "what is the income limit for CMCHIS"),
     ("en", "who is eligible for the Chief Minister health insurance"),
     ("ta", "CMCHIS தகுதி என்ன"),
+    ("kn", "CMCHIS ಅರ್ಹತೆ ಏನು"),
+    ("ml", "CMCHIS അർഹത എന്താണ്"),
 ])
 def test_cmchis_eligibility_gets_the_fixed_reply_without_retrieval(lang, message):
     out = service.answer(None, message, lang)  # no session: retrieval must not run

@@ -24,6 +24,8 @@ FALLBACK = {
     "en": "I don't have verified information on that. Please ask at your nearest PHC or call 104.",
     "hi": "मेरे पास इस बारे में सत्यापित जानकारी नहीं है। कृपया अपने नज़दीकी PHC में पूछें या 104 पर कॉल करें।",
     "ta": "இதைப் பற்றிய சரிபார்க்கப்பட்ட தகவல் என்னிடம் இல்லை. உங்களுக்கு அருகிலுள்ள PHC-யில் கேளுங்கள் அல்லது 104 எண்ணை அழைக்கவும்.",
+    "kn": "ಈ ಬಗ್ಗೆ ದೃಢೀಕರಿಸಿದ ಮಾಹಿತಿ ನನ್ನ ಬಳಿ ಇಲ್ಲ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಹತ್ತಿರದ PHC ಯಲ್ಲಿ ಕೇಳಿ ಅಥವಾ 104 ಕ್ಕೆ ಕರೆ ಮಾಡಿ.",
+    "ml": "ഇതിനെക്കുറിച്ച് സ്ഥിരീകരിച്ച വിവരം എന്റെ കയ്യിൽ ഇല്ല. ദയവായി അടുത്തുള്ള PHC യിൽ ചോദിക്കുക അല്ലെങ്കിൽ 104 ൽ വിളിക്കുക.",
 }
 _SOURCES_TAIL = re.compile(r"[\s*_]*[^\s\d:：*_.]*[*_]*\s*[:：][\s*_]*([\d,\s]+)$")
 # No eligibility or income limit is quoted until a Tamil Nadu government source is in the corpus.
@@ -31,10 +33,12 @@ CMCHIS_ELIGIBILITY = {
     "en": "Please check at your nearest government hospital or the CMCHIS desk to find out who is eligible.",
     "hi": "पात्रता जानने के लिए कृपया अपने नज़दीकी सरकारी अस्पताल या CMCHIS डेस्क पर पूछें।",
     "ta": "யார் தகுதியானவர் என்பதை அறிய உங்களுக்கு அருகிலுள்ள அரசு மருத்துவமனை அல்லது CMCHIS மையத்தில் கேளுங்கள்.",
+    "kn": "ಯಾರು ಅರ್ಹರು ಎಂದು ತಿಳಿಯಲು ದಯವಿಟ್ಟು ನಿಮ್ಮ ಹತ್ತಿರದ ಸರ್ಕಾರಿ ಆಸ್ಪತ್ರೆ ಅಥವಾ CMCHIS ಡೆಸ್ಕ್‌ನಲ್ಲಿ ಕೇಳಿ.",
+    "ml": "ആർക്കൊക്കെ അർഹതയുണ്ടെന്ന് അറിയാൻ ദയവായി അടുത്തുള്ള സർക്കാർ ആശുപത്രിയിലോ CMCHIS ഡെസ്കിലോ ചോദിക്കുക.",
 }
 _CMCHIS = re.compile(r"cmchis|chief minister|முதலமைச்சர்|सीएमसीएचआईएस")
-_ELIGIBILITY = re.compile(r"eligib|qualif|income|who can|who is covered|entitled|தகுதி|வருமான|पात्र|आय")
-LANGUAGE = {"en": "English", "hi": "Hindi", "ta": "Tamil"}
+_ELIGIBILITY = re.compile(r"eligib|qualif|income|who can|who is covered|entitled|தகுதி|வருமான|पात्र|आय|ಅರ್ಹ|ಆದಾಯ|അർഹത|വരുമാന")
+LANGUAGE = {"en": "English", "hi": "Hindi", "ta": "Tamil", "kn": "Kannada", "ml": "Malayalam"}
 
 SYSTEM = """You answer health questions for rural patients in India using ONLY the numbered excerpts provided, which come from official government health sources.
 Rules:

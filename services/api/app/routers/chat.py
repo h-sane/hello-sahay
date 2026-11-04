@@ -14,7 +14,7 @@ router = APIRouter()
 
 class ChatIn(BaseModel):
     message: str = Field(min_length=1, max_length=500)
-    lang: Literal["ta", "hi", "en"] = "en"
+    lang: Literal["ta", "hi", "en", "kn", "ml"] = "en"
 
 
 @router.post("/chat")
@@ -23,7 +23,7 @@ def chat(body: ChatIn, session: Session = Depends(get_session)):
 
 
 @router.get("/advisories")
-def advisories(lang: Literal["ta", "hi", "en"] | None = None, session: Session = Depends(get_session)):
+def advisories(lang: Literal["ta", "hi", "en", "kn", "ml"] | None = None, session: Session = Depends(get_session)):
     """One row per source document, newest first, each with its issuer and link."""
     first_chunks = select(func.min(AdvisoryChunk.id)).group_by(AdvisoryChunk.doc_id)
     if lang:
