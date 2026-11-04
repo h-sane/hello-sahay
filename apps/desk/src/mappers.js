@@ -1,4 +1,4 @@
-// Shapes the API's appointments, calls and doctors into what the tabs render.
+// Shapes the API's appointments and doctors into what the tabs render.
 
 export const ROLE_LABEL = {
   hospital_admin: "Hospital Admin",
@@ -58,33 +58,6 @@ export function toRow(a, token) {
     status: STATUS[a.status] || "Booked",
     source: a.source,
     reason: a.reason_text,
-  };
-}
-
-const OUTCOME = {
-  booked: "Slot Booked",
-  emergency: "108 Emergency Redirected",
-  handed_off: "Needs Callback",
-  info_given: "Information Given",
-};
-export function toCallRow(c) {
-  let outcome = OUTCOME[c.outcome] || "Information Given";
-  if (c.emergency) outcome = OUTCOME.emergency;
-  else if (c.handoff) outcome = c.callback_done ? "Callback Completed" : OUTCOME.handed_off;
-  return {
-    id: c.id,
-    callerPhone: c.patient_phone || "Unknown caller",
-    time: new Date(c.started_at).toLocaleString("en-IN", {
-      day: "numeric",
-      month: "short",
-      hour: "numeric",
-      minute: "2-digit",
-      timeZone: TZ,
-    }),
-    language: LANG[c.language] || "English",
-    summary: c.summary || "No summary recorded for this call.",
-    outcome,
-    severity: c.severity,
   };
 }
 

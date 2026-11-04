@@ -240,12 +240,13 @@ const VIEWS = {
     ${c.length ? c.map(x => `<div class="call"><button aria-expanded="false"><span><b>${esc(x.patient_phone || "Unknown caller")}</b>
         <span class="meta"> · ${esc(LANG[x.language] || "Language not set")} · ${esc(x.facility || "No hospital")} · ${when(x.started_at)} ${dur(x.duration_s)}</span><br>
         <span class="meta">${esc(x.summary || "No summary")}</span></span>
-        <span class="tags">${x.emergency ? `<span class="tag red">Emergency</span>` : ""}${x.handoff ? `<span class="tag amber">Handoff</span>` : ""}
+        <span class="tags">${x.emergency ? `<span class="tag red">Emergency</span>` : ""}${x.handoff ? `<span class="tag amber">${x.callback_done ? "Called back" : "Needs callback"}</span>` : ""}
         <span class="tag ${x.outcome ? "" : "grey"}">${esc(OUTCOME[x.outcome || "unknown"])}</span></span></button>
         <div class="sev"><label for="sev${x.id}">Urgency, set by the voice assistant</label>
           <select id="sev${x.id}" data-sev="${x.id}">${x.severity ? "" : `<option value="">Not rated</option>`}
           ${Object.entries(SEVERITY).map(([k, l]) => `<option value="${k}" ${x.severity === k ? "selected" : ""}>${l}</option>`).join("")}</select>
-          <span class="meta" role="status"></span></div>
+          <span class="meta" role="status"></span>
+          ${x.handoff && !x.callback_done ? `<button class="btn" data-cb="${x.id}">Mark called back</button>` : ""}</div>
         <div class="tr" hidden>${transcript(x.transcript)}</div></div>`).join("")
       : `<p class="empty">No calls match this filter.</p>`}`;
   },
@@ -319,6 +320,14 @@ function bind(v) {
       await api("/calls/" + sel.dataset.sev, {method: "PATCH", body: JSON.stringify({severity: sel.value})});
       note.textContent = "Saved";
     } catch (x) { note.textContent = x.message; }
+  });
+  v.querySelectorAll("[data-cb]").forEach(b => b.onclick = async () => {
+    const note = b.parentElement.querySelector("[role=status]");
+    b.disabled = true; note.textContent = "Saving…";
+    try {
+      await api("/calls/" + b.dataset.cb, {method: "PATCH", body: JSON.stringify({callback_done: true})});
+      show();
+    } catch (x) { b.disabled = false; note.textContent = x.message; }
   });
 }
 

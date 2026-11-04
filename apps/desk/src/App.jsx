@@ -4,12 +4,11 @@ import QueueTab from "./components/QueueTab";
 import ScheduleModal from "./components/ScheduleModal";
 import AppointmentsTab from "./components/AppointmentsTab";
 import DoctorsTab from "./components/DoctorsTab";
-import CallLogsTab from "./components/CallLogsTab";
 import HistoryTab from "./components/HistoryTab";
 import UsersTab from "./components/UsersTab";
 import LoginPage from "./components/LoginPage";
 import { api, liveSocketUrl, session as sessionStore } from "./api";
-import { ROLE_LABEL, todayIST, toCallRow, toDoctor, toRow } from "./mappers";
+import { ROLE_LABEL, todayIST, toDoctor, toRow } from "./mappers";
 import { MapPin, Menu, AlertCircle, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 const TYPE_LABEL = {
@@ -22,9 +21,9 @@ const TYPE_LABEL = {
 
 // What each role may open. The API enforces the same rules; this only decides what to show.
 const TABS_FOR = {
-  hospital_admin: ["queue", "appointments", "doctors", "callLogs", "history", "users"],
-  receptionist: ["queue", "appointments", "doctors", "callLogs", "history"],
-  nurse: ["queue", "appointments", "doctors", "callLogs", "history"],
+  hospital_admin: ["queue", "appointments", "doctors", "history", "users"],
+  receptionist: ["queue", "appointments", "doctors", "history"],
+  nurse: ["queue", "appointments", "doctors", "history"],
   doctor: ["queue", "appointments", "history"],
 };
 
@@ -41,7 +40,7 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("queue");
   const [day, setDay] = useState(todayIST());
-  const [raw, setRaw] = useState({ appointments: [], doctors: [], calls: [], history: [], walkIns: [] });
+  const [raw, setRaw] = useState({ appointments: [], doctors: [], history: [], walkIns: [] });
   const [loading, setLoading] = useState(false);
   const [live, setLive] = useState(false);
   const [error, setError] = useState("");
@@ -76,18 +75,17 @@ export default function App() {
   const refresh = useCallback(async () => {
     if (!facilityId) return;
     try {
-      const [appointments, doctors, calls, history, walkIns] = await Promise.all([
+      const [appointments, doctors, history, walkIns] = await Promise.all([
         api.appointments(day),
         api.doctors(day),
-        isDoctor ? [] : api.calls(),
         tabRef.current === "history" ? api.history() : null,
         api.walkIns(),
       ]);
-      setRaw((prev) => ({ appointments, doctors, calls, history: history ?? prev.history, walkIns }));
+      setRaw((prev) => ({ appointments, doctors, history: history ?? prev.history, walkIns }));
     } catch (e) {
       fail(e);
     }
-  }, [facilityId, day, isDoctor, fail]);
+  }, [facilityId, day, fail]);
 
   const handleLogin = async (email, password) => {
     const res = await api.login(email, password);
@@ -178,8 +176,6 @@ export default function App() {
   const markArrived = (id) => run(() => api.act(id, "arrived"));
   const markDone = (id) => run(() => api.act(id, "complete"));
   const markNoShow = (id) => run(() => api.act(id, "no_show"));
-  const markCalledBack = (id) => run(() => api.callbackDone(id));
-  const setSeverity = (id, severity) => run(() => api.setSeverity(id, severity));
   const toggleDuty = (id, onDuty) => run(() => api.setDuty(id, onDuty));
 
   const startVisit = (id) => run(() => api.act(id, "start"));
@@ -216,7 +212,6 @@ export default function App() {
       labelOf.set(a.id, `A${n}`);
     });
   const appointments = raw.appointments.map((a) => toRow(a, labelOf.get(a.id)));
-  const callLogs = raw.calls.map(toCallRow);
   const doctorsList = raw.doctors.map(toDoctor);
   const pastVisits = raw.history.map((a) => toRow(a, "–"));
 
@@ -224,7 +219,6 @@ export default function App() {
     queue: isDoctor ? "My Queue" : "Live Queue",
     appointments: isDoctor ? "My Appointments" : "Appointments",
     doctors: "Doctors & Timetables",
-    callLogs: "Voice AI Helpline Call Logs",
     history: isDoctor ? "My Past Patients" : "Past Visits",
     users: "Staff Logins",
   };
@@ -372,9 +366,6 @@ export default function App() {
               canEdit={!isDoctor}
               onEditSchedule={setEditing}
             />
-          )}
-          {activeTab === "callLogs" && (
-            <CallLogsTab callLogs={callLogs} onMarkCalled={markCalledBack} onSetSeverity={setSeverity} />
           )}
           {activeTab === "history" && (
             <HistoryTab visits={pastVisits} isDoctor={isDoctor} />

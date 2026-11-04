@@ -75,7 +75,7 @@ Tabs depend on the login role (`apps/desk/README.md` has the table); the API enf
 | Appointments | `GET /appointments?date`, `PATCH ... arrived / start / complete / no_show` | Day arrows in the header. The number is A1, A2... per doctor. A doctor sees only their own patients and cannot mark arrivals |
 | Add walk-in | `POST /walk-ins` | Name, doctor on duty, optional phone and reason. Takes no slot (the timetable breaks are for them), no arrival fee |
 | Doctors & timetables | `GET /doctors?date`, `PATCH /doctors/{id}`, `PUT /doctors/{id}/schedule`, `POST /schedule/preview` | Every doctor with booked/open slots and their timetable; the on-duty switch stops new bookings; Set timetable edits mode, slot length, walk-in breaks, hours and days off, with a live preview of the day |
-| Call logs | `GET /calls`, `PATCH /calls/{id}` | Handoffs show as callbacks and "Mark Called" is saved on the server; emergencies read "Told to call 108" |
+| Call logs | Not in Sahay Desk; the admin console's Calls screen (`GET /admin/calls`, `PATCH /calls/{id}`) | Handoffs show as "Needs callback" and "Mark called back" is saved on the server |
 | Past visits / My past patients | `GET /appointments?history=true` | Everything before today, newest first (300 at most); doctors get only their own |
 | Users (hospital admin only) | `GET/POST/PATCH /users` | Add receptionist, nurse or doctor logins (a new doctor gets a doctor record and slots), reset a password, switch a login off |
 | Live badge | `WS /live/desk/{id}?token=` | Any pushed booking or call refetches; reconnects every 3 s |

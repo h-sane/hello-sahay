@@ -59,11 +59,6 @@ export const api = {
   doctors: (date) => request(`/doctors?date=${date}`),
   setDuty: (id, onDuty) =>
     request(`/doctors/${id}`, { method: "PATCH", body: { on_duty: onDuty } }),
-  calls: () => request("/calls?limit=100"),
-  callbackDone: (id) =>
-    request(`/calls/${id}`, { method: "PATCH", body: { callback_done: true } }),
-  setSeverity: (id, severity) =>
-    request(`/calls/${id}`, { method: "PATCH", body: { severity } }),
   walkIns: () => request("/walk-ins"),
   addWalkIn: (body) => request("/walk-ins", { method: "POST", body }),
   actWalkIn: (id, action) => request(`/walk-ins/${id}`, { method: "PATCH", body: { action } }),

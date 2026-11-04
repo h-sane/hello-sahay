@@ -56,7 +56,7 @@ First open: language, consent, profile (name, age, gender, village, mobile), the
 
 ### 2.3 Hospital and admin web
 
-- **Sahay Desk** (`apps/desk`, tabs by login role): live queue per doctor (appointments A1.., walk-ins W1.., advice on free time), appointments with live push, mark arrived / call in / complete / no-show, per-doctor timetables (appointments only, or with walk-in breaks), doctor on-duty switch, call logs and callbacks, past visits, and (hospital admin only) Users. A `doctor` login sees only its own patients.
+- **Sahay Desk** (`apps/desk`, tabs by login role): live queue per doctor (appointments A1.., walk-ins W1.., advice on free time), appointments with live push, mark arrived / call in / complete / no-show, per-doctor timetables (appointments only, or with walk-in breaks), doctor on-duty switch, past visits, and (hospital admin only) Users. A `doctor` login sees only its own patients.
 - **Admin console** (`apps/admin`, Hello Sahay `admin` login): overview, hospitals, hospital logins, payments, calls with transcripts, Care plan subscribers. Subscription and arrival-fee lines, priced by each hospital's `plan` (tiers in `docs/BUSINESS.md`) are derived from the partner flag and arrived appointments; counter walk-ins carry no fee.
 
 ## 3. The "verified, cited, never from model memory" rule
