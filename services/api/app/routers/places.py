@@ -6,6 +6,7 @@ go to one partner facility, so every real hospital connects to the same Sahay De
 """
 import json
 import os
+import threading
 import time
 import urllib.parse
 import urllib.request
@@ -53,19 +54,30 @@ def _overpass(lat: float, lng: float, radius: int) -> list[dict]:
     raise HTTPException(503, "hospital lookup is busy, try again")
 
 
+_nominatim_lock = threading.Lock()
+_nominatim_last = 0.0
+
+
+def _nominatim_get(params: dict, timeout: int) -> list[dict]:
+    """The one door to Nominatim for hospitals, place search and geocoding: its policy is one request per second per client."""
+    global _nominatim_last
+    req = urllib.request.Request(f"{SEARCH_URL}?{urllib.parse.urlencode(params)}", headers={"User-Agent": "HelloSahay/1.0"})
+    with _nominatim_lock:
+        time.sleep(max(0.0, 1.1 - (time.time() - _nominatim_last)))
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return json.load(r)
+        finally:
+            _nominatim_last = time.time()
+
+
 def _nominatim(lat: float, lng: float, radius: int) -> list[dict]:
     span = radius / 111_000
-    query = urllib.parse.urlencode({
-        "q": "hospital", "format": "jsonv2", "limit": 40, "bounded": 1, "extratags": 1,
-        "viewbox": f"{lng - span},{lat + span},{lng + span},{lat - span}",
-    })
-    req = urllib.request.Request(f"{SEARCH_URL}?{query}", headers={"User-Agent": "HelloSahay/1.0"})
     try:
-        with urllib.request.urlopen(req, timeout=15) as r:
-            hits = json.load(r)
+        hits = _nominatim_get({"q": "hospital", "format": "jsonv2", "limit": 40, "bounded": 1, "extratags": 1,
+                               "viewbox": f"{lng - span},{lat + span},{lng + span},{lat - span}"}, 15)
     except Exception:
         raise HTTPException(503, "hospital lookup is busy, try again")
-    time.sleep(1.1)  # Nominatim allows one request per second
     return [{"tags": {**(h.get("extratags") or {}), "name": h["name"], "addr:full": ", ".join(h["display_name"].split(", ")[1:4]),
                       "addr:district": ", ".join(h["display_name"].split(", ")[1:])},
              "lat": h["lat"], "lon": h["lon"]} for h in hits if h.get("type") == "hospital" and h.get("name")]
@@ -174,12 +186,9 @@ def geocode(q: str = Query(..., min_length=2, max_length=120)):
     """Coordinates of an area a caller named. A whole city or district is refused: the nearest hospital to "Chennai" is a guess."""
     key = q.strip().lower()
     if key not in _geocoded:
-        query = urllib.parse.urlencode({"q": q, "format": "jsonv2", "limit": 1, "countrycodes": "in",
-                                        "viewbox": SOUTH_INDIA_BOX, "bounded": 1})
-        req = urllib.request.Request(f"{SEARCH_URL}?{query}", headers={"User-Agent": "HelloSahay/1.0"})
         try:
-            with urllib.request.urlopen(req, timeout=15) as r:
-                hits = json.load(r)
+            hits = _nominatim_get({"q": q, "format": "jsonv2", "limit": 1, "countrycodes": "in",
+                                   "viewbox": SOUTH_INDIA_BOX, "bounded": 1}, 15)
         except Exception:
             raise HTTPException(503, "area lookup is busy, try again")
         if not hits:
@@ -207,11 +216,8 @@ def _photon(q: str) -> list[dict]:
 
 
 def _nominatim_places(q: str) -> list[dict]:
-    query = urllib.parse.urlencode({"q": q, "format": "jsonv2", "limit": 8, "countrycodes": "in", "addressdetails": 1,
-                                    "viewbox": SOUTH_INDIA_BOX, "bounded": 1})
-    req = urllib.request.Request(f"{SEARCH_URL}?{query}", headers={"User-Agent": "HelloSahay/1.0"})
-    with urllib.request.urlopen(req, timeout=10) as r:
-        hits = json.load(r)
+    hits = _nominatim_get({"q": q, "format": "jsonv2", "limit": 8, "countrycodes": "in", "addressdetails": 1,
+                           "viewbox": SOUTH_INDIA_BOX, "bounded": 1}, 10)
     return [{"name": h.get("name") or h["display_name"].split(", ")[0],
              "detail": ", ".join(filter(None, [(h.get("address") or {}).get("state_district") or (h.get("address") or {}).get("county"), (h.get("address") or {}).get("state")])),
              "lat": float(h["lat"]), "lng": float(h["lon"])} for h in hits]

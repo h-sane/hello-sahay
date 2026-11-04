@@ -78,7 +78,8 @@ export const hospitalService = {
       coords ? lookupNearby(coords) : Promise.resolve([] as ApiNearbyHospital[]),
     ]);
     const seeded = facilities.status === 'fulfilled' ? facilities.value : [];
-    demoDepartments = seeded.find((f) => f.is_partner)?.departments ?? demoDepartments;
+    // the API files every booking under the first partner (the demo hospital), so its departments are the ones offered
+    demoDepartments = seeded.filter((f) => f.is_partner).sort((a, b) => a.id - b.id)[0]?.departments ?? demoDepartments;
     const real = nearby.status === 'fulfilled' ? nearby.value : [];
     hospitals = real.map(fromNearby);
     lastError = nearby.status === 'rejected'
