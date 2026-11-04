@@ -15,13 +15,13 @@ A prototype for **Dexathon 2026**, Healthcare theme.
 
 ## Status
 
-Built and hosted as a working prototype: the helpline answers on a real number (044-481-36970, English / Hindi / Tamil / Malayalam / Kannada), the patient app runs on the web and as an Android APK, and Sahay Desk and the admin console are live. WhatsApp confirmation and the real Care plan payment are not wired yet; see [what is built per app](docs/PRODUCT_FEATURES.md).
+Built and hosted as a working prototype: the helpline answers on a real number (080-472-90138, English / Hindi / Tamil / Malayalam / Kannada), the patient app runs on the web and as an Android APK, and Sahay Desk and the admin console are live. WhatsApp confirmation and the real Care plan payment are not wired yet; see [what is built per app](docs/PRODUCT_FEATURES.md).
 
 ## Try it
 
 | What | Where | Demo login (DEMO DATA, password `demo1234`) |
 |---|---|---|
-| Helpline | Call **044-481-36970** from any phone | none |
+| Helpline | Call **080-472-90138** from any phone | none |
 | Patient app (web) | https://sahay.13-127-85-246.sslip.io | any mobile number; the one-time code is shown on screen |
 | Patient app (Android) | APK on the [latest release](https://github.com/h-sane/hello-sahay/releases/latest) | same as web |
 | Sahay Desk | https://sahaydesk.13-127-85-246.sslip.io | `reception@sunrise.demo` (receptionist), `desk7@sahay.demo` (hospital admin), `harini@sunrise.demo` (doctor) |

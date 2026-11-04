@@ -21,10 +21,15 @@ cloudflared tunnel --url http://localhost:8000
 
 Twilio: Console → Home → Make a voice call → Receive a call → Custom. Exotel: dashboard → App Bazaar → call flow with a Voicebot applet. Tests: `cd services/voice && python -m pytest`.
 
-## Exotel (the demo helpline, 2026-10-14, verified on a real call)
+## Exotel (the demo helpline; first account verified on a real call 2026-10-14)
 
-- Account `drmgruniversity1`, call flow **Hello Sahay Voicebot** (app id 1360750) attached to the landline **044-481-36970**
-  (and to the shared trial ExoPhone 095-138-86363, which asks callers for the account PIN: use the landline).
+- Since 2026-11-04: account `apppes1` (a new free trial, because the first account went to -1064 credits), call flow
+  **Hello Sahay Voicebot** (app id 1375303) attached to the landline **080-472-90138** and to the shared trial ExoPhone
+  095-138-86363, which asks callers for the account PIN (use the landline). Set up by hand in the Exotel dashboard (App Bazaar,
+  Create flow, Voicebot applet, then ExoPhones, pick the flow); checked with a synthetic call, not yet a real phone.
+  Our code holds no Exotel key: Exotel connects to us. To move to another account, repeat those dashboard steps and
+  update the number in the docs and `HELPLINE_NUMBER` (default in `services/api/app/routers/config.py`).
+- First account (`drmgruniversity1`, landline 044-481-36970, app id 1360750): trial over, credits negative.
 - Voicebot applet URL: `wss://<host>/exotel?sample-rate=8000&lang=auto`. Exotel strips the query string from the
   connection and delivers it in `start.custom_parameters`; the bridge reads `lang` and the caller's number (`start.from`)
   from there. `lang=auto` detects en/hi/ta (Sarvam); the first sentence sets the language and only a whole sentence in another one changes it later.

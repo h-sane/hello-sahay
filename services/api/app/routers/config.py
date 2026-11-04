@@ -10,7 +10,7 @@ router = APIRouter()
 def contacts():
     emergency = os.environ.get("DEMO_EMERGENCY_NUMBER", "").strip()
     return {
-        "helpline": os.environ.get("HELPLINE_NUMBER", "04448136970").strip(),
+        "helpline": os.environ.get("HELPLINE_NUMBER", "08047290138").strip(),
         "emergency": emergency,
         "hospital_call": os.environ.get("DEMO_CALL_NUMBER", "").strip() or emergency,
         "ambulance": "108",

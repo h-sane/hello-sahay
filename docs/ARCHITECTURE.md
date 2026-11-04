@@ -35,7 +35,7 @@ The diagrams are generated from [`diagrams/architecture.json`](diagrams/architec
 
 ### 2.1 Helpline call (the base of everything)
 
-Entry: a caller dials **044-481-36970** (Exotel) or taps "Start call" in the patient app. Details live in [`services/voice/README.md`](../services/voice/README.md) "Call flow".
+Entry: a caller dials **080-472-90138** (Exotel) or taps "Start call" in the patient app. Details live in [`services/voice/README.md`](../services/voice/README.md) "Call flow".
 
 1. Short greeting that says the call is transcribed, then "speak after the beep". The microphone stays muted until the beep has played. With `lang=auto` (the phone default) the first sentence sets the language; only a whole sentence of five or more words in another script changes it later.
 2. The caller's number comes from the carrier (Exotel `start.from`) and is never asked for. `GET /patients/{phone}` tells the call whether the caller has the app and where they are; a live location (pushed within 30 minutes) is confirmed once, otherwise the village is asked.
@@ -139,7 +139,7 @@ Conventions: appointment JSON is `{id, status, source, reason_text, arrived_at, 
 | Local | `docker compose up -d` (Postgres + pgvector on host port **5433**), API **8001**, voice **8002**, phone bridge **8000**, patient app **5174**, Desk **5173**; psycopg2 driver (`postgresql+psycopg2://…`) |
 | Hosted | One AWS Lightsail instance `sahay` (ap-south-1, static IP) running `deploy/docker-compose.yml`: db, api, voice, bridge, Caddy. A cron job redeploys from `origin/main` within a minute, so **pushing to `main` is the deploy**; frontends are rebuilt only when their folder changed |
 | Names | Patient app `https://13-127-85-246.sslip.io` (also `sahay.…`), Desk `desk.…` / `sahaydesk.…`, admin `admin.…` / `hellosahay.…`; Exotel voicebot `wss://13-127-85-246.sslip.io/exotel` |
-| Phone | Exotel call flow "Hello Sahay Voicebot" attached to 044-481-36970. Trial rules: only verified numbers call, 7-day trial |
+| Phone | Exotel call flow "Hello Sahay Voicebot" attached to 080-472-90138. Trial rules: only verified numbers call, 7-day trial |
 | Android | Capacitor wrapper in `apps/patient-web/android`, built with Gradle; API and voice URLs are baked in at build time (`deploy/README.md`) |
 | AWS | Personal account only (`AWS_PROFILE=personal-bedrock`, ap-south-1). Nova and Titan work on credits; Claude models on Bedrock need a card and are not used |
 

@@ -70,7 +70,7 @@ code is refused, and the profile is on the server.
 
 Build:
 1. One config call (`GET /config/contacts`) gives the app two numbers: the AI
-   helpline (Exotel 044-481-36970) and the emergency desk (`DEMO_EMERGENCY_NUMBER`,
+   helpline (Exotel 080-472-90138) and the emergency desk (`DEMO_EMERGENCY_NUMBER`,
    Adithya). No number is typed into the app.
 2. "Start call" = browser call to the AI, with a plain "Call by phone" link to the
    helpline number. Emergency button = Adithya's number first, 108 and 112 as small

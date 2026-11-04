@@ -23,7 +23,7 @@ patient app.
 
 Phase 0 done 2026-10-14: folder skeleton (each folder's README names its task
 cards), local Postgres + pgvector, `.env.example`, GitHub milestones and one
-issue per task card. Voice (2026-10-14): `services/voice` runs the English/Hindi/Tamil call pipeline behind a browser page (:8002) and the phone bridge (Twilio/Exotel); verified with synthetic speech in all three languages and on a real Exotel call to 044-481-36970 (English/Hindi switching mid-call; see `services/voice/README.md`). Update this section as code lands.
+issue per task card. Voice (2026-10-14): `services/voice` runs the English/Hindi/Tamil call pipeline behind a browser page (:8002) and the phone bridge (Twilio/Exotel); verified with synthetic speech in all three languages and on a real Exotel call to the old account's landline 044-481-36970 (English/Hindi switching mid-call; see `services/voice/README.md`). **2026-11-04:** that Exotel trial ran out (credits -1064), so the helpline moved to a new trial account `apppes1`, landline **080-472-90138**, call flow "Hello Sahay Voicebot" (app id 1375303) set up and attached in the dashboard; checked with a synthetic call on the hosted bridge, not yet with a real phone call. The 7-day trial and verified-caller rules apply again. Update this section as code lands.
 
 **Helpline v2 (2026-10-15):** short greeting + beep, caller number and app live location picked up automatically, recommend-then-book with preferred doctor/time, doctor accounts in Sahay Desk; see `services/voice/README.md` "Call flow". Verified with synthetic callers (en, hi); not yet on a real phone.
 

@@ -23,7 +23,7 @@ Behind all five: one **backend API** (`services/api/`, FastAPI + PostgreSQL/pgve
 
 ## 1. Hello Sahay helpline (voice)
 
-Languages: Tamil, Hindi, English, Malayalam, Kannada (the last two added 2026-11-04 on the voice side only; Sarvam speech, verified with synthetic callers, not yet on a real phone; the patient app and chat stay Tamil / Hindi / English). Not an emergency service. Phone number 044-481-36970 (Exotel); also the browser call.
+Languages: Tamil, Hindi, English, Malayalam, Kannada (the last two added 2026-11-04 on the voice side only; Sarvam speech, verified with synthetic callers, not yet on a real phone; the patient app and chat stay Tamil / Hindi / English). Not an emergency service. Phone number 080-472-90138 (Exotel); also the browser call.
 
 | Feature | Detail | Tier | Card | Status |
 |---|---|---|---|---|

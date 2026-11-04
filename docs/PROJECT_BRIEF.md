@@ -208,7 +208,7 @@ Ideas considered and rejected, so nobody re-proposes them:
 | OCR (medicine strip) | Bedrock vision model, or Amazon Textract | Printed text only. Extract brand, composition, strength, form → match against the generics table |
 | Embeddings | 🟡 Bedrock multilingual embeddings (Cohere Embed Multilingual or Titan v2) | Verify Hindi and Tamil quality |
 | Messaging | **WhatsApp Cloud API test number** (Meta) | Hussain has set up the WhatsApp Business API before. A test number can message only a few verified recipients, which is fine for the demo. **SMS in India needs DLT registration**, so don't plan on SMS for the demo |
-| Telephony | Bonus only | **A real Indian number won't be ready in 24h.** Exotel needs business KYC (2–3 business days); trial accounts get shared numbers, limited minutes, no WhatsApp. Twilio India numbers also need regulatory docs. **Main demo = browser or in-app "Call Sahay" streaming audio through the same pipeline.** Optional: a Twilio trial number. *As built: Exotel's Indian number 044-481-36970 reaches the same pipeline; Twilio was dropped.* |
+| Telephony | Bonus only | **A real Indian number won't be ready in 24h.** Exotel needs business KYC (2–3 business days); trial accounts get shared numbers, limited minutes, no WhatsApp. Twilio India numbers also need regulatory docs. **Main demo = browser or in-app "Call Sahay" streaming audio through the same pipeline.** Optional: a Twilio trial number. *As built: Exotel's Indian number 080-472-90138 reaches the same pipeline; Twilio was dropped.* |
 | Hosting | AWS (Mumbai region preferred) | Data residency is a DPDP pitch point. *As built: one Lightsail instance in ap-south-1, deploys from `main`* |
 
 ### 7.2 Repo layout (as built)
@@ -382,7 +382,7 @@ hello-sahay/
 | 21 | WhatsApp for confirmations; no SMS for the demo (DLT) | ✅ |
 | 22 | Possible partners: iKure, Karma (rural reach); state 104 operators (business-to-government) | ✅ |
 | 23 | Frontends built as Vite apps, not Expo and Next.js: patient app is a web app wrapped for Android with Capacitor; Desk is Vite; admin console is one static page | ✅ |
-| 24 | Telephony: Exotel Indian number (044-481-36970) reaches the same CallSession pipeline over WebSocket; Twilio dropped | ✅ |
+| 24 | Telephony: Exotel Indian number (080-472-90138) reaches the same CallSession pipeline over WebSocket; Twilio dropped | ✅ |
 | 25 | Tamil: Sarvam for speech-to-text and text-to-speech; `lang=auto` phone calls use Sarvam to detect English, Hindi or Tamil | ✅ |
 | 26 | Hosting: one AWS Lightsail instance in ap-south-1; pushing to `main` redeploys within a minute | ✅ |
 | 27 | One demo hospital (Sunrise Nursing Home) receives every booking and call; hospital names, distance and scheme tags are real (OpenStreetMap, CMCHIS list), doctors, slots and bookings are demo | ✅ |
