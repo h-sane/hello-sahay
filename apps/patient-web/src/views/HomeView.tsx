@@ -9,7 +9,7 @@ import type { NavTab } from '../components/BottomNav';
 interface HomeViewProps {
   currentLang: Language;
   userSettings: UserSettings;
-  userCoordinates: UserCoordinates;
+  userCoordinates?: UserCoordinates;
   nearestHospital: Hospital | null;
   onNavigate: (tab: NavTab) => void;
   onOpenEmergency: () => void;

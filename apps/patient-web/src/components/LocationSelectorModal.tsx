@@ -7,7 +7,7 @@ import { BigButton, Notice, Sheet, inputCls, pick } from './ui';
 interface LocationSelectorModalProps {
   isOpen: boolean;
   isInitialPopup: boolean;
-  currentCoords: UserCoordinates;
+  currentCoords?: UserCoordinates;
   currentLang: Language;
   onSelectLocation: (coords: UserCoordinates) => void;
   onClose: () => void;
@@ -46,7 +46,7 @@ export const LocationSelectorModal: React.FC<LocationSelectorModalProps> = ({
   return (
     <Sheet title={L({ en: 'Where are you?', hi: 'आप कहाँ हैं?', ta: 'நீங்கள் எங்கே இருக்கிறீர்கள்?', kn: 'ನೀವು ಎಲ್ಲಿದ್ದೀರಿ?', ml: 'നിങ്ങൾ എവിടെയാണ്?', te: 'మీరు ఎక్కడ ఉన్నారు?' })} closeLabel={L({ en: 'Close', hi: 'बंद करें', ta: 'மூடு', kn: 'ಮುಚ್ಚಿ', ml: 'അടയ്ക്കുക', te: 'మూసివేయి' })} onClose={onClose}>
       <div className="space-y-4">
-        {currentCoords.districtDetected && (
+        {currentCoords?.districtDetected && (
           <p className="text-lg text-slate-700">
             {L({ en: 'Now', hi: 'अभी', ta: 'இப்போது', kn: 'ಈಗ', ml: 'ഇപ്പോൾ', te: 'ఇప్పుడు' })}: <strong>{currentCoords.districtDetected}</strong>
           </p>

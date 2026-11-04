@@ -1,6 +1,6 @@
 // Thin client for the Hello Sahay API (docs/ARCHITECTURE.md section 5).
 // Dev: vite proxies /api to the FastAPI server. Prod: set VITE_API_URL.
-const BASE: string = (import.meta as any).env?.VITE_API_URL || '/api/v1';
+export const BASE: string = (import.meta as any).env?.VITE_API_URL || '/api/v1';
 
 export class ApiError extends Error {
   status: number;
@@ -90,7 +90,7 @@ export interface ApiAdvisory {
   summary: string;
 }
 
-const TOKEN_KEY = 'sahay.patient.token';
+export const TOKEN_KEY ='sahay.patient.token';
 
 function authHeaders(): Record<string, string> {
   try {

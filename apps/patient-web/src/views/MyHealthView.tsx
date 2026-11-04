@@ -4,6 +4,7 @@ import { Appointment, Language, UserSettings } from '../types';
 import { appointmentService } from '../services/appointmentService';
 import { FamilyMemberRow, ReminderRow, patientApi } from '../services/patientApi';
 import { useAppData } from '../components/AppData';
+import { LocationSharingCard } from '../components/LocationSharing';
 import { ReminderSheet } from '../components/ReminderSheet';
 import { DetailsSheet, FamilySheet, PaySheet, relationLabel } from '../components/MyHealthSheets';
 import { BigButton, Card, Notice, SectionTitle, Sheet, Title, departmentLabel, pick } from '../components/ui';
@@ -310,6 +311,7 @@ export const MyHealthView: React.FC<MyHealthViewProps> = ({ currentLang, userSet
       <div className="space-y-3">
         <BigButton variant="secondary" onClick={() => setShowDetails(true)} icon={<Pencil className="w-7 h-7" />}>{L({ en: 'My details', hi: 'मेरी जानकारी', ta: 'என் விவரங்கள்', kn: 'ನನ್ನ ವಿವರಗಳು', ml: 'എന്റെ വിവരങ്ങൾ', te: 'నా వివరాలు' })}</BigButton>
         <BigButton variant="secondary" onClick={onOpenLocationSelector}>{L({ en: 'Change my area', hi: 'मेरा क्षेत्र बदलें', ta: 'என் பகுதியை மாற்று', kn: 'ನನ್ನ ಪ್ರದೇಶ ಬದಲಿಸಿ', ml: 'എന്റെ പ്രദേശം മാറ്റുക', te: 'నా ప్రాంతాన్ని మార్చండి' })}</BigButton>
+        <LocationSharingCard lang={currentLang} phone={userSettings.userPhone} />
         <BigButton variant="secondary" onClick={() => onNavigate('ask-sahay')}>{L({ en: 'Ask about health schemes', hi: 'स्वास्थ्य योजनाओं के बारे में पूछें', ta: 'சுகாதாரத் திட்டங்கள் பற்றி கேள்', kn: 'ಆರೋಗ್ಯ ಯೋಜನೆಗಳ ಬಗ್ಗೆ ಕೇಳಿ', ml: 'ആരോഗ്യ പദ്ധതികളെക്കുറിച്ച് ചോദിക്കൂ', te: 'ఆరోగ్య పథకాల గురించి అడగండి' })}</BigButton>
       </div>
         </>

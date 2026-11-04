@@ -9,10 +9,10 @@ from sqlalchemy.orm import Session
 from ..common import IST, normalize_phone
 from ..db import get_session
 from ..models import Patient
-from ..security import optional_claims
+from ..security import PATIENT_TOKEN_HOURS, make_token, optional_claims
 
 router = APIRouter()
-FRESH_MINUTES = 30  # a location older than this is reported as not live
+FRESH_MINUTES = 90  # a location older than this is reported as not live
 
 
 class LocationIn(BaseModel):
@@ -75,4 +75,5 @@ def set_location(phone: str, body: LocationIn, session: Session = Depends(get_se
         raise HTTPException(404, "patient not found")
     p.lat, p.lng, p.location_at = body.lat, body.lng, datetime.now(IST)
     session.commit()
-    return {"ok": True}
+    # a fresh token keeps the phone's background worker signed in without the app being opened
+    return {"ok": True, "token": make_token(phone, "patient", hours=PATIENT_TOKEN_HOURS)}

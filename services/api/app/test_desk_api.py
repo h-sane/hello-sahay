@@ -293,9 +293,22 @@ def test_booking_keeps_the_hospital_the_patient_chose_but_sits_at_the_demo_desk(
 def test_real_nearby_hospitals_all_book_into_the_demo_hospital(client, monkeypatch):
     from .routers import places
     places._cache.clear()
-    monkeypatch.setattr(places, "_search", lambda lat, lng, span: [
-        {"type": "hospital", "name": "Real One", "lat": str(lat), "lon": str(lng), "display_name": "Real One, A, B, C", "extratags": {}},
-        {"type": "hospital", "name": "Real Two", "lat": str(lat + 0.01), "lon": str(lng), "display_name": "Real Two, A, B, C", "extratags": {}}])
+    monkeypatch.setattr(places, "_around", lambda lat, lng, radius: [
+        {"type": "node", "lat": lat, "lon": lng, "tags": {"name": "Real One", "amenity": "hospital"}},
+        {"type": "way", "center": {"lat": lat + 0.01, "lon": lng}, "tags": {"name": "Real Two", "amenity": "hospital"}},
+        {"type": "node", "lat": lat, "lon": lng, "tags": {"amenity": "hospital"}}])
     rows = client.get("/api/v1/places/nearby-hospitals", params={"lat": 11.11, "lng": 77.77}).json()
     places._cache.clear()
     assert [r["name"] for r in rows] == ["Real One", "Real Two"] and {r["book_facility_id"] for r in rows} == {FACILITY}
+
+
+def test_nearby_hospitals_fall_back_to_nominatim_when_overpass_is_down(monkeypatch):
+    from fastapi import HTTPException
+    from .routers import places
+
+    def down(lat, lng, radius):
+        raise HTTPException(503, "busy")
+
+    monkeypatch.setattr(places, "_overpass", down)
+    monkeypatch.setattr(places, "_nominatim", lambda lat, lng, radius: [{"lat": lat, "lon": lng, "tags": {"name": "Fallback"}}])
+    assert places._around(11.0, 77.0, 10000)[0]["tags"]["name"] == "Fallback"

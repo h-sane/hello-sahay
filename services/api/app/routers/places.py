@@ -1,4 +1,4 @@
-"""Real hospitals near a point, from OpenStreetMap (Nominatim search).
+"""Real hospitals near a point, from OpenStreetMap (Overpass radius query, Nominatim search as the fallback).
 
 Names, locations, kinds and CMCHIS / PM-JAY cover (checked against Tamil Nadu's own empanelment list) are real.
 Everything a patient could act on is the demo wiring Hussain chose: calls go to DEMO_CALL_NUMBER and bookings
@@ -21,7 +21,11 @@ from .facilities import _km
 router = APIRouter()
 
 SEARCH_URL = "https://nominatim.openstreetmap.org/search"
-HALF_SPANS_DEG = [0.12, 0.4, 1.0]
+OVERPASS_URLS = ["https://overpass-api.de/api/interpreter", "https://overpass.private.coffee/api/interpreter"]
+RADII_M = [3_000, 10_000, 30_000, 80_000]  # small first: Nominatim returns 40 matches in the box, not the nearest 40
+OVERPASS_RETRY_S = 300
+_overpass_down_until = 0.0
+OVERPASS_TIMEOUT_S = 10  # the public servers are often overloaded; fail over fast
 SOUTH_INDIA_BOX = "74.0,19.9,84.8,8.0"  # left,top,right,bottom: the five states the helpline serves
 TOO_GENERAL = {"city", "state", "state_district", "county", "region", "province", "country"}  # "Chennai" is not a place to walk to
 _geocoded: dict[str, dict] = {}
@@ -32,7 +36,24 @@ GOVERNMENT_HINTS = ("government", "govt", "gh ", "taluk", "district headquarters
 PHC_HINTS = ("primary health", "phc", "health centre", "health center", "urban health")
 
 
-def _search(lat: float, lng: float, span: float) -> list[dict]:
+def _overpass(lat: float, lng: float, radius: int) -> list[dict]:
+    """Hospitals, plus primary health centres, whose centre lies within radius metres of the point."""
+    around = f"(around:{radius},{lat},{lng})"
+    query = (f'[out:json][timeout:25];(nwr{around}[amenity=hospital][name];nwr{around}[healthcare=hospital][name];'
+             f'nwr{around}[amenity~"^(clinic|doctors)$"][name~"primary health|phc|health cent",i];);out center tags;')
+    body = urllib.parse.urlencode({"data": query}).encode()
+    for url in OVERPASS_URLS:
+        try:
+            req = urllib.request.Request(url, data=body, headers={"User-Agent": "HelloSahay/1.0"})
+            with urllib.request.urlopen(req, timeout=OVERPASS_TIMEOUT_S) as r:
+                return json.load(r)["elements"]
+        except Exception:
+            continue
+    raise HTTPException(503, "hospital lookup is busy, try again")
+
+
+def _nominatim(lat: float, lng: float, radius: int) -> list[dict]:
+    span = radius / 111_000
     query = urllib.parse.urlencode({
         "q": "hospital", "format": "jsonv2", "limit": 40, "bounded": 1, "extratags": 1,
         "viewbox": f"{lng - span},{lat + span},{lng + span},{lat - span}",
@@ -40,9 +61,28 @@ def _search(lat: float, lng: float, span: float) -> list[dict]:
     req = urllib.request.Request(f"{SEARCH_URL}?{query}", headers={"User-Agent": "HelloSahay/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=15) as r:
-            return json.load(r)
+            hits = json.load(r)
     except Exception:
         raise HTTPException(503, "hospital lookup is busy, try again")
+    time.sleep(1.1)  # Nominatim allows one request per second
+    return [{"tags": {**(h.get("extratags") or {}), "name": h["name"], "addr:full": ", ".join(h["display_name"].split(", ")[1:4]),
+                      "addr:district": ", ".join(h["display_name"].split(", ")[1:])},
+             "lat": h["lat"], "lon": h["lon"]} for h in hits if h.get("type") == "hospital" and h.get("name")]
+
+
+def _around(lat: float, lng: float, radius: int) -> list[dict]:
+    global _overpass_down_until
+    if time.time() >= _overpass_down_until:
+        try:
+            return _overpass(lat, lng, radius)
+        except HTTPException:
+            _overpass_down_until = time.time() + OVERPASS_RETRY_S  # skip the slow timeouts for a few minutes
+    return _nominatim(lat, lng, radius)
+
+
+def _address(tags: dict) -> str | None:
+    parts = [tags.get(k) for k in ("addr:street", "addr:suburb", "addr:city", "addr:district")]
+    return ", ".join(p for p in parts if p) or tags.get("addr:full")
 
 
 def _kind(tags: dict) -> str:
@@ -82,23 +122,32 @@ def nearby_hospitals(
         found = hit[1]
     else:
         found, seen = [], set()
-        for span in HALF_SPANS_DEG:
-            for r in _search(lat, lng, span):
-                if r.get("type") != "hospital" or not r.get("name") or r["name"] in seen:
+        for radius in RADII_M:
+            try:
+                elements = _around(lat, lng, radius)
+            except HTTPException:
+                if hit:  # both services are down: an old answer beats none
+                    break
+                raise
+            for el in elements:
+                tags = el.get("tags", {})
+                name = tags.get("name") or tags.get("name:en")
+                pos = el if "lat" in el else el.get("center")
+                if not name or not pos or name.lower() in seen:
                     continue
-                seen.add(r["name"])
-                tags = r.get("extratags") or {}
-                parts = r["display_name"].split(", ")
+                seen.add(name.lower())
                 found.append({
-                    "name": r["name"], "lat": float(r["lat"]), "lng": float(r["lon"]),
-                    "kind": _kind({**tags, "name": r["name"]}), "speciality": _speciality(tags, r["name"]),
-                    "address": ", ".join(parts[1:4]) or None, "emergency": tags.get("emergency") == "yes",
-                    "district_text": ", ".join(parts[1:]),
+                    "name": name, "lat": float(pos["lat"]), "lng": float(pos["lon"]),
+                    "kind": _kind({**tags, "name": name}), "speciality": _speciality(tags, name),
+                    "address": _address(tags), "emergency": tags.get("emergency") == "yes",
+                    "district_text": ", ".join(filter(None, [tags.get("addr:city"), tags.get("addr:district"), tags.get("addr:state")])),
                 })
-            if found:
+            if len(found) >= 3:
                 break
-            time.sleep(1.1)  # Nominatim allows one request per second
-        _cache[key] = (time.time(), found)
+        if found:
+            _cache[key] = (time.time(), found)
+        elif hit:
+            found = hit[1]
 
     partner = demo_facility(session)
     phone = os.environ.get("DEMO_CALL_NUMBER") or os.environ.get("DEMO_EMERGENCY_NUMBER") or None

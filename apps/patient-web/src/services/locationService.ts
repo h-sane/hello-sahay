@@ -516,96 +516,6 @@ export const locationService = {
     return `${closest.name}, ${closest.state}`;
   },
 
-  // Fetch location via network IP from multiple endpoints with rapid fallback
-  async detectLocationViaIp(): Promise<UserCoordinates | null> {
-    // Attempt 1: ipapi.co
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2200);
-
-      const resp = await fetch('https://ipapi.co/json/', { signal: controller.signal });
-      clearTimeout(timeoutId);
-
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data && typeof data.latitude === 'number' && typeof data.longitude === 'number') {
-          const locality = data.city || data.region || 'India';
-          const state = data.region || 'India';
-          const name = `${locality}, ${state}`;
-          const result: UserCoordinates = {
-            latitude: data.latitude,
-            longitude: data.longitude,
-            districtDetected: name,
-            isLocating: false,
-          };
-          locationService.saveLocation(result);
-          return result;
-        }
-      }
-    } catch {
-      // Try next service
-    }
-
-    // Attempt 2: bigdatacloud client
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2200);
-
-      const resp = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client', {
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data && typeof data.latitude === 'number' && typeof data.longitude === 'number') {
-          const locality = data.city || data.locality || data.principalSubdivision;
-          const state = data.principalSubdivision || 'India';
-          const name = locality ? `${locality}, ${state}` : `${state}, India`;
-
-          const result: UserCoordinates = {
-            latitude: data.latitude,
-            longitude: data.longitude,
-            districtDetected: name,
-            isLocating: false,
-          };
-          locationService.saveLocation(result);
-          return result;
-        }
-      }
-    } catch {
-      // Ignore network errors
-    }
-
-    // Attempt 3: freeipapi.com
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
-
-      const resp = await fetch('https://freeipapi.com/api/json', { signal: controller.signal });
-      clearTimeout(timeoutId);
-
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data && typeof data.latitude === 'number' && typeof data.longitude === 'number') {
-          const name = `${data.cityName || data.regionName || 'India'}, ${data.regionName || 'India'}`;
-          const result: UserCoordinates = {
-            latitude: data.latitude,
-            longitude: data.longitude,
-            districtDetected: name,
-            isLocating: false,
-          };
-          locationService.saveLocation(result);
-          return result;
-        }
-      }
-    } catch {
-      // Ignore
-    }
-
-    return null;
-  },
-
   // Get saved location from storage if user already set it
   getSavedLocation(): UserCoordinates | null {
     if (typeof window === 'undefined') return null;
@@ -630,110 +540,28 @@ export const locationService = {
     }
   },
 
-  // Complete robust location detection: Phone High-Accuracy GPS -> Low-Accuracy Network -> IP Geolocation -> Default Indian preset
+  // The phone's own GPS, then its network position. Never an IP guess or a default district: a wrong place
+  // sends the patient to hospitals far from where they are, so a failure is reported and the user picks an area.
   async detectUserLocation(): Promise<UserCoordinates> {
-    return new Promise((resolve) => {
-      let hasResolved = false;
-
-      const finishWithCoordinates = (result: UserCoordinates) => {
-        if (hasResolved) return;
-        hasResolved = true;
-        locationService.saveLocation(result);
-        resolve(result);
-      };
-
-      // Global safety timeout
-      const timeoutId = setTimeout(async () => {
-        if (!hasResolved) {
-          const ipCoords = await locationService.detectLocationViaIp();
-          if (ipCoords) {
-            finishWithCoordinates(ipCoords);
-          } else {
-            const fallback: UserCoordinates = {
-              latitude: 12.5113,
-              longitude: 79.8837,
-              districtDetected: 'Chengalpattu Rural, Tamil Nadu',
-              isLocating: false,
-            };
-            finishWithCoordinates(fallback);
-          }
-        }
-      }, 7000);
-
-      // Check if browser geolocation exists
-      if (typeof window === 'undefined' || !navigator.geolocation) {
-        clearTimeout(timeoutId);
-        locationService.detectLocationViaIp().then((ipCoords) => {
-          if (ipCoords) {
-            finishWithCoordinates(ipCoords);
-          } else {
-            finishWithCoordinates({
-              latitude: 12.5113,
-              longitude: 79.8837,
-              districtDetected: 'Chengalpattu Rural, Tamil Nadu',
-              isLocating: false,
-            });
-          }
-        });
-        return;
-      }
-
-      // First try real hardware GPS (high accuracy) on phone
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          clearTimeout(timeoutId);
-          if (hasResolved) return;
-
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          const resolvedName = await locationService.reverseGeocode(lat, lon);
-
-          finishWithCoordinates({
-            latitude: lat,
-            longitude: lon,
-            accuracy: position.coords.accuracy,
-            districtDetected: resolvedName,
-            isLocating: false,
-          });
-        },
-        async () => {
-          // If high accuracy GPS times out/errors, fallback to network location
-          navigator.geolocation.getCurrentPosition(
-            async (pos2) => {
-              clearTimeout(timeoutId);
-              if (hasResolved) return;
-              const lat = pos2.coords.latitude;
-              const lon = pos2.coords.longitude;
-              const resolvedName = await locationService.reverseGeocode(lat, lon);
-              finishWithCoordinates({
-                latitude: lat,
-                longitude: lon,
-                accuracy: pos2.coords.accuracy,
-                districtDetected: resolvedName,
-                isLocating: false,
-              });
-            },
-            async () => {
-              clearTimeout(timeoutId);
-              if (hasResolved) return;
-              const ipCoords = await locationService.detectLocationViaIp();
-              if (ipCoords) {
-                finishWithCoordinates(ipCoords);
-              } else {
-                finishWithCoordinates({
-                  latitude: 12.5113,
-                  longitude: 79.8837,
-                  districtDetected: 'Chengalpattu Rural, Tamil Nadu',
-                  isLocating: false,
-                });
-              }
-            },
-            { enableHighAccuracy: false, timeout: 3000, maximumAge: 60000 }
-          );
-        },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 30000 }
-      );
-    });
+    const fix = (options: PositionOptions) =>
+      new Promise<GeolocationPosition>((resolve, reject) => {
+        if (typeof navigator === 'undefined' || !navigator.geolocation) return reject(new Error('no geolocation'));
+        navigator.geolocation.getCurrentPosition(resolve, reject, options);
+      });
+    let position: GeolocationPosition;
+    try {
+      position = await fix({ enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 });
+    } catch {
+      position = await fix({ enableHighAccuracy: false, timeout: 10000, maximumAge: 120000 });
+    }
+    const { latitude, longitude, accuracy } = position.coords;
+    const result: UserCoordinates = {
+      latitude, longitude, accuracy,
+      districtDetected: await locationService.reverseGeocode(latitude, longitude),
+      isLocating: false,
+    };
+    locationService.saveLocation(result);
+    return result;
   },
 
   // Set location manually from a preset or search result
@@ -743,6 +571,7 @@ export const locationService = {
       longitude: preset.longitude,
       districtDetected: `${preset.name}, ${preset.state}`,
       isLocating: false,
+      manual: true,
     };
     locationService.saveLocation(coords);
     return coords;

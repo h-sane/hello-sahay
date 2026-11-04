@@ -6,6 +6,7 @@ export interface UserCoordinates {
   accuracy?: number;
   districtDetected?: string;
   isLocating?: boolean;
+  manual?: boolean; // picked from the list, so GPS must not overwrite it
   error?: string;
 }
 

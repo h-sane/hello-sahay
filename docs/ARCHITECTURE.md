@@ -38,7 +38,7 @@ The earlier Next.js and Expo builds were deleted on 2026-11-04 (git history has 
 Entry: a caller dials **080-472-90138** (Exotel) or taps "Start call" in the patient app. Details live in [`services/voice/README.md`](../services/voice/README.md) "Call flow".
 
 1. Welcome and a language choice (one short line per language), a beep, then the **disclaimer in the language the caller chose** (transcribed, no medical advice, 108 in an emergency) and "What is troubling you?". The microphone stays muted until the beep has played. With `lang=auto` (the phone default) only a whole sentence of five or more words in another script changes the language later.
-2. The caller's number comes from the carrier (Exotel `start.from`) and is never asked for. `GET /patients/{phone}` tells the call whether the caller has the app and where they are; a live location (pushed within 30 minutes) is confirmed once, otherwise the village is asked.
+2. The caller's number comes from the carrier (Exotel `start.from`) and is never asked for. `GET /patients/{phone}` tells the call whether the caller has the app and where they are; a live location (pushed within 90 minutes; the Android app reports it every 30 minutes from a background worker, even when closed) is confirmed once, otherwise the village is asked.
 3. **Safety gate on every utterance, before the model.** Emergency words: say 108 / 112, flag the call as an emergency and queue a human callback, then name the nearest hospital. Symptom questions: fixed safe reply. The model also reads a **severity** (mild, moderate, serious) from the caller's words; it only orders what is offered and is editable on the call record.
 4. Department comes from a fixed keyword table (`data/seed/department_keywords.csv`), never from the model.
 5. `find_facilities` offers by severity: mild gets the nearest partner clinics (bookable), moderate the nearest real hospitals (OpenStreetMap) with the free government ones on request, serious gets 108 and the nearest hospital. Government hospitals are information only. The area must be specific (not a whole city).
@@ -114,7 +114,7 @@ All under `/api/v1`; `GET /health` also at the root. JSON in and out. "Open" mea
 | Group | Endpoints | Auth |
 |---|---|---|
 | Facilities | `GET /facilities?lat&lng&department&scheme&kind&partner_only&max_km&nearest_first`, `GET /places/geocode?q`, `GET /facilities/{id}/slots?date&department` | open |
-| Real hospitals | `GET /places/nearby-hospitals?lat&lng&limit` (OpenStreetMap, CMCHIS tags, cached 1 h per ~1 km cell) | open |
+| Real hospitals | `GET /places/nearby-hospitals?lat&lng&limit` (OpenStreetMap Overpass with a Nominatim fallback, CMCHIS tags, cached 1 h per ~1 km cell) | open |
 | Booking | `POST /appointments`, `PATCH /appointments/{id}` (reschedule, cancel, arrived, complete, no_show), `POST /appointments/walk-in`, `GET /appointments?date&history`, `GET /patients/{phone}/appointments` | open to book / reschedule / cancel; Desk token for arrived, complete, no_show, list, walk-in |
 | Patients | `GET /patients/{phone}` (registered, name, village, `location_live`), `PUT /patients/{phone}/location`, `PUT /patients/me` | open / patient token |
 | Auth | `POST /auth/login` (Desk or admin), `POST /auth/otp/request`, `POST /auth/otp/verify` | open |
@@ -174,7 +174,7 @@ Conventions: appointment JSON is `{id, status, source, reason_text, arrived_at, 
 | Scheme cover | Tamil Nadu CMCHIS empanelment list (`data/schemes/cmchis_hospitals.json`) | PM-JAY has no open per-hospital list; tagged together because Tamil Nadu runs both on one list |
 | Generics + price | PMBI Jan Aushadhi list (`data/medicines/janaushadhi_mrp.csv`) | Official |
 | Brand → composition + market price | Public Indian medicine dataset (`data/medicines/brands.csv.gz`, 246k rows), see `data/medicines/SOURCES.md` | Demo use; **no live scraping** of pharmacy sites |
-| Real hospitals | OpenStreetMap (Nominatim) | Live lookup |
+| Real hospitals | OpenStreetMap: Overpass radius query, Nominatim as the fallback | Live lookup |
 | Demo facilities, doctors, slots | `data/seed/` (Chengalpattu district, 10 facilities) | Labelled **DEMO DATA** |
 
 ## 11. Team and tool split

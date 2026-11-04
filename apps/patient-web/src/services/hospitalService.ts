@@ -1,49 +1,11 @@
 import { Hospital, UserCoordinates } from '../types';
 import { api, ApiFacility, ApiNearbyHospital } from './api';
 
-// Hospitals come from the nearby lookup (real, OpenStreetMap) with GET /facilities as the fallback, cached here so the views can keep
-// reading them synchronously. App calls load() on start and when the location changes.
+// Hospitals come from the nearby lookup (real, OpenStreetMap), cached here so the views can keep
+// reading them synchronously. The seeded demo facilities are never listed as nearby: GET /facilities is only read for the partner's departments. App calls load() on start and when the location changes.
 let hospitals: Hospital[] = [];
 let demoDepartments: string[] = ['General Medicine'];
 let lastError = '';
-
-const CATEGORY: Record<ApiFacility['type'], Hospital['category']> = {
-  PHC: 'phc',
-  CHC: 'chc',
-  GH: 'government',
-  private: 'private',
-};
-
-function toHospital(f: ApiFacility): Hospital {
-  const name = f.name;
-  const address = f.address || '';
-  const schemes: Hospital['schemesSupported'] = [];
-  if (f.pmjay) schemes.push('PM-JAY');
-  if (f.cmchis) schemes.push('CMCHIS');
-  return {
-    id: String(f.id),
-    name,
-    nativeNames: { en: name, hi: name, ta: name },
-    category: CATEGORY[f.type] ?? 'private',
-    district: 'Chengalpattu',
-    state: 'Tamil Nadu',
-    pinCode: address.match(/\b\d{6}\b/)?.[0] ?? '',
-    address: { en: address, hi: address, ta: address },
-    distanceKm: f.distance_km ?? 0,
-    departments: f.departments,
-    emergency24x7: /24/.test(f.hours || ''),
-    schemesSupported: schemes,
-    contactPhone: f.phone || '',
-    openingHours: f.hours || '',
-    diagnosticServices: [],
-    accessibilityInfo: '',
-    verifiedDate: '',
-    isDemo: true,
-    latitude: f.lat ?? 0,
-    longitude: f.lng ?? 0,
-    isPartner: f.is_partner,
-  };
-}
 
 const KIND_LABEL: Record<ApiNearbyHospital['kind'], string> = {
   government: 'Government hospital',
@@ -93,9 +55,9 @@ function lookupNearby(coords: UserCoordinates): Promise<ApiNearbyHospital[]> {
   const key = `${coords.latitude.toFixed(3)},${coords.longitude.toFixed(3)}`;
   if (key !== nearbyKey || !nearbyLookup) {
     nearbyKey = key;
-    nearbyLookup = api.nearbyHospitals(coords).catch(() => {
+    nearbyLookup = api.nearbyHospitals(coords).catch((e) => {
       nearbyKey = ''; // a failed lookup is retried next time
-      return [] as ApiNearbyHospital[];
+      throw e;
     });
   }
   return nearbyLookup;
@@ -104,12 +66,12 @@ function lookupNearby(coords: UserCoordinates): Promise<ApiNearbyHospital[]> {
 export const hospitalService = {
   // Nearest real hospital to the user, or null when the lookup fails.
   async nearestReal(coords: UserCoordinates): Promise<Hospital | null> {
-    const [first] = await lookupNearby(coords);
+    const [first] = await lookupNearby(coords).catch(() => []);
     return first ? fromNearby(first) : null;
   },
 
-  // The list every screen reads: real hospitals near the user (OpenStreetMap), nearest first. When that lookup
-  // finds nothing, the seeded demo facilities stand in so the screens are never empty.
+  // The list every screen reads: real hospitals near the user (OpenStreetMap), nearest first. A failed or empty
+  // lookup leaves the list empty with an error, rather than showing hospitals from somewhere else.
   async load(coords?: UserCoordinates): Promise<void> {
     const [facilities, nearby] = await Promise.allSettled([
       api.facilities(coords),
@@ -118,15 +80,10 @@ export const hospitalService = {
     const seeded = facilities.status === 'fulfilled' ? facilities.value : [];
     demoDepartments = seeded.find((f) => f.is_partner)?.departments ?? demoDepartments;
     const real = nearby.status === 'fulfilled' ? nearby.value : [];
-    if (real.length) {
-      hospitals = real.map(fromNearby);
-      lastError = '';
-    } else if (facilities.status === 'fulfilled') {
-      hospitals = seeded.map(toHospital);
-      lastError = '';
-    } else {
-      lastError = facilities.reason instanceof Error ? facilities.reason.message : 'Could not load hospitals.';
-    }
+    hospitals = real.map(fromNearby);
+    lastError = nearby.status === 'rejected'
+      ? 'Could not look up hospitals near you. Check your connection and try again.'
+      : real.length ? '' : 'No hospitals were found near this location.';
   },
 
   // Departments a booking can choose from: the demo hospital's, because its doctors take every booking.
