@@ -19,7 +19,7 @@ router = APIRouter()
 class CallIn(BaseModel):
     patient_phone: str | None = None
     facility_id: int | None = None
-    language: Literal["ta", "hi", "en", "ml", "kn"] | None = None
+    language: Literal["ta", "hi", "en", "ml", "kn", "te"] | None = None
     transcript: list | dict | str | None = None
     summary: str | None = Field(None, max_length=4000)
     outcome: Literal["booked", "info_given", "emergency", "handed_off"] | None = None

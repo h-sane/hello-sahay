@@ -1,7 +1,7 @@
 """Hello Sahay team console: platform-wide analytics, hospitals, payments and every call transcript.
 
 Admin token only. Subscription and arrival-fee lines are derived from partner flags and
-arrived appointments (₹2,999 a month, ₹40 per arrival); rows in the payment table are added on top.
+arrived appointments, priced by the hospital's plan (clinic, nursing_home, hospital); rows in the payment table are added on top.
 """
 from datetime import datetime, timedelta, timezone
 
@@ -13,8 +13,12 @@ from ..db import get_session
 from ..models import Appointment, Call, Doctor, Facility, Patient, Payment, Slot
 from ..security import require_staff
 
-SUBSCRIPTION_RS = 2999
-ARRIVAL_FEE_RS = 40
+# plan -> (monthly fee, fee per arrival); an unset plan bills as a nursing home
+PLANS = {"clinic": (999, 30), "nursing_home": (2499, 50), "hospital": (4999, 50)}
+
+
+def _fees(plan: str | None) -> tuple[int, int]:
+    return PLANS.get(plan or "", PLANS["nursing_home"])
 IST = timezone(timedelta(hours=5, minutes=30))
 
 
@@ -40,7 +44,7 @@ ARRIVED = ("arrived", "completed")
 def _arrivals_by_facility(session: Session) -> dict[int, dict]:
     """Per facility: appointment counts by status, and 'billable' = patients Sahay sent who arrived.
 
-    Walk-ins entered at the counter (source desk) were not brought by Sahay, so they carry no ₹40 fee.
+    Walk-ins entered at the counter (source desk) were not brought by Sahay, so they carry no arrival fee.
     """
     rows = session.execute(
         select(Doctor.facility_id, Appointment.status, Appointment.source, func.count())
@@ -60,8 +64,10 @@ def overview(session: Session = Depends(get_session)):
     midnight = datetime.now(IST).replace(hour=0, minute=0, second=0, microsecond=0)
     appt = _counts(session, Appointment.status)
     arrived, no_show = sum(appt.get(k, 0) for k in ARRIVED), appt.get("no_show", 0)
-    billable = sum(v.get("billable", 0) for v in _arrivals_by_facility(session).values())
     partners = session.scalar(select(func.count()).select_from(Facility).where(Facility.is_partner)) or 0
+    by_facility = _arrivals_by_facility(session)
+    revenue = sum(_fees(f.plan)[0] + by_facility.get(f.id, {}).get("billable", 0) * _fees(f.plan)[1]
+                  for f in session.scalars(select(Facility).where(Facility.is_partner)))
     call_total = session.scalar(select(func.count()).select_from(Call)) or 0
     care_rs = float(session.scalar(select(func.coalesce(func.sum(Payment.amount), 0)).where(
         Payment.kind == "premium", Payment.status == "paid")) or 0)
@@ -79,7 +85,7 @@ def overview(session: Session = Depends(get_session)):
         "no_show_rate": round(no_show / (arrived + no_show), 3) if arrived + no_show else None,
         "partner_hospitals": partners,
         "care_plan_revenue_rs": care_rs,
-        "revenue_rs": partners * SUBSCRIPTION_RS + billable * ARRIVAL_FEE_RS + care_rs,
+        "revenue_rs": revenue + care_rs,
     }
 
 
@@ -96,7 +102,7 @@ def hospitals(session: Session = Depends(get_session)):
             "is_partner": f.is_partner, "plan": f.plan, "pmjay": f.pmjay, "cmchis": f.cmchis,
             "calls": calls.get(f.id, 0), "bookings": sum(v for k, v in stats.items() if k != "billable"), "arrivals": arrived,
             "no_shows": stats.get("no_show", 0),
-            "amount_due_rs": (SUBSCRIPTION_RS if f.is_partner else 0) + billable * ARRIVAL_FEE_RS,
+            "amount_due_rs": (_fees(f.plan)[0] if f.is_partner else 0) + billable * _fees(f.plan)[1],
         })
     return out
 
@@ -105,14 +111,15 @@ def hospitals(session: Session = Depends(get_session)):
 def payments(session: Session = Depends(get_session)):
     names = {f.id: f.name for f in session.scalars(select(Facility))}
     lines = []
+    plans = {f.id: f.plan for f in session.scalars(select(Facility))}
     for f_id, stats in _arrivals_by_facility(session).items():
         if stats.get("billable") and f_id in names:
-            n = stats["billable"]
-            lines.append({"payer": names[f_id], "kind": "arrival_fee", "detail": f"{n} arrivals × ₹{ARRIVAL_FEE_RS}",
-                          "amount_rs": n * ARRIVAL_FEE_RS, "status": "due"})
+            n, rate = stats["billable"], _fees(plans[f_id])[1]
+            lines.append({"payer": names[f_id], "kind": "arrival_fee", "detail": f"{n} arrivals × ₹{rate}",
+                          "amount_rs": n * rate, "status": "due"})
     for f in session.scalars(select(Facility).where(Facility.is_partner)):
-        lines.append({"payer": f.name, "kind": "subscription", "detail": f.plan or "monthly plan",
-                      "amount_rs": SUBSCRIPTION_RS, "status": "due"})
+        lines.append({"payer": f.name, "kind": "subscription", "detail": f.plan or "nursing_home",
+                      "amount_rs": _fees(f.plan)[0], "status": "due"})
     for p in session.scalars(select(Payment).order_by(Payment.id.desc())):
         if p.payer_type == "hospital":
             payer = names.get(p.payer_id)

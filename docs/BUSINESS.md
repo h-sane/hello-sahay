@@ -23,27 +23,74 @@ Patients never pay for care. A free multilingual voice helpline sends patients t
 
 | # | Payer | What they pay for | Amount | Status |
 |---|---|---|---|---|
-| 1 | **Hospitals and clinics** (small and mid private hospitals, nursing homes in tier-2/3 towns) | Sahay Desk subscription | ₹2,999 / month | 🟡 working number used in the proposal |
-| 2 | **Hospitals** | Per patient who actually arrives from the helpline (marked on Desk check-in); funds the free helpline | ₹40 per arrived patient | 🟡 working number |
+| 1 | **Clinics, nursing homes and hospitals** (private, tier-2/3 towns) | Sahay Desk subscription: dashboard, booking calendar, reminders, helpline number forwarding | ₹999 / ₹2,499 / ₹4,999 a month by tier, see "Hospital tiers" below | 🟡 researched proposal, not yet confirmed by the team or by clinic calls |
+| 2 | **Same hospitals** | Per patient who actually arrives from the helpline (marked on Desk check-in); funds the free helpline | ₹30 (clinic) or ₹50 (nursing home, hospital) per arrived patient | 🟡 researched proposal |
 | 3 | **Family members** (urban or migrant children) | Care plan: medicine alarms, adherence tracking, missed-dose family alerts, unlimited composition checks | ₹149 / month | 🟡 working number (brief range was ₹99–199) |
 | 4 | **States, CSR, 104 operators** | Sponsor helpline minutes, or license Hello Sahay as the AI layer for state 104 helplines | Not priced | ✅ direction, ❓ numbers |
 
 **Patients do not pay** for the helpline, chat, advisories, appointment booking, confirmations or basic medicine checks (3 a day). ✅ We do not charge rural patients for advisories (free on government sites; would look exploitative) or for appointment checks (hospitals want patients to show up, so hospitals pay).
 
-**Fee trigger:** the ₹40 fee is charged only when the hospital marks the patient arrived on Sahay Desk. In the demo, marking a patient arrived adds a ₹40 line in the admin payments screen.
+### Hospital tiers 🟡
+
+Jury feedback (round 1) asked why hospitals would pay and how clinics differ from hospitals, so the price depends on the facility's size. Prices exclude GST, as the competitors quote them.
+
+**How a facility is classified:** the hospital picks its own plan when it joins (it is the `plan` field on the facility, set by our team). The bed counts in the table are only a guide to which plan fits; we do not ask for or check bed numbers.
+
+| Tier | Who | Monthly | Per arrived patient | Helpline calls included a month |
+|---|---|---|---|---|
+| Clinic | No inpatient beds | ₹999 | ₹30 | 150 |
+| Nursing home | 1 to 30 beds | ₹2,499 | ₹50 | 400 |
+| Hospital | 31 or more beds | ₹4,999 | ₹50 | 1,000 |
+
+Rules:
+
+- The first clinics get two free months as a pilot; it produces real arrival counts and a real conversion rate for the next judging round.
+- The arrival fee applies only to a patient who first reached the hospital through the helpline, not to the hospital's own repeat patients or counter walk-ins.
+- Calls above the included number are not yet priced; decide once real call volumes exist. The allowance exists because forwarding a clinic's own number can cost more in calls than the subscription earns.
+- The Hospital tier is listed so a larger hospital that asks has an answer. The first sales target is clinics and nursing homes, since 84% of private hospitals have fewer than 30 beds (older figure).
+
+**Where the numbers come from:**
+
+| Number | Evidence |
+|---|---|
+| Clinic ₹999 | Practo Ray ₹999 a month (1-year plan), Vitels Pro ₹999, Latrexa ₹499 to ₹4,999, DocPulse appointments ₹500 for up to 500 visits a month. A small-town clinic receptionist earns ₹10,000 to ₹18,000 a month (Tamil Nadu job ads, 2026), so ₹999 is under a tenth of that. |
+| Nursing home ₹2,499, Hospital ₹4,999 | Halemind publishes ₹999, ₹2,499 and ₹4,999 tiers by doctor count; Practo Insta (hospital product) is ₹1,000 per user with a 5-user minimum; a full hospital management system starts near ₹3,00,000 a year, which we are not. |
+| Arrival fee floor | Voice cost per arrived patient: about ₹23 (see "Measured cost per call"). |
+| Arrival fee ceiling | About 10 to 15% of a consultation fee. Small-city consultation fees are ₹150 to ₹300 in directory listings (no survey found); DocPulse sells a 10% consultation-charge add-on. ₹30 is 10 to 15% of ₹200 to ₹300. |
+
+Sources read on 2026-11-04: elaior.com/clinic-management-software-price-india, vitels.in/clinic-software-price-india, docpulse.com/solutions/clinic-management-software-demo, sarvam.ai/api-pricing, exotel.com/pricing/business-phone-system, evaniosjobs.com receptionist listings (Tenkasi, Tirunelveli, Tiruvallur), business-standard.com "In the pink of health" (2007), newindianexpress.com "Small players dominate pvt care sector" (2019).
+
+**Not yet verified:** consultation fees come from listings, not a survey; no source found for patients a day at a small-town clinic or for Tamil Nadu clinic counts by bed size (the state portal tncea.dmrhs.tn.gov.in is the place to look); the bed-size split is old.
+
+**Fee trigger:** the arrival fee is charged only when the hospital marks the patient arrived on Sahay Desk. **The demo applies the tiers:** the admin console computes fees from each partner's `plan` (`clinic`, `nursing_home`, `hospital`); an unset plan bills as a nursing home. Marking a patient arrived adds a fee line in the admin payments screen.
 
 **Payments in the demo:** the Care plan payment is a demo record (`DEMO-PAY-n`; Razorpay keys are not set up). Hospital subscription and arrival-fee lines are computed in the admin console from the partner flag and arrived appointments, so the model shows working without real money.
 
 ## 4. Pricing logic
 
 - Avoid a one-time subscription; voice calls cost money every minute, so revenue has to recur. ✅
-- Considered: per call, flat monthly, hybrid (monthly plan plus per-booking fee). The structure we chose, a flat monthly plan plus a per-arrival fee, follows the hybrid idea. 🟡
+- Considered: per call, flat monthly, hybrid (monthly plan plus per-booking fee). The structure we chose, a monthly plan by facility size plus a per-arrival fee, follows the hybrid idea. 🟡
+- The subscription stays because the dashboard is the base product (without it a hospital cannot see its appointments), the hospital itself marks arrivals so an arrival-only fee could be under-reported, and every call costs money whether or not it ends in a visit.
 - **Anchors:**
   - Competing receptionists: ₹1,999–9,999 a month (Hellodesk, HuskyVoice from ₹1,999; Voxerra from ₹4,999).
   - Production voice AI cost: ₹3–9 per connected minute (Caller.digital).
   - Median outpatient no-show rate in India: 32% (vendor claim; cite with care).
   - Bharosa AI is testing a similar $1–2 per qualified lead.
-- **Unit economics still to compute before the pitch** ❓: cost per call (speech-to-text + LLM + text-to-speech + telephony) × average call length against revenue per booking. As an illustration only, a 3-minute call at ₹3–9 a minute costs ₹9–27 in voice AI alone, so one ₹40 arrival fee covers the call that produced it; the call length is an assumption, not a measurement.
+- **Measured cost per call** 🟡 (2026-11-04): 26 traced calls on the hosted helpline averaged 76 seconds and 609 spoken characters. They were mostly our own test calls, so real callers may talk longer.
+
+  | Item | Rate | Per average call |
+  |---|---|---|
+  | Telephony | about ₹0.90 a minute (Exotel outbound, from a secondary source; check the inbound rate in the Exotel dashboard) | ₹1.14 |
+  | Speech-to-text | Sarvam ₹0.49 a minute | ₹0.62 |
+  | Text-to-speech | Sarvam Bulbul v3 ₹3 per 1,000 characters | ₹1.83 |
+  | Language model | allowance, Amazon Nova not priced | ₹0.50 |
+  | **Total** | | **about ₹4** (the longest call, 233 seconds and 2,152 characters, about ₹12) |
+
+  One booking confirmation and reminder by WhatsApp adds about ₹0.35.
+
+  The earlier "₹3–9 per minute" figure was a vendor's all-in platform price; our own pipeline is cheaper.
+- **Cost per arrived patient** 🟡: if one call in four ends in a booking and 70% of those patients arrive, about ₹23; at double the cost, about ₹46. Bulbul V4 Flash lists at ₹2 per 1,000 characters (₹1 until 12 November 2026), a third less than V3 at ₹3.
+- **Clinic check** (an estimate, not a measurement): 100 calls a month give about 23 bookings and 16 arrivals, so revenue is ₹999 + 16 × ₹30 ≈ ₹1,479 against voice cost of about ₹400 (₹800 at double cost). That leaves ₹680 (₹280) before hosting and the phone number; the Exotel rental is roughly ₹950 a month, shared across all hospitals.
 
 ## 5. Go-to-market ✅
 
@@ -93,8 +140,10 @@ Patients never pay for care. A free multilingual voice helpline sends patients t
 
 ## 10. Open business questions ❓
 
-1. Confirm the three working prices (₹2,999 / ₹40 / ₹149) with the team and with the clinic calls.
-2. Unit economics: measured cost per call and average call length.
+1. Confirm the tier prices (₹999 / ₹2,499 / ₹4,999, arrival fee ₹30 / ₹50) and the Care plan (₹149) with the team and with the clinic calls. Ask each clinic: consultation fee, patients a day, receptionist salary, missed calls a day, and whether it would pay ₹999.
+2. Unit economics: repeat the cost-per-call measurement on real caller traffic, and confirm the Exotel inbound rate.
+3. Price of helpline calls above each tier's included number.
+4. Government hospitals are an information-only layer (OPD timings, departments), not a paying segment; confirm with the team (jury round 1 said they will not adopt appointments).
 3. Final product name (Hello Sahay is working).
 4. Pricing for the state / CSR / 104 licensing stream.
 5. Who on the team owns the business role and the clinic calls.

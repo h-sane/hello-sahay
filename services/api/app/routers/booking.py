@@ -60,7 +60,7 @@ def _lock_open_slot(session: Session, slot_id: int) -> Slot:
 class PatientIn(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     phone: str
-    language: Literal["ta", "hi", "en", "ml", "kn"] | None = None
+    language: Literal["ta", "hi", "en", "ml", "kn", "te"] | None = None
     village: str | None = Field(None, max_length=200)
 
     @field_validator("phone")

@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.json",
+    "sha256": "4678177c4c4ec09028cac1832a6ae552438433bb3f5def7d6b0bfb5e4cb528b1",
+    "bytes": 13541
+  },
+  "artifact": {
+    "path": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.html",
+    "sha256": "43fc842baf8e3ebffedcfa14775feeb1e4ba4e2eb3c43f85f425016f40339bd0",
+    "bytes": 792727
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.finalize.json",
+    "summaryReceipt": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.finalize-summary.json",
+    "browserCheckReceipt": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.browser-check.json"
+  },
+  "update": {
+    "status": "unavailable",
+    "installedVersion": null,
+    "availableVersion": null,
+    "releaseNotes": null,
+    "checkedAt": null,
+    "source": null,
+    "noticeRequired": false,
+    "noticeText": null,
+    "reason": "disabled"
+  },
+  "visualReview": "not-requested",
+  "durationMs": 6109,
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "resolvedCrossovers": 3,
+      "routesOverSuggestedBends": 2
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [
+        {
+          "left": {
+            "id": "exotel-to-caddy",
+            "from": "exotel",
+            "to": "caddy",
+            "label": "wss",
+            "collectionIndex": 1,
+            "artifactIndex": 2
+          },
+          "right": {
+            "id": "patient-to-caddy",
+            "from": "patient",
+            "to": "caddy",
+            "label": "REST + voice",
+            "collectionIndex": 2,
+            "artifactIndex": 3
+          },
+          "point": [
+            663.9500000000003,
+            167
+          ],
+          "sharedNode": "caddy"
+        },
+        {
+          "left": {
+            "id": "caddy-to-bridge",
+            "from": "caddy",
+            "to": "bridge",
+            "label": "/exotel",
+            "collectionIndex": 5,
+            "artifactIndex": 6
+          },
+          "right": {
+            "id": "caddy-to-voice",
+            "from": "caddy",
+            "to": "voice",
+            "label": "/voice",
+            "collectionIndex": 6,
+            "artifactIndex": 7
+          },
+          "point": [
+            686,
+            265
+          ],
+          "sharedNode": "caddy"
+        },
+        {
+          "left": {
+            "id": "caddy-to-voice",
+            "from": "caddy",
+            "to": "voice",
+            "label": "/voice",
+            "collectionIndex": 6,
+            "artifactIndex": 7
+          },
+          "right": {
+            "id": "caddy-to-api",
+            "from": "caddy",
+            "to": "api",
+            "label": "/api",
+            "collectionIndex": 7,
+            "artifactIndex": 8
+          },
+          "point": [
+            714,
+            265
+          ],
+          "sharedNode": "caddy"
+        }
+      ],
+      "detours": [
+        {
+          "relationship": {
+            "id": "exotel-to-caddy",
+            "from": "exotel",
+            "to": "caddy",
+            "label": "wss",
+            "collectionIndex": 1,
+            "artifactIndex": 2
+          },
+          "bends": 3,
+          "stretch": 1.101
+        },
+        {
+          "relationship": {
+            "id": "api-to-bedrock",
+            "from": "api",
+            "to": "bedrock",
+            "label": "chat, scan",
+            "collectionIndex": 17,
+            "artifactIndex": 18
+          },
+          "bends": 3,
+          "stretch": 1
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "exotel → caddy and patient → caddy cross next to caddy: move node exotel or patient so the two reach caddy from different sides (for example one level with it, one directly above or below it).",
+      "caddy → bridge and caddy → voice cross next to caddy: move node bridge or voice so the two reach caddy from different sides (for example one level with it, one directly above or below it).",
+      "caddy → voice and caddy → api cross next to caddy: move node voice or api so the two reach caddy from different sides (for example one level with it, one directly above or below it).",
+      "exotel → caddy needs 3 bends: move node exotel or caddy so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "api → bedrock needs 3 bends: move node api or bedrock so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

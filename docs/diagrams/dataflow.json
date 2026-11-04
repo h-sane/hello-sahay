@@ -9,7 +9,7 @@
       "url": "https://github.com/h-sane/hello-sahay.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "8e99d39109fa621ad7287a5d2eb4395ec1b5b590"
+      "revision": "d824cd97eac1006c7e5298f5a011348b820ee834"
     },
     "viewBox": [
       1085,
@@ -165,7 +165,7 @@
           "label": "TranscribeStt"
         }
       ],
-      "tag": "ta, hi, en"
+      "tag": "6 languages"
     },
     {
       "id": "gate",
@@ -313,9 +313,9 @@
         },
         {
           "path": "services/api/app/routers/admin.py",
-          "line": 16,
-          "end_line": 17,
-          "label": "Rs 2,999 + Rs 40 fees"
+          "line": 15,
+          "end_line": 18,
+          "label": "fees by hospital plan"
         }
       ],
       "tag": "role token",
@@ -494,7 +494,7 @@
       "title": "Reads the diagram leaves out",
       "items": [
         "The API reads reference data and bookings to answer; reads are shown as the outputs they feed",
-        "The admin console derives fees from partners and arrivals: Rs 2,999 a month and Rs 40 per arrival",
+        "The admin console derives fees from each partner's plan: 999, 2,499 or 4,999 a month plus 30 to 50 per arrival",
         "Reference data is loaded in batches, never written by a patient request"
       ]
     }

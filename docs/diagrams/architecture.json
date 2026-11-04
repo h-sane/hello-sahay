@@ -9,7 +9,7 @@
       "url": "https://github.com/h-sane/hello-sahay.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "8e99d39109fa621ad7287a5d2eb4395ec1b5b590"
+      "revision": "d824cd97eac1006c7e5298f5a011348b820ee834"
     }
   },
   "components": [
@@ -17,7 +17,7 @@
       "id": "caller",
       "type": "external",
       "label": "Caller",
-      "sublabel": "any phone, any language",
+      "sublabel": "any phone, 6 languages",
       "pos": [
         40,
         40
@@ -73,7 +73,7 @@
       "id": "desk",
       "type": "frontend",
       "label": "Sahay Desk",
-      "sublabel": "hospital staff, by role",
+      "sublabel": "staff, by role",
       "pos": [
         840,
         40
@@ -281,7 +281,7 @@
       "id": "transcribe",
       "type": "cloud",
       "label": "Amazon Transcribe",
-      "sublabel": "STT en, hi (browser)",
+      "sublabel": "STT en, hi",
       "pos": [
         260,
         600
@@ -302,7 +302,7 @@
       "id": "sarvam",
       "type": "external",
       "label": "Sarvam",
-      "sublabel": "STT + TTS, Tamil and auto",
+      "sublabel": "STT + TTS, 4 Indian",
       "pos": [
         420,
         600
@@ -592,8 +592,8 @@
       "dot": "emerald",
       "title": "Helpline path",
       "items": [
-        "Phone call to Exotel, then wss through Caddy to the phone bridge, then one CallSession",
-        "With lang=auto Sarvam hears every language and speaks Tamil; Polly speaks English and Hindi",
+        "Phone call to Exotel, then wss through Caddy to the phone bridge, then one CallSession shared with the browser call page",
+        "With lang=auto Sarvam hears Tamil, Hindi, English, Malayalam, Kannada and Telugu and speaks all but English and Hindi, which Polly speaks",
         "The model acts only through tool calls to the same API the apps use, so a booking shows on the Desk live"
       ]
     },
@@ -601,7 +601,7 @@
       "dot": "rose",
       "title": "Safety and grounding",
       "items": [
-        "The gate runs on every utterance before the model, on calls and in /chat",
+        "A fixed-word gate runs on every utterance before the model, on calls and in chat",
         "Answers come from the cited local corpus first, then official government sites only",
         "Medicine matching is a fixed program; the model only reads the label"
       ]
@@ -611,8 +611,8 @@
       "title": "Demo wiring, honestly",
       "items": [
         "One demo hospital, Sunrise Nursing Home, receives every booking and call",
-        "WhatsApp confirmation is a log stub; the Care plan payment is a demo, not Razorpay",
-        "Patient sign-in code is shown on screen because India SMS needs DLT registration"
+        "WhatsApp texts on book, reschedule and cancel need a live token; the Care plan checkout is a demo until Razorpay keys are set",
+        "Hospitals pay by plan: Clinic 999, Nursing home 2,499, Hospital 4,999 a month plus 30 to 50 per arrival"
       ]
     }
   ]

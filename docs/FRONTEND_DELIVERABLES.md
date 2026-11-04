@@ -55,7 +55,7 @@ Every screen we need designed, for three surfaces. Feature detail: [`PATIENT_APP
 |---|---|---|
 | 1 | **Overview** | KPI tiles: calls today, bookings, arrivals, no-show rate, emergencies redirected; calls by language chart |
 | 2 | **Hospitals (clients)** | Table: name, partner?, plan, calls, bookings, arrivals, amount due; add/edit hospital |
-| 3 | **Payments** | Subscriptions, ₹40 arrival fees, Care plan payments; status (paid/pending/failed) |
+| 3 | **Payments** | Subscriptions, arrival fees, Care plan payments; status (paid/pending/failed) |
 | 4 | Premium users | Care plan subscribers, payer (patient or family), renewal date |
 | 5 | Content | Advisory sources list with issuer, date, language; re-index button |
 

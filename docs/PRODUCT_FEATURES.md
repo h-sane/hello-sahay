@@ -13,7 +13,7 @@ Sources: [`PROJECT_BRIEF.md`](PROJECT_BRIEF.md) (decision log §11, tiers §8.1)
 |---|---|---|---|---|
 | 1 | **Hello Sahay helpline** (voice) | Patients, any phone | `services/voice/` | Free for callers |
 | 2 | **Sahay patient app** (Vite web app + Android APK) | Rural patients, elderly users, their city-based children | `apps/patient-web/` | Free core; Care plan ₹149/month |
-| 3 | **Sahay Desk** (hospital web dashboard) | Hospital reception, nurses, doctors | `apps/desk/` | ₹2,999/month + ₹40 per arrived patient |
+| 3 | **Sahay Desk** (hospital web dashboard) | Hospital reception, nurses, doctors | `apps/desk/` | Tiered monthly fee (₹999 / ₹2,499 / ₹4,999) + ₹30-50 per arrived patient |
 | 4 | **Admin console** (our team, web) | The Hello Sahay team | `apps/admin/` | Internal |
 | 5 | **Browser "Call Sahay"** | Patients in the app, judges, web visitors | `services/voice/` `/call`, patient app "Start call" | Free |
 
@@ -23,12 +23,12 @@ Behind all five: one **backend API** (`services/api/`, FastAPI + PostgreSQL/pgve
 
 ## 1. Hello Sahay helpline (voice)
 
-Languages: Tamil, Hindi, English, Malayalam, Kannada (the last two added 2026-11-04: Sarvam speech on the helpline, verified with synthetic callers; the patient app screens and Ask Sahay chat answers follow, checked on an Android emulator; none of it on a real phone; the Kannada and Malayalam wording is machine-written and needs a native speaker's read). Not an emergency service. Phone number 080-472-90138 (Exotel); also the browser call.
+Languages: Tamil, Hindi, English, Malayalam, Kannada, Telugu (the last three added 2026-11-04: Sarvam speech on the helpline, verified with synthetic callers; the patient app screens and Ask Sahay chat answers follow, checked on an Android emulator; none of it on a real phone; the Kannada and Malayalam wording is machine-written and needs a native speaker's read). Not an emergency service. Phone number 080-472-90138 (Exotel); also the browser call.
 
 | Feature | Detail | Tier | Card | Status |
 |---|---|---|---|---|
 | Call-start notice and language | Short greeting saying the call is transcribed, then a beep; with `lang=auto` the first sentence sets the language, later changes need a whole sentence in another script | P0 | P1-5, P1-6 | Built (spoken language detection replaced "press 1 / 2 / 3") |
-| Speech in, speech out | Sarvam hears Tamil, Malayalam, Kannada and `lang=auto` calls; Transcribe hears English/Hindi browser calls; Polly speaks English/Hindi, Sarvam speaks Tamil, Malayalam and Kannada | P0 | P1-5, P1-6 | Built |
+| Speech in, speech out | Sarvam hears Tamil, Malayalam, Kannada, Telugu and `lang=auto` calls; Transcribe hears English/Hindi browser calls; Polly speaks English/Hindi, Sarvam speaks Tamil, Malayalam, Kannada and Telugu | P0 | P1-5, P1-6 | Built |
 | Emergency gate | Runs before the model on every utterance in all three languages; says "Call 108 / 112", flags the call, queues a human callback | P0 | P1-4, P1-7 | Built |
 | Find a facility | Real nearest hospital (OpenStreetMap) as the recommendation, plus the nearest government one when different | P0 | P1-5 | Built |
 | "Which hospital takes my card" | `check_scheme_coverage` against Tamil Nadu's CMCHIS list | P0 | P1-5 | Built (PM-JAY has no open per-hospital list; tagged together with CMCHIS) |
@@ -84,7 +84,7 @@ Login is email + password; the hospital comes from the token, never from the req
 | Feature | Detail | Tier | Card | Status |
 |---|---|---|---|---|
 | Today's appointments | By doctor and time, source badge (helpline / app / desk), live push | P0 | P1-11 | Built |
-| Check-in | Marks "patient arrived"; triggers the ₹40 fee (not for counter walk-ins) | P0 | P1-11 | Built |
+| Check-in | Marks "patient arrived"; triggers the arrival fee (not for counter walk-ins) | P0 | P1-11 | Built |
 | No-show and complete | Front desk marks no-show; front desk or the doctor marks complete | P0 | P1-11 | Built |
 | Walk-ins | Counter walk-in takes the doctor's free slot or an extra one | P1 | | Built |
 | Call logs and callbacks | Language, outcome, emergency flag; "Mark Called" saved on the server | P0 | P1-11 | Built |
@@ -101,7 +101,7 @@ Login is email + password; the hospital comes from the token, never from the req
 | Overview | Calls today and total, by language and outcome, emergencies, handoffs, patients, arrivals, no-show rate, revenue | P2 | P2-5 | Built |
 | Hospitals | Partner flag, calls, bookings, arrivals, no-shows, amount due | P2 | P2-5 | Built (read-only; no add/edit) |
 | Hospital logins | Create a hospital admin login, reset password, switch off | P2 | | Built |
-| Payments | Subscriptions, ₹40 arrival fees (derived), Care plan payments | P2 | P2-5 | Built |
+| Payments | Subscriptions, arrival fees (derived from each hospital's plan), Care plan payments | P2 | P2-5 | Built |
 | Calls | Every transcript including callers with no hospital | P2 | | Built |
 | Care plan | Subscribers and payer | P2 | P2-5 | Built |
 | Content | Advisory sources, re-index | P2 | P2-5 | Not built (corpus loaded by `scripts/ingest_advisories.py`) |

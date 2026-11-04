@@ -38,10 +38,10 @@ BEEP_HZ, BEEP_S = 880, 0.25  # played when we finish talking: the caller's cue t
 _BEEPS: dict[int, bytes] = {}
 _AUDIO_CACHE: dict[tuple[str, str, int], bytes] = {}
 _SENTENCE = re.compile(r"(?<=[.!?।])\s+")
-KEPT_SCRIPTS = ("LATIN", "DEVANAGARI", "TAMIL", "MALAYALAM", "KANNADA")  # the languages the helpline speaks; the detector also emits Gurmukhi etc. for noise
+KEPT_SCRIPTS = ("LATIN", "DEVANAGARI", "TAMIL", "MALAYALAM", "KANNADA", "TELUGU")  # the languages the helpline speaks; the detector also emits Gurmukhi etc. for noise
 MIN_WORDS_TO_SWITCH = 3  # a one or two word utterance is too short to trust its detected language
 MIN_WORDS_TO_SWITCH_LATER = 5  # after the caller's first sentence the language is theirs: only a whole sentence in another one moves it
-_SCRIPT = {"en": "LATIN", "hi": "DEVANAGARI", "ta": "TAMIL", "ml": "MALAYALAM", "kn": "KANNADA"}
+_SCRIPT = {"en": "LATIN", "hi": "DEVANAGARI", "ta": "TAMIL", "ml": "MALAYALAM", "kn": "KANNADA", "te": "TELUGU"}
 STRIKES_TO_HANG_UP = 3  # unclear sentences or repeated questions in a row before the call is handed to a person
 NO_INPUT_S = 12.0  # silence after the beep before the caller is prompted again
 MAX_WAIT_FOR_STT_S = 2.5  # longest a finished sentence waits for the caller's next words still being transcribed
@@ -50,7 +50,8 @@ REPEAT_RATIO = 0.85
 ECHO_RATIO = 0.7
 _CLOSING = re.compile(r"thank|bye|that's all|that is all|nothing else|no thanks|நன்றி|போதும்|வேறு எதுவும் இல்லை|பை$|"
                       r"धन्यवाद|शुक्रिया|अलविदा|बाय|और कुछ नहीं|बस इतना|"
-                      r"നന്ദി|ഇനി ഒന്നുമില്ല|മതി$|ബൈ$|ಧನ್ಯವಾದ|ಥ್ಯಾಂಕ್ಸ್|ಬೇರೇನೂ ಬೇಡ|ಸಾಕು$|ಬಾಯ್$", re.I)
+                      r"നന്ദി|ഇനി ഒന്നുമില്ല|മതി$|ബൈ$|ಧನ್ಯವಾದ|ಥ್ಯಾಂಕ್ಸ್|ಬೇರೇನೂ ಬೇಡ|ಸಾಕು$|ಬಾಯ್$|"
+                      r"ధన్యవాదాలు|థ్యాంక్స్|ఇంకేమీ వద్దు|చాలు$|బై$", re.I)
 CLOSING_MAX_WORDS = 6  # a longer sentence is a new request that merely contains a thanks
 
 

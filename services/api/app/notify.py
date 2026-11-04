@@ -17,6 +17,7 @@ _TEXT = {
         "ta": "ஹலோ சஹாய்: உங்கள் சந்திப்பு பதிவாகிவிட்டது. {doctor}, {hospital}, {when}. 10 நிமிடம் முன்பே வாருங்கள்.",
         "ml": "ഹലോ സഹായ്: നിങ്ങളുടെ സന്ദർശനം ബുക്ക് ചെയ്തു. {doctor}, {hospital}, {when}. 10 മിനിറ്റ് നേരത്തെ എത്തൂ.",
         "kn": "ಹಲೋ ಸಹಾಯ್: ನಿಮ್ಮ ಭೇಟಿ ಬುಕ್ ಆಗಿದೆ. {doctor}, {hospital}, {when}. 10 ನಿಮಿಷ ಮುಂಚೆ ಬನ್ನಿ.",
+        "te": "హలో సహాయ్: మీ సందర్శన బుక్ అయింది. {doctor}, {hospital}, {when}. 10 నిమిషాల ముందు రండి.",
     },
     "appointment_reschedule": {
         "en": "Hello Sahay: your visit is moved. {doctor}, {hospital}, {when}.",
@@ -24,6 +25,7 @@ _TEXT = {
         "ta": "ஹலோ சஹாய்: உங்கள் சந்திப்பு மாற்றப்பட்டது. {doctor}, {hospital}, {when}.",
         "ml": "ഹലോ സഹായ്: നിങ്ങളുടെ സന്ദർശനം മാറ്റി. {doctor}, {hospital}, {when}.",
         "kn": "ಹಲೋ ಸಹಾಯ್: ನಿಮ್ಮ ಭೇಟಿಯನ್ನು ಬದಲಾಯಿಸಲಾಗಿದೆ. {doctor}, {hospital}, {when}.",
+        "te": "హలో సహాయ్: మీ సందర్శన మార్చబడింది. {doctor}, {hospital}, {when}.",
     },
     "appointment_cancel": {
         "en": "Hello Sahay: your visit with {doctor}, {when} is cancelled.",
@@ -31,6 +33,7 @@ _TEXT = {
         "ta": "ஹலோ சஹாய்: {doctor} உடன் {when} சந்திப்பு ரத்தாகிவிட்டது.",
         "ml": "ഹലോ സഹായ്: {doctor}-നൊപ്പമുള്ള {when} സന്ദർശനം റദ്ദാക്കി.",
         "kn": "ಹಲೋ ಸಹಾಯ್: {doctor} ಅವರೊಂದಿಗಿನ {when} ಭೇಟಿಯನ್ನು ರದ್ದುಗೊಳಿಸಲಾಗಿದೆ.",
+        "te": "హలో సహాయ్: {doctor} తో {when} సందర్శన రద్దు చేయబడింది.",
     },
 }
 

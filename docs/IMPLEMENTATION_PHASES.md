@@ -111,4 +111,4 @@ Build in this order; stop at freeze.
 3. Hindi caller asks dengue precautions → answer with source named.
 4. "Chest pain, can't breathe" → immediate 108 redirect + handoff queue.
 5. Patient app: scan / type Dolo 650 → same-composition generic, Jan Aushadhi price saving, source shown.
-6. Desk marks the patient arrived → admin shows the ₹40 arrival fee. Close: "One number. Any language. Any hospital."
+6. Desk marks the patient arrived → admin shows the arrival fee. Close: "One number. Any language. Any hospital."

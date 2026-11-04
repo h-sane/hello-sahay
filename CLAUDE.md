@@ -16,8 +16,9 @@ patient app.
   software category, focus on rural patients.
 - Full product, business and technical brief: [`docs/PROJECT_BRIEF.md`](docs/PROJECT_BRIEF.md).
   Its section 11 (decision log) is the source of truth for product decisions.
-- Business model in one line: patients never pay; small private hospitals pay
-  ₹2,999/month for Sahay Desk plus ₹40 per helpline patient who actually arrives.
+- Business model in one line: patients never pay; private clinics and
+  hospitals pay a monthly Sahay Desk fee by tier (₹999 / ₹2,499 / ₹4,999, chosen per hospital) plus ₹30-50
+  per helpline patient who actually arrives; see `docs/BUSINESS.md` "Hospital tiers"
 
 ## Current state
 
@@ -42,6 +43,8 @@ issue per task card. Voice (2026-10-14): `services/voice` runs the English/Hindi
 **Issue sweep (2026-10-16):** all open issues audited against the code and closed with evidence. Added: WhatsApp text on book, reschedule and cancel (`services/api/app/notify.py`; needs a fresh `WHATSAPP_TOKEN`, not yet verified live), Razorpay test-mode checkout for the Care plan (`app/payments.py`, `/care/order`; demo payment until keys are set), and a Government services section on Home. Still not built: keypad fallback, voice advisory answers, the 3-free-checks limit, Jan Aushadhi Kendra finder by voice. **Docker is never run on Hussain's machine (no disk space).**
 
 **Malayalam and Kannada on the helpline (2026-11-04):** the voice agent now speaks and understands Malayalam and Kannada (Sarvam `ml-IN`/`kn-IN`, auto-detected with Tamil, Hindi and English): spoken lines, emergency and symptom word lists, WhatsApp texts and the `ml`/`kn` language value on calls and patients. Patient app and chat answers followed on 2026-11-04 (all five languages on every screen, Ask Sahay `kn`/`ml`; see the patient-web README). Verified with synthetic callers through the phone bridge and with pytest; not on a real phone. Feature 1 of the Dexathon improvement list.
+
+**Telugu on the helpline (2026-11-04):** same path as Malayalam and Kannada: Sarvam `te-IN` speech in and out, auto-detected, every spoken line, emergency and symptom word lists, WhatsApp texts, digit words, and `te` accepted on calls, patients and bookings. Verified with pytest only; no synthetic or real call yet. Patient app, chat and Sahay Desk language pickers are unchanged.
 
 **Local setup:** `docker compose up -d` (Postgres on host port **5433**), copy
 `.env.example` to `.env`, then `python scripts/check_setup.py` (needs boto3 and

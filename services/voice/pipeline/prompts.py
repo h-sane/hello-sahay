@@ -1,4 +1,4 @@
-LANG_NAME = {"en": "English", "hi": "Hindi", "ta": "Tamil", "ml": "Malayalam", "kn": "Kannada"}
+LANG_NAME = {"en": "English", "hi": "Hindi", "ta": "Tamil", "ml": "Malayalam", "kn": "Kannada", "te": "Telugu"}
 
 # Language-choice greeting for a call whose language is detected: one short line per language, then the beep.
 AUTO_GREETING = [
@@ -7,6 +7,7 @@ AUTO_GREETING = [
     ("ta", "நான் தமிழிலும் பேசுவேன்."),
     ("ml", "എനിക്ക് മലയാളത്തിലും സംസാരിക്കാം."),
     ("kn", "ನಾನು ಕನ್ನಡದಲ್ಲೂ ಮಾತನಾಡಬಲ್ಲೆ."),
+    ("te", "నేను తెలుగులో కూడా మాట్లాడగలను."),
     ("en", "Your call is transcribed. How would you like to continue? Please speak after the beep."),
 ]
 
@@ -16,6 +17,7 @@ GREETING = {
     "ta": "வணக்கம், இது ஹலோ சஹாய். உங்கள் அழைப்பு எழுத்தாக பதிவு செய்யப்படுகிறது. நான் எப்படி உதவலாம்? பீப் ஒலிக்குப் பிறகு பேசுங்கள்.",
     "ml": "നമസ്കാരം, ഇത് ഹലോ സഹായ് ആണ്. നിങ്ങളുടെ കോൾ എഴുതി രേഖപ്പെടുത്തുന്നുണ്ട്. ഞാൻ എങ്ങനെ സഹായിക്കണം? ബീപ്പിന് ശേഷം സംസാരിക്കൂ.",
     "kn": "ನಮಸ್ಕಾರ, ಇದು ಹಲೋ ಸಹಾಯ್. ನಿಮ್ಮ ಕರೆಯನ್ನು ಬರಹದಲ್ಲಿ ದಾಖಲಿಸಲಾಗುತ್ತದೆ. ನಾನು ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ? ಬೀಪ್ ನಂತರ ಮಾತನಾಡಿ.",
+    "te": "నమస్కారం, ఇది హలో సహాయ్. మీ కాల్ రాతపూర్వకంగా నమోదు చేయబడుతుంది. నేను ఎలా సహాయం చేయగలను? బీప్ తర్వాత మాట్లాడండి.",
 }
 
 UNVERIFIED = {"en": "I don't have verified information on that. Please ask at your nearest PHC or call 104. "
@@ -27,10 +29,13 @@ UNVERIFIED = {"en": "I don't have verified information on that. Please ask at yo
               "ml": "ഇതിനെക്കുറിച്ച് എന്റെ പക്കൽ സ്ഥിരീകരിച്ച വിവരമില്ല. അടുത്തുള്ള PHC-യിൽ ചോദിക്കൂ, അല്ലെങ്കിൽ 104 വിളിക്കൂ. "
                     "ഞങ്ങളുടെ ടീമിൽ നിന്ന് ഒരാൾ നിങ്ങളെ തിരികെ വിളിക്കും.",
               "kn": "ಇದರ ಬಗ್ಗೆ ನನ್ನ ಬಳಿ ದೃಢೀಕೃತ ಮಾಹಿತಿ ಇಲ್ಲ. ನಿಮ್ಮ ಹತ್ತಿರದ PHC ಯಲ್ಲಿ ಕೇಳಿ ಅಥವಾ 104 ಕ್ಕೆ ಕರೆ ಮಾಡಿ. "
-                    "ನಮ್ಮ ತಂಡದ ಒಬ್ಬರು ನಿಮಗೆ ಮರಳಿ ಕರೆ ಮಾಡುತ್ತಾರೆ."}
+                    "ನಮ್ಮ ತಂಡದ ಒಬ್ಬರು ನಿಮಗೆ ಮರಳಿ ಕರೆ ಮಾಡುತ್ತಾರೆ.",
+              "te": "దీని గురించి నా దగ్గర ధృవీకరించిన సమాచారం లేదు. దయచేసి మీ దగ్గరలోని PHC లో అడగండి లేదా 104 కి కాల్ చేయండి. "
+                    "మా బృందంలోని ఒకరు మీకు తిరిగి కాల్ చేస్తారు."}
 
 FILLER = {"en": "One moment please.", "hi": "एक क्षण रुकिए।", "ta": "ஒரு நிமிடம் காத்திருங்கள்.",
-          "ml": "ഒരു നിമിഷം കാത്തിരിക്കൂ.", "kn": "ಒಂದು ನಿಮಿಷ ಕಾಯಿರಿ."}
+          "ml": "ഒരു നിമിഷം കാത്തിരിക്കൂ.", "kn": "ಒಂದು ನಿಮಿಷ ಕಾಯಿರಿ.",
+          "te": "ఒక్క నిమిషం ఆగండి."}
 
 # Said when the caller's words were noise, a stray word in another script, or only our own voice coming back.
 UNCLEAR = {"en": ["Sorry, I could not hear that. Please say it again.",
@@ -42,28 +47,33 @@ UNCLEAR = {"en": ["Sorry, I could not hear that. Please say it again.",
            "ml": ["ക്ഷമിക്കണം, എനിക്ക് കേൾക്കാൻ കഴിഞ്ഞില്ല. ദയവായി ഒന്നുകൂടി പറയൂ.",
                   "ലൈൻ വ്യക്തമല്ല. ഫോണിനടുത്ത് പതുക്കെ സംസാരിക്കൂ."],
            "kn": ["ಕ್ಷಮಿಸಿ, ನನಗೆ ಕೇಳಿಸಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಇನ್ನೊಮ್ಮೆ ಹೇಳಿ.",
-                  "ಲೈನ್ ಸ್ಪಷ್ಟವಾಗಿಲ್ಲ. ಫೋನಿನ ಹತ್ತಿರ ನಿಧಾನವಾಗಿ ಮಾತನಾಡಿ."]}
+                  "ಲೈನ್ ಸ್ಪಷ್ಟವಾಗಿಲ್ಲ. ಫೋನಿನ ಹತ್ತಿರ ನಿಧಾನವಾಗಿ ಮಾತನಾಡಿ."],
+           "te": ["క్షమించండి, నాకు వినిపించలేదు. దయచేసి మళ్లీ చెప్పండి.",
+                  "లైన్ స్పష్టంగా లేదు. ఫోన్ దగ్గర నెమ్మదిగా మాట్లాడండి."]}
 
 # The third unanswered question or unclear sentence in a row ends the call instead of looping.
 GIVE_UP = {"en": "I am sorry, I am not able to understand. A person from our team will call you back. Thank you.",
            "hi": "माफ़ कीजिए, मैं समझ नहीं पा रही। हमारी टीम का कोई व्यक्ति आपको वापस कॉल करेगा। धन्यवाद।",
            "ta": "மன்னிக்கவும், எனக்குப் புரியவில்லை. எங்கள் குழுவினர் ஒருவர் உங்களைத் திரும்ப அழைப்பார். நன்றி.",
            "ml": "ക്ഷമിക്കണം, എനിക്ക് മനസ്സിലാകുന്നില്ല. ഞങ്ങളുടെ ടീമിൽ നിന്ന് ഒരാൾ നിങ്ങളെ തിരികെ വിളിക്കും. നന്ദി.",
-           "kn": "ಕ್ಷಮಿಸಿ, ನನಗೆ ಅರ್ಥವಾಗುತ್ತಿಲ್ಲ. ನಮ್ಮ ತಂಡದ ಒಬ್ಬರು ನಿಮಗೆ ಮರಳಿ ಕರೆ ಮಾಡುತ್ತಾರೆ. ಧನ್ಯವಾದಗಳು."}
+           "kn": "ಕ್ಷಮಿಸಿ, ನನಗೆ ಅರ್ಥವಾಗುತ್ತಿಲ್ಲ. ನಮ್ಮ ತಂಡದ ಒಬ್ಬರು ನಿಮಗೆ ಮರಳಿ ಕರೆ ಮಾಡುತ್ತಾರೆ. ಧನ್ಯವಾದಗಳು.",
+           "te": "క్షమించండి, నాకు అర్థం కావడం లేదు. మా బృందంలోని ఒకరు మీకు తిరిగి కాల్ చేస్తారు. ధన్యవాదాలు."}
 
 GOODBYE = {"en": "You are welcome. Take care, goodbye.",
            "hi": "आपका स्वागत है। अपना ध्यान रखिए, नमस्ते।",
            "ta": "நன்றி. உடல்நலத்தைப் பார்த்துக்கொள்ளுங்கள், வணக்கம்.",
            "ml": "നന്ദി. ആരോഗ്യം ശ്രദ്ധിക്കൂ, നമസ്കാരം.",
-           "kn": "ಧನ್ಯವಾದಗಳು. ಆರೋಗ್ಯ ಕಾಪಾಡಿಕೊಳ್ಳಿ, ನಮಸ್ಕಾರ."}
+           "kn": "ಧನ್ಯವಾದಗಳು. ಆರೋಗ್ಯ ಕಾಪಾಡಿಕೊಳ್ಳಿ, ನಮಸ್ಕಾರ.",
+           "te": "ధన్యవాదాలు. ఆరోగ్యం జాగ్రత్త, నమస్కారం."}
 
 GREETING_FALLBACK = {"en": "Sorry, I had a problem. Could you say that again?",
                      "hi": "माफ़ कीजिए, कुछ गड़बड़ हो गई। क्या आप फिर से कह सकते हैं?",
                      "ta": "மன்னிக்கவும், ஒரு சிக்கல் ஏற்பட்டது. மீண்டும் சொல்ல முடியுமா?",
                      "ml": "ക്ഷമിക്കണം, ഒരു തകരാർ സംഭവിച്ചു. ഒന്നുകൂടി പറയാമോ?",
-                     "kn": "ಕ್ಷಮಿಸಿ, ಒಂದು ತೊಂದರೆಯಾಯಿತು. ಇನ್ನೊಮ್ಮೆ ಹೇಳುತ್ತೀರಾ?"}
+                     "kn": "ಕ್ಷಮಿಸಿ, ಒಂದು ತೊಂದರೆಯಾಯಿತು. ಇನ್ನೊಮ್ಮೆ ಹೇಳುತ್ತೀರಾ?",
+                     "te": "క్షమించండి, ఏదో సమస్య వచ్చింది. దయచేసి మళ్లీ చెప్పగలరా?"}
 
-SYSTEM = """You are Sahay, the voice assistant of Hello Sahay, a free health helpline for rural patients in South India (Tamil Nadu, Kerala, Karnataka).
+SYSTEM = """You are Sahay, the voice assistant of Hello Sahay, a free health helpline for rural patients in South India (Tamil Nadu, Kerala, Karnataka, Andhra Pradesh, Telangana).
 You are on a phone call. Reply only in {language}, in one or two short sentences (about 20 words in all).
 Ask one question at a time and never list more than two choices. The caller was already greeted: "{greeting}"
 If the caller only chose a language or said hello, answer "How can I help you?" in their language and wait.

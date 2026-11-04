@@ -27,7 +27,7 @@ VOICES = {"en": ("Kajal", "en-IN"), "hi": ("Kajal", "hi-IN")}
 
 
 def speech(text: str, lang: str) -> bytes:
-    if lang in sarvam.CODES:  # Tamil, Malayalam, Kannada: Sarvam's voice, as the helpline itself uses
+    if lang in sarvam.CODES:  # Tamil, Malayalam, Kannada, Telugu: Sarvam's voice, as the helpline itself uses
         return asyncio.run(sarvam.synthesize(text, lang, RATE))
     voice, code = VOICES[lang]
     return aws.client("polly").synthesize_speech(Text=text, VoiceId=voice, Engine="neural", OutputFormat="pcm",
@@ -45,7 +45,7 @@ async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--bridge", default="ws://localhost:8020/exotel")
     ap.add_argument("--phone", default="09361660147")
-    ap.add_argument("--lang", default="en", choices=["en", "hi", "ta", "ml", "kn"], help="language the caller speaks")
+    ap.add_argument("--lang", default="en", choices=["en", "hi", "ta", "ml", "kn", "te"], help="language the caller speaks")
     ap.add_argument("--say", action="append", default=[], help="one sentence per turn, in order")
     ap.add_argument("--echo", type=float, default=0.0, help="seconds of line echo of the agent's voice (0 = none)")
     ap.add_argument("--echo-gain", type=float, default=0.5)

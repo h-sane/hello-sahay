@@ -57,7 +57,7 @@ First open: language, consent, profile (name, age, gender, village, mobile), the
 ### 2.3 Hospital and admin web
 
 - **Sahay Desk** (`apps/desk`, tabs by login role): appointments with live push, mark arrived / no-show / complete, walk-ins, doctor on-duty switch, call logs and callbacks, past visits, and (hospital admin only) Users. A `doctor` login sees only its own patients.
-- **Admin console** (`apps/admin`, Hello Sahay `admin` login): overview, hospitals, hospital logins, payments, calls with transcripts, Care plan subscribers. Subscription (₹2,999) and arrival-fee (₹40) lines are derived from the partner flag and arrived appointments; counter walk-ins carry no fee.
+- **Admin console** (`apps/admin`, Hello Sahay `admin` login): overview, hospitals, hospital logins, payments, calls with transcripts, Care plan subscribers. Subscription and arrival-fee lines, priced by each hospital's `plan` (tiers in `docs/BUSINESS.md`) are derived from the partner flag and arrived appointments; counter walk-ins carry no fee.
 
 ## 3. The "verified, cited, never from model memory" rule
 
@@ -80,7 +80,7 @@ See the data flow diagram above. In words:
 - **Audio never reaches storage.** Phone audio goes to the speech-to-text provider and is dropped; only the transcript and a trace (events, timings, tool arguments) are saved with the call.
 - **Personal data** (names, numbers, village, bookings, family numbers, Care plan) lives only in PostgreSQL, behind API rules: a hospital login reads only its own facility, a doctor login only its own patients, and the patient-app endpoints that need a token return only that patient's records (the open booking-list endpoint is a known gap, see section 9).
 - **Reference data** (facilities, advisories, medicines, schemes) is written only by loader scripts (`scripts/ingest_advisories.py`, `load_medicines.py`, `fetch_cmchis_hospitals.py`, `load_seed.py`), never by a request.
-- **Fees** are computed, not stored: ₹2,999 × partner hospitals + ₹40 × billable arrivals, plus real rows in `payment` for Care plan payments.
+- **Fees** are computed, not stored: each partner's plan fee + its per-arrival rate × billable arrivals (`PLANS` in `routers/admin.py`), plus real rows in `payment` for Care plan payments.
 
 ## 5. Data model (PostgreSQL)
 
@@ -152,7 +152,7 @@ Conventions: appointment JSON is `{id, status, source, reason_text, arrived_at, 
 | Department chosen by keyword table, not the model | Picking a department from symptoms is triage |
 | Composition match is exact on salts + strength + form, by a fixed program | "Similar" medicines with a different salt or strength are unsafe; the model only reads the label |
 | Self-built voice pipeline (no Vapi/Bolna) | Judges credit a self-built core; ready-made agent platforms earn less |
-| Sarvam for Tamil, Malayalam and Kannada STT and TTS and for `lang=auto` STT; Transcribe + Polly for fixed English/Hindi | Transcribe has no Tamil streaming; Polly has no Tamil |
+| Sarvam for Tamil, Malayalam, Kannada and Telugu STT and TTS and for `lang=auto` STT; Transcribe + Polly for fixed English/Hindi | Transcribe has no Tamil streaming; Polly has no Tamil |
 | Exotel for the real number | Indian number, no international calling, works from any Indian phone; Twilio was dropped |
 | Answers come from corpus first, then official-host live search | Fresh government information without letting a private or news page be cited |
 | Auth: Desk by email + password (JWT, 12 h, `facility_id` from the token); patients by phone + random code (JWT, 30 days) | Fast to build, enough for the demo |
