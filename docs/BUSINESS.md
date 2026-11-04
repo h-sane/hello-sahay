@@ -90,7 +90,7 @@ Sources read on 2026-11-04: elaior.com/clinic-management-software-price-india, v
 
   The earlier "₹3–9 per minute" figure was a vendor's all-in platform price; our own pipeline is cheaper.
 - **Cost per arrived patient** 🟡: if one call in four ends in a booking and 70% of those patients arrive, about ₹23; at double the cost, about ₹46. Bulbul V4 Flash lists at ₹2 per 1,000 characters (₹1 until 12 November 2026), a third less than V3 at ₹3.
-- **Clinic check** (an estimate, not a measurement): 100 calls a month give about 23 bookings and 16 arrivals, so revenue is ₹999 + 16 × ₹30 ≈ ₹1,479 against voice cost of about ₹400 (₹800 at double cost). That leaves ₹680 (₹280) before hosting and the phone number; the Exotel rental is roughly ₹950 a month, shared across all hospitals.
+- **Clinic check** (an estimate, not a measurement): 100 calls a month give about 23 bookings and 16 arrivals, so revenue is ₹999 + 16 × ₹30 ≈ ₹1,479 against voice cost of about ₹400 (₹800 at double cost). That leaves ₹1,079 (₹679 at double cost) before hosting and the phone number; the Exotel rental is roughly ₹950 a month, shared across all hospitals.
 
 ## 5. Go-to-market ✅
 
@@ -149,3 +149,24 @@ Sources read on 2026-11-04: elaior.com/clinic-management-software-price-india, v
 5. Who on the team owns the business role and the clinic calls.
 
 Market-size figures in the one-page proposal (₹600 Cr TAM, 6 crore MSMEs, receptionist ₹12–15k/month) are estimates, not verified sources; do not quote them as fact.
+
+## 11. Pitch-deck financial model (2026-11-05) 🟡
+
+The Canva deck (slides 9 to 11) was recomputed from the tier prices in section 3. Every volume below is a team assumption, not a measurement.
+
+| Input | Value |
+|---|---|
+| Month-12 mix | 12 clinics, 11 nursing homes, 2 hospitals (25 facilities) and 500 Care-plan families |
+| Calls a month per facility | clinic 100, nursing home 250, hospital 600; about 16 arrivals per 100 calls |
+| Facility plans | 12 × ₹999 + 11 × ₹2,499 + 2 × ₹4,999 = about ₹49k |
+| Arrival fees | 12 × ₹480 + 11 × ₹2,000 + 2 × ₹4,800 = about ₹37k |
+| Family plans | 500 × ₹149 = about ₹75k |
+| Month-12 revenue | about ₹1.6 L; voice and AI ₹58k, field sales ₹33k, legal and security ₹8k, so profit ₹62k before ₹58k founders' pay (net about ₹4k) |
+| Voice cost | kept at the old conservative ₹6 a minute (₹1,800 per facility a month); measured cost is about ₹3 a minute |
+| Revenue per facility | about ₹3,473 a month at that mix (the old flat model had ₹5,000) |
+
+The three years use the same facility and family counts as before with a straight-line ramp. Year 1: 25 facilities, 500 families, ₹9.7 L revenue, −₹5.8 L net against ₹15.5 L running costs. Year 2: 120 and 4,000, ₹70 L revenue, +₹12 L net. Year 3: 300 and 15,000, ₹2.6 Cr revenue, +₹1.0 Cr net. Costs for years 2 and 3 are unchanged from the earlier model (₹58 L and ₹1.6 Cr).
+
+Market size: a hospital is worth about ₹40k a year (a nursing home's ₹2,499 × 12 plus about ₹9.6k of arrival fees), so the Tamil Nadu serviceable market is ₹83 Cr of families plus ₹6 Cr of about 1,500 hospitals, about ₹89 Cr. The India figure stays near ₹2,000 Cr.
+
+The year-1 budget lines (₹6 L team, ₹4.5 L cloud, ₹4 L sales, ₹1 L legal) add to ₹15.5 L running cost; the deck had said ₹16.5 L, which did not add up with the ₹20 L total (15.5 + 0.5 one-time + 4 reserve).
