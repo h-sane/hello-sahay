@@ -52,7 +52,11 @@ Loop, noise, echo and flip-flop guards, and a goodbye plus callback queue after 
 
 ### 2.2 Patient app
 
-First open: language, consent, profile (name, age, gender, village, mobile), then a 6-digit code (random per request, valid 5 minutes, 5 tries, shown on screen while `OTP_SHOW_CODE=1` because India SMS needs DLT registration). Tabs: **Home** (call, emergency, today's visit, nearest hospital), **Hospitals** (real OpenStreetMap list, CMCHIS tags, Leaflet map, booking), **Ask Sahay** (cited answers), **Medicines** (search, label photo scan, Jan Aushadhi saving), **My Health** (appointments, family, reminders, Care plan, alerts). Full list: [`PATIENT_APP_SPEC.md`](PATIENT_APP_SPEC.md).
+First open: language, consent, profile (name, age, gender, village, mobile), then a 6-digit code (random per request, valid 5 minutes, 5 tries, shown on screen while `OTP_SHOW_CODE=1` because India SMS needs DLT registration). Tabs: **Home** (call, emergency, today's visit, nearest hospital), **Hospitals** (real OpenStreetMap list, CMCHIS tags, Leaflet map, booking), **Ask Sahay** (cited answers), **Medicines** (search, label photo scan, Jan Aushadhi saving), **My Health** (appointments, family, reminders, Care plan, alerts), **Services** (book a home care helper from Sahay Sathi, see the booking and its status). Full list: [`PATIENT_APP_SPEC.md`](PATIENT_APP_SPEC.md).
+
+### 2.2b Sahay Sathi (home care helpers)
+
+A second phone app, `apps/sathi-mobile`, for the people who do the visits (personal caretaker, house cleaning, technical support, care support such as hospital escort). A helper signs in with a 6-digit code (or a password), registers once (name, address, government ID number, skills), then sees requests, accepts, starts and completes them, and watches earnings. The patient app's Services tab lists the verified helpers from the API; booking one creates a `service_booking` row for that helper and a "New request" alert in their Sathi app. When the helper accepts, starts or completes, the patient gets an in-app alert and the status on their "Your bookings" card changes. A request typed in "Describe what you need" has no helper picked and goes to every online verified helper; the first to accept takes it. The helper's number is shown to the patient only once the helper has accepted.
 
 ### 2.3 Hospital and admin web
 
@@ -103,6 +107,9 @@ Tables are created on API start-up (`init_db`). Core tables in `app/models.py`, 
 | `reminder` | id, patient_id, medicine_name, times[], active |
 | `reminder_taken` | id, reminder_id, day, at_time, taken_at |
 | `app_notification` | id, phone, kind, title, body, created_at, read |
+| `helper` | id, phone (unique), name, email, address fields, id_type, id_number (shown masked), id_status (not_submitted/pending/verified/rejected), categories[], skills[], languages[], is_online, working days and hours, rating, completed_count, rate_amount, rate_label, password_hash, is_demo (`models_sathi.py`) |
+| `service_booking` | id, booking_ref (`SB-<year>-<id>`), customer_id, helper_id (empty = open request), service_category, service_title, booking_date, booking_time (Morning 09:00-12:00 / Afternoon 12:00-16:00 / Evening 16:00-19:00), location_address, status (new_request/upcoming/in_progress/completed/cancelled/rejected), amount, payment_status, customer_notes, helper_notes |
+| `helper_notification` | id, helper_id, kind, title, body, booking_id, read |
 | `payment` | id, payer_type, payer_id, kind (subscription/arrival_fee/premium), amount, status, razorpay_ref (a `DEMO-PAY-n` reference today) |
 
 `medicine`, `medicine_price`, `jan_aushadhi_product` and `dose_log` exist from the first design but are unused; the app reads `brand_medicine`, `janaushadhi_item` and `reminder_taken`.
@@ -123,6 +130,8 @@ All under `/api/v1`; `GET /health` also at the root. JSON in and out. "Open" mea
 | Medicines | `GET /places/jan-aushadhi?lat=&lng=` (nearest Jan Aushadhi stores from OpenStreetMap, no token), `GET /medicines/suggest?q=` (type-ahead, tolerates misspellings), `GET /medicines/search?q=` (falls back to the closest spelling, returns `corrected_to`), `POST /medicines/scan {image}` | patient token |
 | Family and Care plan | `GET/POST /family`, `PUT/DELETE /family/{id}`, `GET /care/me`, `POST /care/pay`, `DELETE /care/plans/{id}`, `GET /care/parents` | patient token |
 | Reminders and alerts | `GET/POST /reminders`, `PUT/DELETE /reminders/{id}`, `POST /reminders/{id}/taken`, `GET /notifications`, `POST /notifications/read` | patient token |
+| Home care services (patient) | `GET /services/providers?category` (verified helpers, never with a phone number), `POST /services/bookings` (helper picked, or `service_category: "Custom request"` with no helper), `GET /services/bookings`, `POST /services/bookings/{id}/cancel` | providers open; rest patient token |
+| Sahay Sathi (helper) | `POST /sathi/auth/otp/request`, `/otp/verify`, `/auth/login`, `POST /sathi/register`, `GET/PUT /sathi/profile`, `GET/PUT /sathi/availability`, `GET /sathi/bookings?status`, `GET /sathi/bookings/{id}`, `POST /sathi/bookings/{id}/action` (accept, reject, start, complete; only in order), `GET /sathi/earnings`, `GET /sathi/notifications`, `PATCH /sathi/notifications/{id}/read`, `GET /sathi/skills/catalog`, `POST /sathi/skills/extract` | sign-in and catalog open; rest helper token (role `helper`) |
 | Config | `GET /config/contacts` (helpline, emergency desk, hospital call number, 108, 112) | open |
 | Calls | `POST /calls` (accepts `trace`), `GET /calls`, `GET /handoffs`, `PATCH /calls/{id}` (`callback_done`, `severity`), `GET /calls/{id}/trace` | `POST` open; rest Desk or admin token |
 | Doctors and users | `GET /doctors?date`, `PATCH /doctors/{id}` (`on_duty`), `GET/POST /users`, `PATCH /users/{id}` | Desk token; users: hospital admin or `admin` |

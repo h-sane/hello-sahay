@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 // Override with SAHAY_API_ORIGIN in .env when pointing to another backend.
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '../../', '')
-  const api = process.env.SAHAY_API_ORIGIN || env.SAHAY_API_ORIGIN || 'https://13-127-85-246.sslip.io'
+  const api = process.env.SAHAY_API_ORIGIN || env.SAHAY_API_ORIGIN || 'http://localhost:8001'
 
   return {
     plugins: [react()],

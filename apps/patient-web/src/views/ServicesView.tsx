@@ -5,46 +5,29 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  Clock,
   HelpCircle,
   MapPin,
-  Mic,
-  Phone,
   Send,
   ShieldCheck,
   Sparkles,
   Star,
   User,
-  Users,
 } from 'lucide-react';
 import { Language, UserCoordinates, UserSettings } from '../types';
-import { BigButton, SectionTitle, Sheet, Title, pick, inputCls } from '../components/ui';
-import { api } from '../services/api';
+import { BigButton, Notice, SectionTitle, Sheet, Spinner, Title, pick, inputCls } from '../components/ui';
+import { ApiError, api } from '../services/api';
+import { ServiceProvider, patientApi } from '../services/patientApi';
+import { ServiceBookings } from '../components/ServiceBookings';
 
 interface ServicesViewProps {
   currentLang: Language;
   userSettings: UserSettings;
-  userCoordinates?: UserCoordinates;
+  userCoordinates?: UserCoordinates | null;
   onOpenVoiceCall?: () => void;
   onOpenEmergency?: () => void;
 }
 
-type LangMap<T = string> = { en: T; hi: T; ta: T; kn: T; ml: T };
-
-export interface ProviderPerson {
-  id: string;
-  name: LangMap<string>;
-  role: LangMap<string>;
-  phone: string;
-  rating: string;
-  reviewsCount: number;
-  experience: LangMap<string>;
-  languages: string;
-  rate: LangMap<string>;
-  available: LangMap<string>;
-  image?: string;
-  badge?: LangMap<string>;
-}
+type LangMap<T = string> = { en: T; hi: T; ta: T; kn: T; ml: T; te?: T };
 
 export interface ServiceCategory {
   id: string;
@@ -53,15 +36,16 @@ export interface ServiceCategory {
   shortTag: LangMap<string>;
   description: LangMap<string>;
   features: LangMap<string[]>;
+  apiCategory: string;
   image: string;
   priceEstimate: LangMap<string>;
   popular?: boolean;
-  providers: ProviderPerson[];
 }
 
 const CATEGORIES_DATA: ServiceCategory[] = [
   {
     id: 'personal-care-taker',
+    apiCategory: 'Personal Caretaker',
     title: {
       en: 'Personal Caretaker',
       hi: 'व्यक्तिगत देखभाल (केयरटेकर)',
@@ -130,136 +114,11 @@ const CATEGORIES_DATA: ServiceCategory[] = [
       kn: '₹750 / ದಿನ',
       ml: '₹750 / ദിവസം',
     },
-    providers: [
-      {
-        id: 'nurse-priya',
-        name: {
-          en: 'Sister Priya Rani',
-          hi: 'सिस्टर प्रिया रानी',
-          ta: 'சிஸ்டர் பிரியா ராணி',
-          kn: 'ಸಿಸ್ಟರ್ ಪ್ರಿಯಾ ರಾಣಿ',
-          ml: 'സിസ്റ്റർ പ്രിയ റാണി',
-        },
-        role: {
-          en: 'Certified ANM Nurse & Senior Caretaker',
-          hi: 'प्रमाणित एएनएम नर्स और वरिष्ठ परिचारक',
-          ta: 'சான்றிதழ் பெற்ற செவிலியர் & மூத்த பராமரிப்பாளர்',
-          kn: 'ಪ್ರಮಾಣೀಕೃತ ನರ್ಸ್ ಮತ್ತು ಹಿರಿಯ ಆರೈಕೆದಾರರು',
-          ml: 'സർട്ടിഫൈഡ് നഴ്സ് & സീനിയർ പരിചാരകൻ',
-        },
-        phone: '+91 94441 23451',
-        rating: '4.9',
-        reviewsCount: 142,
-        experience: {
-          en: '8 yrs experience · Post-surgery & Elder Care',
-          hi: '8 वर्ष अनुभव · सर्जरी बाद व बुजुर्ग देखभाल',
-          ta: '8 ஆண்டுகள் அனுபவம் · அறுவைசிகிச்சை & முதியோர் நலம்',
-          kn: '8 ವರ್ಷಗಳ ಅನುಭವ · ಶಸ್ತ್ರಚಿಕಿತ್ಸೆಯ ನಂತರದ ಆರೈಕೆ',
-          ml: '8 വർഷത്തെ പരിചയം · രോഗി പരിചരണം',
-        },
-        languages: 'Tamil, English',
-        rate: { en: '₹750 / day', hi: '₹750 / दिन', ta: '₹750 / நாள்', kn: '₹750 / ದಿನ', ml: '₹750 / ദിവസം' },
-        available: { en: 'Available Today', hi: 'आज उपलब्ध', ta: 'இன்று கிடைக்கும்', kn: 'ಇಂದು ಲಭ್ಯ', ml: 'ഇന്ന് ലഭ്യമാണ്' },
-        image: '/images/personal-care-taker.png',
-        badge: { en: 'Top Rated', hi: 'शीर्ष रेटेड', ta: 'சிறந்த மதிப்பீடு', kn: 'ಅತ್ಯುತ್ತಮ', ml: 'ടോപ്പ് റേറ്റഡ്' },
-      },
-      {
-        id: 'nurse-anitha',
-        name: {
-          en: 'Sister Anitha Mary',
-          hi: 'सिस्टर अनिता मेरी',
-          ta: 'சிஸ்டர் அனிதா மேரி',
-          kn: 'ಸಿಸ್ಟರ್ ಅನಿತಾ ಮೇರಿ',
-          ml: 'സിസ്റ്റർ അനിത മേരി',
-        },
-        role: {
-          en: 'Geriatric & Bedside Care Attendant',
-          hi: 'बुजुर्ग व बेडसाइड केयर परिचारक',
-          ta: 'முதியோர் படுக்கை பராமரிப்பு உதவியாளர்',
-          kn: 'ಹಿರಿಯರ ಹಾಸಿಗೆಯ ಬದಿಯ ಆರೈಕೆದಾರರು',
-          ml: 'ബെഡ്സൈഡ് കെയർ അസിസ്റ്റന്റ്',
-        },
-        phone: '+91 98402 87652',
-        rating: '4.8',
-        reviewsCount: 98,
-        experience: {
-          en: '5 yrs experience · Mobility & Daily Vitals',
-          hi: '5 वर्ष अनुभव · चलना-फिरना व बीपी/शुगर',
-          ta: '5 ஆண்டுகள் அனுபவம் · நடைபயிற்சி & உடல்நலம்',
-          kn: '5 ವರ್ಷಗಳ ಅನುಭವ · ಚಲನಶೀಲತೆ ಮತ್ತು ನಿಗಾ',
-          ml: '5 വർഷത്തെ പരിചയം · നടത്ത സഹായം',
-        },
-        languages: 'Tamil, Telugu',
-        rate: { en: '₹750 / day', hi: '₹750 / दिन', ta: '₹750 / நாள்', kn: '₹750 / ದಿನ', ml: '₹750 / ദിവസം' },
-        available: { en: 'Available Tomorrow', hi: 'कल से उपलब्ध', ta: 'நாளை கிடைக்கும்', kn: 'ನಾಳೆ ಲಭ್ಯ', ml: 'നാളെ ലഭ്യമാണ്' },
-        image: '/images/caretaker-anitha.png',
-      },
-      {
-        id: 'nurse-babu',
-        name: {
-          en: 'Babu Sundaram',
-          hi: 'बाबू सुंदरम',
-          ta: 'பாபு சுந்தரம்',
-          kn: 'ಬಾಬು ಸುಂದರಂ',
-          ml: 'ബാബു സുന്ദരം',
-        },
-        role: {
-          en: 'Male Patient Attendant & Physical Support',
-          hi: 'पुरुष मरीज़ परिचारक व शारीरिक सहयोग',
-          ta: 'ஆண் நோயாளி உதவியாளர் & உடற்பயிற்சி உதவி',
-          kn: 'ಪುರುಷ ರೋಗಿ ಸಹಾಯಕ ಮತ್ತು ದೈಹಿಕ ಬೆಂಬಲ',
-          ml: 'പുരുഷ രോഗി സഹായി & ഫിസിക്കൽ സപ്പോർട്ട്',
-        },
-        phone: '+91 97908 43219',
-        rating: '4.9',
-        reviewsCount: 116,
-        experience: {
-          en: '6 yrs experience · Wheelchair, Bath & Night Duty',
-          hi: '6 वर्ष अनुभव · व्हीलचेयर व नाइट ड्यूटी',
-          ta: '6 ஆண்டுகள் அனுபவம் · சக்கர நாற்காலி & இரவு பணி',
-          kn: '6 ವರ್ಷಗಳ ಅನುಭವ · ವೀಲ್‌ಚೇರ್ & ರಾತ್ರಿ ಸೇವೆ',
-          ml: '6 വർഷത്തെ പരിചയം · വീൽചെയർ, രാത്രി പരിചരണം',
-        },
-        languages: 'Tamil, Hindi, English',
-        rate: { en: '₹750 / day', hi: '₹750 / दिन', ta: '₹750 / நாள்', kn: '₹750 / ದಿನ', ml: '₹750 / ദിവസം' },
-        available: { en: 'Available Today', hi: 'आज उपलब्ध', ta: 'இன்று கிடைக்கும்', kn: 'ಇಂದು ಲಭ್ಯ', ml: 'ഇന്ന് ലഭ്യമാണ്' },
-        image: '/images/caretaker-babu.png',
-      },
-      {
-        id: 'nurse-kavitha',
-        name: {
-          en: 'Kavitha R.',
-          hi: 'कविता आर.',
-          ta: 'கவிதா ஆர்.',
-          kn: 'ಕವಿತಾ ಆರ್.',
-          ml: 'കവിത ആർ.',
-        },
-        role: {
-          en: 'Diabetic & Medication Care Attendant',
-          hi: 'डायबिटीज व दवा देखरेख परिचारक',
-          ta: 'நீரிழிவு & மருந்து பராமரிப்பு உதவியாளர்',
-          kn: 'ಮಧುಮೇಹ ಮತ್ತು ಔಷಧಿ ಆರೈಕೆ ಸಹಾಯಕರು',
-          ml: 'പ്രമേഹ പരിചരണ സഹായി',
-        },
-        phone: '+91 93616 60147',
-        rating: '4.8',
-        reviewsCount: 75,
-        experience: {
-          en: '4 yrs experience · Insulin, Diet & BP Check',
-          hi: '4 वर्ष अनुभव · इंसुलिन, खानपान व बीपी',
-          ta: '4 ஆண்டுகள் அனுபவம் · இன்சுலின் & உணவு முறை',
-          kn: '4 ವರ್ಷಗಳ ಅನುಭವ · ಇನ್ಸುಲಿನ್ ಮತ್ತು ಬಿಪಿ',
-          ml: '4 വർഷത്തെ പരിചയം · ഇൻസുലിൻ, ബിപി',
-        },
-        languages: 'Tamil',
-        rate: { en: '₹750 / day', hi: '₹750 / दिन', ta: '₹750 / நாள்', kn: '₹750 / ದಿನ', ml: '₹750 / ദിവസം' },
-        available: { en: 'Available Today', hi: 'आज उपलब्ध', ta: 'இன்று கிடைக்கும்', kn: 'ಇಂದು ಲಭ್ಯ', ml: 'ഇന്ന് ലഭ്യമാണ്' },
-        image: '/images/caretaker-kavitha.png',
-      },
-    ],
+
   },
   {
     id: 'house-cleaning',
+    apiCategory: 'House Cleaning',
     title: {
       en: 'House Cleaning',
       hi: 'घर की गहरी सफ़ाई',
@@ -328,136 +187,11 @@ const CATEGORIES_DATA: ServiceCategory[] = [
       kn: '₹3,999 / ತಿಂಗಳು',
       ml: '₹3,999 / മാസം',
     },
-    providers: [
-      {
-        id: 'clean-radha',
-        name: {
-          en: 'Radha Murugan',
-          hi: 'राधा मुरुगन',
-          ta: 'ராதா முருகன்',
-          kn: 'ರಾಧಾ ಮುರುಗನ್',
-          ml: 'രാധ മുരുഗൻ',
-        },
-        role: {
-          en: 'Patient Room & Deep Sanitization Lead',
-          hi: 'मरीज़ कमरा व गहरी सफ़ाई प्रभारी',
-          ta: 'நோயாளி அறை & ஆழ்ந்த சுத்தம் பொறுப்பாளர்',
-          kn: 'ರೋಗಿಯ ಕೊಠಡಿ ಮತ್ತು ಡೀಪ್ ಕ್ಲೀನಿಂಗ್ ಲೀಡ್',
-          ml: 'ഡീപ് സാനിറ്റൈസേഷൻ സ്പെഷ്യലിസ്റ്റ്',
-        },
-        phone: '+91 97890 12345',
-        rating: '4.9',
-        reviewsCount: 185,
-        experience: {
-          en: '7 yrs experience · Hospital Grade Sanitization',
-          hi: '7 वर्ष अनुभव · अस्पताल स्तर का कीटाणुशोधन',
-          ta: '7 ஆண்டுகள் அனுபவம் · மருத்துவமனை தர கிருமி நீக்கம்',
-          kn: '7 ವರ್ಷಗಳ ಅನುಭವ · ವೈದ್ಯಕೀಯ ದರ್ಜೆಯ ನೈರ್ಮಲ್ಯ',
-          ml: '7 വർഷത്തെ പരിചയം · ഹോസ്പിറ്റൽ ഗ്രേഡ് ക്ലീനിംഗ്',
-        },
-        languages: 'Tamil',
-        rate: { en: '₹3,999 / month', hi: '₹3,999 / महीना', ta: '₹3,999 / மாதம்', kn: '₹3,999 / ತಿಂಗಳು', ml: '₹3,999 / മാസം' },
-        available: { en: 'Available Today', hi: 'आज उपलब्ध', ta: 'இன்று கிடைக்கும்', kn: 'ಇಂದು ಲಭ್ಯ', ml: 'ഇന്ന് ലഭ്യമാണ്' },
-        image: '/images/house-cleaning.png',
-        badge: { en: 'Verified Staff', hi: 'सत्यापित कर्मचारी', ta: 'நம்பகமான பணியாளர்', kn: 'ಪರಿಶೀಲಿಸಿದ ಸಿಬ್ಬಂದಿ', ml: 'പരിശോധിച്ചുറപ്പിച്ചത്' },
-      },
-      {
-        id: 'clean-selvi',
-        name: {
-          en: 'Selvi Kumar',
-          hi: 'सेल्वी कुमार',
-          ta: 'செல்வி குமார்',
-          kn: 'ಸೆಲ್ವಿ ಕುಮಾರ್',
-          ml: 'സെൽവി കുമാർ',
-        },
-        role: {
-          en: 'Washroom & Kitchen Disinfection Specialist',
-          hi: 'शौचालय व रसोई कीटाणुशोधन विशेषज्ञ',
-          ta: 'கழிவறை & சமையலறை கிருமி நீக்க நிபுணர்',
-          kn: 'ಸ್ನಾನಗೃಹ ಮತ್ತು ಅಡುಗೆಮನೆ ನೈರ್ಮಲ್ಯ ತಜ್ಞರು',
-          ml: 'വാഷ്‌റൂം & കിച്ചൺ അണുനശീകരണ വിദഗ്ദ്ധൻ',
-        },
-        phone: '+91 98413 54321',
-        rating: '4.8',
-        reviewsCount: 130,
-        experience: {
-          en: '5 yrs experience · Eco-friendly Safe Materials',
-          hi: '5 वर्ष अनुभव · सुरक्षित व पर्यावरण अनुकूल सामग्री',
-          ta: '5 ஆண்டுகள் அனுபவம் · பாதுகாப்பான ரசாயனங்கள்',
-          kn: '5 ವರ್ಷಗಳ ಅನುಭವ · ಪರಿಸರ ಸ್ನೇಹಿ ಶುಚಿಗೊಳಿಸುವಿಕೆ',
-          ml: '5 വർഷത്തെ പരിചയം · സുരക്ഷിത ശുചീകരണം',
-        },
-        languages: 'Tamil, Telugu',
-        rate: { en: '₹3,999 / month', hi: '₹3,999 / महीना', ta: '₹3,999 / மாதம்', kn: '₹3,999 / ತಿಂಗಳು', ml: '₹3,999 / മാസം' },
-        available: { en: 'Available Tomorrow', hi: 'कल उपलब्ध', ta: 'நாளை கிடைக்கும்', kn: 'ನಾಳೆ ಲಭ್ಯ', ml: 'നാളെ ലഭ്യമാണ്' },
-        image: '/images/cleaner-selvi.png',
-      },
-      {
-        id: 'clean-munusamy',
-        name: {
-          en: 'Munusamy P.',
-          hi: 'मुनुसामी पी.',
-          ta: 'முனுசாமி பி.',
-          kn: 'ಮುನುಸಾಮಿ ಪಿ.',
-          ml: 'മുനുസാമി പി.',
-        },
-        role: {
-          en: 'Floor Scrubbing & Dust Removal Specialist',
-          hi: 'फ़र्श सफ़ाई व धूल हटाने के विशेषज्ञ',
-          ta: 'தரை துடைத்தல் & தூசி அகற்றும் நிபுணர்',
-          kn: 'ನೆಲ ಸ್ವಚ್ಛತೆ ಮತ್ತು ಧೂಳು ನಿವಾರಕ ತಜ್ಞರು',
-          ml: 'തറ വൃത്തിയാക്കൽ വിദഗ്ദ്ധൻ',
-        },
-        phone: '+91 94452 67890',
-        rating: '4.8',
-        reviewsCount: 92,
-        experience: {
-          en: '6 yrs experience · Full Home Moisture Care',
-          hi: '6 वर्ष अनुभव · नमी व फंगस सुरक्षा',
-          ta: '6 ஆண்டுகள் அனுபவம் · வீட்டின் பூஞ்சை தடுப்பு',
-          kn: '6 ವರ್ಷಗಳ ಅನುಭವ · ತೇವಾಂಶ ಆರೈಕೆ',
-          ml: '6 വർഷത്തെ പരിചയം · സമഗ്ര ശുചീകരണം',
-        },
-        languages: 'Tamil',
-        rate: { en: '₹3,999 / month', hi: '₹3,999 / महीना', ta: '₹3,999 / மாதம்', kn: '₹3,999 / ತಿಂಗಳು', ml: '₹3,999 / മാസം' },
-        available: { en: 'Available Today', hi: 'आज उपलब्ध', ta: 'இன்று கிடைக்கும்', kn: 'ಇಂದು ಲಭ್ಯ', ml: 'ഇന്ന് ലഭ്യമാണ്' },
-        image: '/images/cleaner-munusamy.png',
-      },
-      {
-        id: 'clean-deepak',
-        name: {
-          en: 'Deepak Shanmugam',
-          hi: 'दीपक षण्मुगम',
-          ta: 'தீபக் சண்முகம்',
-          kn: 'ದೀಪಕ್ ಷಣ್ಮುಗಂ',
-          ml: 'ദീപക് ഷൺമുഖം',
-        },
-        role: {
-          en: 'Post-Discharge Home Sanitization Lead',
-          hi: 'अस्पताल से डिस्चार्ज बाद घर की सफ़ाई विशेषज्ञ',
-          ta: 'மருத்துவமனையிலிருந்து திரும்பிய பின் தூய்மை பணி',
-          kn: 'ಆಸ್ಪತ್ರೆಯಿಂದ ಡಿಸ್ಚಾರ್ಜ್ ಆದ ನಂತರದ ನೈರ್ಮಲ್ಯ',
-          ml: 'ഡിസ്ചാർജ്ജിനു ശേഷമുള്ള അണുനശീകരണം',
-        },
-        phone: '+91 93616 60147',
-        rating: '4.9',
-        reviewsCount: 110,
-        experience: {
-          en: '4 yrs experience · Infection Prevention Protocol',
-          hi: '4 वर्ष अनुभव · संक्रमण रोकथाम विशेषज्ञ',
-          ta: '4 ஆண்டுகள் அனுபவம் · தொற்று தடுப்பு முறை',
-          kn: '4 ವರ್ಷಗಳ ಅನುಭವ · ಸೋಂಕು ತಡೆಗಟ್ಟುವಿಕೆ',
-          ml: '4 വർഷത്തെ പരിചയം · അണുബാധ തടയൽ',
-        },
-        languages: 'Tamil, English',
-        rate: { en: '₹3,999 / month', hi: '₹3,999 / महीना', ta: '₹3,999 / மாதம்', kn: '₹3,999 / ತಿಂಗಳು', ml: '₹3,999 / മാസം' },
-        available: { en: 'Available Today', hi: 'आज उपलब्ध', ta: 'இன்று கிடைக்கும்', kn: 'ಇಂದು ಲಭ್ಯ', ml: 'ഇന്ന് ലഭ്യമാണ്' },
-        image: '/images/cleaner-deepak.png',
-      },
-    ],
+
   },
   {
     id: 'technical-support',
+    apiCategory: 'Technical Support',
     title: {
       en: 'Technical Support',
       hi: 'तकनीकी सहायता',
@@ -526,266 +260,21 @@ const CATEGORIES_DATA: ServiceCategory[] = [
       kn: '₹299 / ಭೇಟಿ',
       ml: '₹299 / സന്ദർശനം',
     },
-    providers: [
-      {
-        id: 'tech-karthik',
-        name: {
-          en: 'Karthik Vijay',
-          hi: 'कार्तिक विजय',
-          ta: 'கார்த்திக் விஜய்',
-          kn: 'ಕಾರ್ತಿಕ್ ವಿಜಯ್',
-          ml: 'കാർത്തിക് വിജയ്',
-        },
-        role: {
-          en: 'Senior Medical Device & Mobile Technician',
-          hi: 'वरिष्ठ मेडिकल डिवाइस व मोबाइल तकनीशियन',
-          ta: 'மூத்த மருத்துவ உபகரணங்கள் & மொபைல் நிபுணர்',
-          kn: 'ಹಿರಿಯ ವೈದ್ಯಕೀಯ ಸಾಧನ ಮತ್ತು ಮೊಬೈಲ್ ತಂತ್ರಜ್ಞ',
-          ml: 'സീനിയർ മെഡിക്കൽ ഡിവൈസ് ടെക്നീഷ്യൻ',
-        },
-        phone: '+91 98840 98765',
-        rating: '4.9',
-        reviewsCount: 210,
-        experience: {
-          en: '6 yrs experience · BP, O2 Monitors & Glucometers',
-          hi: '6 वर्ष अनुभव · बीपी, ऑक्सीजन व शुगर मीटर',
-          ta: '6 ஆண்டுகள் அனுபவம் · பிபி, ஆக்ஸிஜன் & சுகர் மிஷின்',
-          kn: '6 ವರ್ಷಗಳ ಅನುಭವ · ಬಿಪಿ, ಆಕ್ಸಿಜನ್ ಮತ್ತು ಶುಗರ್ ಮೀಟರ್',
-          ml: '6 വർഷത്തെ പരിചയം · ബിപി, ഓക്സിജൻ മീറ്ററുകൾ',
-        },
-        languages: 'Tamil, English, Hindi',
-        rate: { en: '₹299 / visit', hi: '₹299 / विज़िट', ta: '₹299 / வருகை', kn: '₹299 / ಭೇಟಿ', ml: '₹299 / സന്ദർശനം' },
-        available: { en: 'Available Today', hi: 'आज उपलब्ध', ta: 'இன்று கிடைக்கும்', kn: 'ಇಂದು ಲಭ್ಯ', ml: 'ഇന്ന് ലഭ്യമാണ്' },
-        image: '/images/technical-support.png',
-        badge: { en: 'Expert Technician', hi: 'विशेषज्ञ तकनीशियन', ta: 'கைதேர்ந்த நிபுணர்', kn: 'ತಜ್ಞ ತಂತ್ರಜ್ಞ', ml: 'വിദഗ്ദ്ധൻ' },
-      },
-      {
-        id: 'tech-suresh',
-        name: {
-          en: 'Suresh Kumar',
-          hi: 'सुरेश कुमार',
-          ta: 'சுரேஷ் குமார்',
-          kn: 'ಸುರೇಶ್ ಕುಮಾರ್',
-          ml: 'സുരേഷ് കുമാർ',
-        },
-        role: {
-          en: 'Home Wi-Fi, Router & Tele-consult Specialist',
-          hi: 'होम वाई-फाई, राउटर व टेली-कंसल्ट विशेषज्ञ',
-          ta: 'வீட்டு வைஃபை, ரூட்டர் & வீடியோ ஆலோசனை நிபுணர்',
-          kn: 'ಮನೆ ವೈಫೈ, ರೂಟರ್ ಮತ್ತು ಟೆಲಿಕನ್ಸಲ್ಟ್ ತಜ್ಞರು',
-          ml: 'ഹോം വൈഫൈ, റൂട്ടർ & ടെലികൺസൾട്ടേഷൻ വിദഗ്ദ്ധൻ',
-        },
-        phone: '+91 97109 87654',
-        rating: '4.8',
-        reviewsCount: 145,
-        experience: {
-          en: '5 yrs experience · Fast Internet Setup for Video Consults',
-          hi: '5 वर्ष अनुभव · डॉक्टर वीडियो कॉल हेतु तेज़ इंटरनेट',
-          ta: '5 ஆண்டுகள் அனுபவம் · மருத்துவர் வீடியோ அழைப்புக்கு இணையம்',
-          kn: '5 ವರ್ಷಗಳ ಅನುಭವ · ವೀಡಿಯೊ ಸಮಾಲೋಚನೆಗಾಗಿ ವೇಗದ ಇಂಟರ್ನೆಟ್',
-          ml: '5 വർഷത്തെ പരിചയം · വേഗതയേറിയ ഇൻ്റർനെറ്റ് സജ്ജീകരണം',
-        },
-        languages: 'Tamil, English, Telugu',
-        rate: { en: '₹299 / visit', hi: '₹299 / विज़िट', ta: '₹299 / வருகை', kn: '₹299 / ಭೇಟಿ', ml: '₹299 / സന്ദർശനം' },
-        available: { en: 'Available Today', hi: 'आज उपलब्ध', ta: 'இன்று கிடைக்கும்', kn: 'ಇಂದು ಲಭ್ಯ', ml: 'ഇന്ന് ലഭ്യമാണ്' },
-        image: '/images/tech-suresh.png',
-      },
-      {
-        id: 'tech-meena',
-        name: {
-          en: 'Meena Sundaram',
-          hi: 'मीना सुंदरम',
-          ta: 'மீனா சுந்தரம்',
-          kn: 'ಮೀನಾ ಸುಂದರಂ',
-          ml: 'മീന സുന്ദരം',
-        },
-        role: {
-          en: 'Smartphone Health Apps & Video Calling Tutor',
-          hi: 'स्मार्टफोन ऐप व डॉक्टर वीडियो कॉल सहायक',
-          ta: 'ஸ்மார்ட்போன் ஆப் & வீடியோ அழைப்பு பயிற்சியாளர்',
-          kn: 'ಸ್ಮಾರ್ಟ್‌ಫೋನ್ ಆ್ಯಪ್ ಮತ್ತು ವಿಡಿಯೋ ಕಾಲ್ ಸಹಾಯಕ',
-          ml: 'സ്മാർട്ട്ഫോൺ ആപ്പ് & വീഡിയോ കോൾ സഹായി',
-        },
-        phone: '+91 94448 12340',
-        rating: '4.9',
-        reviewsCount: 128,
-        experience: {
-          en: '5 yrs experience · Patient WhatsApp, Health Apps & Tech Tutor',
-          hi: '5 वर्ष अनुभव · व्हाट्सएप, स्वास्थ्य ऐप व तकनीकी सीख',
-          ta: '5 ஆண்டுகள் அனுபவம் · வாட்ஸ்அப், சுகாதார ஆப் பயிற்சி',
-          kn: '5 ವರ್ಷಗಳ ಅನುಭವ · ವಾಟ್ಸಾಪ್, ಆರೋಗ್ಯ ಆ್ಯಪ್ ತರಬೇತಿ',
-          ml: '5 വർഷത്തെ പരിചയം · വാട്സ്ആപ്പ്, ഹെൽത്ത് ആപ്പ് പരിശീലനം',
-        },
-        languages: 'Tamil, English, Hindi',
-        rate: { en: '₹299 / visit', hi: '₹299 / विज़िट', ta: '₹299 / வருகை', kn: '₹299 / ಭೇಟಿ', ml: '₹299 / സന്ദർശനം' },
-        available: { en: 'Available Tomorrow', hi: 'कल उपलब्ध', ta: 'நாளை கிடைக்கும்', kn: 'நாಳೆ ಲಭ್ಯ', ml: 'நாளை ലഭ്യമാണ്' },
-        image: '/images/tech-meena.png',
-      },
-      {
-        id: 'tech-shalini',
-        name: {
-          en: 'Shalini Ramesh',
-          hi: 'शालिनी रमेश',
-          ta: 'ஷாலினி ரமேஷ்',
-          kn: 'ಶಾಲಿನಿ ರಮೇಶ್',
-          ml: 'ശാലിനി രമേഷ്',
-        },
-        role: {
-          en: 'Digital BP, Glucometer & Hearing Aid Setup',
-          hi: 'डिजिटल बीपी, शुगर मीटर व श्रवण यंत्र सेटअप',
-          ta: 'டிஜிட்டல் பிபி, சுகர் மிஷின் & கேட்கும் கருவி அமைப்பு',
-          kn: 'ಡಿಜಿಟಲ್ ಬಿಪಿ, ಶುಗರ್ ಮೀಟರ್ ಮತ್ತು ಶ್ರವಣ ಸಾಧನ ಸೆಟಪ್',
-          ml: 'ഡിജിറ്റൽ ബിപി, ഷുഗർ മീറ്റർ, ശ്രവണ സഹായി ക്രമീകരണം',
-        },
-        phone: '+91 93616 60147',
-        rating: '4.8',
-        reviewsCount: 104,
-        experience: {
-          en: '4 yrs experience · Medical Equipment & Battery Calibration',
-          hi: '4 वर्ष अनुभव · मरीज़ उपकरण सेटअप व बैटरी जाँच',
-          ta: '4 ஆண்டுகள் அனுபவம் · மருத்துவ உபகரண அமைப்பு & பராமரிப்பு',
-          kn: '4 ವರ್ಷಗಳ ಅನುಭವ · ವೈದ್ಯಕೀಯ ಉಪಕರಣಗಳ ಮಾಪನಾಂಕ ನಿರ್ಣಯ',
-          ml: '4 വർഷത്തെ പരിചയം · ഉപകരണ കാലിബ്രേഷൻ',
-        },
-        languages: 'Tamil, English',
-        rate: { en: '₹299 / visit', hi: '₹299 / विज़िट', ta: '₹299 / வருகை', kn: '₹299 / ಭೇಟಿ', ml: '₹299 / സന്ദർശനം' },
-        available: { en: 'Available Today', hi: 'आज उपलब्ध', ta: 'இன்று கிடைக்கும்', kn: 'ಇಂದು ಲಭ್ಯ', ml: 'இന്ന് ലഭ്യമാണ്' },
-        image: '/images/tech-shalini.png',
-      },
-    ],
+
   },
 ];
-
-const CUSTOM_COORDINATORS: ProviderPerson[] = [
-  {
-    id: 'coord-ramesh',
-    name: {
-      en: 'Ramesh V. - Wheelchair & Hospital Escort',
-      hi: 'रमेश वी. - व्हीलचेयर व अस्पताल साथी',
-      ta: 'ரமேஷ் வி. - சக்கர நாற்காலி & மருத்துவமனை துணை',
-      kn: 'ರಮೇಶ್ ವಿ. - ವೀಲ್‌ಚೇರ್ ಮತ್ತು ಆಸ್ಪತ್ರೆ ಜೊತೆಗಾರ',
-      ml: 'രമേശ് വി. - വീൽചെയർ & ആശുപത്രി കൂട്ട്',
-    },
-    role: {
-      en: 'Patient Clinic Transport & Escort Companion',
-      hi: 'क्लिनिक साथ जाने और व्हीलचेयर में सहायता',
-      ta: 'மருத்துவமனைக்கு அழைத்துச் செல்லும் பாதுகாவலர்',
-      kn: 'ಆಸ್ಪತ್ರೆಗೆ ಕರೆದೊಯ್ಯುವ ನಂಬಿಕಸ್ಥ ಜೊತೆಗಾರ',
-      ml: 'ആശുപത്രി സഹായിയും കൂട്ടുകാരനും',
-    },
-    phone: '+91 94451 11223',
-    rating: '4.9',
-    reviewsCount: 160,
-    experience: {
-      en: 'Patient clinic visits, ambulance standby & walking support',
-      hi: 'अस्पताल जाने में मदद, एम्बुलेंस स्टैंडबाय व सहारा',
-      ta: 'மருத்துவமனை வருகை, ஆம்புலன்ஸ் துணை & நடை உதவி',
-      kn: 'ಆಸ್ಪತ್ರೆ ಭೇಟಿಗಳು ಮತ್ತು ನಡಿಗೆಗೆ ಆಸರೆ',
-      ml: 'ആശുപത്രി യാത്രകൾ, താങ്ങ് സഹായം',
-    },
-    languages: 'Tamil, English',
-    rate: { en: '₹350 / trip', hi: '₹350 / यात्रा', ta: '₹350 / முறை', kn: '₹350 / ಪ್ರಯಾಣ', ml: '₹350 / ട്രിപ്പ്' },
-    available: { en: 'Available Today', hi: 'आज उपलब्ध', ta: 'இன்று கிடைக்கும்', kn: 'ಇಂದು ಲಭ್ಯ', ml: 'ഇന്ന് ലഭ്യമാണ്' },
-  },
-  {
-    id: 'coord-geetha',
-    name: {
-      en: 'Geetha K. - Night Attendant Coordinator',
-      hi: 'गीता के. - रात्रि देखभाल समन्वयक',
-      ta: 'கீதா கே. - இரவு நேர கவனிப்பாளர்',
-      kn: 'ಗೀತಾ ಕೆ. - ರಾತ್ರಿ ಆರೈಕೆ ಸಂಯೋಜಕರು',
-      ml: 'ഗീത കെ. - രാത്രി പരിചരണ കോർഡിനേറ്റർ',
-    },
-    role: {
-      en: 'Overnight Elderly Care & Vitals Watch',
-      hi: 'रात भर बुजुर्गों की देखभाल और आपातकालीन निगरानी',
-      ta: 'இரவு முழுதும் முதியோர் கண்காணிப்பு & உதவி',
-      kn: 'ರಾತ್ರಿಯಿಡೀ ಹಿರಿಯರ ಆರೈಕೆ ಮತ್ತು ನಿಗಾ',
-      ml: 'രാത്രികാല രോഗി പരിചരണവും നിരീക്ഷണവും',
-    },
-    phone: '+91 98405 33445',
-    rating: '4.9',
-    reviewsCount: 120,
-    experience: {
-      en: 'Bedside night assistance, water, medicine & washroom help',
-      hi: 'रात में दवा, पानी, शौचालय और सुरक्षित नींद की निगरानी',
-      ta: 'இரவில் மருந்து, தண்ணீர், கழிப்பறை உதவி & பாதுகாப்பு',
-      kn: 'ರಾತ್ರಿ ವೇಳೆ ಔಷಧಿ, ನೀರು ಮತ್ತು ಶೌಚಾಲಯ ನೆರವು',
-      ml: 'രാത്രി മരുന്ന്, വെള്ളം, സുരക്ഷിത പരിചരണം',
-    },
-    languages: 'Tamil',
-    rate: { en: '₹850 / night', hi: '₹850 / रात', ta: '₹850 / இரவு', kn: '₹850 / ರಾತ್ರಿ', ml: '₹850 / രാത്രി' },
-    available: { en: 'Available Tonight', hi: 'आज रात उपलब्ध', ta: 'இன்று இரவு கிடைக்கும்', kn: 'ಇಂದು ರಾತ್ರಿ ಲಭ್ಯ', ml: 'ഇന്ന് രാത്രി ലഭ്യമാണ്' },
-  },
-  {
-    id: 'coord-saravanan',
-    name: {
-      en: 'Saravanan P. - Medicine & Lab Courier',
-      hi: 'शर्वणन पी. - दवा व लैब टेस्ट कूरियर',
-      ta: 'சரவணன் பி. - மருந்து & பரிசோதனை டெலிவரி',
-      kn: 'ಶರವಣನ್ ಪಿ. - ಔಷಧಿ ಮತ್ತು ಲ್ಯಾಬ್ ಕೊರಿಯರ್',
-      ml: 'ശരവണൻ പി. - മരുന്ന് & ലാബ് കൊറിയർ',
-    },
-    role: {
-      en: 'Jan Aushadhi Medicine Pickup & Blood Sample Drop',
-      hi: 'जन औषधि केंद्र से दवा लाना व लैब रिपोर्ट लाना',
-      ta: 'ஜன் ஔஷதி மருந்து வாங்கி வருதல் & ரத்த மாதிரி சேகரிப்பு',
-      kn: 'ಜನ್ ಔಷಧಿ ಅಂಗಡಿಯಿಂದ ಔಷಧಿ & ಲ್ಯಾಬ್ ಮಾದರಿ ಸಂಗ್ರಹ',
-      ml: 'മരുന്ന് വാങ്ങൽ & ലാബ് സാമ്പിൾ ശേഖരണം',
-    },
-    phone: '+91 97910 55667',
-    rating: '4.8',
-    reviewsCount: 230,
-    experience: {
-      en: 'Fast 45-min prescription pickup from government & private shops',
-      hi: '45 मिनट में सरकारी व निजी दुकानों से दवा पहुँचाना',
-      ta: '45 நிமிடத்தில் மருந்து சீட்டு டெலிவரி சேவை',
-      kn: '45 ನಿಮಿಷಗಳಲ್ಲಿ ಮನೆ ಬಾಗಿಲಿಗೆ ಔಷಧ ವಿತರಣೆ',
-      ml: '45 മിനിറ്റിനകം വീട്ടിൽ മരുന്ന് എത്തിക്കൽ',
-    },
-    languages: 'Tamil',
-    rate: { en: '₹99 / delivery', hi: '₹99 / डिलीवरी', ta: '₹99 / சேவை', kn: '₹99 / ಡೆಲಿವರಿ', ml: '₹99 / ഡെലിവറി' },
-    available: { en: 'Available Now', hi: 'अभी उपलब्ध', ta: 'உடனடி சேவை', kn: 'ಈಗ ಲಭ್ಯ', ml: 'ഉടൻ ലഭ്യമാണ്' },
-  },
-  {
-    id: 'coord-desk',
-    name: {
-      en: 'Hello Sahay Care Coordinator Desk',
-      hi: 'हेलो सहाय केयर समन्वयक डेस्क',
-      ta: 'ஹலோ சஹாய் ஒருங்கிணைப்பாளர் உதவி மையம்',
-      kn: 'ಹಲೋ ಸಹಾಯ್ ಕೇರ್ ಸಂಯೋಜಕ ಡೆಸ್ಕ್',
-      ml: 'ഹലോ സഹായ് കെയർ കോർഡിനേറ്റർ ഡെസ്ക്',
-    },
-    role: {
-      en: '24/7 Dedicated Ambulance & Emergency Coordinator',
-      hi: '24 घंटे आपातकालीन एम्बुलेंस व डॉक्टर सहायता',
-      ta: '24/7 அவசர உதவி, ஆம்புலன்ஸ் & மருத்துவர் ஒருங்கிணைப்பு',
-      kn: '24/7 ಆಂಬ್ಯುಲೆನ್ಸ್ ಮತ್ತು ತುರ್ತು ವೈದ್ಯಕೀಯ ಸಂಯೋಜನೆ',
-      ml: '24/7 ആംബുലൻസ്, അടിയന്തര ഡോക്ടർ ഏകോപനം',
-    },
-    phone: '+91 93989 66523',
-    rating: '5.0',
-    reviewsCount: 450,
-    experience: {
-      en: 'Direct emergency bed allotment, doctor on call & ambulance',
-      hi: 'तुरंत अस्पताल बेड, ऑन-कॉल डॉक्टर व सरकारी सहायता',
-      ta: 'உடனடி மருத்துவமனை படுக்கை & அரசு நலத்திட்ட வழிகாட்டல்',
-      kn: 'ತಕ್ಷಣದ ಆಸ್ಪತ್ರೆ ಬೆಡ್ ಮತ್ತು ವೈದ್ಯರ ನೇರ ಸಂಪರ್ಕ',
-      ml: 'ഉടനടി ആശുപത്രി സൗകര്യം & ആംബുലൻസ്',
-    },
-    languages: 'Tamil, Hindi, Kannada, Malayalam, English',
-    rate: { en: 'Free Helpline', hi: 'मुफ़्त हेल्पलाइन', ta: 'இலவச உதவி', kn: 'ಉಚಿತ ಸಹಾಯವಾಣಿ', ml: 'സൗജന്യ ഹെൽപ്‌ലൈൻ' },
-    available: { en: 'Always 24/7 Active', hi: 'हमेशा सक्रिय 24/7', ta: '24 மணிநேரமும் தயார்', kn: 'ಯಾವಾಗಲೂ ಲಭ್ಯ 24/7', ml: 'എപ്പോഴും സജീവം 24/7' },
-    badge: { en: '24/7 Helpline', hi: '24/7 हेल्पलाइन', ta: '24/7 உதவி எண்', kn: '24/7 ಸಹಾಯವಾಣಿ', ml: '24/7 ഹെൽപ്‌ലൈൻ' },
-  },
-];
-
 const QUICK_NEEDS: LangMap<string>[] = [
   { en: 'Wheelchair Assistance', hi: 'व्हीलचेयर सहायता', ta: 'சக்கர நாற்காலி உதவி', kn: 'ವೀಲ್‌ಚೇರ್ ನೆರವು', ml: 'വീൽചെയർ സഹായം' },
   { en: 'Hospital Escort', hi: 'अस्पताल ले जाने वाला साथी', ta: 'மருத்துவமனை துணை', kn: 'ಆಸ್ಪತ್ರೆಗೆ ಜೊತೆಗಾರ', ml: 'ആശുപത്രി കൂട്ട്' },
   { en: 'Night Nurse Attendant', hi: 'रात की नर्स परिचारक', ta: 'இரவு நர்ஸ் உதவி', kn: 'ರಾತ್ರಿ ನರ್ಸ್ ನೆರವು', ml: 'രാത്രി നഴ്സ് പരിചരണം' },
   { en: 'Medicine Home Delivery', hi: 'दवा घर पहुँचाना', ta: 'மருந்து வீடு தேடி வர', kn: 'ಔಷಧಿ ಮನೆ ಬಾಗಿಲಿಗೆ', ml: 'മരുന്ന് ഹോം ഡെലിവറി' },
   { en: 'Home Blood Sample Collection', hi: 'घर पर खून की जाँच', ta: 'வீட்டில் ரத்தப் பரிசோதனை', kn: 'ಮನೆಯಲ್ಲೇ ರಕ್ತ ಪರೀಕ್ಷೆ', ml: 'വീട്ടിൽ രക്തപരിശോധന' },
+];
+
+const SLOT_OPTIONS: { id: 'morning' | 'afternoon' | 'evening'; label: LangMap<string> }[] = [
+  { id: 'morning', label: { en: 'Morning', hi: 'सुबह', ta: 'காலை', kn: 'ಬೆಳಿಗ್ಗೆ', ml: 'രാവിലെ', te: 'ఉదయం' } },
+  { id: 'afternoon', label: { en: 'Afternoon', hi: 'दोपहर', ta: 'மதியம்', kn: 'ಮಧ್ಯಾಹ್ನ', ml: 'ഉച്ചയ്ക്ക്', te: 'మధ్యాహ్నం' } },
+  { id: 'evening', label: { en: 'Evening', hi: 'शाम', ta: 'மாலை', kn: 'ಸಂಜೆ', ml: 'വൈകുന്നേരം', te: 'సాయంత్రం' } },
 ];
 
 const MONTH_NAMES: Partial<Record<Language, string[]>> & { en: string[] } = {
@@ -815,7 +304,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
   // Active category: null = 2x2 grid main page; otherwise shows the page with 4 people!
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // Real location fetched from AWS backend
+  // The patient's saved village, from their profile
   const [backendLocation, setBackendLocation] = useState<string | null>(null);
 
   useEffect(() => {
@@ -855,22 +344,54 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
 
   // Modal State for service booking
   const [selectedPersonForBooking, setSelectedPersonForBooking] = useState<{
-    person: ProviderPerson;
-    serviceTitle: string;
+    person: ServiceProvider;
+    category: string;
   } | null>(null);
   const [bookingDate, setBookingDate] = useState<string>(tomorrowIso);
   const [calYear, setCalYear] = useState<number>(todayObj.getFullYear());
   const [calMonth, setCalMonth] = useState<number>(todayObj.getMonth());
-  const [bookingSlot, setBookingSlot] = useState<string>('morning');
-  const [patientName, setPatientName] = useState<string>(userSettings.userName || '');
-  const [contactPhone, setContactPhone] = useState<string>(userSettings.userPhone || '');
+  const [bookingSlot, setBookingSlot] = useState<'morning' | 'afternoon' | 'evening'>('morning');
+  const [customerNotes, setCustomerNotes] = useState<string>('');
   const [serviceAddress, setServiceAddress] = useState<string>(effectiveRealLocation);
   const [bookingSuccess, setBookingSuccess] = useState<boolean>(false);
+  const [bookingBusy, setBookingBusy] = useState<boolean>(false);
+  const [bookingError, setBookingError] = useState<string>('');
+
+  // Helpers for the open category come from the server
+  const [people, setPeople] = useState<ServiceProvider[]>([]);
+  const [peopleState, setPeopleState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [peopleError, setPeopleError] = useState<string>('');
+  const openCategory =
+    activeCategory === 'describe-need' ? 'Care Support' : CATEGORIES_DATA.find((c) => c.id === activeCategory)?.apiCategory ?? null;
+
+  useEffect(() => {
+    if (!openCategory) return;
+    let cancelled = false;
+    setPeopleState('loading');
+    patientApi
+      .serviceProviders(openCategory)
+      .then((rows) => {
+        if (cancelled) return;
+        setPeople(rows);
+        setPeopleState('ready');
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        setPeopleError(e instanceof ApiError ? e.message : String(e));
+        setPeopleState('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [openCategory]);
 
   // Custom request state
   const [customNeedText, setCustomNeedText] = useState<string>('');
   const [customSubmitted, setCustomSubmitted] = useState<boolean>(false);
   const [customSubmitting, setCustomSubmitting] = useState<boolean>(false);
+  const [customError, setCustomError] = useState<string>('');
+  const [customDay, setCustomDay] = useState<'today' | 'tomorrow'>('tomorrow');
+  const [customSlot, setCustomSlot] = useState<'morning' | 'afternoon' | 'evening'>('morning');
 
   // Month Calendar Navigation Helpers
   const canGoPrevMonth =
@@ -902,10 +423,10 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
   const formatFriendlyDate = (iso: string) => {
     if (!iso) return '';
     if (iso === todayIso) {
-      return `${L({ en: 'Today', hi: 'आज', ta: 'இன்று', kn: 'ಇಂದು', ml: 'இன்று' })} (${new Date(iso + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })})`;
+      return `${L({ en: 'Today', hi: 'आज', ta: 'இன்று', kn: 'ಇಂದು', ml: 'ഇന്ന്' })} (${new Date(iso + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })})`;
     }
     if (iso === tomorrowIso) {
-      return `${L({ en: 'Tomorrow', hi: 'कल', ta: 'நாளை', kn: 'ನಾಳೆ', ml: 'நாளை' })} (${new Date(iso + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })})`;
+      return `${L({ en: 'Tomorrow', hi: 'कल', ta: 'நாளை', kn: 'ನಾಳೆ', ml: 'നാളെ' })} (${new Date(iso + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })})`;
     }
     const [y, m, d] = iso.split('-').map(Number);
     const dateObj = new Date(y, m - 1, d);
@@ -917,34 +438,66 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
     });
   };
 
-  const handleOpenBooking = (person: ProviderPerson, serviceTitle: string) => {
-    setSelectedPersonForBooking({ person, serviceTitle });
+  const handleOpenBooking = (person: ServiceProvider, category: string) => {
+    setSelectedPersonForBooking({ person, category });
     setBookingSuccess(false);
+    setBookingError('');
     setBookingDate(tomorrowIso);
     setBookingSlot('morning');
     setServiceAddress(effectiveRealLocation);
-    setPatientName(userSettings.userName || '');
-    setContactPhone(userSettings.userPhone || '');
+    setCustomerNotes('');
     setCalYear(todayObj.getFullYear());
     setCalMonth(todayObj.getMonth());
   };
 
-  const handleConfirmBooking = () => {
-    setBookingSuccess(true);
-    setTimeout(() => {
-      setSelectedPersonForBooking(null);
-      setBookingSuccess(false);
-    }, 3500);
+  const errorText = (e: unknown) =>
+    e instanceof ApiError
+      ? e.message
+      : L({ en: 'Something went wrong. Please try again.', hi: 'कुछ गड़बड़ हुई। फिर से कोशिश करें।', ta: 'ஏதோ தவறு நடந்தது. மீண்டும் முயலவும்.', kn: 'ಏನೋ ತೊಂದರೆಯಾಯಿತು. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.', ml: 'എന്തോ പിശക് സംഭവിച്ചു. വീണ്ടും ശ്രമിക്കുക.', te: 'ఏదో తప్పు జరిగింది. మళ్ళీ ప్రయత్నించండి.' });
+
+  const handleConfirmBooking = async () => {
+    if (!selectedPersonForBooking || bookingBusy) return;
+    setBookingBusy(true);
+    setBookingError('');
+    try {
+      await patientApi.bookService({
+        helper_id: selectedPersonForBooking.person.id,
+        service_category: selectedPersonForBooking.category,
+        service_title: selectedPersonForBooking.category,
+        booking_date: bookingDate,
+        slot: bookingSlot,
+        location_address: serviceAddress.trim(),
+        customer_notes: customerNotes.trim() || undefined,
+      });
+      setBookingSuccess(true);
+    } catch (e) {
+      setBookingError(errorText(e));
+    } finally {
+      setBookingBusy(false);
+    }
   };
 
-  const handleCustomSubmit = (e?: React.FormEvent) => {
+  const handleCustomSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!customNeedText.trim()) return;
+    if (!customNeedText.trim() || customSubmitting) return;
     setCustomSubmitting(true);
-    setTimeout(() => {
-      setCustomSubmitting(false);
+    setCustomError('');
+    try {
+      await patientApi.bookService({
+        helper_id: null,
+        service_category: 'Custom request',
+        service_title: 'Custom request',
+        description: customNeedText.trim(),
+        booking_date: customDay === 'today' ? todayIso : tomorrowIso,
+        slot: customSlot,
+        location_address: serviceAddress.trim(),
+      });
       setCustomSubmitted(true);
-    }, 600);
+    } catch (err) {
+      setCustomError(errorText(err));
+    } finally {
+      setCustomSubmitting(false);
+    }
   };
 
   const currentCategoryData = CATEGORIES_DATA.find((c) => c.id === activeCategory);
@@ -965,12 +518,6 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
       : currentCategoryData
       ? pick(currentLang, currentCategoryData.title)
       : '';
-
-    const peopleList: ProviderPerson[] = isCustomNeedCategory
-      ? CUSTOM_COORDINATORS
-      : currentCategoryData
-      ? currentCategoryData.providers
-      : [];
 
     return (
       <div className="space-y-6">
@@ -1000,20 +547,11 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
             {categoryTitle}
           </h1>
           <p className="text-xl sm:text-2xl font-bold text-slate-700">
-            {L({
-              en: 'Verified people available near you with direct phone numbers',
-              hi: 'सीधे फोन नंबर के साथ आपके क्षेत्र में उपलब्ध सत्यापित लोग',
-              ta: 'நேரடி தொலைபேசி எண்ணுடன் உங்களுக்கு அருகில் உள்ள சரிபார்க்கப்பட்ட நபர்கள்',
-              kn: 'ನೇರ ಫೋನ್ ಸಂಖ್ಯೆಗಳೊಂದಿಗೆ ನಿಮ್ಮ ಹತ್ತಿರ ಲಭ್ಯವಿರುವ ಪರಿಶೀಲಿಸಿದ ಸಿಬ್ಬಂದಿ',
-              ml: 'നേരിട്ടുള്ള ഫോൺ നമ്പറുകളോടെ നിങ്ങൾക്ക് സമീപം ലഭ്യമായ പരിശോധിച്ച വ്യക്തികൾ',
-            })}
+            {L({ en: 'ID-checked helpers you can book for a home visit', hi: 'घर आने के लिए बुक कर सकने वाले आईडी-जाँचे सहायक', ta: 'வீட்டிற்கு வர முன்பதிவு செய்யக்கூடிய அடையாளம் சரிபார்க்கப்பட்ட உதவியாளர்கள்', kn: 'ಮನೆ ಭೇಟಿಗೆ ಬುಕ್ ಮಾಡಬಹುದಾದ ಗುರುತು ಪರಿಶೀಲಿಸಿದ ಸಹಾಯಕರು', ml: 'വീട്ടിലെത്താൻ ബുക്ക് ചെയ്യാവുന്ന തിരിച്ചറിയൽ പരിശോധിച്ച സഹായികൾ', te: 'ఇంటికి రావడానికి బుక్ చేయగల ID తనిఖీ చేసిన సహాయకులు' })}
           </p>
           <div className="inline-flex flex-wrap items-center gap-2 rounded-2xl bg-teal-50 px-4 py-2.5 border-2 border-teal-200 text-teal-950 text-lg font-extrabold shadow-sm">
             <MapPin className="w-6 h-6 text-teal-800 shrink-0" />
             <span>{effectiveRealLocation}</span>
-            <span className="text-xs font-black uppercase tracking-wider bg-teal-800 text-white px-2.5 py-0.5 rounded-full">
-              {L({ en: 'AWS Backend Location', hi: 'AWS सर्वर डेटा', ta: 'AWS நேரலை தரவு', kn: 'AWS ನೈಜ ಡೇಟಾ', ml: 'AWS തത്സമയ ഡാറ്റ' })}
-            </span>
           </div>
         </div>
 
@@ -1035,13 +573,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                   })}
                 </h3>
                 <p className="text-lg text-slate-700 font-semibold">
-                  {L({
-                    en: 'Our Sahay care team will organize verified help within 15 minutes',
-                    hi: 'हमारी सहाय टीम 15 मिनट में सत्यापित सहायता उपलब्ध कराएगी',
-                    ta: 'எங்கள் சஹாய் குழு 15 நிமிடங்களில் உதவி ஏற்பாடு செய்யும்',
-                    kn: 'ನಮ್ಮ ಸಹಾಯ್ ತಂಡ 15 ನಿಮಿಷಗಳಲ್ಲಿ ಸಹಾಯವನ್ನು ವ್ಯವಸ್ಥೆ ಮಾಡುತ್ತದೆ',
-                    ml: 'ഞങ്ങളുടെ സഹായ് ടീം 15 മിനിറ്റിനകം സഹായം ക്രമീകരിക്കും',
-                  })}
+                  {L({ en: 'Describe what you need. A helper who can do it will accept your request.', hi: 'अपनी ज़रूरत बताइए। कोई उपयुक्त सहायक आपका अनुरोध स्वीकार करेगा।', ta: 'உங்கள் தேவையைச் சொல்லுங்கள். பொருத்தமான உதவியாளர் உங்கள் கோரிக்கையை ஏற்பார்.', kn: 'ನಿಮ್ಮ ಅಗತ್ಯವನ್ನು ತಿಳಿಸಿ. ಸೂಕ್ತ ಸಹಾಯಕರು ನಿಮ್ಮ ವಿನಂತಿಯನ್ನು ಒಪ್ಪುತ್ತಾರೆ.', ml: 'നിങ്ങളുടെ ആവശ്യം പറയൂ. അനുയോജ്യനായ സഹായി അഭ്യർത്ഥന സ്വീകരിക്കും.', te: 'మీకు ఏమి కావాలో చెప్పండి. తగిన సహాయకుడు మీ అభ్యర్థనను అంగీకరిస్తారు.' })}
                 </p>
               </div>
             </div>
@@ -1052,22 +584,10 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
                 <h4 className="text-2xl font-extrabold text-emerald-950">
-                  {L({
-                    en: 'Request Received!',
-                    hi: 'अनुरोध प्राप्त हुआ!',
-                    ta: 'கோரிக்கை பெறப்பட்டது!',
-                    kn: 'ವಿನಂತಿ ಸ್ವೀಕರಿಸಲಾಗಿದೆ!',
-                    ml: 'അഭ്യർത്ഥന ലഭിച്ചു!',
-                  })}
+                  {L({ en: 'Request sent', hi: 'अनुरोध भेजा गया', ta: 'கோரிக்கை அனுப்பப்பட்டது', kn: 'ವಿನಂತಿ ಕಳುಹಿಸಲಾಗಿದೆ', ml: 'അഭ്യർത്ഥന അയച്ചു', te: 'అభ్యర్థన పంపబడింది' })}
                 </h4>
                 <p className="text-lg text-emerald-900 font-bold">
-                  {L({
-                    en: 'Our coordinator will call you back shortly.',
-                    hi: 'हमारे समन्वयक जल्द ही आपको कॉल करेंगे।',
-                    ta: 'எங்கள் ஒருங்கிணைப்பாளர் விரைவில் உங்களை அழைப்பார்.',
-                    kn: 'ನಮ್ಮ ಸಂಯೋಜಕರು ಶೀಘ್ರದಲ್ಲೇ ನಿಮಗೆ ಕರೆ ಮಾಡುತ್ತಾರೆ.',
-                    ml: 'ഞങ്ങളുടെ കോർഡിനേറ്റർ ഉടൻ തിരിച്ചുവിളിക്കും.',
-                  })}
+                  {L({ en: 'A helper will accept it soon. You can follow it under "Your bookings".', hi: 'कोई सहायक जल्द स्वीकार करेगा। आप इसे "आपकी बुकिंग" में देख सकते हैं।', ta: 'ஒரு உதவியாளர் விரைவில் ஏற்பார். "உங்கள் முன்பதிவுகள்" பகுதியில் பார்க்கலாம்.', kn: 'ಸಹಾಯಕರು ಶೀಘ್ರದಲ್ಲೇ ಒಪ್ಪುತ್ತಾರೆ. "ನಿಮ್ಮ ಬುಕಿಂಗ್‌ಗಳು" ನಲ್ಲಿ ನೋಡಬಹುದು.', ml: 'ഒരു സഹായി ഉടൻ സ്വീകരിക്കും. "നിങ്ങളുടെ ബുക്കിംഗുകൾ" എന്നതിൽ കാണാം.', te: 'ఒక సహాయకుడు త్వరలో అంగీకరిస్తారు. "మీ బుకింగ్‌లు" లో చూడవచ్చు.' })}
                 </p>
               </div>
             ) : (
@@ -1102,10 +622,54 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                   rows={3}
                 />
 
+                <div className="grid grid-cols-2 gap-2">
+                  {(['today', 'tomorrow'] as const).map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setCustomDay(d)}
+                      className={`h-12 rounded-2xl border-2 font-bold text-base transition-all ${
+                          customDay === d
+                            ? 'border-teal-800 bg-teal-800 text-white'
+                            : 'border-slate-300 bg-white text-slate-800 active:bg-slate-100'
+                        }`}
+                    >
+                      {d === 'today'
+                        ? L({ en: 'Today', hi: 'आज', ta: 'இன்று', kn: 'ಇಂದು', ml: 'ഇന്ന്', te: 'ఈ రోజు' })
+                        : L({ en: 'Tomorrow', hi: 'कल', ta: 'நாளை', kn: 'ನಾಳೆ', ml: 'നാളെ', te: 'రేపు' })}
+                    </button>
+                  ))}
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {SLOT_OPTIONS.map((slot) => (
+                    <button
+                      key={slot.id}
+                      type="button"
+                      onClick={() => setCustomSlot(slot.id)}
+                      className={`h-12 rounded-2xl border-2 font-bold text-base transition-all ${
+                          customSlot === slot.id
+                            ? 'border-teal-800 bg-teal-800 text-white'
+                            : 'border-slate-300 bg-white text-slate-800 active:bg-slate-100'
+                        }`}
+                    >
+                      {L(slot.label)}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  value={serviceAddress}
+                  onChange={(e) => setServiceAddress(e.target.value)}
+                  aria-label={L({ en: 'Home address', hi: 'घर का पता', ta: 'வீட்டு முகவரி', kn: 'ಮನೆಯ ವಿಳಾಸ', ml: 'വീട്ടു വിലാസം', te: 'ఇంటి చిరునామా' })}
+                  placeholder={L({ en: 'Home address with door number and street', hi: 'मकान नंबर और गली सहित घर का पता', ta: 'கதவு எண் மற்றும் தெருவுடன் வீட்டு முகவரி', kn: 'ಮನೆ ಸಂಖ್ಯೆ ಮತ್ತು ರಸ್ತೆಯೊಂದಿಗೆ ವಿಳಾಸ', ml: 'വീട്ടുനമ്പറും റോഡും സഹിതം വിലാസം', te: 'ఇంటి నంబర్ మరియు వీధితో చిరునామా' })}
+                  className={inputCls}
+                />
+                {customError && <Notice tone="error">{customError}</Notice>}
+
                 <div className="space-y-3">
                   <BigButton
                     type="submit"
-                    disabled={!customNeedText.trim() || customSubmitting}
+                    disabled={!customNeedText.trim() || serviceAddress.trim().length < 3 || customSubmitting}
                     busy={customSubmitting}
                     icon={<Send className="w-6 h-6" />}
                   >
@@ -1123,143 +687,101 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
 
             <div className="pt-2">
               <SectionTitle>
-                {L({
-                  en: 'Or Call Dedicated Coordinators Directly',
-                  hi: 'या सीधे समर्पित समन्वयकों को कॉल करें',
-                  ta: 'அல்லது ஒருங்கிணைப்பாளர்களை நேரடியாக அழைக்கவும்',
-                  kn: 'ಅಥವಾ ನೇರವಾಗಿ ಸಂಯೋಜಕರಿಗೆ ಕರೆ ಮಾಡಿ',
-                  ml: 'അല്ലെങ്കിൽ കോർഡിനേറ്റർമാരെ നേരിട്ട് വിളിക്കുക',
-                })}
+                {L({ en: 'Or pick a coordinator', hi: 'या कोई समन्वयक चुनें', ta: 'அல்லது ஒருங்கிணைப்பாளரைத் தேர்ந்தெடுக்கவும்', kn: 'ಅಥವಾ ಸಂಯೋಜಕರನ್ನು ಆರಿಸಿ', ml: 'അല്ലെങ്കിൽ ഒരു കോർഡിനേറ്ററെ തിരഞ്ഞെടുക്കുക', te: 'లేదా ఒక సమన్వయకర్తను ఎంచుకోండి' })}
               </SectionTitle>
             </div>
           </section>
         )}
 
-        {/* 4 People Cards with Direct Phone Numbers & Action Buttons */}
+        {/* Helpers from the server */}
         <div className="space-y-5">
-          {peopleList.map((person, idx) => (
-            <section
-              key={person.id}
-              className="overflow-hidden rounded-3xl border-2 border-slate-300 bg-white p-5 sm:p-6 shadow-sm transition-all hover:border-teal-800 hover:shadow-md space-y-4"
-            >
-              <div className="flex items-start gap-4">
-                {/* Person Avatar / Photo with 100% Visible Head */}
-                <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-slate-100 border-2 border-slate-300 overflow-hidden shrink-0 flex items-start justify-center pt-1 shadow-inner">
-                  {person.image ? (
-                    <img
-                      src={person.image}
-                      alt={pick(currentLang, person.name)}
-                      className="h-full w-full object-cover object-top scale-105 origin-top"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-teal-700 to-teal-900 flex flex-col items-center justify-center text-white text-center p-1">
-                      <User className="w-12 h-12 mb-1" />
-                      <span className="text-sm font-black">#{idx + 1}</span>
-                    </div>
-                  )}
-                  <span className="absolute bottom-1 right-1 rounded-full bg-emerald-700 text-white p-1 shadow">
-                    <CheckCircle2 className="w-5 h-5" />
-                  </span>
-                </div>
-
-                {/* Person Core Info with Big Elderly-Friendly Typography */}
-                <div className="flex-1 space-y-1.5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
-                      {pick(currentLang, person.name)}
-                    </h2>
-                    {person.badge && (
-                      <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-black text-amber-950 border border-amber-300">
-                        ★ {pick(currentLang, person.badge)}
-                      </span>
+          {peopleState === 'loading' && (
+            <Spinner label={L({ en: 'Finding helpers...', hi: 'सहायक खोज रहे हैं...', ta: 'உதவியாளர்களைத் தேடுகிறோம்...', kn: 'ಸಹಾಯಕರನ್ನು ಹುಡುಕುತ್ತಿದ್ದೇವೆ...', ml: 'സഹായികളെ തിരയുന്നു...', te: 'సహాయకులను వెతుకుతున్నాము...' })} />
+          )}
+          {peopleState === 'error' && <Notice tone="error">{peopleError}</Notice>}
+          {peopleState === 'ready' && people.length === 0 && (
+            <Notice tone="info">
+              {L({ en: 'No helpers are listed for this service yet. Please check again soon.', hi: 'इस सेवा के लिए अभी कोई सहायक सूचीबद्ध नहीं है। कृपया थोड़ी देर में फिर देखें।', ta: 'இந்தச் சேவைக்கு இன்னும் உதவியாளர்கள் இல்லை. சிறிது நேரம் கழித்துப் பாருங்கள்.', kn: 'ಈ ಸೇವೆಗೆ ಇನ್ನೂ ಸಹಾಯಕರಿಲ್ಲ. ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ನೋಡಿ.', ml: 'ഈ സേവനത്തിന് ഇതുവരെ സഹായികളില്ല. അൽപ്പം കഴിഞ്ഞ് നോക്കുക.', te: 'ఈ సేవకు ఇంకా సహాయకులు లేరు. కొంత సమయం తర్వాత చూడండి.' })}
+            </Notice>
+          )}
+          {peopleState === 'ready' &&
+            people.map((person) => (
+              <section
+                key={person.id}
+                className="overflow-hidden rounded-3xl border-2 border-slate-300 bg-white p-5 sm:p-6 shadow-sm space-y-4"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-slate-100 border-2 border-slate-300 overflow-hidden shrink-0 flex items-start justify-center pt-1 shadow-inner">
+                    {person.photo ? (
+                      <img src={person.photo} alt={person.name} className="h-full w-full object-cover object-top scale-105 origin-top" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-teal-700 to-teal-900 flex items-center justify-center text-white">
+                        <User className="w-14 h-14" />
+                      </div>
                     )}
-                  </div>
-
-                  <p className="text-xl font-black text-teal-900">
-                    {pick(currentLang, person.role)}
-                  </p>
-
-                  <p className="text-lg font-bold text-slate-700">
-                    {pick(currentLang, person.experience)}
-                  </p>
-
-                  <div className="flex flex-wrap items-center gap-3 pt-1 text-base font-bold text-slate-700">
-                    <span className="flex items-center gap-1 text-amber-700">
-                      <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
-                      <span>{person.rating} ({person.reviewsCount} reviews)</span>
-                    </span>
-                    <span>•</span>
-                    <span className="text-emerald-800 font-black">
-                      {pick(currentLang, person.available)}
+                    <span className="absolute bottom-1 right-1 rounded-full bg-emerald-700 text-white p-1 shadow">
+                      <CheckCircle2 className="w-5 h-5" />
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-0.5 text-base font-bold text-slate-800">
-                    <MapPin className="w-5 h-5 text-teal-800 shrink-0" />
-                    <span>{L({ en: 'Serving Location', hi: 'सेवा क्षेत्र', ta: 'சேவை இருப்பிடம்', kn: 'ಸೇವಾ ಸ್ಥಳ', ml: 'സേവന സ്ഥലം' })}: <strong className="text-teal-950">{effectiveRealLocation}</strong></span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Prominent Direct Phone Number & Fee Highlight */}
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-teal-50 border-2 border-teal-600 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-teal-800 text-white flex items-center justify-center shrink-0">
-                    <Phone className="w-7 h-7" />
-                  </div>
-                  <div>
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-teal-800 block">
-                      {L({ en: 'Direct Phone Number', hi: 'सीधा मोबाइल नंबर', ta: 'நேரடி கைபேசி எண்', kn: 'ನೇರ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ', ml: 'ഫോൺ നമ്പർ' })}
-                    </span>
-                    <a
-                      href={`tel:${person.phone}`}
-                      className="text-2xl sm:text-3xl font-black text-slate-900 hover:text-teal-900 underline decoration-teal-600 underline-offset-4 tracking-wider"
-                    >
-                      {person.phone}
-                    </a>
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">{person.name}</h2>
+                      {person.demo && (
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-black text-slate-700 border border-slate-300">
+                          {L({ en: 'Demo profile', hi: 'डेमो प्रोफ़ाइल', ta: 'டெமோ சுயவிவரம்', kn: 'ಡೆಮೋ ಪ್ರೊಫೈಲ್', ml: 'ഡെമോ പ്രൊഫൈൽ', te: 'డెమో ప్రొఫైల్' })}
+                        </span>
+                      )}
+                    </div>
+                    {person.description && <p className="text-xl font-black text-teal-900">{person.description}</p>}
+                    <p className="text-lg font-bold text-slate-700">
+                      {L({ en: `${person.experience_years} yrs experience`, hi: `${person.experience_years} वर्ष का अनुभव`, ta: `${person.experience_years} ஆண்டுகள் அனுபவம்`, kn: `${person.experience_years} ವರ್ಷಗಳ ಅನುಭವ`, ml: `${person.experience_years} വർഷത്തെ പരിചയം`, te: `${person.experience_years} సంవత్సరాల అనుభవం` })}
+                      {person.languages.length > 0 && ` · ${person.languages.join(', ')}`}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-3 pt-1 text-base font-bold text-slate-700">
+                      <span className="flex items-center gap-1 text-amber-700">
+                        <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                        <span>
+                          {person.rating} ({L({ en: `${person.jobs_done} jobs done`, hi: `${person.jobs_done} काम पूरे`, ta: `${person.jobs_done} வேலைகள் முடிந்தன`, kn: `${person.jobs_done} ಕೆಲಸ ಮುಗಿದಿದೆ`, ml: `${person.jobs_done} ജോലികൾ പൂർത്തിയായി`, te: `${person.jobs_done} పనులు పూర్తయ్యాయి` })})
+                        </span>
+                      </span>
+                      <span>•</span>
+                      <span className={person.online ? 'text-emerald-800 font-black' : 'text-slate-600 font-black'}>
+                        {person.online
+                          ? L({ en: 'Taking bookings', hi: 'बुकिंग ले रहे हैं', ta: 'முன்பதிவு ஏற்கிறார்', kn: 'ಬುಕಿಂಗ್ ಸ್ವೀಕರಿಸುತ್ತಿದ್ದಾರೆ', ml: 'ബുക്കിംഗ് സ്വീകരിക്കുന്നു', te: 'బుకింగ్‌లు తీసుకుంటున్నారు' })
+                          : L({ en: 'Not taking bookings now', hi: 'अभी बुकिंग नहीं ले रहे', ta: 'இப்போது முன்பதிவு இல்லை', kn: 'ಈಗ ಬುಕಿಂಗ್ ಇಲ್ಲ', ml: 'ഇപ്പോൾ ബുക്കിംഗ് ഇല്ല', te: 'ఇప్పుడు బుకింగ్‌లు లేవు' })}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-600 block">
-                    {L({ en: 'Fee / Rate', hi: 'शुल्क', ta: 'கட்டணம்', kn: 'ಶುಲ್ಕ', ml: 'നിരക്ക്' })}
+                <div className="flex items-center justify-between gap-3 rounded-2xl bg-teal-50 border-2 border-teal-600 p-4">
+                  <span className="text-lg font-black text-slate-700">
+                    {L({ en: 'Fee / Rate', hi: 'शुल्क', ta: 'கட்டணம்', kn: 'ಶುಲ್ಕ', ml: 'നിരക്ക്', te: 'రుసుము' })}
                   </span>
-                  <span className="text-2xl font-black text-teal-950">
-                    {pick(currentLang, person.rate)}
-                  </span>
+                  <span className="text-2xl font-black text-teal-950">{person.rate_label}</span>
                 </div>
-              </div>
-
-              {/* Action Buttons: Big Touch Direct Call & Book */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <BigButton
-                  variant="primary"
-                  href={`tel:${person.phone}`}
-                  icon={<Phone className="w-7 h-7" />}
-                >
-                  {L({ en: 'Call Now', hi: 'फ़ोन मिलाएँ', ta: 'அழைக்கவும்', kn: 'ಕರೆ ಮಾಡಿ', ml: 'വിളിക്കുക' })}
-                </BigButton>
 
                 <BigButton
-                  onClick={() => handleOpenBooking(person, categoryTitle)}
+                  disabled={!person.online}
+                  onClick={() => handleOpenBooking(person, openCategory ?? '')}
                   icon={<Calendar className="w-6 h-6" />}
                 >
-                  {L({ en: 'Book Visit', hi: 'समय तय करें', ta: 'பதிவு செய்', kn: 'ಬುಕ್ ಮಾಡಿ', ml: 'ബുക്ക് ചെയ്യുക' })}
+                  {L({ en: 'Book Visit', hi: 'समय तय करें', ta: 'பதிவு செய்', kn: 'ಬುಕ್ ಮಾಡಿ', ml: 'ബുക്ക് ചെയ്യുക', te: 'బుక్ చేయండి' })}
                 </BigButton>
-              </div>
-            </section>
-          ))}
+              </section>
+            ))}
         </div>
 
         {/* Booking Modal */}
         {selectedPersonForBooking && (
           <Sheet
             title={L({
-              en: `Book ${pick(currentLang, selectedPersonForBooking.person.name)}`,
-              hi: `${pick(currentLang, selectedPersonForBooking.person.name)} बुक करें`,
-              ta: `${pick(currentLang, selectedPersonForBooking.person.name)} பதிவு செய்`,
-              kn: `${pick(currentLang, selectedPersonForBooking.person.name)} ಬುಕ್ ಮಾಡಿ`,
-              ml: `${pick(currentLang, selectedPersonForBooking.person.name)} ബുക്ക് ചെയ്യുക`,
+              en: `Book ${selectedPersonForBooking.person.name}`,
+              hi: `${selectedPersonForBooking.person.name} बुक करें`,
+              ta: `${selectedPersonForBooking.person.name} பதிவு செய்`,
+              kn: `${selectedPersonForBooking.person.name} ಬುಕ್ ಮಾಡಿ`,
+              ml: `${selectedPersonForBooking.person.name} ബുക്ക് ചെയ്യുക`,
             })}
             closeLabel={L({ en: 'Cancel', hi: 'रद्द करें', ta: 'ரத்து', kn: 'ರದ್ದು', ml: 'റദ്ദാക്കുക' })}
             onClose={() => setSelectedPersonForBooking(null)}
@@ -1270,21 +792,16 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
                 <h3 className="text-2xl font-extrabold text-slate-900">
-                  {L({
-                    en: 'Booking Request Confirmed!',
-                    hi: 'बुकिंग अनुरोध प्राप्त हुआ!',
-                    ta: 'பதிவு கோரிக்கை பெறப்பட்டது!',
-                    kn: 'ಬುಕಿಂಗ್ ವಿನಂತಿ ಸ್ವೀಕರಿಸಲಾಗಿದೆ!',
-                    ml: 'ബുക്കിംഗ് അഭ്യർത്ഥന ലഭിച്ചു!',
-                  })}
+                  {L({ en: 'Request sent', hi: 'अनुरोध भेजा गया', ta: 'கோரிக்கை அனுப்பப்பட்டது', kn: 'ವಿನಂತಿ ಕಳುಹಿಸಲಾಗಿದೆ', ml: 'അഭ്യർത്ഥന അയച്ചു', te: 'అభ్యర్థన పంపబడింది' })}
                 </h3>
                 <p className="text-lg text-slate-700 leading-relaxed font-semibold">
                   {L({
-                    en: `We have registered your request for ${pick(currentLang, selectedPersonForBooking.person.name)} on ${formatFriendlyDate(bookingDate)} at ${serviceAddress}. They will call you directly at ${contactPhone} shortly.`,
-                    hi: `आपका अनुरोध ${formatFriendlyDate(bookingDate)} के लिए ${serviceAddress} पर दर्ज कर लिया गया है। वे सीधे आपके मोबाइल ${contactPhone} पर संपर्क करेंगे।`,
-                    ta: `${pick(currentLang, selectedPersonForBooking.person.name)} முன்பதிவு ${formatFriendlyDate(bookingDate)} அன்று ${serviceAddress} முகவரியில் பதிவு செய்யப்பட்டுள்ளது. அவர்கள் நேரடியாக ${contactPhone} எண்ணை அழைப்பார்கள்.`,
-                    kn: `${pick(currentLang, selectedPersonForBooking.person.name)} ಬುಕಿಂಗ್ ${formatFriendlyDate(bookingDate)} ರಂದು ${serviceAddress} ವಿಳಾಸದಲ್ಲಿ ದಾಖಲಾಗಿದೆ. ಅವರು ನೇರವಾಗಿ ${contactPhone} ಸಂಖ್ಯೆಗೆ ಕರೆ ಮಾಡುತ್ತಾರೆ.`,
-                    ml: `${pick(currentLang, selectedPersonForBooking.person.name)} ബുക്കിംഗ് ${formatFriendlyDate(bookingDate)} തീയതിയിൽ ${serviceAddress} മേൽവിലാസത്തിൽ രജിസ്റ്റർ ചെയ്തു. അവർ ${contactPhone} നമ്പറിൽ വിളിക്കും.`,
+                    en: `Your request for ${selectedPersonForBooking.person.name} on ${formatFriendlyDate(bookingDate)} is sent. They will confirm it soon. You can follow it under "Your bookings".`,
+                    hi: `${selectedPersonForBooking.person.name} के लिए ${formatFriendlyDate(bookingDate)} का आपका अनुरोध भेज दिया गया है। वे जल्द पुष्टि करेंगे। आप इसे "आपकी बुकिंग" में देख सकते हैं।`,
+                    ta: `${selectedPersonForBooking.person.name} அவர்களுக்கான ${formatFriendlyDate(bookingDate)} கோரிக்கை அனுப்பப்பட்டது. அவர் விரைவில் உறுதிப்படுத்துவார். "உங்கள் முன்பதிவுகள்" பகுதியில் பார்க்கலாம்.`,
+                    kn: `${selectedPersonForBooking.person.name} ಅವರಿಗೆ ${formatFriendlyDate(bookingDate)} ರ ವಿನಂತಿ ಕಳುಹಿಸಲಾಗಿದೆ. ಅವರು ಶೀಘ್ರದಲ್ಲೇ ದೃಢೀಕರಿಸುತ್ತಾರೆ. "ನಿಮ್ಮ ಬುಕಿಂಗ್‌ಗಳು" ನಲ್ಲಿ ನೋಡಬಹುದು.`,
+                    ml: `${selectedPersonForBooking.person.name}-നുള്ള ${formatFriendlyDate(bookingDate)}-ലെ അഭ്യർത്ഥന അയച്ചു. അവർ ഉടൻ സ്ഥിരീകരിക്കും. "നിങ്ങളുടെ ബുക്കിംഗുകൾ" എന്നതിൽ കാണാം.`,
+                    te: `${selectedPersonForBooking.person.name} కోసం ${formatFriendlyDate(bookingDate)} అభ్యర్థన పంపబడింది. వారు త్వరలో నిర్ధారిస్తారు. "మీ బుకింగ్‌లు" లో చూడవచ్చు.`,
                   })}
                 </p>
               </div>
@@ -1292,29 +809,13 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
               <div className="space-y-4">
                 <div className="rounded-2xl bg-teal-50 p-4 border border-teal-200">
                   <p className="text-2xl font-black text-teal-950">
-                    {pick(currentLang, selectedPersonForBooking.person.name)}
+                    {selectedPersonForBooking.person.name}
                   </p>
                   <p className="text-base font-bold text-teal-900">
-                    {pick(currentLang, selectedPersonForBooking.person.role)}
+                    {selectedPersonForBooking.person.description ?? ''}
                   </p>
                   <p className="text-base font-black text-slate-900 mt-1">
-                    {L({ en: 'Fee', hi: 'शुल्क', ta: 'கட்டணம்', kn: 'ಶುಲ್ಕ', ml: 'നിരക്ക്' })}: {pick(currentLang, selectedPersonForBooking.person.rate)}
-                  </p>
-                </div>
-
-                {/* Real Location collected from AWS Backend */}
-                <div className="rounded-2xl bg-teal-50 border-2 border-teal-300 p-4 space-y-1.5 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-teal-800 flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 text-teal-800" />
-                      {L({ en: 'Collected Location (AWS Backend)', hi: 'दर्ज लोकेशन (AWS सर्वर डेटा)', ta: 'பதிவு செய்யப்பட்ட இருப்பிடம்', kn: 'ದಾಖಲಾದ ನೈಜ ಸ್ಥಳ (AWS)', ml: 'രേഖപ്പെടുത്തിയ സ്ഥലം (AWS)' })}
-                    </span>
-                    <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
-                      ✓ {L({ en: 'Live Data', hi: 'सत्यापित डेटा', ta: 'நேரலை தரவு', kn: 'ನೈಜ ಮಾಹಿತಿ', ml: 'യഥാർത്ഥ ഡാറ്റ' })}
-                    </span>
-                  </div>
-                  <p className="text-xl sm:text-2xl font-black text-teal-950">
-                    {effectiveRealLocation}
+                    {L({ en: 'Fee', hi: 'शुल्क', ta: 'கட்டணம்', kn: 'ಶುಲ್ಕ', ml: 'നിരക്ക്' })}: {selectedPersonForBooking.person.rate_label}
                   </p>
                 </div>
 
@@ -1345,7 +846,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                           : 'border-slate-300 bg-white text-slate-800 hover:bg-slate-50'
                       }`}
                     >
-                      {L({ en: 'Today', hi: 'आज', ta: 'இன்று', kn: 'ಇಂದು', ml: 'இன்று' })} ({todayObj.getDate()} {MONTH_NAMES[currentLang]?.[todayObj.getMonth()]?.slice(0, 3) || 'Nov'})
+                      {L({ en: 'Today', hi: 'आज', ta: 'இன்று', kn: 'ಇಂದು', ml: 'ഇന്ന്' })} ({todayObj.getDate()} {MONTH_NAMES[currentLang]?.[todayObj.getMonth()]?.slice(0, 3) || 'Nov'})
                     </button>
                     <button
                       type="button"
@@ -1360,7 +861,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                           : 'border-slate-300 bg-white text-slate-800 hover:bg-slate-50'
                       }`}
                     >
-                      {L({ en: 'Tomorrow', hi: 'कल', ta: 'நாளை', kn: 'ನಾಳೆ', ml: 'நாளை' })} ({tomorrowObj.getDate()} {MONTH_NAMES[currentLang]?.[tomorrowObj.getMonth()]?.slice(0, 3) || 'Nov'})
+                      {L({ en: 'Tomorrow', hi: 'कल', ta: 'நாளை', kn: 'ನಾಳೆ', ml: 'നാളെ' })} ({tomorrowObj.getDate()} {MONTH_NAMES[currentLang]?.[tomorrowObj.getMonth()]?.slice(0, 3) || 'Nov'})
                     </button>
                   </div>
 
@@ -1447,11 +948,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                     {L({ en: 'Preferred time', hi: 'पसंदीदा समय', ta: 'விருப்பமான நேரம்', kn: 'ಆದ್ಯತೆಯ ಸಮಯ', ml: 'ആവശ്യമായ സമയം' })}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { id: 'morning', label: L({ en: 'Morning', hi: 'सुबह', ta: 'காலை', kn: 'ಬೆಳಿಗ್ಗೆ', ml: 'രാവിലെ' }) },
-                      { id: 'afternoon', label: L({ en: 'Afternoon', hi: 'दोपहर', ta: 'மதியம்', kn: 'ಮಧ್ಯಾಹ್ನ', ml: 'ഉച്ചയ്ക്ക്' }) },
-                      { id: 'full-day', label: L({ en: 'Full Day', hi: 'पूरा दिन', ta: 'முழு நாள்', kn: 'ಪೂರ್ಣ ದಿನ', ml: 'മുഴുവൻ ദിവസം' }) },
-                    ].map((s) => (
+                    {SLOT_OPTIONS.map((s) => (
                       <button
                         key={s.id}
                         type="button"
@@ -1462,7 +959,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                             : 'border-slate-300 bg-white text-slate-800 active:bg-slate-100'
                         }`}
                       >
-                        {s.label}
+                        {L(s.label)}
                       </button>
                     ))}
                   </div>
@@ -1470,26 +967,13 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
 
                 <div>
                   <label className="block text-base font-bold text-slate-800 mb-1">
-                    {L({ en: 'Patient / Person Name', hi: 'मरीज़ / व्यक्ति का नाम', ta: 'நோயாளி / நபர் பெயர்', kn: 'ವ್ಯಕ್ತಿಯ ಹೆಸರು', ml: 'വ്യക്തിയുടെ പേര്' })}
+                    {L({ en: 'Note for the helper (optional)', hi: 'सहायक के लिए संदेश (वैकल्पिक)', ta: 'உதவியாளருக்கான குறிப்பு (விருப்பம்)', kn: 'ಸಹಾಯಕರಿಗೆ ಟಿಪ್ಪಣಿ (ಐಚ್ಛಿಕ)', ml: 'സഹായിക്കുള്ള കുറിപ്പ് (ഓപ്ഷണൽ)', te: 'సహాయకుడికి గమనిక (ఐచ్ఛికం)' })}
                   </label>
                   <input
                     type="text"
-                    value={patientName}
-                    onChange={(e) => setPatientName(e.target.value)}
-                    placeholder={L({ en: 'e.g. Lakshmi Ammal', hi: 'उदा. लक्ष्मी अम्माल', ta: 'உதா: லட்சுமி அம்மாள்', kn: 'ಉದಾ: ಲಕ್ಷ್ಮಿ ಅಮ್ಮಾಳ್', ml: 'ഉദാ: ലക്ഷ്മി അമ്മാൾ' })}
-                    className={inputCls}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-base font-bold text-slate-800 mb-1">
-                    {L({ en: 'Phone number for confirmation', hi: 'पुष्टि के लिए मोबाइल नंबर', ta: 'உறுதிப்படுத்த கைபேசி எண்', kn: 'ದೃಢೀಕರಣಕ್ಕಾಗಿ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ', ml: 'സ്ഥിരീകരണത്തിനായി ഫോൺ നമ്പർ' })}
-                  </label>
-                  <input
-                    type="tel"
-                    value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
-                    placeholder="+91 98765 43210"
+                    value={customerNotes}
+                    onChange={(e) => setCustomerNotes(e.target.value)}
+                    maxLength={500}
                     className={inputCls}
                   />
                 </div>
@@ -1506,24 +990,20 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
                     className={inputCls}
                   />
                   <p className="mt-1 text-xs sm:text-sm text-slate-600 font-semibold">
-                    {L({
-                      en: 'Pre-filled with your real location collected from the backend. You can add your door number or street.',
-                      hi: 'सर्वर में दर्ज आपकी असली लोकेशन से भरा गया है। आप मकान या गली का नाम जोड़ सकते हैं।',
-                      ta: 'சர்வரில் சேகரிக்கப்பட்ட உங்கள் நேரலை இருப்பிடத்துடன் நிரப்பப்பட்டது. கதவு எண் அல்லது தெருவைச் சேர்க்கலாம்.',
-                      kn: 'ಸರ್ವರ್‌ನಲ್ಲಿ ದಾಖಲಾದ ನಿಮ್ಮ ನೈಜ ಸ್ಥಳ. ನೀವು ಮನೆ ಸಂಖ್ಯೆ ಅಥವಾ ರಸ್ತೆ ಹೆಸರನ್ನು ಸೇರಿಸಬಹುದು.',
-                      ml: 'സെർവറിൽ രേഖപ്പെടുത്തിയ നിങ്ങളുടെ യഥാർത്ഥ സ്ഥലം. വീട്ടുനമ്പറോ റോഡോ ചേർക്കാം.',
-                    })}
+                    {L({ en: 'Pre-filled from your saved location. Add your door number and street so the helper can find you.', hi: 'आपकी सहेजी लोकेशन से भरा गया है। मकान नंबर और गली जोड़ें ताकि सहायक आपको ढूँढ सकें।', ta: 'சேமித்த இருப்பிடத்திலிருந்து நிரப்பப்பட்டது. உதவியாளர் கண்டுபிடிக்க கதவு எண் மற்றும் தெருவைச் சேர்க்கவும்.', kn: 'ನಿಮ್ಮ ಉಳಿಸಿದ ಸ್ಥಳದಿಂದ ತುಂಬಲಾಗಿದೆ. ಸಹಾಯಕರು ಹುಡುಕಲು ಮನೆ ಸಂಖ್ಯೆ ಮತ್ತು ರಸ್ತೆ ಸೇರಿಸಿ.', ml: 'സേവ് ചെയ്ത സ്ഥലത്തുനിന്ന് പൂരിപ്പിച്ചു. സഹായിക്ക് കണ്ടെത്താൻ വീട്ടുനമ്പറും റോഡും ചേർക്കുക.', te: 'మీ సేవ్ చేసిన స్థానం నుండి నింపబడింది. సహాయకుడు కనుగొనడానికి ఇంటి నంబర్ మరియు వీధి జోడించండి.' })}
                   </p>
                 </div>
 
+                {bookingError && <Notice tone="error">{bookingError}</Notice>}
+
                 <div className="pt-2">
-                  <BigButton onClick={handleConfirmBooking} icon={<CheckCircle2 className="w-6 h-6" />}>
+                  <BigButton onClick={handleConfirmBooking} busy={bookingBusy} disabled={serviceAddress.trim().length < 3} icon={<CheckCircle2 className="w-6 h-6" />}>
                     {L({
                       en: 'Confirm Booking Request',
                       hi: 'बुकिंग अनुरोध की पुष्टि करें',
                       ta: 'முன்பதிவு கோரிக்கையை உறுதி செய்',
                       kn: 'ಬುಕಿಂಗ್ ವಿನಂತಿಯನ್ನು ದೃಢೀಕರಿಸಿ',
-                      ml: 'ಬುക്കിംഗ് സ്ഥിരീകരിക്കുക',
+                      ml: 'ബുക്കിംഗ് സ്ഥിരീകരിക്കുക',
                     })}
                   </BigButton>
                 </div>
@@ -1543,13 +1023,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
       {/* View Header with Big Elderly-Friendly Typography */}
       <div>
         <Title
-          sub={L({
-            en: 'Tap any box below to see verified people near you with phone numbers',
-            hi: 'सीधे फोन नंबर वाले सत्यापित लोगों को देखने के लिए नीचे किसी भी बॉक्स पर टैप करें',
-            ta: 'உங்களுக்கு அருகில் உள்ள சரிபார்க்கப்பட்ட நபர்கள் மற்றும் எண்களைக் காண ஏதேனும் கட்டத்தைத் தொடவும்',
-            kn: 'ಫೋನ್ ಸಂಖ್ಯೆಗಳೊಂದಿಗೆ ಪರಿಶೀಲಿಸಿದ ಸಿಬ್ಬಂದಿಯನ್ನು ನೋಡಲು ಕೆಳಗಿನ ಯಾವುದೇ ಬಾಕ್ಸ್ ಅನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ',
-            ml: 'പരിശോധിച്ചുറപ്പിച്ച ജീവനക്കാരെയും ഫോൺ നമ്പറുകളെയും കാണാൻ താഴെയുള്ള ബോക്സിൽ തൊടുക',
-          })}
+          sub={L({ en: 'Tap a box to see helpers you can book', hi: 'बुक करने योग्य सहायकों को देखने के लिए किसी बॉक्स पर टैप करें', ta: 'முன்பதிவு செய்யக்கூடிய உதவியாளர்களைக் காண ஒரு கட்டத்தைத் தொடவும்', kn: 'ಬುಕ್ ಮಾಡಬಹುದಾದ ಸಹಾಯಕರನ್ನು ನೋಡಲು ಬಾಕ್ಸ್ ಟ್ಯಾಪ್ ಮಾಡಿ', ml: 'ബുക്ക് ചെയ്യാവുന്ന സഹായികളെ കാണാൻ ഒരു ബോക്സിൽ തൊടുക', te: 'బుక్ చేయగల సహాయకులను చూడటానికి ఒక బాక్స్‌ను తాకండి' })}
         >
           {L({
             en: 'Services',
@@ -1563,19 +1037,13 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
         {/* Safe Trust Banner */}
         <div className="inline-flex items-center gap-2 rounded-xl bg-teal-50 px-3.5 py-1.5 border-2 border-teal-200 text-teal-950 text-base sm:text-lg font-extrabold mb-3">
           <MapPin className="w-5 h-5 text-teal-800" />
-          <span>{L({ en: 'Real Service Area (AWS Backend)', hi: 'सेवा क्षेत्र (AWS सर्वर)', ta: 'சேவை பகுதி (AWS சர்வர்)', kn: 'ಸೇವಾ ಪ್ರದೇಶ (AWS ಸರ್ವರ್)', ml: 'സേവന മേഖല (AWS സെർവർ)' })}: <strong>{effectiveRealLocation}</strong></span>
+          <span>{L({ en: 'Service area', hi: 'सेवा क्षेत्र', ta: 'சேவை பகுதி', kn: 'ಸೇವಾ ಪ್ರದೇಶ', ml: 'സേവന മേഖല', te: 'సేవా ప్రాంతం' })}: <strong>{effectiveRealLocation}</strong></span>
         </div>
 
         <div className="flex items-center gap-3.5 rounded-2xl bg-teal-50 border-2 border-teal-200 p-4 sm:p-5 text-teal-950 shadow-sm">
           <ShieldCheck className="w-9 h-9 shrink-0 text-teal-800" aria-hidden />
           <p className="text-lg sm:text-xl font-extrabold leading-snug">
-            {L({
-              en: 'All Sahay staff are verified, background-checked and trained for elderly home care.',
-              hi: 'सभी कर्मचारी पुलिस-सत्यापित और बुजुर्ग होम केयर में पूरी तरह प्रशिक्षित हैं।',
-              ta: 'அனைத்து பணியாளர்களும் காவல்துறை சரிபார்ப்பு மற்றும் முதியோர் பராமரிப்பு பயிற்சி பெற்றவர்கள்.',
-              kn: 'ಎಲ್ಲಾ ಸಿಬ್ಬಂದಿ ಪೊಲೀಸ್ ಪರಿಶೀಲನೆ ಮತ್ತು ಹಿರಿಯರ ಆರೈಕೆಯಲ್ಲಿ ತರಬೇತಿ ಪಡೆದಿದ್ದಾರೆ.',
-              ml: 'എല്ലാ ജീവനക്കാരും പോലീസ് പരിശോധനയും രോഗി പരിചരണ പരിശീലനവും നേടിയവരാണ്.',
-            })}
+            {L({ en: 'Every helper listed here has passed an ID check.', hi: 'यहाँ दिखाए हर सहायक की आईडी जाँच हो चुकी है।', ta: 'இங்கு உள்ள ஒவ்வொரு உதவியாளரும் அடையாளச் சரிபார்ப்பை முடித்தவர்.', kn: 'ಇಲ್ಲಿರುವ ಪ್ರತಿಯೊಬ್ಬ ಸಹಾಯಕರ ಗುರುತನ್ನು ಪರಿಶೀಲಿಸಲಾಗಿದೆ.', ml: 'ഇവിടെയുള്ള ഓരോ സഹായിയും തിരിച്ചറിയൽ പരിശോധന പാസായവരാണ്.', te: 'ఇక్కడ ఉన్న ప్రతి సహాయకుడి ID తనిఖీ పూర్తయింది.' })}
           </p>
         </div>
       </div>
@@ -1619,7 +1087,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
 
               {/* Big Tap Indicator */}
               <div className="pt-3 flex items-center justify-between text-base sm:text-lg font-black text-teal-900 border-t border-slate-200">
-                <span>{L({ en: '4 People Available', hi: '4 लोग उपलब्ध', ta: '4 நபர்கள் தயார்', kn: '4 ಜನರು ಲಭ್ಯ', ml: '4 ആളുകൾ ലഭ്യമാണ്' })}</span>
+                <span>{L({ en: 'See who is available', hi: 'उपलब्ध लोग देखें', ta: 'கிடைப்பவர்களைப் பார்', kn: 'ಲಭ್ಯರನ್ನು ನೋಡಿ', ml: 'ലഭ്യരായവരെ കാണുക', te: 'అందుబాటులో ఉన్నవారిని చూడండి' })}</span>
                 <ChevronRight className="w-6 h-6 group-hover:translate-x-1.5 transition-transform shrink-0" />
               </div>
             </div>
@@ -1669,6 +1137,8 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
           </div>
         </button>
       </div>
+
+      <ServiceBookings currentLang={currentLang} />
     </div>
   );
 };

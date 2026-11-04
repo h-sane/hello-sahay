@@ -11,6 +11,7 @@ Demo district: Chengalpattu (Tamil Nadu), around Chengalpattu, Madurantakam and 
 | `doctors.csv` | 2-4 fictional doctors per facility, linked by `facility_name`; `languages` is pipe-separated. Sunrise Nursing Home has 9 doctors across General Medicine (2), Obstetrics (2), Paediatrics (2), Orthopaedics, Dental and Ophthalmology, so every department the keyword table can return has a doctor. |
 | `users.csv` | Sahay Desk logins for the demo hospital (receptionist, nurse, one per doctor), password `demo1234`. The hospital admin `desk<id>@sahay.demo` and `admin@sahay.demo` are created by the API itself. |
 | `demo_appointments.csv`, `demo_calls.csv` | 29 fictional bookings (4 days back to tomorrow, all statuses) and 6 helpline calls, so the Desk is never empty. Dates are relative to the day the loader runs. |
+| `service_helpers.csv` | 16 fictional Sahay Sathi helpers (12 across Personal Caretaker, House Cleaning, Technical Support, 4 Care Support coordinators) with photo, rating, fee and fake phones `+919000000101` onward. They are what the patient app's Services tab lists, and each is a real helper login (password `demo1234`). Loaded with Ramesh Kumar's demo account (98765 43210) and a day of demo bookings by `scripts/load_seed.py`, only when missing. |
 | `department_keywords.csv` | `keyword,lang,department`: fixed visit-reason to department table in Tamil, Hindi and English, native script and romanized. A reason that matches no keyword defaults to **General Medicine** (not listed here). |
 
 Slots are not a CSV: the loader generates them.

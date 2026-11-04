@@ -5,6 +5,7 @@ How the two teammate frontends are wired to our API. Decision (Hussain, 2026-10-
 | App | Folder | Stack | Port | Replaces |
 |---|---|---|---|---|
 | Patient app (web) | `apps/patient-web/` | Vite, React 19, TS, Tailwind 4 | 5174 | AI Studio prototype by Adhitya |
+| Sahay Sathi (helper app) | `apps/sathi-mobile/` | Vite, React 19, TS, Tailwind 4 | 3001 | prototype by Adhitya |
 | Sahay Desk (hospital dashboard) | `apps/desk/` | Vite, React 18, JS, Tailwind 3 | 5173 | prototype by Bharani |
 
 The earlier Next.js Desk and Expo patient shell were deleted on 2026-11-04 (git history has them). The Hello Sahay admin console is `apps/admin` (one static page, `GET /api/v1/admin/*`); hosting is described in `deploy/README.md` and `ARCHITECTURE.md` §7.
@@ -63,6 +64,24 @@ All of these except search and config need the patient token (`Authorization: Be
 | Alerts | `GET /notifications`, `POST /notifications/read` | Polled every 20 s by the app; shown as a banner. Due medicines are computed on the phone from the reminder list |
 
 Medicine data is loaded by `scripts/load_medicines.py load` (deploy runs it with `--if-empty`).
+
+## Services tab and Sahay Sathi: screen to endpoint
+
+The two apps share one set of tables (`helper`, `service_booking`, `helper_notification`). Both apps never fall back to made-up data: a failed call shows its error.
+
+| Screen | Backend | Notes |
+|---|---|---|
+| Services, category page | `GET /services/providers?category=Personal Caretaker\|House Cleaning\|Technical Support\|Care Support` | Helpers whose `id_status` is `verified`; no phone number in the reply |
+| Book visit | `POST /services/bookings` `{helper_id, service_category, service_title, booking_date, slot, location_address, customer_notes}` | Price comes from the helper, never from the app. 409 for a helper who is offline, off that day, or busy then |
+| Describe what you need | `POST /services/bookings` with `service_category: "Custom request"`, no helper | Appears in every online helper's Requests |
+| Your bookings | `GET /services/bookings` (every 20 s), `POST /services/bookings/{id}/cancel` | The helper's phone appears once the booking is confirmed |
+| Alerts for the patient | `GET /notifications` | `kind: "service"` rows written when the helper acts |
+| Sathi sign-in | `POST /sathi/auth/otp/request` + `/otp/verify`, or `/sathi/auth/login` | Same code rules as the patient app (random, 5 min, 5 tries, `OTP_SHOW_CODE`) |
+| Sathi registration | `POST /sathi/register` (helper token from the verified code) | Fills in the profile; status becomes `pending` |
+| Sathi requests | `GET /sathi/bookings`, `POST /sathi/bookings/{id}/action` | Polled every 30 s; open requests hide the customer's phone until accepted |
+| Sathi earnings, notifications, availability | `GET /sathi/earnings`, `/sathi/notifications`, `GET/PUT /sathi/availability` | |
+
+Run: `(cd apps/sathi-mobile && npm install && npm run dev)` on http://localhost:3001 (proxies `/api` to `SAHAY_API_ORIGIN`, default `http://localhost:8001`).
 
 ## Sahay Desk: screen to endpoint
 

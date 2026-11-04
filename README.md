@@ -36,6 +36,7 @@ Docs: [architecture and diagrams](docs/ARCHITECTURE.md) · [features and status]
 |---|---|
 | `apps/patient-web/` | Patient app (Vite + React; Android APK via Capacitor in `android/`) |
 | `apps/desk/` | Sahay Desk, the hospital dashboard (Vite + React) |
+| `apps/sathi-mobile/` | Sahay Sathi, the helper app for home care visits (Vite + React; Android via Capacitor) |
 | `apps/admin/` | Hello Sahay admin console (one static page) |
 | `services/api/` | Backend API (FastAPI, PostgreSQL + pgvector) |
 | `services/voice/` | Voice pipeline and phone bridge (speech-to-text, safety gate, LLM tools, text-to-speech) |
@@ -53,6 +54,7 @@ python scripts/load_seed.py                  # demo hospital, doctors, slots
 AWS_PROFILE=personal-bedrock python -m uvicorn app.main:app --app-dir services/api --port 8001
 (cd apps/patient-web && npm install && npm run dev)   # http://localhost:5174
 (cd apps/desk && npm install && npm run dev)         # http://localhost:5173
+(cd apps/sathi-mobile && npm install && npm run dev) # http://localhost:3001
 ```
 
 Voice: see `services/voice/README.md`; hosting and the APK: `deploy/README.md`.

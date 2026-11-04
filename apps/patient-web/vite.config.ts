@@ -6,8 +6,8 @@ import {defineConfig, loadEnv} from 'vite';
 // /voice goes to the voice service (WebSocket). Override with SAHAY_API_ORIGIN / SAHAY_VOICE_ORIGIN in .env
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '../../', '');
-  const api = process.env.SAHAY_API_ORIGIN || env.SAHAY_API_ORIGIN || 'https://13-127-85-246.sslip.io';
-  const voice = process.env.SAHAY_VOICE_ORIGIN || env.SAHAY_VOICE_ORIGIN || 'https://13-127-85-246.sslip.io';
+  const api = process.env.SAHAY_API_ORIGIN || env.SAHAY_API_ORIGIN || 'http://localhost:8001';
+  const voice = process.env.SAHAY_VOICE_ORIGIN || env.SAHAY_VOICE_ORIGIN || 'http://localhost:8002';
 
   return {
     plugins: [react(), tailwindcss()],

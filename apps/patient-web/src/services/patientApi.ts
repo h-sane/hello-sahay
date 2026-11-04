@@ -95,7 +95,54 @@ export interface MedicineScan {
   note?: string;
 }
 
+export interface ServiceProvider {
+  id: number;
+  name: string;
+  photo: string | null;
+  rating: number;
+  jobs_done: number;
+  experience_years: number;
+  languages: string[];
+  description: string | null;
+  skills: string[];
+  rate_amount: number;
+  rate_label: string;
+  online: boolean;
+  demo: boolean;
+}
+
+export interface ServiceBookingRow {
+  id: number;
+  booking_ref: string;
+  service_category: string;
+  service_title: string;
+  description: string | null;
+  booking_date: string;
+  booking_time: string;
+  location_address: string;
+  status: 'new_request' | 'upcoming' | 'in_progress' | 'completed' | 'cancelled' | 'rejected';
+  amount: number;
+  helper: { id: number; name: string; photo: string | null; demo: boolean; phone: string | null } | null;
+}
+
+export interface ServiceBookingIn {
+  helper_id: number | null;
+  service_category: string;
+  service_title: string;
+  description?: string;
+  booking_date: string;
+  slot: 'morning' | 'afternoon' | 'evening';
+  location_address: string;
+  customer_notes?: string;
+}
+
 export const patientApi = {
+  serviceProviders: (category: string) =>
+    request<ServiceProvider[]>(`/services/providers?category=${encodeURIComponent(category)}`),
+  serviceBookings: () => request<ServiceBookingRow[]>('/services/bookings'),
+  bookService: (b: ServiceBookingIn) => request<ServiceBookingRow>('/services/bookings', { method: 'POST', body: b }),
+  cancelServiceBooking: (id: number) =>
+    request<ServiceBookingRow>(`/services/bookings/${id}/cancel`, { method: 'POST' }),
   careMe: () => request<CareMe>('/care/me'),
   contacts: () => request<Contacts>('/config/contacts'),
   family: () => request<FamilyMemberRow[]>('/family'),

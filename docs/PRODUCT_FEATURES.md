@@ -15,6 +15,7 @@ Sources: [`PROJECT_BRIEF.md`](PROJECT_BRIEF.md) (decision log §11, tiers §8.1)
 | 2 | **Sahay patient app** (Vite web app + Android APK) | Rural patients, elderly users, their city-based children | `apps/patient-web/` | Free core; Care plan ₹149/month |
 | 3 | **Sahay Desk** (hospital web dashboard) | Hospital reception, nurses, doctors | `apps/desk/` | Tiered monthly fee (₹999 / ₹2,499 / ₹4,999) + ₹30-50 per arrived patient |
 | 4 | **Admin console** (our team, web) | The Hello Sahay team | `apps/admin/` | Internal |
+| 6 | **Sahay Sathi** (helper app, Vite + Android via Capacitor) | Caretakers, cleaners and technicians who visit homes | `apps/sathi-mobile/` | Free for helpers; patient pays the helper's fee (cash or UPI, not collected in the app) |
 | 5 | **Browser "Call Sahay"** | Patients in the app, judges, web visitors | `services/voice/` `/call`, patient app "Start call" | Free |
 
 Behind all five: one **backend API** (`services/api/`, FastAPI + PostgreSQL/pgvector) and one **safety gate**, so every surface follows the same rules. How it fits together: [`ARCHITECTURE.md`](ARCHITECTURE.md) and its two diagrams.
@@ -74,6 +75,28 @@ Design rules (all screens): Tamil / Hindi / English; read-aloud on answers; larg
 | Medicine reminders | Times per medicine, "I took it" log, due-now alerts | P2 | P2-4 | Built (in-app alerts, no loud alarm or spoken reminder) |
 | Family alerts | "I took it" and Care plan events notify the people paying | P2 | P2-4 | Built in-app; no WhatsApp |
 | Unlimited composition checks | Removes the free limit | P2 | P2-4 | Not built (no limit to remove) |
+
+### Home care services (Services tab)
+
+| Feature | Detail | Status |
+|---|---|---|
+| Browse helpers | Four boxes (Personal Caretaker ₹750/day, House Cleaning ₹3,999/month, Technical Support ₹299/visit, Describe what you need) list the verified helpers from the server, with photo, experience, rating and fee. The seeded ones carry a "Demo profile" tag | Demo (16 seeded helpers from `data/seed/service_helpers.csv`) |
+| Book a visit | Date, Morning / Afternoon / Evening, address, optional note. The server refuses a past day, a day the helper does not work, a time the helper already has, and a helper who is offline | Built |
+| Describe what you need | Free text plus day and time; any online verified helper can accept | Built |
+| Your bookings | Status (waiting, confirmed, helper is with you, done, cancelled, helper could not come), cancel while waiting or confirmed, Call once confirmed (demo helpers dial the helpline) | Built |
+| Alerts | Helper confirmed / started / completed / could not come, as in-app alerts | Built; no WhatsApp |
+| Payment | Not taken in the app; the amount is shown and settled with the helper | Not built |
+| Telugu | The new strings have Telugu; older Services strings fall back to English | Partly |
+
+## Sahay Sathi (helper app)
+
+| Feature | Detail | Status |
+|---|---|---|
+| Sign in | 6-digit code (shown on screen in demo mode) or password; demo login 98765 43210 / `demo1234`, and every seeded helper (+919000000101 onward) also uses `demo1234` | Built |
+| Registration | Phone verified with a code first; name, address, ID number, skills (keyword and model suggestions from a description), languages. A new helper is "pending" and is not bookable until an admin sets `id_status` to `verified` (no screen for that yet) | Built; ID verification is manual |
+| Requests | New, upcoming, in progress, completed; Accept, Decline, Start, Complete in that order; the customer's phone is shown only to the helper who has the booking | Built |
+| Earnings, calendar, availability | Today / week / month / total from completed bookings; online switch; working days and hours | Built |
+| ID document upload | The picker is optional and nothing is stored yet | Not built |
 
 **Never in the app:** diagnosis, different-molecule or Ayurvedic substitutes, handwritten prescription reading, teleconsultation, online medicine ordering, iOS build, real SMS.
 
