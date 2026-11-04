@@ -16,9 +16,20 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            // Same release keystore as the patient app; settings live in ~/.gradle/gradle.properties, never in the repo.
+            if (project.hasProperty('HELLOSAHAY_STORE_FILE')) {
+                storeFile file(HELLOSAHAY_STORE_FILE)
+                storePassword HELLOSAHAY_STORE_PASSWORD
+                keyAlias HELLOSAHAY_KEY_ALIAS
+                keyPassword HELLOSAHAY_KEY_PASSWORD
+            }
+        }
+    }
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
