@@ -4,7 +4,7 @@ import { Header } from './components/Header';
 import { ProfileSheet } from './components/ProfileSheet';
 import { NotificationModal } from './components/NotificationModal';
 import { BookingDetailsModal } from './components/BookingDetailsModal';
-import { DEMO_BOOKINGS, DEMO_HELPER, sathiApi } from './services/api';
+import { sathiApi, setUnauthorizedHandler } from './services/api';
 import {
   AvailabilityData,
   EarningsData,
@@ -31,14 +31,14 @@ export default function App() {
   const [authView, setAuthView] = useState<'signin' | 'register'>('signin');
 
   const [currentTab, setCurrentTab] = useState<NavTab>('home');
-  const [bookings, setBookings] = useState<ServiceBooking[]>(DEMO_BOOKINGS);
+  const [bookings, setBookings] = useState<ServiceBooking[]>([]);
   const [earnings, setEarnings] = useState<EarningsData>({
-    today_earnings: 500,
-    weekly_earnings: 1100,
-    monthly_earnings: 1600,
-    total_earnings: 5800,
+    today_earnings: 0,
+    weekly_earnings: 0,
+    monthly_earnings: 0,
+    total_earnings: 0,
     pending_earnings: 0,
-    completed_count: 19,
+    completed_count: 0,
     transactions: [],
   });
   const [availability, setAvailability] = useState<AvailabilityData>({
@@ -49,7 +49,8 @@ export default function App() {
     unavailable_dates: [],
   });
   const [notifications, setNotifications] = useState<HelperNotification[]>([]);
-  const [unreadCount, setUnreadCount] = useState<number>(1);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [notice, setNotice] = useState<string>('');
 
   // Modals & Sheets
   const [selectedBooking, setSelectedBooking] = useState<ServiceBooking | null>(null);
@@ -75,14 +76,36 @@ export default function App() {
         setNotifications(n.notifications);
         setUnreadCount(n.unread_count);
       }
-    } catch {
-      // Keep existing demo state
+      setNotice('');
+    } catch (err: any) {
+      setNotice(err.message || 'Could not load your data.');
     }
   };
 
   useEffect(() => {
-    refreshAll();
+    if (isAuth) refreshAll();
   }, [isAuth]);
+
+  useEffect(() => {
+    setUnauthorizedHandler(handleLogout);
+    return () => setUnauthorizedHandler(null);
+  });
+
+  // Requests come in from patients while the app is open
+  useEffect(() => {
+    if (!isAuth) return;
+    const timer = setInterval(refreshAll, 30000);
+    return () => clearInterval(timer);
+  }, [isAuth]);
+
+  const attempt = async (work: () => Promise<void>) => {
+    try {
+      setNotice('');
+      await work();
+    } catch (err: any) {
+      setNotice(err.message || 'Something went wrong. Try again.');
+    }
+  };
 
   // Auth Handlers
   const handleSignedIn = (helper: HelperProfile) => {
@@ -106,9 +129,10 @@ export default function App() {
   // Actions
   const handleToggleOnline = async (online: boolean) => {
     if (!profile) return;
-    const updated = { ...profile, is_online: online };
-    setProfile(updated);
-    await sathiApi.updateAvailability({ is_online: online });
+    await attempt(async () => {
+      await sathiApi.updateAvailability({ is_online: online });
+      setProfile({ ...profile, is_online: online });
+    });
   };
 
   const handleBookingAction = async (
@@ -116,37 +140,36 @@ export default function App() {
     action: 'accept' | 'reject' | 'start' | 'complete',
     notes?: string
   ) => {
-    const updated = await sathiApi.executeBookingAction(id, action, notes);
-    setBookings((prev) => {
-      const remaining = prev.filter((b) => b.id !== id);
-      return [updated, ...remaining];
+    await attempt(async () => {
+      const updated = await sathiApi.executeBookingAction(id, action, notes);
+      setBookings((prev) => [updated, ...prev.filter((b) => b.id !== id)]);
+      if (selectedBooking && selectedBooking.id === id) {
+        setSelectedBooking(updated);
+      }
+      const [e, n] = await Promise.all([sathiApi.getEarnings(), sathiApi.getNotifications()]);
+      setEarnings(e);
+      setNotifications(n.notifications);
+      setUnreadCount(n.unread_count);
     });
-    if (selectedBooking && selectedBooking.id === id) {
-      setSelectedBooking(updated);
-    }
-    // Refresh earnings and notifications
-    const [e, n] = await Promise.all([sathiApi.getEarnings(), sathiApi.getNotifications()]);
-    setEarnings(e);
-    setNotifications(n.notifications);
-    setUnreadCount(n.unread_count);
   };
 
   const handleUpdateProfile = async (data: Partial<HelperProfile>) => {
-    const updated = await sathiApi.updateProfile(data);
-    setProfile(updated);
+    await attempt(async () => setProfile(await sathiApi.updateProfile(data)));
   };
 
   const handleUpdateAvailability = async (data: Partial<AvailabilityData>) => {
-    const updated = await sathiApi.updateAvailability(data);
-    setAvailability((prev) => ({ ...prev, ...updated }));
+    await attempt(async () => {
+      const updated = await sathiApi.updateAvailability(data);
+      setAvailability((prev) => ({ ...prev, ...updated }));
+    });
   };
 
   const handleMarkNotificationRead = async (id: number) => {
-    await sathiApi.markNotificationRead(id);
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
-    setUnreadCount((c) => Math.max(0, c - 1));
+    await attempt(async () => {
+      await sathiApi.markNotificationRead(id);
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+      setUnreadCount((c) => Math.max(0, c - 1));
+    });
   };
 
   // If not authenticated
@@ -167,7 +190,19 @@ export default function App() {
     );
   }
 
-  const helper = profile || DEMO_HELPER;
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-[#F8FAF9] flex flex-col items-center justify-center gap-3 p-6 text-center text-sm text-slate-600">
+        <p>{notice || 'Loading your profile...'}</p>
+        {notice && (
+          <button onClick={refreshAll} className="h-11 px-5 rounded-2xl bg-[#274236] text-white font-bold">
+            Try again
+          </button>
+        )}
+      </div>
+    );
+  }
+  const helper = profile;
   const newRequestsCount = bookings.filter((b) => b.status === 'new_request').length;
 
   return (
@@ -179,6 +214,13 @@ export default function App() {
         onOpenNotifications={() => setShowNotificationModal(true)}
         onOpenProfileSheet={() => setShowProfileSheet(true)}
       />
+
+      {notice && (
+        <div role="alert" className="mx-4 mt-3 p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-start justify-between gap-3">
+          <span>{notice}</span>
+          <button onClick={() => setNotice('')} aria-label="Dismiss" className="font-bold">×</button>
+        </div>
+      )}
 
       {/* Main Content Area by Tab */}
       <main className="flex-1">

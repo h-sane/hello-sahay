@@ -12,11 +12,47 @@ export const SignInView: React.FC<SignInViewProps> = ({
   onSignedIn,
   onNavigateToRegister,
 }) => {
-  const [identifier, setIdentifier] = useState('9876543210');
-  const [password, setPassword] = useState('demo1234');
+  const [mode, setMode] = useState<'otp' | 'password'>('otp');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
+  const [code, setCode] = useState('');
+  const [shownCode, setShownCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  const switchMode = (next: 'otp' | 'password') => {
+    setMode(next);
+    setError('');
+    setCodeSent(false);
+    setCode('');
+  };
+
+  const handleOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setBusy(true);
+    try {
+      if (!codeSent) {
+        const res = await sathiApi.requestOtp(identifier.trim());
+        setShownCode(res.demo_code || '');
+        setCodeSent(true);
+      } else {
+        const res = await sathiApi.verifyOtp(identifier.trim(), code.trim());
+        if (!res.is_registered) {
+          sathiApi.logout();
+          setError('No helper profile for this number yet. Create a helper account first.');
+          return;
+        }
+        onSignedIn(res.helper);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Could not sign in');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +95,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
       <div className="bg-white rounded-3xl border border-slate-200/90 p-5 shadow-xs my-auto">
         <h2 className="text-base font-bold text-slate-900 mb-0.5">Helper Sign In</h2>
         <p className="text-xs text-slate-500 mb-4">
-          Enter your registered mobile number or Gmail and password to sign in.
+          {mode === 'otp'
+            ? 'Enter your registered mobile number. We will send a 6-digit code.'
+            : 'Enter your registered mobile number or email and your password.'}
         </p>
 
         {error && (
@@ -68,11 +106,11 @@ export const SignInView: React.FC<SignInViewProps> = ({
           </div>
         )}
 
-        <form onSubmit={handleSignIn} className="space-y-4">
+        <form onSubmit={mode === 'otp' ? handleOtp : handleSignIn} className="space-y-4">
           {/* Mobile Number or Gmail */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Mobile Number or Gmail / Email
+              {mode === 'otp' ? 'Mobile Number' : 'Mobile Number or Email'}
             </label>
             <div className="relative flex items-center">
               <span className="absolute left-3.5 text-slate-400">
@@ -86,49 +124,65 @@ export const SignInView: React.FC<SignInViewProps> = ({
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="98765 43210 or you@gmail.com"
+                placeholder={mode === 'otp' ? '98765 43210' : '98765 43210 or you@gmail.com'}
+                readOnly={codeSent}
                 className="w-full h-12 pl-10 pr-3.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-[#274236] font-medium text-slate-900 bg-white"
                 required
               />
             </div>
           </div>
 
-          {/* Password */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-slate-700">
-                Password
-              </label>
-              <button
-                type="button"
-                onClick={() => alert('Demo account password is "demo1234". To reset your password, contact support@hellosahay.com.')}
-                className="text-[11px] font-semibold text-[#1E3A2F] hover:underline"
-              >
-                Forgot Password?
-              </button>
-            </div>
-            <div className="relative flex items-center">
-              <span className="absolute left-3.5 text-slate-400">
-                <Lock className="w-4 h-4 text-slate-500" />
-              </span>
+          {mode === 'otp' && codeSent && (
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">6-digit code</label>
               <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                className="w-full h-12 pl-10 pr-10 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-[#274236] text-slate-900 bg-white"
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                placeholder="000000"
+                className="w-full h-12 px-3.5 text-lg tracking-[0.4em] rounded-xl border border-slate-200 focus:outline-none focus:border-[#274236] font-bold text-slate-900 bg-white"
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 text-slate-400 hover:text-slate-600 p-1"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+              {shownCode && (
+                <p className="mt-1.5 text-xs text-slate-500">
+                  Demo mode: your code is <strong className="text-slate-900">{shownCode}</strong>
+                </p>
+              )}
             </div>
-          </div>
+          )}
+
+          {mode === 'password' && (
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Password
+                </label>
+              </div>
+              <div className="relative flex items-center">
+                <span className="absolute left-3.5 text-slate-400">
+                  <Lock className="w-4 h-4 text-slate-500" />
+                </span>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                  className="w-full h-12 pl-10 pr-10 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-[#274236] text-slate-900 bg-white"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 text-slate-400 hover:text-slate-600 p-1"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Direct Sign In Button */}
           <button
@@ -137,7 +191,14 @@ export const SignInView: React.FC<SignInViewProps> = ({
             className="w-full h-12 rounded-2xl bg-[#274236] text-white font-bold text-sm flex items-center justify-center gap-2 active:bg-[#1C3228] disabled:opacity-60 transition-colors shadow-sm"
           >
             {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            Sign In
+            {mode === 'otp' ? (codeSent ? 'Verify & Sign In' : 'Send Code') : 'Sign In'}
+          </button>
+          <button
+            type="button"
+            onClick={() => switchMode(mode === 'otp' ? 'password' : 'otp')}
+            className="w-full text-center text-xs font-semibold text-[#1E3A2F] hover:underline"
+          >
+            {mode === 'otp' ? 'Use a password instead' : 'Use an OTP instead'}
           </button>
         </form>
 

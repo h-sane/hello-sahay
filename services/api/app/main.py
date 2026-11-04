@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .db import SessionLocal, init_db
 from . import models_patient_app, models_sathi  # noqa: F401  (registers its tables before init_db)
 from .routers import (admin, auth, booking, calls, care, chat, config, doctors, facilities, live, medicines, patients,
-                      places, reminders, sathi, users, walkins)
+                      places, reminders, sathi, services, users, walkins)
 from .slots import keep_slots_fresh
 
 
@@ -17,7 +17,6 @@ async def lifespan(app: FastAPI):
     init_db()
     with SessionLocal() as session:
         auth.ensure_demo_users(session)
-        sathi.ensure_demo_helper(session)
     refresher = asyncio.create_task(keep_slots_fresh())
     yield
     refresher.cancel()
@@ -35,7 +34,7 @@ app.add_middleware(
 
 api = APIRouter(prefix="/api/v1")
 for module in (facilities, booking, auth, live, calls, chat, patients, places, admin, users, doctors,
-               medicines, care, reminders, config, sathi, walkins):
+               medicines, care, reminders, config, sathi, services, walkins):
     api.include_router(module.router)
 
 

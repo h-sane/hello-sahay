@@ -49,14 +49,9 @@ export const RegistrationView: React.FC<RegistrationViewProps> = ({
   const [categories, setCategories] = useState<string[]>([
     'Personal Caretaker',
   ]);
-  const [workDescription, setWorkDescription] = useState(
-    'I can repair water pipes, install water filters, fix plumbing connections, and handle basic household maintenance and elder care.'
-  );
+  const [workDescription, setWorkDescription] = useState('');
   const [extractedSkills, setExtractedSkills] = useState<string[]>([]);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([
-    'Elderly Care',
-    'Vital Signs Monitoring',
-  ]);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [customSkillInput, setCustomSkillInput] = useState('');
   const [showAddCustom, setShowAddCustom] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
@@ -68,6 +63,36 @@ export const RegistrationView: React.FC<RegistrationViewProps> = ({
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  // The phone number is verified with a code before the form can be sent
+  const [codeSent, setCodeSent] = useState(false);
+  const [code, setCode] = useState('');
+  const [shownCode, setShownCode] = useState('');
+  const [verified, setVerified] = useState(false);
+  const [otpBusy, setOtpBusy] = useState(false);
+
+  const phoneE164 = () => `+91${phone.replace(/\D/g, '').slice(-10)}`;
+
+  const handleOtp = async () => {
+    if (phone.replace(/\D/g, '').length < 10) return setError('Enter a valid 10-digit mobile number.');
+    setError('');
+    setOtpBusy(true);
+    try {
+      if (!codeSent) {
+        const res = await sathiApi.requestOtp(phoneE164());
+        setShownCode(res.demo_code || '');
+        setCodeSent(true);
+      } else {
+        const res = await sathiApi.verifyOtp(phoneE164(), code.trim());
+        setVerified(true);
+        if (res.is_registered) setError('This number already has a helper account. Go back and sign in.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Could not verify the number');
+    } finally {
+      setOtpBusy(false);
+    }
+  };
 
   const predefinedCategories = [
     'Personal Caretaker',
@@ -129,16 +154,8 @@ export const RegistrationView: React.FC<RegistrationViewProps> = ({
           addSkill(s);
         }
       });
-    } catch {
-      // Fallback local extraction
-      const lower = workDescription.toLowerCase();
-      const fallbacks: string[] = [];
-      if (lower.includes('pipe') || lower.includes('plumb')) fallbacks.push('Plumbing Repairs');
-      if (lower.includes('filter')) fallbacks.push('Water Filter Installation & Service');
-      if (lower.includes('clean')) fallbacks.push('Deep Cleaning');
-      if (lower.includes('elder') || lower.includes('care')) fallbacks.push('Elderly Care');
-      setExtractedSkills(fallbacks);
-      fallbacks.forEach(addSkill);
+    } catch (err: any) {
+      setError(err.message || 'Could not suggest skills. Add them yourself below.');
     } finally {
       setIsExtracting(false);
     }
@@ -196,10 +213,8 @@ export const RegistrationView: React.FC<RegistrationViewProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return setError('Please enter your full name.');
-    const rawPhone = phone.replace(/\D/g, '');
-    if (rawPhone.length < 10) return setError('Enter a valid 10-digit mobile number.');
+    if (!verified) return setError('Verify your mobile number first.');
     if (!idNumber.trim()) return setError('Please enter your government ID number.');
-    if (!selectedFile) return setError('Please select and upload your government ID document.');
     if (categories.length === 0) return setError('Please select at least one skill category.');
     if (selectedSkills.length === 0) return setError('Please add at least one specific skill.');
 
@@ -207,33 +222,20 @@ export const RegistrationView: React.FC<RegistrationViewProps> = ({
     setBusy(true);
 
     try {
-      // Parse multi-part address from single address string or defaults
       const addressParts = address.split(',').map((p) => p.trim());
-      const houseNo = addressParts[0] || 'No. 42';
-      const street = addressParts[1] || 'Gandhi Road';
-      const area = addressParts[2] || 'Tambaram';
-      const city = addressParts[3] || 'Chennai';
-      const pincodeMatch = address.match(/\b\d{6}\b/);
-      const pincode = pincodeMatch ? pincodeMatch[0] : '600045';
-
-      const docCleanName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const docStorageUrl = `https://storage.hellosahay.com/docs/${docCleanName}`;
+      const pincode = address.match(/\d{6}/)?.[0] ?? null;
 
       const payload = {
         name: name.trim(),
-        phone: `+91${rawPhone.slice(-10)}`,
         gender,
         email: email.trim() || null,
-        house_no: houseNo,
-        street: street,
-        area: area,
-        city: city,
-        district: 'Chengalpattu',
-        state: 'Tamil Nadu',
-        pincode: pincode,
+        house_no: addressParts[0] || null,
+        street: addressParts[1] || null,
+        area: addressParts[2] || null,
+        city: addressParts[3] || null,
+        pincode,
         id_type: idType,
         id_number: idNumber.trim(),
-        id_document_url: docStorageUrl,
         categories,
         description: workDescription.trim(),
         skills: selectedSkills,
@@ -319,9 +321,43 @@ export const RegistrationView: React.FC<RegistrationViewProps> = ({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91 98765 43210"
+                readOnly={codeSent}
                 className="w-full h-11 px-3.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-[#274236] font-normal text-slate-900 placeholder:text-slate-400 bg-white"
                 required
               />
+              {verified ? (
+                <p className="mt-1.5 text-xs font-semibold text-emerald-700 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Number verified
+                </p>
+              ) : (
+                <div className="mt-2 flex gap-2">
+                  {codeSent && (
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={code}
+                      onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                      placeholder="6-digit code"
+                      className="flex-1 min-w-0 h-11 px-3.5 text-sm rounded-xl border border-slate-200 focus:outline-none focus:border-[#274236] text-slate-900 bg-white"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleOtp}
+                    disabled={otpBusy}
+                    className="h-11 px-4 rounded-xl bg-[#274236] text-white text-sm font-bold disabled:opacity-60 flex items-center gap-1.5"
+                  >
+                    {otpBusy && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {codeSent ? 'Verify' : 'Send code'}
+                  </button>
+                </div>
+              )}
+              {codeSent && !verified && shownCode && (
+                <p className="mt-1.5 text-xs text-slate-500">
+                  Demo mode: your code is <strong className="text-slate-900">{shownCode}</strong>
+                </p>
+              )}
             </div>
 
             {/* Gender Pills */}
@@ -469,7 +505,7 @@ export const RegistrationView: React.FC<RegistrationViewProps> = ({
                     Tap to choose file from File Explorer
                   </p>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    Supports PDF, JPG, PNG, DOC (all documents)
+                    Optional for now: our team asks for a photo of your ID during verification and does not store this file yet
                   </p>
                 </div>
               ) : (
@@ -488,7 +524,7 @@ export const RegistrationView: React.FC<RegistrationViewProps> = ({
                           {selectedFile.name}
                         </p>
                         <p className="text-[10px] text-emerald-700 font-medium">
-                          {selectedFile.size} • Ready for upload
+                          {selectedFile.size} • Kept on this phone only
                         </p>
                       </div>
                     </div>

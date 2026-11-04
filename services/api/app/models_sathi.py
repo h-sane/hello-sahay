@@ -46,7 +46,7 @@ class Helper(Base):
     id_type: Mapped[str | None] = mapped_column(String(50))  # Aadhaar / Voter ID / PAN / Driving License
     id_number: Mapped[str | None] = mapped_column(String(100))
     id_document_url: Mapped[str | None] = mapped_column(String(500))
-    id_status: Mapped[str] = mapped_column(String(30), default="pending")  # not_submitted / pending / verified / rejected
+    id_status: Mapped[str] = mapped_column(String(30), default="not_submitted")  # not_submitted / pending / verified / rejected
 
     # Skills & Description
     categories: Mapped[list[str]] = mapped_column(JSON, default=list)  # Personal Caretaker, House Cleaning, Technical Support
@@ -56,6 +56,11 @@ class Helper(Base):
     languages: Mapped[list[str]] = mapped_column(JSON, default=list)
     emergency_contact: Mapped[str | None] = mapped_column(String(100))
     password_hash: Mapped[str | None] = mapped_column(String(200))
+    is_demo: Mapped[bool] = mapped_column(Boolean, default=False)  # seeded DEMO DATA, shown with a Demo tag
+
+    # Price of one booking; the category default applies when empty
+    rate_amount: Mapped[float | None] = mapped_column(Numeric(10, 2))
+    rate_label: Mapped[str | None] = mapped_column(String(60))
 
     # Availability & Status
     is_online: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -76,7 +81,7 @@ class ServiceBooking(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     booking_ref: Mapped[str] = mapped_column(String(30), unique=True, index=True)
     customer_id: Mapped[int] = mapped_column(ForeignKey("patient.id"), index=True)
-    helper_id: Mapped[int | None] = mapped_column(ForeignKey("helper.id"), index=True)
+    helper_id: Mapped[int | None] = mapped_column(ForeignKey("helper.id"), index=True)  # empty: open to every helper
 
     service_category: Mapped[str] = mapped_column(String(100))
     service_title: Mapped[str] = mapped_column(String(200))
@@ -88,7 +93,7 @@ class ServiceBooking(Base):
     location_lat: Mapped[float | None] = mapped_column(Float)
     location_lng: Mapped[float | None] = mapped_column(Float)
 
-    # Status: new_request, upcoming, in_progress, completed, cancelled, rejected
+    # Status: new_request, upcoming, in_progress, completed, cancelled (by the patient), rejected (by the helper)
     status: Mapped[str] = mapped_column(String(30), default="new_request", index=True)
     amount: Mapped[float] = mapped_column(Numeric(10, 2), default=0.00)
     payment_status: Mapped[str] = mapped_column(String(20), default="pending")  # pending / completed
@@ -106,7 +111,7 @@ class HelperNotification(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     helper_id: Mapped[int] = mapped_column(ForeignKey("helper.id"), index=True)
-    kind: Mapped[str] = mapped_column(String(30))  # new_request, booking_accepted, reminder, completed, payment_update
+    kind: Mapped[str] = mapped_column(String(30))  # new_request, booking_accepted, booking_rejected, booking_cancelled, completed
     title: Mapped[str] = mapped_column(String(200))
     body: Mapped[str | None] = mapped_column(Text)
     booking_id: Mapped[int | None] = mapped_column(Integer)

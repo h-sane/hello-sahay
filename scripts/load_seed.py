@@ -3,7 +3,7 @@
 Facilities and doctors are updated in place (matched by name) so ids that
 desk users and appointments reference stay valid. Missing slots for the next
 week are added (nothing booked is touched), then the demo logins, appointments
-and helpline calls of the one demo hospital are created if they do not exist.
+and helpline calls of the one demo hospital, and the demo Sahay Sathi helpers, are created if they do not exist.
 """
 import csv
 import sys
@@ -18,6 +18,7 @@ from sqlalchemy import delete, select  # noqa: E402
 from app.db import SessionLocal, init_db  # noqa: E402
 from app.models import Appointment, Doctor, Facility, Slot  # noqa: E402
 from app.routers import auth  # noqa: E402
+from app.sathi_seed import SEED_CSV, ensure_demo_account, ensure_demo_helpers  # noqa: E402
 from app.slots import ensure_slots  # noqa: E402
 from seed_activity import retire_old_logins, seed_appointments, seed_calls, seed_users  # noqa: E402
 
@@ -92,7 +93,11 @@ def main():
             appts, calls = seed_appointments(session, hospital), seed_calls(session, hospital)
             session.commit()
 
+        helpers = ensure_demo_helpers(session, SEED / SEED_CSV.name)
+        ensure_demo_account(session)  # Sahay Sathi login: 98765 43210 / demo1234
+
         print(f"facilities: {len(facilities)} ({len(partners)} partners)")
+        print(f"demo Sahay Sathi helpers added: {helpers}")
         print(f"doctors: {len(doctors)}")
         print(f"slots added: {added}")
         print(f"demo logins added: {users}, appointments added: {appts}, calls added: {calls}")
