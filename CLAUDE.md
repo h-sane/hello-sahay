@@ -46,6 +46,8 @@ issue per task card. Voice (2026-10-14): `services/voice` runs the English/Hindi
 
 **Telugu on the helpline (2026-11-04):** same path as Malayalam and Kannada: Sarvam `te-IN` speech in and out, auto-detected, every spoken line, emergency and symptom word lists, WhatsApp texts, digit words, and `te` accepted on calls, patients and bookings. Verified with pytest only; no synthetic or real call yet. Patient app, chat and Sahay Desk language pickers are unchanged.
 
+**Severity-routed helpline (2026-11-04):** the call now runs welcome, language choice, the disclaimer in the caller's language, then the model reads severity (mild, moderate, serious) and offers partner clinics, the nearest hospitals, or 108 plus the nearest hospital; government hospitals are information only; the area must be specific, not a whole city (local table plus OpenStreetMap `GET /places/geocode`). 15 seeded partner clinics (12 in Chennai) with doctors and Desk logins; the severity tag is editable in Sahay Desk and the admin console (`PATCH /calls/{id}`). Verified with 72 offline tests and scripted calls with the real Nova model against a stubbed API; the database seed, the browser UI and a real phone call are not yet verified. See `services/voice/README.md` "Call flow" and `.claude/handoffs/2026-11-04_session_40.md`.
+
 **Local setup:** `docker compose up -d` (Postgres on host port **5433**), copy
 `.env.example` to `.env`, then `python scripts/check_setup.py` (needs boto3 and
 psycopg or psycopg2) to confirm DB, Bedrock, embeddings, Polly and Transcribe.

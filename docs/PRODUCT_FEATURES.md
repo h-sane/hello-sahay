@@ -23,7 +23,7 @@ Behind all five: one **backend API** (`services/api/`, FastAPI + PostgreSQL/pgve
 
 ## 1. Hello Sahay helpline (voice)
 
-Languages: Tamil, Hindi, English, Malayalam, Kannada, Telugu (the last three added 2026-11-04: Sarvam speech on the helpline, verified with synthetic callers; the patient app screens and Ask Sahay chat answers follow, checked on an Android emulator; none of it on a real phone; the Kannada and Malayalam wording is machine-written and needs a native speaker's read). Not an emergency service. Phone number 080-472-90138 (Exotel); also the browser call.
+Languages: Tamil, Hindi, English, Malayalam, Kannada, Telugu (the last three added 2026-11-04: Sarvam speech on the helpline, verified with synthetic callers; the patient app screens and Ask Sahay chat answers follow, checked on an Android emulator; none of it on a real phone; the Kannada and Malayalam wording is machine-written and needs a native speaker's read). Not an emergency service. Phone number 080-472-90138 (Exotel); also the browser call. Since 2026-11-04 the call runs welcome, language choice, disclaimer in that language, then severity routing: mild gets partner clinics, moderate the nearest hospitals, serious gets 108 and the nearest hospital; government hospitals are information only (flow in `services/voice/README.md`; offline-tested and driven with the real model against a stubbed API, not on a real phone).
 
 | Feature | Detail | Tier | Card | Status |
 |---|---|---|---|---|
