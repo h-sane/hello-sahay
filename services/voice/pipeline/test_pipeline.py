@@ -709,3 +709,34 @@ def test_dictated_digit_words_in_malayalam_and_kannada_become_digits():
     from pipeline.digits import digits_from_words as d
     assert d("ഒമ്പത് എട്ട് ഏഴ് ആറ് അഞ്ച്") == "98765"
     assert d("ಒಂಬತ್ತು ಎಂಟು ಏಳು ಆರು ಐದು") == "98765"
+
+
+def test_sarvam_moves_to_the_next_key_when_one_is_out_of_credit_and_stays_on_it(monkeypatch):
+    from pipeline import config, sarvam
+
+    used = []
+
+    class Client:
+        def __init__(self, **kw): pass
+        async def __aenter__(self): return self
+        async def __aexit__(self, *a): return None
+        async def post(self, url, headers, **kw):
+            key = headers["api-subscription-key"]
+            used.append(key)
+            return httpx.Response(402 if key in ("a", "b") else 200, json={}, request=httpx.Request("POST", url))
+
+    monkeypatch.setattr(sarvam.httpx, "AsyncClient", Client)
+    monkeypatch.setattr(config, "SARVAM_API_KEY", "a, b ,c")
+    monkeypatch.setattr(sarvam, "_key", 0)
+    assert asyncio.run(sarvam._post("/x", 5)).status_code == 200
+    assert used == ["a", "b", "c"] and sarvam._key == 2
+    asyncio.run(sarvam._post("/x", 5))
+    assert used[3:] == ["c"]
+
+    monkeypatch.setattr(config, "SARVAM_API_KEY", "a,b")  # every key exhausted: the error reaches the caller
+    monkeypatch.setattr(sarvam, "_key", 0)
+    try:
+        asyncio.run(sarvam._post("/x", 5))
+        raise AssertionError("should have raised")
+    except httpx.HTTPStatusError as e:
+        assert e.response.status_code == 402

@@ -23,21 +23,32 @@ MAX_S = 20.0
 CODES = {"ta": "ta-IN", "ml": "ml-IN", "kn": "kn-IN"}
 
 
-def _headers() -> dict:
-    if not config.SARVAM_API_KEY:
+_key = 0  # index of the key in use; moves on when Sarvam says that key is out of credit or rate-limited
+OUT_OF_KEY = (402, 403, 429)
+
+
+async def _post(path: str, timeout: float, **kw) -> httpx.Response:
+    """POST to Sarvam with the current key; on out-of-credit or rate-limit move to the next key in SARVAM_API_KEY (comma separated)."""
+    global _key
+    keys = [k.strip() for k in config.SARVAM_API_KEY.split(",") if k.strip()]
+    if not keys:
         raise RuntimeError("SARVAM_API_KEY is not set in .env")
-    return {"api-subscription-key": config.SARVAM_API_KEY}
+    for _ in keys:
+        used = _key % len(keys)
+        async with httpx.AsyncClient(timeout=timeout) as c:
+            r = await c.post(f"{BASE}{path}", headers={"api-subscription-key": keys[used]}, **kw)
+        if r.status_code not in OUT_OF_KEY or len(keys) == 1:
+            break
+        if _key % len(keys) == used:  # a concurrent request may have moved it already
+            _key = (used + 1) % len(keys)
+            log.warning("sarvam key %d/%d returned %d, switching to key %d", used + 1, len(keys), r.status_code, _key + 1)
+    r.raise_for_status()
+    return r
 
 
 async def synthesize(text: str, lang: str, rate: int) -> bytes:
-    async def post() -> httpx.Response:
-        async with httpx.AsyncClient(timeout=20) as c:
-            r = await c.post(f"{BASE}/text-to-speech", headers=_headers(), json={
-                "text": text, "target_language_code": CODES[lang], "model": "bulbul:v3", "speech_sample_rate": rate})
-            r.raise_for_status()
-            return r
-
-    r = await hedged(post, 4.0, "sarvam tts")
+    r = await hedged(lambda: _post("/text-to-speech", 20, json={
+        "text": text, "target_language_code": CODES[lang], "model": "bulbul:v3", "speech_sample_rate": rate}), 4.0, "sarvam tts")
     with wave.open(io.BytesIO(base64.b64decode(r.json()["audios"][0]))) as w:
         pcm, src = w.readframes(w.getnframes()), w.getframerate()
     return pcm if src == rate else audioop.ratecv(pcm, 2, 1, src, rate, None)[0]
@@ -88,14 +99,8 @@ class SarvamStt:
         out = io.BytesIO()
         with wave.open(out, "wb") as w:
             w.setnchannels(1), w.setsampwidth(2), w.setframerate(self.rate), w.writeframes(pcm)
-        async def post() -> httpx.Response:
-            async with httpx.AsyncClient(timeout=20) as c:
-                r = await c.post(f"{BASE}/speech-to-text", headers=_headers(),
-                                 files={"file": ("a.wav", out.getvalue(), "audio/wav")},
-                                 data={"model": "saarika:v2.5", "language_code": self.code})
-                r.raise_for_status()
-                return r
-
-        body = (await hedged(post, 4.0, "sarvam stt")).json()
+        body = (await hedged(lambda: _post("/speech-to-text", 20, files={"file": ("a.wav", out.getvalue(), "audio/wav")},
+                                           data={"model": "saarika:v2.5", "language_code": self.code}),
+                             4.0, "sarvam stt")).json()
         self.detected = (body.get("language_code") or "").split("-")[0] or None
         return body.get("transcript", "").strip()

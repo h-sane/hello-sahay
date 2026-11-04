@@ -1,6 +1,6 @@
 # services/voice — Voice pipeline
 
-Phone or browser audio over WebSocket → speech-to-text (Sarvam `saarika:v2.5` for Tamil, Malayalam, Kannada and `lang=auto`; Amazon Transcribe for fixed English/Hindi) → safety gate → Bedrock Nova Pro with tools → Polly (en/hi) or Sarvam `bulbul:v3` (ta) → audio back.
+Phone or browser audio over WebSocket → speech-to-text (Sarvam `saarika:v2.5` for Tamil, Malayalam, Kannada and `lang=auto`, `SARVAM_API_KEY` may list several comma-separated keys and the next one is used when a key runs out of credit or is rate-limited; Amazon Transcribe for fixed English/Hindi) → safety gate → Bedrock Nova Pro with tools → Polly (en/hi) or Sarvam `bulbul:v3` (ta) → audio back.
 Flow: `docs/ARCHITECTURE.md` §2.1 and the diagrams in `docs/diagrams/`. Task cards: P1-5 to P1-8.
 
 ## Demo phone number (task card P2-7 bonus)
