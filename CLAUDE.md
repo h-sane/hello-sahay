@@ -114,8 +114,6 @@ INVALID_PAYMENT_INSTRUMENT (Marketplace, needs a card).
 
 | Path | Role |
 |---|---|
-| `apps/patient/` | Earlier Expo shell, superseded, not deployed |
-| `apps/web/` | Earlier Next.js Desk, admin and call demo, superseded, not deployed |
 | `apps/patient-web/` | Patient app, wired to the API (Vite, :5174; Android APK via Capacitor). See `docs/FRONTEND_INTEGRATION.md` |
 | `apps/desk/` | Sahay Desk, wired to the API (Vite, :5173), role-based tabs |
 | `apps/admin/` | Hello Sahay admin console for our team: overview, hospitals, payments, all calls and transcripts, Care plan. One static `index.html`, no build; API is `services/api/app/routers/admin.py` |

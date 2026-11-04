@@ -218,7 +218,6 @@ hello-sahay/
     patient-web/    # patient app: Vite + React, Android APK via Capacitor
     desk/           # Sahay Desk: Vite + React, role-based tabs
     admin/          # Hello Sahay admin console: one static index.html
-    web/, patient/  # earlier Next.js and Expo builds, not deployed
   services/
     api/            # FastAPI: facilities, slots, bookings, patients, auth, chat RAG, medicines, Care plan, admin
     voice/          # CallSession pipeline (pipeline/) + phone bridge (telephony/)

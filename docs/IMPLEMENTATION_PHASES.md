@@ -17,7 +17,7 @@ Which features each app gets, with tier and card number: [`PRODUCT_FEATURES.md`]
 | P1-7 | Done (call log with trace, handoff queue, emergency redirect) |
 | P1-8 | **Not built**: WhatsApp confirmation is a log stub (needs keys) |
 | P1-9, P1-10 | Done (10 official documents, `/chat` with citations, plus a live official-site search) |
-| P1-11 | Done in `apps/desk` (Vite, role-based), not `apps/web/desk` |
+| P1-11 | Done in `apps/desk` (Vite, role-based), not Next.js |
 | P1-12 to P1-14 | Done in `apps/patient-web` (Vite + Capacitor), not Expo; appointments cancel in the app, reschedule is API-only |
 | P2-1 to P2-3 | Done with 246k real brands, the PMBI list and a vision label scan; NPPA ceiling prices not loaded; no 3-checks-a-day limit |
 | P2-4 | Partial: family, Care plan with a demo payment, reminders, "I took it", in-app alerts; no Razorpay, loud alarm or WhatsApp |
@@ -50,7 +50,7 @@ New requirements from the judges take priority over Phase 2 when they land. The 
 
 | Card | What | Done when |
 |---|---|---|
-| P0-1 | Monorepo folders: `services/api`, `services/voice`, `apps/patient`, `apps/web`, `data/seed`, `data/advisories`, `design/ai-studio` | Folders committed with a README line each |
+| P0-1 | Monorepo folders: `services/api`, `services/voice`, `apps/patient-web`, `apps/desk`, `data/seed`, `data/advisories`, `design/ai-studio` | Folders committed with a README line each |
 | P0-2 | Accounts and keys: AWS (Bedrock model access in `ap-south-1` or nearest region, Transcribe, Polly), Sarvam or Google TTS key for Tamil, WhatsApp Cloud API test number + verified demo recipients, Razorpay test keys | Each key tested with one call; region and model IDs written into `.env.example` (no values) |
 | P0-3 | Postgres + pgvector in Docker (`docker-compose.yml`) | `docker compose up` gives a DB the API can reach |
 | P0-4 | Import the AI Studio prototype into `design/ai-studio/` as its own commit | Commit `chore: import AI Studio UI prototype (pre-event reference)` |
@@ -82,7 +82,7 @@ New requirements from the judges take priority over Phase 2 when they land. The 
 ### Web (Desk)
 | Card | What | Done when |
 |---|---|---|
-| P1-11 | **Sahay Desk** (`apps/web/desk`): login, today's appointments, live updates (`WS /live/desk/{facility_id}`), check-in button, call transcripts, handoff queue | A helpline booking appears on the Desk within 2 s without refresh |
+| P1-11 | **Sahay Desk** (`apps/desk`): login, today's appointments, live updates (`WS /live/desk/{facility_id}`), check-in button, call transcripts, handoff queue | A helpline booking appears on the Desk within 2 s without refresh |
 
 ### Patient app (core)
 | Card | What | Done when |
@@ -101,7 +101,7 @@ Build in this order; stop at freeze.
 | 2 | P2-2 | **Composition checker + price comparison**: typed/spoken brand → exact equivalents, cheapest first, Jan Aushadhi flagged, prices with source; pharmacist warning; 3 free checks/day | Dolo 650 shows paracetamol 650 mg tablets only, with prices and sources |
 | 3 | P2-3 | **Strip OCR**: camera photo → Bedrock vision → brand/salts/strength/form → same lookup | A clear photo of a printed strip resolves to the right medicine |
 | 4 | P2-4 | **Care plan**: paywall screen, Razorpay test checkout, reminders, alarms with spoken reminder, taken/missed log, missed-dose WhatsApp to family | Test payment unlocks alarms; a missed dose sends the family message |
-| 5 | P2-5 | **Admin console** (`apps/web/admin`): analytics (calls by language, bookings, arrivals, no-shows, emergency count), hospital clients (add, partner flag, plan), payments list (subscriptions, ₹40 arrival fees, premium) | Marking a patient "arrived" on Desk adds a ₹40 line in admin payments |
+| 5 | P2-5 | **Admin console** (`apps/admin`): analytics (calls by language, bookings, arrivals, no-shows, emergency count), hospital clients (add, partner flag, plan), payments list (subscriptions, ₹40 arrival fees, premium) | Marking a patient "arrived" on Desk adds a ₹40 line in admin payments |
 | 6 | P2-6 | Government services hub screen; advisories feed | Links open; each item shows its source |
 | 7 | P2-7 | Hardening: rate limits, input validation, latency tuning, Twilio trial number (bonus) | Noted in handoff |
 

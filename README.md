@@ -37,7 +37,6 @@ Docs: [architecture and diagrams](docs/ARCHITECTURE.md) · [features and status]
 | `apps/patient-web/` | Patient app (Vite + React; Android APK via Capacitor in `android/`) |
 | `apps/desk/` | Sahay Desk, the hospital dashboard (Vite + React) |
 | `apps/admin/` | Hello Sahay admin console (one static page) |
-| `apps/web/`, `apps/patient/` | Earlier Next.js and Expo builds, not deployed |
 | `services/api/` | Backend API (FastAPI, PostgreSQL + pgvector) |
 | `services/voice/` | Voice pipeline and phone bridge (speech-to-text, safety gate, LLM tools, text-to-speech) |
 | `data/` | Demo seed data, advisories, medicine and scheme data |

@@ -29,7 +29,7 @@ The diagrams are generated from [`diagrams/architecture.json`](diagrams/architec
 | Sahay Desk | `apps/desk/` | static build served by Caddy | hospital staff, by role | Vite, React 18, Tailwind 3 |
 | Admin console | `apps/admin/` | one static `index.html`, no build | the Hello Sahay team | plain HTML + fetch |
 
-`apps/web/` (Next.js) and `apps/patient/` (Expo) are earlier builds, not deployed and not maintained; the Vite apps above replaced them. `data/` holds seed rows, advisory sources, CMCHIS and medicine data; `scripts/` holds the loaders and call tools; `deploy/` holds the one-box hosting stack.
+The earlier Next.js and Expo builds were deleted on 2026-11-04 (git history has them). `data/` holds seed rows, advisory sources, CMCHIS and medicine data; `scripts/` holds the loaders and call tools; `deploy/` holds the one-box hosting stack.
 
 ## 2. The three user journeys
 

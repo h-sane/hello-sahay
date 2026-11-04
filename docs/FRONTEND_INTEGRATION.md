@@ -7,7 +7,7 @@ How the two teammate frontends are wired to our API. Decision (Hussain, 2026-10-
 | Patient app (web) | `apps/patient-web/` | Vite, React 19, TS, Tailwind 4 | 5174 | AI Studio prototype by Adhitya |
 | Sahay Desk (hospital dashboard) | `apps/desk/` | Vite, React 18, JS, Tailwind 3 | 5173 | prototype by Bharani |
 
-`apps/web/` (Next.js `/desk`) is the earlier Desk and `apps/patient/` (Expo) the earlier patient shell; both are superseded and not deployed. The Hello Sahay admin console is `apps/admin` (one static page, `GET /api/v1/admin/*`); hosting is described in `deploy/README.md` and `ARCHITECTURE.md` §7.
+The earlier Next.js Desk and Expo patient shell were deleted on 2026-11-04 (git history has them). The Hello Sahay admin console is `apps/admin` (one static page, `GET /api/v1/admin/*`); hosting is described in `deploy/README.md` and `ARCHITECTURE.md` §7.
 
 ## Run all of it
 
