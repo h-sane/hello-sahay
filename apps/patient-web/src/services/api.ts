@@ -1,6 +1,6 @@
 // Thin client for the Hello Sahay API (docs/ARCHITECTURE.md section 5).
 // Dev: vite proxies /api to the FastAPI server. Prod: set VITE_API_URL.
-const BASE: string = (import.meta as any).env?.VITE_API_URL || '/api/v1';
+export const BASE: string = (import.meta as any).env?.VITE_API_URL || '/api/v1';
 
 export class ApiError extends Error {
   status: number;
@@ -36,6 +36,16 @@ export interface ApiSlot {
   department: string;
 }
 
+export interface ApiJanAushadhiStore {
+  name: string;
+  lat: number;
+  lng: number;
+  distance_km: number;
+  address: string | null;
+  phone: string | null;
+  opening_hours: string | null;
+}
+
 export interface ApiNearbyHospital {
   name: string;
   lat: number;
@@ -54,7 +64,7 @@ export interface ApiNearbyHospital {
 
 export interface ApiAppointment {
   id: number;
-  status: 'booked' | 'arrived' | 'completed' | 'no_show' | 'cancelled';
+  status: 'booked' | 'arrived' | 'in_consult' | 'completed' | 'no_show' | 'cancelled';
   source: 'helpline' | 'app' | 'desk';
   reason_text: string | null;
   hospital_label: string | null; // the hospital the patient chose; the slot itself is at the demo hospital
@@ -90,7 +100,7 @@ export interface ApiAdvisory {
   summary: string;
 }
 
-const TOKEN_KEY = 'sahay.patient.token';
+export const TOKEN_KEY ='sahay.patient.token';
 
 function authHeaders(): Record<string, string> {
   try {
@@ -128,6 +138,10 @@ export const api = {
     request<ApiNearbyHospital[]>(
       `/places/nearby-hospitals?lat=${coords.latitude}&lng=${coords.longitude}&limit=${limit}`
     ),
+  nearbyJanAushadhi: (coords: { latitude: number; longitude: number }) =>
+    request<ApiJanAushadhiStore[]>(`/places/jan-aushadhi?lat=${coords.latitude}&lng=${coords.longitude}&limit=5`),
+  placeSearch: (q: string) =>
+    request<{ name: string; detail: string; lat: number; lng: number }[]>(`/places/search?q=${encodeURIComponent(q)}`),
   slots: (facilityId: number, date: string) =>
     request<ApiSlot[]>(`/facilities/${facilityId}/slots?date=${date}`),
   book: (body: {

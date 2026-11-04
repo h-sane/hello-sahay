@@ -23,14 +23,14 @@ Behind all five: one **backend API** (`services/api/`, FastAPI + PostgreSQL/pgve
 
 ## 1. Hello Sahay helpline (voice)
 
-Languages: Tamil, Hindi, English, Malayalam, Kannada, Telugu (the last three added 2026-11-04: Sarvam speech on the helpline, verified with synthetic callers; the patient app screens and Ask Sahay chat answers follow, checked on an Android emulator; none of it on a real phone; the Kannada and Malayalam wording is machine-written and needs a native speaker's read). Not an emergency service. Phone number 080-472-90138 (Exotel); also the browser call.
+Languages: Tamil, Hindi, English, Malayalam, Kannada, Telugu (the last three added 2026-11-04: Sarvam speech on the helpline, verified with synthetic callers; the patient app screens and Ask Sahay chat answers follow, checked on an Android emulator; none of it on a real phone; the Kannada and Malayalam wording is machine-written and needs a native speaker's read). Not an emergency service. Phone number 080-472-90138 (Exotel); also the browser call. Since 2026-11-04 the call runs welcome, language choice, disclaimer in that language, then severity routing: mild gets partner clinics (prototype: three at fixed distances under 3 km wherever the caller is), moderate the hospitals within 3 km, serious gets 108 and the nearest hospital; government hospitals are information only (flow in `services/voice/README.md`; offline-tested and driven with the real model against a stubbed API, not on a real phone).
 
 | Feature | Detail | Tier | Card | Status |
 |---|---|---|---|---|
-| Call-start notice and language | Short greeting saying the call is transcribed, then a beep; with `lang=auto` the first sentence sets the language, later changes need a whole sentence in another script | P0 | P1-5, P1-6 | Built (spoken language detection replaced "press 1 / 2 / 3") |
+| Call-start notice and language | Welcome and a one-line language choice per language, a beep, then the disclaimer (transcribed, no medical advice, 108) **in the language the caller chose**; with `lang=auto` later changes need a whole sentence in another script | P0 | P1-5, P1-6 | Built (spoken language detection replaced "press 1 / 2 / 3"); the Hindi, Malayalam, Kannada and Telugu wording is machine-written |
 | Speech in, speech out | Sarvam hears Tamil, Malayalam, Kannada, Telugu and `lang=auto` calls; Transcribe hears English/Hindi browser calls; Polly speaks English/Hindi, Sarvam speaks Tamil, Malayalam, Kannada and Telugu | P0 | P1-5, P1-6 | Built |
 | Emergency gate | Runs before the model on every utterance in all three languages; says "Call 108 / 112", flags the call, queues a human callback | P0 | P1-4, P1-7 | Built |
-| Find a facility | Real nearest hospital (OpenStreetMap) as the recommendation, plus the nearest government one when different | P0 | P1-5 | Built |
+| Find a facility, by severity | The model reads mild, moderate or serious from the caller's words (editable on the call in Sahay Desk and the admin console). Mild: up to three partner clinics under 3 km, then hospitals on request. Moderate: real hospitals within 3 km (OpenStreetMap), then the free government ones on request. Serious: 108 and the nearest hospital. Government hospitals are information only. The caller must give a specific area, not a city | P0 | P1-5 | Built; **demo:** clinics sit at fixed distances from any caller (prototype), private-hospital bookings go to the one demo hospital |
 | "Which hospital takes my card" | `check_scheme_coverage` against Tamil Nadu's CMCHIS list | P0 | P1-5 | Built (PM-JAY has no open per-hospital list; tagged together with CMCHIS) |
 | Book appointments | Doctor and time preferences honoured; a named doctor who is not there is never refused | P0 | P1-3, P1-5 | Demo (always the one demo hospital's doctors and slots) |
 | Reschedule | Choosing another slot after booking moves the same appointment | P0 | P1-3 | Built |
@@ -86,9 +86,11 @@ Login is email + password; the hospital comes from the token, never from the req
 | Today's appointments | By doctor and time, source badge (helpline / app / desk), live push | P0 | P1-11 | Built |
 | Check-in | Marks "patient arrived"; triggers the arrival fee (not for counter walk-ins) | P0 | P1-11 | Built |
 | No-show and complete | Front desk marks no-show; front desk or the doctor marks complete | P0 | P1-11 | Built |
-| Walk-ins | Counter walk-in takes the doctor's free slot or an extra one | P1 | | Built |
-| Call logs and callbacks | Language, outcome, emergency flag; "Mark Called" saved on the server | P0 | P1-11 | Built |
-| Doctors | On-duty switch stops new bookings | P1 | P1-3 | Built (no per-slot calendar editing) |
+| Walk-in queue | Counter walk-ins join a per-doctor queue numbered W1, W2... (no slot used); Call in and Done track the room | P1 | | Built |
+| Doctor timetables | Per doctor: appointments only, or partial with a walk-in break after every few slots (slot length, break length, hours, days off, apply to all); breaks are never offered to the helpline or app | P1 | | Built |
+| Live queue | One lane per doctor for today: A and W numbers, who is in the room, how long the doctor is free before the next appointment | P1 | | Built |
+| Call logs and callbacks (admin console, not Sahay Desk) | Language, outcome, emergency flag, transcript, editable urgency; "Mark called back" saved on the server | P0 | P1-11 | Built |
+| Doctors | On-duty switch stops new bookings; timetable editor (see Doctor timetables); languages spoken shown | P1 | P1-3 | Built |
 | Past visits | Earlier days, newest first | P1 | | Built |
 | Users and roles | Hospital admin creates receptionist, nurse and doctor logins, resets passwords, switches logins off | P1 | | Built |
 | Settings | Hospital profile, departments, scheme flags, plan | P2 | P2-5 | Not built |

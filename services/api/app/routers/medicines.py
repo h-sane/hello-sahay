@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from ..chat import bedrock
 from ..db import get_session
+from ..medicine_names import suggest
 from ..medicine_parse import brand_composition, form_of, unit_count
 from ..models_patient_app import BrandMedicine, JanAushadhiItem
 from ..security import optional_claims
@@ -76,26 +77,42 @@ def _item(session: Session, row: BrandMedicine, price: float | None = None, pack
     }
 
 
-@router.get("/medicines/search")
-def search(q: str = Query(min_length=2, max_length=80), limit: int = Query(12, ge=1, le=30),
-           session: Session = Depends(get_session)):
-    """Brands by name first, then by salt. Generic Jan Aushadhi products matching the words are listed too."""
-    term = q.strip()
-    brands = session.scalars(
+@router.get("/medicines/suggest")
+def suggestions(q: str = Query(min_length=2, max_length=80), session: Session = Depends(get_session)):
+    """Type-ahead: medicine names that start with, contain or are spelled like what has been typed so far."""
+    return {"query": q.strip(), "names": suggest(session, q)}
+
+
+def _brands(session: Session, term: str, limit: int) -> list[BrandMedicine]:
+    brands = list(session.scalars(
         select(BrandMedicine).where(BrandMedicine.brand.ilike(f"%{term}%"))
         .order_by(case((BrandMedicine.brand.ilike(f"{term}%"), 0), else_=1), func.length(BrandMedicine.brand))
-        .limit(limit)).all()
+        .limit(limit)).all())
     if len(brands) < limit:
         seen = {b.id for b in brands}
         by_salt = session.scalars(
             select(BrandMedicine).where(func.array_to_string(BrandMedicine.key, " ").ilike(f"%{term}%"))
             .order_by(func.length(BrandMedicine.brand)).limit(limit * 2)).all()
         brands += [b for b in by_salt if b.id not in seen][: limit - len(brands)]
+    return brands
+
+
+@router.get("/medicines/search")
+def search(q: str = Query(min_length=2, max_length=80), limit: int = Query(12, ge=1, le=30),
+           session: Session = Depends(get_session)):
+    """Brands by name first, then by salt. Generic Jan Aushadhi products matching the words are listed too."""
+    term = q.strip()
+    brands, corrected = _brands(session, term, limit), None
+    if not brands:
+        close = suggest(session, term, 3)
+        if close:
+            corrected, term = close[0], close[0]
+            brands = _brands(session, term, limit)
     generics = session.scalars(
         select(JanAushadhiItem).where(JanAushadhiItem.generic_name.ilike(f"%{term}%"), JanAushadhiItem.mrp > 0)
         .order_by(JanAushadhiItem.mrp).limit(8)).all()
     return {
-        "query": term, "note": PRICE_NOTE,
+        "query": q.strip(), "corrected_to": corrected, "note": PRICE_NOTE,
         "brands": [_item(session, b) for b in brands],
         "generics": [{"name": g.generic_name, "pack": g.pack, "price_rs": float(g.mrp), "group": g.group_name} for g in generics],
     }

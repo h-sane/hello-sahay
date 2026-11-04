@@ -9,7 +9,7 @@
       "url": "https://github.com/h-sane/hello-sahay.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "d824cd97eac1006c7e5298f5a011348b820ee834"
+      "revision": "e687d29a0d55156f0663dfffb98e1acebfe95d21"
     },
     "viewBox": [
       1085,
@@ -210,7 +210,7 @@
           "label": "embed, generate, vision"
         }
       ],
-      "tag": "rephrase only"
+      "tag": "severity, rephrase"
     },
     {
       "id": "api",
@@ -485,7 +485,7 @@
       "title": "Safety path",
       "items": [
         "Every utterance passes the safety gate before the model sees it",
-        "Emergency or symptom text gets a fixed reply and a handoff; the model is never asked",
+        "Emergency text gets the fixed 108 line, then the nearest hospital; symptom questions get a fixed reply; the model rates mild, moderate or serious only to order what is offered",
         "The same gate protects the written chat in the patient app"
       ]
     },

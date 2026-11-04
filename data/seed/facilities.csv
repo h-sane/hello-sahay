@@ -1,12 +1,27 @@
 # DEMO DATA - fictional facilities in a demo district (Chengalpattu, Tamil Nadu). Not real hospitals; phone numbers are fake.
-name,type,address,lat,lng,phone,hours,departments,pmjay,cmchis,is_partner,plan
-Demo PHC Paranur,PHC,"Paranur Main Road, Chengalpattu 603002",12.7280,79.9680,044-0000-0101,Mon-Sat 08:00-16:00,General Medicine|Obstetrics|Paediatrics,true,true,false,
-Demo PHC Singaperumal Koil,PHC,"GST Road, Singaperumal Koil 603204",12.7010,79.9890,044-0000-0102,Mon-Sat 08:00-16:00,General Medicine|Obstetrics|Paediatrics,true,true,false,
-Demo PHC Kolambakkam,PHC,"Kolambakkam Village, Madurantakam Taluk 603306",12.5600,79.9300,044-0000-0103,Mon-Sat 08:00-16:00,General Medicine|Obstetrics,true,true,false,
-Demo PHC Pudupattu,PHC,"Pudupattu Road, Thirukazhukundram Taluk 603109",12.6200,80.0300,044-0000-0104,Mon-Sat 08:00-16:00,General Medicine|Paediatrics,true,true,false,
-Demo CHC Madurantakam,CHC,"Hospital Road, Madurantakam 603306",12.5120,79.8850,044-0000-0105,Daily 08:00-20:00,General Medicine|Obstetrics|Paediatrics|Dental,true,true,false,
-Demo Government Hospital Chengalpattu,GH,"GST Road, Chengalpattu 603001",12.6830,79.9770,044-0000-0106,Open 24 hours,General Medicine|Obstetrics|Paediatrics|Ophthalmology|Dental|Orthopaedics,true,true,false,
-Sunrise Nursing Home,private,"Railway Feeder Road, Chengalpattu 603001",12.6900,79.9810,044-0000-0201,Mon-Sat 09:00-18:00,General Medicine|Obstetrics|Paediatrics|Orthopaedics|Dental|Ophthalmology,true,true,true,sahay_desk
-Amudha Multispeciality Hospital,private,"Bazaar Street, Madurantakam 603306",12.5080,79.8920,044-0000-0202,Mon-Sat 09:00-18:00,General Medicine|Ophthalmology|Dental|Orthopaedics,false,true,false,
-Kavya Mother and Child Clinic,private,"Main Road, Thirukazhukundram 603109",12.6100,80.0510,044-0000-0203,Mon-Sat 09:00-18:00,General Medicine|Obstetrics|Paediatrics,true,false,false,
-Lotus Family Hospital,private,"OMR Link Road, Singaperumal Koil 603204",12.7060,79.9960,044-0000-0204,Mon-Sat 09:00-18:00,General Medicine|Paediatrics|Dental|Orthopaedics,false,false,false,
+name,type,address,lat,lng,phone,hours,departments,pmjay,cmchis,is_partner,plan,demo_distance_km
+Demo PHC Paranur,PHC,"Paranur Main Road, Chengalpattu 603002",12.7280,79.9680,044-0000-0101,Mon-Sat 08:00-16:00,General Medicine|Obstetrics|Paediatrics,true,true,false,,
+Demo PHC Singaperumal Koil,PHC,"GST Road, Singaperumal Koil 603204",12.7010,79.9890,044-0000-0102,Mon-Sat 08:00-16:00,General Medicine|Obstetrics|Paediatrics,true,true,false,,
+Demo PHC Kolambakkam,PHC,"Kolambakkam Village, Madurantakam Taluk 603306",12.5600,79.9300,044-0000-0103,Mon-Sat 08:00-16:00,General Medicine|Obstetrics,true,true,false,,
+Demo PHC Pudupattu,PHC,"Pudupattu Road, Thirukazhukundram Taluk 603109",12.6200,80.0300,044-0000-0104,Mon-Sat 08:00-16:00,General Medicine|Paediatrics,true,true,false,,
+Demo CHC Madurantakam,CHC,"Hospital Road, Madurantakam 603306",12.5120,79.8850,044-0000-0105,Daily 08:00-20:00,General Medicine|Obstetrics|Paediatrics|Dental,true,true,false,,
+Demo Government Hospital Chengalpattu,GH,"GST Road, Chengalpattu 603001",12.6830,79.9770,044-0000-0106,Open 24 hours,General Medicine|Obstetrics|Paediatrics|Ophthalmology|Dental|Orthopaedics,true,true,false,,
+Sunrise Nursing Home,private,"Railway Feeder Road, Chengalpattu 603001",12.6900,79.9810,044-0000-0201,Mon-Sat 09:00-18:00,General Medicine|Obstetrics|Paediatrics|Orthopaedics|Dental|Ophthalmology,true,true,true,sahay_desk,
+Amudha Multispeciality Hospital,private,"Bazaar Street, Madurantakam 603306",12.5080,79.8920,044-0000-0202,Mon-Sat 09:00-18:00,General Medicine|Ophthalmology|Dental|Orthopaedics,false,true,false,,
+Kavya Mother and Child Clinic,private,"Main Road, Thirukazhukundram 603109",12.6100,80.0510,044-0000-0203,Mon-Sat 09:00-18:00,General Medicine|Obstetrics|Paediatrics,true,false,false,,
+Lotus Family Hospital,private,"OMR Link Road, Singaperumal Koil 603204",12.7060,79.9960,044-0000-0204,Mon-Sat 09:00-18:00,General Medicine|Paediatrics|Dental|Orthopaedics,false,false,false,,
+Sri Murugan Family Clinic,clinic,"Broadway, George Town, Chennai 600001",13.0885,80.279,044-0000-0301,Mon-Sat 09:00-18:00,General Medicine|Paediatrics,false,false,true,clinic,0.8
+Anbu Health Clinic,clinic,"Mannady, George Town, Chennai 600001",13.0962,80.2872,044-0000-0302,Mon-Sat 09:00-18:00,General Medicine|Dental,false,false,true,clinic,1.6
+Pearl Care Clinic,clinic,"Parry's Corner, Chennai 600001",13.0931,80.286,044-0000-0303,Mon-Sat 09:00-18:00,General Medicine|Orthopaedics,false,false,true,clinic,4.9
+Lakshmi Family Clinic,clinic,"Usman Road, T. Nagar, Chennai 600017",13.0425,80.2338,044-0000-0304,Mon-Sat 09:00-18:00,General Medicine|Obstetrics,false,false,true,clinic,2.4
+Gokulam Child and Family Clinic,clinic,"2nd Avenue, Anna Nagar, Chennai 600040",13.0862,80.21,044-0000-0305,Mon-Sat 09:00-18:00,General Medicine|Paediatrics,false,false,true,clinic,3.6
+Sri Vinayaga Wellness Clinic,clinic,"Lattice Bridge Road, Adyar, Chennai 600020",13.0058,80.257,044-0000-0306,Mon-Sat 09:00-18:00,General Medicine|Ophthalmology,false,false,true,clinic,5.7
+Velan Clinic,clinic,"Velachery Main Road, Chennai 600042",12.979,80.22,044-0000-0307,Mon-Sat 09:00-18:00,General Medicine|Dental,false,false,true,clinic,4.2
+Annai Family Health Clinic,clinic,"Railway Station Road, Tambaram, Chennai 600045",12.9255,80.118,044-0000-0308,Mon-Sat 09:00-18:00,General Medicine|Paediatrics,false,false,true,clinic,6.3
+Nalam Community Clinic,clinic,"Paper Mills Road, Perambur, Chennai 600011",13.118,80.233,044-0000-0309,Mon-Sat 09:00-18:00,General Medicine|Orthopaedics,false,false,true,clinic,7.1
+Sri Ram Medical Clinic,clinic,"Pantheon Road, Egmore, Chennai 600008",13.0735,80.261,044-0000-0310,Mon-Sat 09:00-18:00,General Medicine|Obstetrics,false,false,true,clinic,8.4
+Sai Care Clinic,clinic,"Luz Church Road, Mylapore, Chennai 600004",13.0375,80.269,044-0000-0311,Mon-Sat 09:00-18:00,General Medicine|Paediatrics,false,false,true,clinic,9.6
+Meenakshi Family Clinic,clinic,"Mount Poonamallee Road, Porur, Chennai 600116",13.036,80.157,044-0000-0312,Mon-Sat 09:00-18:00,General Medicine|Dental,false,false,true,clinic,11.0
+Thendral Family Clinic,clinic,"GST Road, Chengalpattu 603001",12.687,79.979,044-0000-0313,Mon-Sat 09:00-18:00,General Medicine|Paediatrics,false,false,true,clinic,12.5
+Vetri Health Clinic,clinic,"GST Road, Guduvancheri 603202",12.844,80.059,044-0000-0314,Mon-Sat 09:00-18:00,General Medicine|Orthopaedics,false,false,true,clinic,14.0
+Janani Health Clinic,clinic,"Railway Colony, Maraimalai Nagar 603209",12.793,80.026,044-0000-0315,Mon-Sat 09:00-18:00,General Medicine|Obstetrics,false,false,true,clinic,15.2

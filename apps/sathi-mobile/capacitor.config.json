@@ -1,0 +1,7 @@
+{
+  "appId": "in.hellosahay.sathi",
+  "appName": "Sahay Sathi",
+  "webDir": "dist",
+  "android": { "allowMixedContent": false }
+}
+

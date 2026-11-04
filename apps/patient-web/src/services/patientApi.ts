@@ -82,6 +82,7 @@ export interface MedicineItem {
 
 export interface MedicineSearch {
   query: string;
+  corrected_to: string | null;
   note: string;
   brands: MedicineItem[];
   generics: { name: string; pack: string | null; price_rs: number; group: string | null }[];
@@ -121,5 +122,6 @@ export const patientApi = {
   markTaken: (id: number, atTime: string) =>
     request<ReminderRow>(`/reminders/${id}/taken`, { method: 'POST', body: { at_time: atTime } }),
   searchMedicines: (q: string) => request<MedicineSearch>(`/medicines/search?q=${encodeURIComponent(q)}&limit=12`),
+  suggestMedicines: (q: string) => request<{ names: string[] }>(`/medicines/suggest?q=${encodeURIComponent(q)}`),
   scanMedicine: (image: string) => request<MedicineScan>('/medicines/scan', { method: 'POST', body: { image } }),
 };

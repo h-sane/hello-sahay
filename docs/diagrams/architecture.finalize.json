@@ -5,16 +5,16 @@
   "status": "pass",
   "type": "architecture",
   "quality": "showcase",
-  "startedAt": "2026-11-04T13:25:25.774Z",
+  "startedAt": "2026-11-04T16:47:19.660Z",
   "specification": {
     "path": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.json",
-    "sha256": "4678177c4c4ec09028cac1832a6ae552438433bb3f5def7d6b0bfb5e4cb528b1",
-    "bytes": 13541
+    "sha256": "a23849cf8363389b951a17ccad99fe54611488b676bd5761f5232d429f2eccb9",
+    "bytes": 13228
   },
   "artifact": {
     "path": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.html",
-    "sha256": "43fc842baf8e3ebffedcfa14775feeb1e4ba4e2eb3c43f85f425016f40339bd0",
-    "bytes": 792727
+    "sha256": "f77e84a170e263aeb6dd9c3d6d2fc7d89a998b8a3beb468c1383fb97080159af",
+    "bytes": 793071
   },
   "stages": {
     "validate": {
@@ -40,8 +40,8 @@
         "ok": true,
         "command": "validate",
         "specification": {
-          "sha256": "4678177c4c4ec09028cac1832a6ae552438433bb3f5def7d6b0bfb5e4cb528b1",
-          "bytes": 13541
+          "sha256": "a23849cf8363389b951a17ccad99fe54611488b676bd5761f5232d429f2eccb9",
+          "bytes": 13228
         },
         "validation": {
           "checksPassed": 9,
@@ -56,7 +56,7 @@
     "deliver": {
       "status": "pass",
       "exitCode": 0,
-      "durationMs": 1685,
+      "durationMs": 1435,
       "command": [
         "C:\\Program Files\\nodejs\\node.exe",
         "C:\\Users\\husai\\.claude\\skills\\archify\\bin\\archify.mjs",
@@ -72,19 +72,19 @@
       ],
       "receipt": {
         "schemaVersion": 1,
-        "receiptId": "4a10126f-d3e3-4003-98a8-95b55130654d",
+        "receiptId": "f5abe3c7-7367-493f-8161-b18e120210dc",
         "ok": true,
         "command": "deliver",
         "type": "architecture",
         "input": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.json",
         "output": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.html",
         "specification": {
-          "sha256": "4678177c4c4ec09028cac1832a6ae552438433bb3f5def7d6b0bfb5e4cb528b1",
-          "bytes": 13541
+          "sha256": "a23849cf8363389b951a17ccad99fe54611488b676bd5761f5232d429f2eccb9",
+          "bytes": 13228
         },
         "artifact": {
-          "sha256": "43fc842baf8e3ebffedcfa14775feeb1e4ba4e2eb3c43f85f425016f40339bd0",
-          "bytes": 792727
+          "sha256": "f77e84a170e263aeb6dd9c3d6d2fc7d89a998b8a3beb468c1383fb97080159af",
+          "bytes": 793071
         },
         "validation": {
           "checksPassed": 9,
@@ -97,7 +97,7 @@
         "evidence": {
           "verified": true,
           "repository": "https://github.com/h-sane/hello-sahay",
-          "revision": "d824cd97eac1006c7e5298f5a011348b820ee834",
+          "revision": "e687d29a0d55156f0663dfffb98e1acebfe95d21",
           "references": 21
         },
         "update": {
@@ -116,7 +116,7 @@
     "check": {
       "status": "pass",
       "exitCode": 0,
-      "durationMs": 324,
+      "durationMs": 285,
       "command": [
         "C:\\Program Files\\nodejs\\node.exe",
         "C:\\Users\\husai\\.claude\\skills\\archify\\bin\\archify.mjs",
@@ -128,8 +128,8 @@
         "ok": true,
         "file": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.html",
         "artifact": {
-          "sha256": "43fc842baf8e3ebffedcfa14775feeb1e4ba4e2eb3c43f85f425016f40339bd0",
-          "bytes": 792727
+          "sha256": "f77e84a170e263aeb6dd9c3d6d2fc7d89a998b8a3beb468c1383fb97080159af",
+          "bytes": 793071
         },
         "checks": [
           {
@@ -352,13 +352,13 @@
           "issues": []
         },
         "provenance": "current",
-        "deliveryReceiptId": "4a10126f-d3e3-4003-98a8-95b55130654d"
+        "deliveryReceiptId": "f5abe3c7-7367-493f-8161-b18e120210dc"
       }
     },
     "browser-check": {
       "status": "pass",
       "exitCode": 0,
-      "durationMs": 3134,
+      "durationMs": 2727,
       "command": [
         "C:\\Program Files\\nodejs\\node.exe",
         "C:\\Users\\husai\\.claude\\skills\\archify\\bin\\archify.mjs",
@@ -376,11 +376,11 @@
         "status": "pass",
         "visualReview": "not-requested",
         "provenance": "current",
-        "deliveryReceiptId": "4a10126f-d3e3-4003-98a8-95b55130654d",
+        "deliveryReceiptId": "f5abe3c7-7367-493f-8161-b18e120210dc",
         "artifact": {
           "path": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.html",
-          "sha256": "43fc842baf8e3ebffedcfa14775feeb1e4ba4e2eb3c43f85f425016f40339bd0",
-          "bytes": 792727
+          "sha256": "f77e84a170e263aeb6dd9c3d6d2fc7d89a998b8a3beb468c1383fb97080159af",
+          "bytes": 793071
         },
         "state": {
           "detail": "read",
@@ -1098,8 +1098,8 @@
     "browserCheckReceipt": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\architecture.browser-check.json"
   },
   "visualReview": "not-requested",
-  "finishedAt": "2026-11-04T13:25:31.883Z",
-  "durationMs": 6109,
+  "finishedAt": "2026-11-04T16:47:25.145Z",
+  "durationMs": 5484,
   "update": {
     "status": "unavailable",
     "installedVersion": null,

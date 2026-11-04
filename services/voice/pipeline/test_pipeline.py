@@ -43,21 +43,48 @@ def spoken(session):
     return [t["text"] for t in session.transcript if t["role"] == "assistant"]
 
 
-def test_emergency_skips_the_model_says_108_and_queues_a_handoff():
+def test_emergency_says_108_first_then_the_model_names_the_nearest_hospital_and_the_call_ends():
     posted = []
 
-    async def agent(*_):
-        raise AssertionError("the model must not run on an emergency")
+    async def agent(system, messages, tools):
+        assert "EMERGENCY" in system  # the caller block tells the model what to do
+        tools.state["emergency_shown"] = True  # as find_facilities does once it has a hospital to name
+        return "Please go to the nearest hospital now."
 
     async def go():
         s, audio, _ = make_session(agent, posted)
         await s._turn("I have chest pain and I cannot breathe")
+        ended = s._done.is_set()
         await s.close()
-        return s
+        return s, ended
 
-    s = asyncio.run(go())
-    assert spoken(s) == [REPLIES["emergency"]["en"]]
+    s, ended = asyncio.run(go())
+    assert spoken(s) == [REPLIES["emergency"]["en"], "Please go to the nearest hospital now."]
+    assert ended
     assert posted[0]["emergency"] is True and posted[0]["handoff"] is True and posted[0]["outcome"] == "emergency"
+    assert posted[0]["severity"] == "serious"
+
+
+def test_an_emergency_call_stays_open_until_the_hospital_is_named_but_never_past_three_turns():
+    posted = []
+
+    async def agent(system, messages, tools):
+        return "Which area are you in?"
+
+    async def go():
+        s, _, _ = make_session(agent, posted)
+        await s._turn("my father cannot breathe")
+        first = s._done.is_set()
+        await s._turn("Broadway")
+        second = s._done.is_set()
+        await s._turn("Broadway")
+        third = s._done.is_set()
+        await s.close()
+        return first, second, third, s
+
+    first, second, third, s = asyncio.run(go())
+    assert (first, second, third) == (False, False, True)
+    assert spoken(s)[0] == REPLIES["emergency"]["en"]
 
 
 def test_symptom_question_gets_the_fixed_reply_then_the_model_continues_the_booking():
@@ -190,7 +217,8 @@ def test_department_comes_from_the_keyword_table_not_the_model():
     assert department_for("pregnancy checkup") == "Obstetrics"
     assert department_for("knee hurts") == "General Medicine"
     assert place_for("Paranur") == (12.728, 79.968)
-    assert place_for("somewhere unknown") == (12.683, 79.977)
+    assert place_for("Mannadi") == place_for("Mannady") and place_for("Paris Corner") == place_for("Parrys Corner")
+    assert place_for("somewhere unknown") is None  # not guessed: the area is then looked up on the map
 
 
 def test_grounding_flags_numbers_and_hospital_names_no_tool_returned():
@@ -309,14 +337,18 @@ def test_booking_uses_the_number_the_call_came_from():
     assert out["appointment_id"] == 9 and state["phone"] == "09876543210"
 
 
-def _places_api(hospitals, partner_rows=()):
+def _places_api(hospitals, partner_rows=(), clinics=(), geocode=None, seen=None):
     def api(req):
+        if seen is not None:
+            seen.append((req.url.path, dict(req.url.params)))
         if req.url.path.endswith("/places/nearby-hospitals"):
             if hospitals is None:
                 return httpx.Response(503, json={"detail": "busy"})
             return httpx.Response(200, json=hospitals)
+        if req.url.path.endswith("/places/geocode"):
+            return httpx.Response(200, json=geocode or {"found": False, "reason": "not_found"})
         if req.url.path.endswith("/facilities"):
-            return httpx.Response(200, json=list(partner_rows))
+            return httpx.Response(200, json=list(clinics if req.url.params.get("kind") == "clinic" else partner_rows))
         return httpx.Response(404)
     return httpx.AsyncClient(base_url="http://api", transport=httpx.MockTransport(api))
 
@@ -325,33 +357,174 @@ def _hospital(name, kind, km, book_id=7):
     return {"name": name, "kind": kind, "distance_km": km, "address": f"{name} Road", "book_facility_id": book_id}
 
 
+def _clinic(fid, name, km, departments=("General Medicine",)):
+    return {"id": fid, "name": name, "type": "clinic", "address": f"{name} Street", "distance_km": km,
+            "departments": list(departments), "is_partner": True}
+
+
 def _find(api, state=None, **args):
     state = {} if state is None else state
 
     async def go():
-        return await Tools(api, "en", state).call("find_facilities", {"village": "Paranur", "reason": "fever", **args})
+        return await Tools(api, "en", state).call("find_facilities", {"village": "Paranur", "reason": "fever", "severity": "moderate", **args})
     return asyncio.run(go()), state
 
 
-def test_names_the_real_nearest_hospital_and_books_into_the_demo_one():
-    api = _places_api([_hospital("Rao Nursing Home", "private", 1.2), _hospital("Government Hospital Chengalpattu", "government", 3.4)])
-    out, state = _find(api)
-    assert out["recommended"]["name"] == "Rao Nursing Home" and out["recommended"]["id"] == 7 and out["recommended"]["can_book"]
-    assert out["free_government_option"]["name"] == "Government Hospital Chengalpattu" and out["free_government_option"]["can_book"]
-    assert state["facility_id"] == 7 and state["hospital"] == "Rao Nursing Home"
+HOSPITALS = [_hospital("Rao Nursing Home", "private", 1.2), _hospital("Government Hospital Chengalpattu", "government", 3.4),
+             _hospital("Lotus Family Hospital", "private", 5.0)]
+
+
+def test_a_mild_problem_is_offered_up_to_three_partner_clinics_that_can_be_booked_without_a_street_address():
+    seen = []
+    api = _places_api(HOSPITALS, clinics=[_clinic(21, "Velan Clinic", 0.8), _clinic(22, "Anbu Health Clinic", 1.6),
+                                          _clinic(23, "Lakshmi Family Clinic", 2.4), _clinic(24, "Fourth Clinic", 2.9)], seen=seen)
+    out, state = _find(api, severity="mild")
+    assert [c["name"] for c in out["clinics"]] == ["Velan Clinic", "Anbu Health Clinic", "Lakshmi Family Clinic"] and "hospitals" not in out
+    assert all(c["can_book"] and c["department"] == "General Medicine" and c["address"] == "" for c in out["clinics"])
+    clinic_query = next(q for path, q in seen if path.endswith("/facilities"))
+    assert clinic_query["partner_only"] == "true" and clinic_query["kind"] == "clinic" and clinic_query["max_km"] == "3"
+    assert clinic_query["use_demo_distance"] == "true"  # prototype: fixed distances, wherever the caller is
+    assert state["severity"] == "mild" and "emergency" not in state
+
+
+def test_a_clinic_with_the_needed_department_comes_before_a_nearer_one_without_it():
+    api = _places_api(HOSPITALS, clinics=[_clinic(21, "Velan Clinic", 1.0), _clinic(22, "Kids Clinic", 4.0, ("General Medicine", "Paediatrics"))])
+    out, _ = _find(api, severity="mild", reason="my child has a cold")
+    assert out["clinics"][0]["name"] == "Kids Clinic" and out["clinics"][0]["department"] == "Paediatrics"
+    assert out["clinics"][1]["department"] == "General Medicine"  # a clinic without the department falls back to the default
+
+
+def test_with_no_partner_clinic_nearby_a_mild_caller_is_given_the_hospitals_with_a_note():
+    out, _ = _find(_places_api(HOSPITALS), severity="mild")
+    assert "clinics" not in out and "No partner clinic" in out["note"] and out["show"] == "hospitals"
+    assert [h["name"] for h in out["hospitals"]] == ["Rao Nursing Home"]  # only the one within 3 km
+
+
+def test_a_moderate_problem_gets_the_hospitals_within_three_km_and_the_government_one_is_information_only():
+    close = [_hospital("Rao Nursing Home", "private", 1.2), _hospital("Government Hospital Chengalpattu", "government", 2.0),
+             _hospital("Lotus Family Hospital", "private", 2.9), _hospital("Far Hospital", "private", 3.1)]
+    out, state = _find(_places_api(close, clinics=[_clinic(21, "Velan Clinic", 1.1)]))
+    assert [h["name"] for h in out["hospitals"]] == ["Rao Nursing Home", "Government Hospital Chengalpattu", "Lotus Family Hospital"]
+    assert "note" not in out
+    private, government, _ = out["hospitals"]
+    assert private["can_book"] and private["id"] == 7 and private["department"] == "General Medicine"
+    assert government["is_government"] and government["can_book"] is False and "id" not in government
+    assert "clinics" not in out and "facility_id" not in state  # nothing is chosen until the caller picks
+
+
+def test_free_government_hospitals_are_listed_on_request_and_never_bookable():
+    out, _ = _find(_places_api(HOSPITALS), show="free_government")
+    assert [h["name"] for h in out["free_government_hospitals"]] == ["Government Hospital Chengalpattu"]
+    assert out["free_government_hospitals"][0]["can_book"] is False
+    none, _ = _find(_places_api([_hospital("Rao Nursing Home", "private", 1.2)]), show="free_government")
+    assert none["free_government_hospitals"] == [] and "No government hospital" in none["note"]
+
+
+def test_a_caller_who_asks_for_clinics_after_a_moderate_answer_gets_the_clinics():
+    out, _ = _find(_places_api(HOSPITALS, clinics=[_clinic(21, "Velan Clinic", 1.1)]), show="clinics")
+    assert [c["name"] for c in out["clinics"]] == ["Velan Clinic"]
+
+
+def test_a_serious_problem_gets_the_nearest_hospital_to_go_to_and_nothing_can_be_booked():
+    out, state = _find(_places_api(HOSPITALS), severity="serious", show="clinics")
+    assert out["show"] == "hospitals" and [h["name"] for h in out["hospitals"]][0] == "Rao Nursing Home"
+    assert not any(h["can_book"] for h in out["hospitals"]) and "108" in out["say"]
+    assert state["emergency"] and state["handoff"] and state["emergency_shown"] and state["severity"] == "serious"
+
+
+def test_a_wrong_severity_value_is_refused_so_the_model_must_choose_one():
+    out, _ = _find(_places_api(HOSPITALS), severity="urgent")
+    assert "error" in out
+
+
+def test_picking_a_listed_clinic_sets_the_booking_target_and_the_clinic_name_is_what_gets_confirmed():
+    api = _places_api(HOSPITALS, clinics=[_clinic(21, "Velan Clinic", 1.1)])
+
+    async def go():
+        state = {}
+        tools = Tools(api, "en", state)
+        await tools.call("find_facilities", {"village": "Velachery", "reason": "fever", "severity": "mild"})
+        picked = await tools.call("find_facilities", {"village": "Velachery", "reason": "fever", "severity": "mild", "hospital_name": "velan clinic"})
+        return picked, state
+    picked, state = asyncio.run(go())
+    assert picked["selected"]["id"] == 21 and state["facility_id"] == 21 and state["hospital"] == "Velan Clinic"
+
+
+def test_choosing_a_government_hospital_never_makes_it_the_booking_target():
+    out, state = _find(_places_api(HOSPITALS), hospital_name="Government Hospital Chengalpattu")
+    assert out["selected"]["name"] == "Government Hospital Chengalpattu" and out["selected"]["can_book"] is False
+    assert "facility_id" not in state and "hospital" not in state
+
+
+def test_choosing_a_private_hospital_books_into_the_demo_one_under_the_real_name():
+    out, state = _find(_places_api(HOSPITALS), hospital_name="Rao Nursing Home")
+    assert out["selected"]["id"] == 7 and state["facility_id"] == 7 and state["hospital"] == "Rao Nursing Home"
 
 
 def test_a_hospital_the_caller_names_is_accepted_even_when_it_is_not_nearby():
     api = _places_api([_hospital("Rao Nursing Home", "private", 1.2)])
     out, state = _find(api, hospital_name="Apollo Speciality Hospital")
-    assert out["recommended"]["name"] == "Apollo Speciality Hospital" and out["recommended"]["id"] == 7
+    assert out["selected"]["name"] == "Apollo Speciality Hospital" and out["selected"]["id"] == 7
     assert "error" not in out and state["facility_id"] == 7 and state["hospital"] == "Apollo Speciality Hospital"
 
 
 def test_when_the_hospital_lookup_is_down_the_demo_hospital_is_named_instead():
-    demo = {"id": 7, "name": "Sunrise Nursing Home", "address": "Railway Feeder Road", "is_partner": True}
+    demo = {"id": 7, "name": "Sunrise Nursing Home", "address": "Railway Feeder Road", "type": "private", "is_partner": True}
     out, state = _find(_places_api(None, [demo]))
-    assert out["recommended"]["name"] == "Sunrise Nursing Home" and state["facility_id"] == 7
+    assert out["hospitals"][0]["name"] == "Sunrise Nursing Home" and out["hospitals"][0]["id"] == 7
+
+
+def test_a_whole_city_is_refused_and_the_caller_is_asked_for_an_area():
+    out, state = _find(_places_api(HOSPITALS), village="Chennai")
+    assert out["error"] == "area_too_general" and "hospitals" not in out
+    out, _ = _find(_places_api(HOSPITALS), village="  chennai ")
+    assert out["error"] == "area_too_general"
+
+
+def test_an_area_in_the_local_table_needs_no_map_lookup_and_a_missing_area_is_asked_for():
+    seen = []
+    out, state = _find(_places_api(HOSPITALS, seen=seen), village="Broadway")
+    assert "hospitals" in out and not any(path.endswith("/geocode") for path, _ in seen)
+    assert (state["lat"], state["lng"]) == (13.088, 80.278)
+    out, _ = _find(_places_api(HOSPITALS), village="")
+    assert out["error"] == "location_needed"
+
+
+def test_an_unknown_area_is_looked_up_on_the_map_and_a_city_or_a_miss_is_reported():
+    seen = []
+    found = {"found": True, "name": "Kolathur", "lat": 13.12, "lng": 80.22}
+    out, state = _find(_places_api(HOSPITALS, geocode=found, seen=seen), village="Kolathur")
+    assert "hospitals" in out and (state["lat"], state["lng"]) == (13.12, 80.22)
+    assert any(p.endswith("/places/geocode") for p, _ in seen)
+    city, _ = _find(_places_api(HOSPITALS, geocode={"found": False, "reason": "too_general"}), village="Salem")
+    assert city["error"] == "area_too_general"
+    missing, _ = _find(_places_api(HOSPITALS), village="Nowheresville")
+    assert missing["error"] == "area_not_found"
+
+
+def test_the_live_location_is_used_without_asking_and_remembered_for_the_next_call():
+    state = {"profile": {"live": True, "lat": 13.01, "lng": 80.25, "place": "Adyar"}}
+
+    async def go():
+        tools = Tools(_places_api(HOSPITALS), "en", state)
+        first = await tools.call("find_facilities", {"use_live_location": True, "reason": "fever", "severity": "moderate"})
+        again = await tools.call("find_facilities", {"reason": "fever", "severity": "moderate", "show": "free_government"})
+        return first, again
+    first, again = asyncio.run(go())
+    assert "hospitals" in first and "free_government_hospitals" in again and state["village"] == "Adyar"
+
+
+def test_a_partner_clinic_is_booked_under_its_own_name_and_the_demo_hospital_label_is_not_used():
+    api = _slots_api([_slot(1, "Dr A", 10)])
+
+    async def go():
+        state = {}
+        tools = Tools(api, "en", state)
+        tools._clinic_by_id[7] = {"name": "Velan Clinic", "address": "Velan Street"}
+        await tools.call("get_slots", {"facility_id": 7, "department": "General Medicine"})
+        return await tools.call("book_appointment", {"slot_id": 1, "name": "Ravi", "phone": "9876543210", "village": "P", "reason_text": "fever"})
+    out = asyncio.run(go())
+    assert out["facility"] == "Velan Clinic" and out["address"] == "Velan Street"
 
 
 def test_the_booking_confirmation_names_the_hospital_the_caller_was_told():
@@ -654,7 +827,7 @@ def test_malayalam_and_kannada_have_every_spoken_line_and_use_sarvam_for_speech(
     from pipeline.sarvam import CODES, SarvamStt
 
     assert set(CODES) == {"ta", "ml", "kn", "te"}
-    for table in (prompts.GREETING, prompts.UNVERIFIED, prompts.FILLER, prompts.UNCLEAR, prompts.GIVE_UP,
+    for table in (prompts.GREETING, prompts.WELCOME, prompts.DISCLAIMER, prompts.DISCLAIMER_INTRO, prompts.ASK_PROBLEM, prompts.AFTER_LANGUAGE, prompts.UNVERIFIED, prompts.FILLER, prompts.UNCLEAR, prompts.GIVE_UP,
                   prompts.GOODBYE, prompts.GREETING_FALLBACK, llm.FALLBACK, REPLIES["emergency"], REPLIES["symptom"]):
         assert {"ml", "kn", "te"} <= set(table), table
     assert {"ml", "kn", "te"} <= {code for code, _ in prompts.AUTO_GREETING}
@@ -673,7 +846,7 @@ def test_an_emergency_in_malayalam_or_kannada_is_answered_in_that_language_witho
         posted: list = []
 
         async def agent(*a):
-            raise AssertionError("the model must not run")
+            return "ok"
 
         async def go():
             s, _, _ = make_session(agent, posted, lang="auto")  # a short first sentence has not moved the language yet
@@ -681,7 +854,7 @@ def test_an_emergency_in_malayalam_or_kannada_is_answered_in_that_language_witho
             return s
 
         s = asyncio.run(go())
-        assert spoken(s)[0] == REPLIES["emergency"][lang] and s.state["emergency"]
+        assert spoken(s)[0] == REPLIES["emergency"][lang] and s.state["emergency"] and s.lang == lang
 
 
 def test_a_malayalam_or_kannada_sentence_moves_an_auto_call_and_the_script_check_accepts_it():
@@ -746,3 +919,225 @@ def test_sarvam_moves_to_the_next_key_when_one_is_out_of_credit_and_stays_on_it(
         raise AssertionError("should have raised")
     except httpx.HTTPStatusError as e:
         assert e.response.status_code == 402
+
+
+def test_the_language_named_by_the_caller_is_found_in_any_script_and_the_first_one_wins():
+    from pipeline.languages import language_named
+
+    for text, code in (("Tamil", "ta"), ("தமிழ்", "ta"), ("hindi please", "hi"), ("हिंदी", "hi"), ("English", "en"),
+                       ("മലയാളം", "ml"), ("Kannada", "kn"), ("ಕನ್ನಡ", "kn"), ("తెలుగు", "te"), ("telugu or english", "te")):
+        assert language_named(text) == code, text
+    assert language_named("my stomach hurts") is None
+
+
+def test_an_auto_call_hears_the_disclaimer_in_the_language_the_caller_named_and_the_model_waits():
+    from pipeline import prompts
+
+    async def agent(*a):
+        raise AssertionError("naming a language must not reach the model")
+
+    async def go():
+        s, _, _ = make_session(agent, [], lang="auto")
+        await s._turn("Tamil")
+        return s
+
+    s = asyncio.run(go())
+    assert spoken(s) == [prompts.AFTER_LANGUAGE["ta"]] and s.lang == "ta" and s._lang_chosen
+    assert "108" in spoken(s)[0] and "transcribed" not in spoken(s)[0]  # in Tamil, not English
+
+
+def test_a_caller_who_skips_the_language_question_and_describes_the_problem_still_hears_the_disclaimer_first():
+    from pipeline import prompts
+
+    async def agent(system, messages, tools):
+        return "Which area are you in?"
+
+    async def go():
+        s, _, _ = make_session(agent, [], lang="auto")
+        await s._turn("my stomach has been paining since morning")
+        await s._turn("Broadway")
+        return s
+
+    s = asyncio.run(go())
+    # the sentence already told the problem, so the disclaimer is not followed by "what is troubling you?"
+    assert spoken(s) == [f'{prompts.DISCLAIMER_INTRO["en"]} {prompts.DISCLAIMER["en"]}', "Which area are you in?", "Which area are you in?"]
+
+
+def test_the_disclaimer_is_said_only_once_and_a_call_with_a_fixed_language_opens_with_it_in_the_greeting():
+    from pipeline import prompts
+
+    async def agent(system, messages, tools):
+        return "ok"
+
+    async def go():
+        s, _, _ = make_session(agent, [], lang="hi")  # fixed language: the greeting already carried the disclaimer
+        await s._turn("मुझे बुखार है")
+        return s
+
+    s = asyncio.run(go())
+    assert spoken(s) == ["ok"] and prompts.DISCLAIMER["hi"] in prompts.GREETING["hi"]
+    assert prompts.GREETING["ta"].startswith(prompts.WELCOME["ta"])
+
+
+def test_the_call_log_carries_the_severity_the_model_read():
+    posted = []
+
+    async def agent(system, messages, tools):
+        tools.state["severity"] = "mild"
+        return "ok"
+
+    async def go():
+        s, _, _ = make_session(agent, posted)
+        await s._turn("I have a cold")
+        await s.close()
+
+    asyncio.run(go())
+    assert posted[-1]["severity"] == "mild" and posted[-1]["outcome"] == "info_given"
+
+
+def test_a_stray_capital_before_a_real_hospital_name_is_not_a_hallucination_but_an_invented_name_still_is():
+    from pipeline.grounding import ungrounded
+
+    known = ['{"name": "Government Stanley Hospital", "address": "Old Jail Road"}']
+    assert ungrounded("The Government Stanley Hospital is 1.4 km away.", known) == []
+    assert ungrounded("Please Visit Government Stanley Hospital today.", known) == []
+    assert ungrounded("Visit Apollo Hospital instead.", known) == ["Visit Apollo Hospital"]
+    assert ungrounded("Visit Stanley Clinic", known) == ["Visit Stanley Clinic"]
+
+
+def test_booking_with_a_placeholder_name_is_refused_so_the_model_has_to_ask():
+    async def go():
+        return await Tools(_slots_api([_slot(1, "Dr A", 10)]), "en", {"phone": "9876543210"}).call(
+            "book_appointment", {"slot_id": 1, "name": "Anonymous", "village": "P", "reason_text": "fever"})
+    assert asyncio.run(go())["error"] == "name_needed"
+
+
+def test_an_area_the_caller_never_said_is_refused_so_the_model_cannot_pick_one_from_its_own_instructions():
+    api = _places_api(HOSPITALS)
+    state = {"heard": ["I have a cold and mild fever since yesterday"]}
+    out, _ = _find(api, state, village="Paranur", severity="mild")
+    assert out["error"] == "location_needed" and "lat" not in state
+
+
+def test_an_area_the_caller_said_passes_even_when_speech_to_text_spells_it_differently():
+    for said, model in (("Broadway", "Broadway"), ("it is near mannadi", "Mannady"), ("Paris Corner please", "Parrys Corner")):
+        state = {"heard": ["I have fever", said]}
+        out, _ = _find(_places_api(HOSPITALS), state, village=model, severity="moderate")
+        assert "hospitals" in out, said
+
+
+def test_the_saved_village_from_the_app_profile_counts_as_said_and_native_script_calls_are_not_checked():
+    state = {"heard": ["I have fever since morning", "yes"], "profile": {"village": "Paranur"}}
+    assert "hospitals" in _find(_places_api(HOSPITALS), state, village="Paranur")[0]
+    unasked = {"heard": ["I have fever since morning and a headache"], "profile": {"village": "Paranur"}}
+    assert _find(_places_api(HOSPITALS), unasked, village="Paranur")[0]["error"] == "location_needed"  # it must ask first
+    assert "hospitals" in _find(_places_api(HOSPITALS), {"heard": ["எனக்கு காய்ச்சல்"]}, village="Paranur")[0]
+
+
+def test_with_no_hospital_within_three_km_the_two_nearest_are_offered_with_a_note():
+    far = [_hospital("Far Hospital", "private", 4.0), _hospital("Farther Hospital", "private", 6.0), _hospital("Farthest Hospital", "private", 9.0)]
+    out, _ = _find(_places_api(far))
+    assert [h["name"] for h in out["hospitals"]] == ["Far Hospital", "Farther Hospital"] and "3 km" in out["note"]
+
+
+def test_a_place_the_map_does_not_know_but_the_speech_to_text_garbled_is_matched_to_the_local_table_last():
+    state = {"heard": ["I have fever", "Sambran"]}
+    out, state = _find(_places_api(HOSPITALS), state, village="Sambran")
+    assert "hospitals" in out and (state["lat"], state["lng"]) == place_for("Tambaram")
+    out, _ = _find(_places_api(HOSPITALS), {"heard": ["Qzxwv"]}, village="Qzxwv")
+    assert out["error"] == "area_not_found"
+
+
+def test_slots_show_several_days_and_a_ruled_out_day_stays_ruled_out():
+    slots = [_slot(1, "Dr A", 9, 1), _slot(2, "Dr A", 10, 1), _slot(3, "Dr A", 9, 2), _slot(4, "Dr A", 9, 3), _slot(5, "Dr A", 11, 1)]
+
+    async def go():
+        t = Tools(_slots_api(slots), "en", {})
+        first = await t.call("get_slots", {"facility_id": 7, "department": "General Medicine"})
+        later = await t.call("get_slots", {"facility_id": 7, "department": "General Medicine", "avoid_dates": [_day(1)]})
+        again = await t.call("get_slots", {"facility_id": 7, "department": "General Medicine"})  # the model forgot the rule
+        return first, later, again
+
+    first, later, again = asyncio.run(go())
+    assert [s["slot_id"] for s in first["slots"]] == [1, 3, 4] and len(first["days_with_slots"]) == 3
+    assert [s["slot_id"] for s in later["slots"]] == [3, 4] and [s["slot_id"] for s in again["slots"]] == [3, 4]
+
+
+def test_a_day_with_no_slot_names_the_days_that_are_free_instead_of_refusing():
+    slots = [_slot(1, "Dr A", 9, 1), _slot(2, "Dr A", 9, 3)]
+    out = _get_slots(slots, date=_day(2))
+    assert out["result"] == "none_that_day" and len(out["days_with_slots"]) == 2
+    assert [s["slot_id"] for s in _get_slots(slots, date=_day(3))["slots"]] == [2]
+
+
+def test_an_evening_wish_skips_the_morning_slots_on_every_day():
+    slots = [_slot(1, "Dr A", 9, 1), _slot(2, "Dr A", 17, 1), _slot(3, "Dr A", 9, 2), _slot(4, "Dr A", 16, 3)]
+    out = _get_slots(slots, time_of_day="evening")
+    assert [s["slot_id"] for s in out["slots"]] == [2, 4] and out["result"] == "any"
+    none = _get_slots([_slot(1, "Dr A", 9, 1)], time_of_day="evening")
+    assert none["result"] == "none_in_that_part" and none["days_with_slots"]
+
+
+def _day(offset):
+    from datetime import datetime, timedelta
+    from pipeline.tools import IST
+    return (datetime.now(IST) + timedelta(days=offset)).date().isoformat()
+
+
+def test_addresses_are_spoken_short_and_distances_say_what_they_mean():
+    from pipeline.tools import distance_text, short_address
+    assert short_address("Right of Admission Block, Zone 15 Sholinganallur, Chennai, Chennai Metropolitan Area, "
+                         "Sholinganallur, Chennai District, Tamil Nadu, 600097, India") ==         "Right of Admission Block, Zone 15 Sholinganallur, Chennai"
+    assert distance_text(0.8) == "800 metres" and distance_text(2.4) == "2.4 km" and distance_text(None) is None
+
+
+def test_the_same_list_twice_tells_the_model_not_to_read_it_again():
+    def api(req):
+        if req.url.path.endswith("/facilities"):
+            return httpx.Response(200, json=[{"id": 11, "name": "Sri Murugan Family Clinic", "distance_km": 0.8,
+                                              "departments": ["General Medicine"]}])
+        return httpx.Response(404)
+
+    async def go():
+        t = Tools(httpx.AsyncClient(base_url="http://api", transport=httpx.MockTransport(api)), "en",
+                  {"profile": {"live": True, "lat": 13.0, "lng": 80.2, "place": "Adyar"}})
+        args = {"reason": "headache", "severity": "mild", "use_live_location": True}
+        return await t.call("find_facilities", args), await t.call("find_facilities", args)
+
+    first, second = asyncio.run(go())
+    assert "already_listed" not in first and second["already_listed"] and second["clinics"][0]["id"] == 11
+
+
+def test_an_existing_appointment_is_put_in_front_of_the_model_after_the_disclaimer():
+    from pipeline import prompts
+    from datetime import datetime, timedelta, timezone
+    start = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+
+    def api(req):
+        if req.url.path.endswith("/appointments"):
+            return httpx.Response(200, json=[{"status": "booked", "hospital_label": None, "slot": {"start": start},
+                                              "doctor": {"name": "Dr Ravi"}, "facility": {"name": "Sunrise Nursing Home"}}])
+        return httpx.Response(404)
+
+    async def go():
+        s, _, _ = make_session(lambda *a: None, [])
+        s._http = httpx.AsyncClient(base_url="http://api", transport=httpx.MockTransport(api))
+        s.state["phone"] = "09876543210"
+        await s._load_profile()
+        return s
+
+    s = asyncio.run(go())
+    block = prompts.caller_block(s.state)
+    assert "already have an appointment" in block and "Dr Ravi" in block and "Sunrise Nursing Home" in block
+
+
+def test_hindi_replies_say_near_you_not_you_have_for_nearby_places():
+    async def agent(system, messages, tools):
+        return "आपके पास में तीन क्लीनिक हैं। आपके पास तीन क्लीनिक हैं। आपके पास दवा है।"
+
+    async def go():
+        s, _, _ = make_session(agent, [], lang="hi")
+        await s._turn("सिर में दर्द है")
+        return s
+
+    assert spoken(asyncio.run(go()))[-1] == "आपके नज़दीक तीन क्लीनिक हैं। आपके नज़दीक तीन क्लीनिक हैं। आपके पास दवा है।"

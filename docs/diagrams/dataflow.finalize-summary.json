@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\dataflow.json",
-    "sha256": "18b74db3144ccef8f03747cba145a2b8742d8c3f5f53f819e1a11cc27ba6b12b",
-    "bytes": 11926
+    "sha256": "529b3c5085d312218b8d4c108471dfe8009b5035ad0961bfceed12f92ffe0b94",
+    "bytes": 11522
   },
   "artifact": {
     "path": "C:\\Users\\husai\\Desktop\\CODES\\hello-sahai\\docs\\diagrams\\dataflow.html",
-    "sha256": "f0cc7199448ee525fc521d4e919d6facb9ad8d8bffd6273100117413b3ce5ec2",
-    "bytes": 780314
+    "sha256": "bc3c43c6262b092ee3b6853f7a7456eaf45dc93a6138ef146d2b6d895b9502e1",
+    "bytes": 780420
   },
   "gates": {
     "validate": "pass",
@@ -44,5 +44,5 @@
     "reason": "disabled"
   },
   "visualReview": "not-requested",
-  "durationMs": 6172
+  "durationMs": 6510
 }

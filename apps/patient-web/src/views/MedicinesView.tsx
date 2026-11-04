@@ -1,12 +1,15 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BellPlus, Camera, Search } from 'lucide-react';
-import { Language } from '../types';
+import { Language, UserCoordinates } from '../types';
 import { MedicineItem, MedicineScan, MedicineSearch, patientApi } from '../services/patientApi';
 import { ReminderSheet } from '../components/ReminderSheet';
+import { JanAushadhiStores } from '../components/JanAushadhiStores';
 import { BigButton, Card, Field, Notice, Spinner, Title, inputCls, pick, rupees } from '../components/ui';
 
 interface MedicinesViewProps {
   currentLang: Language;
+  userCoordinates: UserCoordinates | null;
+  onOpenLocationSelector: () => void;
 }
 
 /** Shrink a phone photo before upload: label text stays readable at 1400 px and the file stays small. */
@@ -37,7 +40,7 @@ const PriceCompare: React.FC<{ item: MedicineItem; lang: Language }> = ({ item, 
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl border-2 border-slate-300 p-3">
-          <p className="text-base font-bold text-slate-700">{L({ en: 'Your medicine', hi: 'आपकी दवा', ta: 'உங்கள் மருந்து', kn: 'ನಿಮ್ಮ ಔಷಧ', ml: 'നിങ്ങളുടെ മരുന്ന്', te: 'మీ మందు' })}</p>
+          <p className="text-base font-bold text-slate-700">{L({ en: 'This brand', hi: 'यह ब्रांड', ta: 'இந்த பிராண்ட்', kn: 'ಈ ಬ್ರಾಂಡ್', ml: 'ഈ ബ്രാൻഡ്', te: 'ఈ బ్రాండ్' })}</p>
           <p className="text-3xl font-extrabold text-slate-900">{item.price_rs !== null ? rupees(item.price_rs) : '—'}</p>
           {item.pack && <p className="text-base text-slate-700">{item.pack}</p>}
         </div>
@@ -60,7 +63,7 @@ const PriceCompare: React.FC<{ item: MedicineItem; lang: Language }> = ({ item, 
   );
 };
 
-export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang }) => {
+export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang, userCoordinates, onOpenLocationSelector }) => {
   const L = (o: { en: string; hi: string; ta: string; kn: string; ml: string; te: string }) => pick(currentLang, o);
   const fileInput = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
@@ -70,6 +73,7 @@ export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang }) => 
   const [results, setResults] = useState<MedicineSearch | null>(null);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState('');
+  const [hints, setHints] = useState<string[]>([]);
   const [remindFor, setRemindFor] = useState<string | null>(null);
 
   const onPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,15 +95,24 @@ export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang }) => 
     }
   };
 
-  const search = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim().length < 2) return;
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) { setHints([]); return; }
+    let live = true;
+    const t = setTimeout(() => {
+      patientApi.suggestMedicines(q).then((r) => live && setHints(r.names.filter((n) => n.toLowerCase() !== q.toLowerCase()))).catch(() => live && setHints([]));
+    }, 250);
+    return () => { live = false; clearTimeout(t); };
+  }, [query]);
+
+  const run = async (text: string) => {
+    setHints([]);
     setError('');
     setScan(null);
     setPhoto(null);
     setSearching(true);
     try {
-      setResults(await patientApi.searchMedicines(query.trim()));
+      setResults(await patientApi.searchMedicines(text));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Search failed');
     } finally {
@@ -107,7 +120,13 @@ export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang }) => 
     }
   };
 
+  const search = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim().length >= 2) run(query.trim());
+  };
+
   const item = scan?.matches[0];
+  const showStores = !!item?.jan_aushadhi || !!results?.brands.some((b) => b.jan_aushadhi) || !!results?.generics.length;
 
   return (
     <div>
@@ -132,6 +151,16 @@ export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang }) => 
       <form onSubmit={search} className="mt-6 space-y-3">
         <Field label={L({ en: 'Or type the medicine name', hi: 'या दवा का नाम लिखें', ta: 'அல்லது மருந்தின் பெயரை எழுதுங்கள்', kn: 'ಅಥವಾ ಔಷಧದ ಹೆಸರು ಬರೆಯಿರಿ', ml: 'അല്ലെങ്കിൽ മരുന്നിന്റെ പേര് എഴുതൂ', te: 'లేదా మందు పేరును టైప్ చేయండి' })}>
           <input className={inputCls} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Calpol, Metformin…" maxLength={80} />
+          {hints.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2" aria-label={L({ en: 'Did you mean', hi: 'क्या आपका मतलब', ta: 'நீங்கள் குறிப்பிடுவது', kn: 'ನೀವು ಹೇಳಿದ್ದು', ml: 'ഉദ്ദേശിച്ചത്', te: 'మీరు అనుకున్నది' })}>
+              {hints.map((n) => (
+                <button key={n} type="button" onClick={() => { setQuery(n); run(n); }}
+                  className="min-h-[44px] rounded-full border-2 border-teal-700 bg-white px-4 text-lg font-bold text-teal-900 active:bg-teal-50">
+                  {n}
+                </button>
+              ))}
+            </div>
+          )}
         </Field>
         <BigButton type="submit" variant="secondary" busy={searching} disabled={query.trim().length < 2} icon={<Search className="w-7 h-7" />}>
           {L({ en: 'Search', hi: 'खोजें', ta: 'தேடு', kn: 'ಹುಡುಕಿ', ml: 'തിരയൂ', te: 'శోధించండి' })}
@@ -192,6 +221,11 @@ export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang }) => 
 
       {results && (
         <div className="mt-6 space-y-4">
+          {results.corrected_to && (
+            <Notice tone="info">
+              {L({ en: `No exact match for "${results.query}". Showing results for "${results.corrected_to}".`, hi: `"${results.query}" नहीं मिला। "${results.corrected_to}" के नतीजे दिखा रहे हैं।`, ta: `"${results.query}" கிடைக்கவில்லை. "${results.corrected_to}" முடிவுகளைக் காட்டுகிறோம்.`, kn: `"${results.query}" ಸಿಗಲಿಲ್ಲ. "${results.corrected_to}" ಫಲಿತಾಂಶಗಳನ್ನು ತೋರಿಸುತ್ತಿದ್ದೇವೆ.`, ml: `"${results.query}" കണ്ടെത്തിയില്ല. "${results.corrected_to}" ഫലങ്ങൾ കാണിക്കുന്നു.`, te: `"${results.query}" దొరకలేదు. "${results.corrected_to}" ఫలితాలను చూపిస్తున్నాము.` })}
+            </Notice>
+          )}
           {results.brands.length === 0 && results.generics.length === 0 && (
             <Notice tone="info">{L({ en: 'No medicine found with that name. Check the spelling.', hi: 'इस नाम की कोई दवा नहीं मिली। वर्तनी जाँचें।', ta: 'அந்தப் பெயரில் மருந்து கிடைக்கவில்லை. எழுத்துப்பிழையைச் சரிபார்க்கவும்.', kn: 'ಆ ಹೆಸರಿನ ಔಷಧ ಸಿಗಲಿಲ್ಲ. ಕಾಗುಣಿತ ಪರಿಶೀಲಿಸಿ.', ml: 'ആ പേരിൽ മരുന്ന് കണ്ടെത്തിയില്ല. അക്ഷരങ്ങൾ ശരിയാണോ എന്ന് നോക്കൂ.', te: 'ఆ పేరుతో ఎటువంటి మందు కనుగొనబడలేదు. స్పెల్లింగ్‌ను తనిఖీ చేయండి.' })}</Notice>
           )}
@@ -222,6 +256,12 @@ export const MedicinesView: React.FC<MedicinesViewProps> = ({ currentLang }) => 
             </Card>
           )}
           <p className="text-base text-slate-700">{results.note}</p>
+        </div>
+      )}
+
+      {showStores && (
+        <div className="mt-6">
+          <JanAushadhiStores lang={currentLang} coords={userCoordinates} onOpenLocationSelector={onOpenLocationSelector} />
         </div>
       )}
 

@@ -6,6 +6,7 @@ export interface UserCoordinates {
   accuracy?: number;
   districtDetected?: string;
   isLocating?: boolean;
+  manual?: boolean; // picked from the list, so GPS must not overwrite it
   error?: string;
 }
 
@@ -63,7 +64,7 @@ export interface Appointment {
   timeSlot: string;
   patientName: string;
   patientPhone: string;
-  status: 'booked' | 'arrived' | 'completed' | 'cancelled' | 'no_show';
+  status: 'booked' | 'arrived' | 'in_consult' | 'completed' | 'cancelled' | 'no_show';
   referenceCode: string;
 }
 

@@ -14,6 +14,7 @@ from ..security import check_facility, require_front_desk
 from .live import push
 
 router = APIRouter()
+Severity = Literal["mild", "moderate", "serious"]
 
 
 class CallIn(BaseModel):
@@ -25,6 +26,7 @@ class CallIn(BaseModel):
     outcome: Literal["booked", "info_given", "emergency", "handed_off"] | None = None
     emergency: bool = False
     handoff: bool = False
+    severity: Severity | None = None
     started_at: datetime | None = None
     duration_s: int | None = Field(None, ge=0)
     trace: list | None = None
@@ -38,7 +40,7 @@ class CallIn(BaseModel):
 def _out(c: Call, phone: str | None) -> dict:
     return {"id": c.id, "patient_phone": phone, "facility_id": c.facility_id,
             "language": c.language, "transcript": c.transcript, "summary": c.summary,
-            "outcome": c.outcome, "emergency": c.emergency, "handoff": c.handoff,
+            "outcome": c.outcome, "emergency": c.emergency, "handoff": c.handoff, "severity": c.severity,
             "callback_done": c.callback_done, "started_at": c.started_at, "duration_s": c.duration_s}
 
 
@@ -58,7 +60,7 @@ def create_call(body: CallIn, session: Session = Depends(get_session)):
         facility_id = demo.id if demo else None
     call = Call(patient_id=patient_id, facility_id=facility_id, language=body.language,
                 transcript=body.transcript, summary=body.summary, outcome=body.outcome,
-                emergency=body.emergency, handoff=body.handoff, duration_s=body.duration_s, trace=body.trace)
+                emergency=body.emergency, handoff=body.handoff, severity=body.severity, duration_s=body.duration_s, trace=body.trace)
     if body.started_at:
         call.started_at = body.started_at
     session.add(call)
@@ -105,18 +107,22 @@ def call_trace(call_id: int, session: Session = Depends(get_session), claims: di
     return {**_out(call, phone), "trace": call.trace or []}
 
 
-class CallbackIn(BaseModel):
-    callback_done: bool = True
+class CallUpdate(BaseModel):
+    callback_done: bool | None = None
+    severity: Severity | None = None
 
 
 @router.patch("/calls/{call_id}")
-def mark_callback(call_id: int, body: CallbackIn, session: Session = Depends(get_session),
-                  claims: dict = Depends(require_front_desk)):
+def update_call(call_id: int, body: CallUpdate, session: Session = Depends(get_session),
+                claims: dict = Depends(require_front_desk)):
     call = session.get(Call, call_id)
     if call is None:
         raise HTTPException(404, "call not found")
     check_facility(claims, call.facility_id)
-    call.callback_done = body.callback_done
+    if body.callback_done is not None:
+        call.callback_done = body.callback_done
+    if body.severity is not None:
+        call.severity = body.severity
     session.commit()
     phone = session.scalar(select(Patient.phone).where(Patient.id == call.patient_id)) if call.patient_id else None
     return _out(call, phone)

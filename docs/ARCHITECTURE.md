@@ -37,16 +37,16 @@ The earlier Next.js and Expo builds were deleted on 2026-11-04 (git history has 
 
 Entry: a caller dials **080-472-90138** (Exotel) or taps "Start call" in the patient app. Details live in [`services/voice/README.md`](../services/voice/README.md) "Call flow".
 
-1. Short greeting that says the call is transcribed, then "speak after the beep". The microphone stays muted until the beep has played. With `lang=auto` (the phone default) the first sentence sets the language; only a whole sentence of five or more words in another script changes it later.
-2. The caller's number comes from the carrier (Exotel `start.from`) and is never asked for. `GET /patients/{phone}` tells the call whether the caller has the app and where they are; a live location (pushed within 30 minutes) is confirmed once, otherwise the village is asked.
-3. **Safety gate on every utterance, before the model.** Emergency words: say 108 / 112, flag the call as an emergency and queue a human callback. Symptom questions: fixed safe reply.
+1. Welcome and a language choice (one short line per language), a beep, then the **disclaimer in the language the caller chose** (transcribed, no medical advice, 108 in an emergency) and "What is troubling you?". The microphone stays muted until the beep has played. With `lang=auto` (the phone default) only a whole sentence of five or more words in another script changes the language later.
+2. The caller's number comes from the carrier (Exotel `start.from`) and is never asked for. `GET /patients/{phone}` tells the call whether the caller has the app and where they are; a live location (pushed within 90 minutes; the Android app reports it every 30 minutes from a background worker, even when closed) is confirmed once, otherwise the village is asked.
+3. **Safety gate on every utterance, before the model.** Emergency words: say 108 / 112, flag the call as an emergency and queue a human callback, then name the nearest hospital. Symptom questions: fixed safe reply. The model also reads a **severity** (mild, moderate, serious) from the caller's words; it only orders what is offered and is editable on the call record.
 4. Department comes from a fixed keyword table (`data/seed/department_keywords.csv`), never from the model.
-5. `find_facilities` returns the real nearest hospital (OpenStreetMap, nearest first) as `recommended`, plus the nearest government one when different. Every hospital named is bookable.
+5. `find_facilities` offers by severity: mild gets up to three partner clinics under 3 km (bookable; **prototype wiring:** each seeded clinic has a fixed `demo_distance_km`, so the same clinics are near any caller), moderate the real hospitals within 3 km (OpenStreetMap) with the free government ones on request, serious gets 108 and the nearest hospital. Government hospitals are information only. The area must be specific (not a whole city).
 6. `get_slots` honours `doctor_name` and `preferred_time`; `book_appointment` uses the call's number. **Demo wiring:** doctors, slots and booking are always the one demo hospital's (Sunrise Nursing Home); the real hospital's name the caller chose is saved as `appointment.hospital_label`. A doctor who is not there is never refused: the free doctor in the closest slot is booked and named.
 7. A second slot choice reschedules (`PATCH /appointments/{id}`); a short thanks after a booking gets a fixed goodbye and hang-up.
 8. The call record with transcript, outcome and a timestamped `trace` is posted to `POST /calls`; handoffs land in the Desk callback queue. No audio is stored.
 
-Voice tools (Bedrock tool definitions in `services/voice/pipeline/tools.py`): `find_facilities`, `get_slots`, `book_appointment`, `check_scheme_coverage`, `set_language`, `handoff_to_human`, `emergency_redirect`. Cancel, WhatsApp send and advisory search are **not** voice tools.
+Voice tools (Bedrock tool definitions in `services/voice/pipeline/tools.py`): `find_facilities`, `get_slots`, `book_appointment`, `check_scheme_coverage`, `set_language`, `handoff_to_human`. Cancel, WhatsApp send and advisory search are **not** voice tools.
 
 Loop, noise, echo and flip-flop guards, and a goodbye plus callback queue after three unanswered turns, are in `services/voice/pipeline/session.py`.
 
@@ -56,7 +56,7 @@ First open: language, consent, profile (name, age, gender, village, mobile), the
 
 ### 2.3 Hospital and admin web
 
-- **Sahay Desk** (`apps/desk`, tabs by login role): appointments with live push, mark arrived / no-show / complete, walk-ins, doctor on-duty switch, call logs and callbacks, past visits, and (hospital admin only) Users. A `doctor` login sees only its own patients.
+- **Sahay Desk** (`apps/desk`, tabs by login role): live queue per doctor (appointments A1.., walk-ins W1.., advice on free time), appointments with live push, mark arrived / call in / complete / no-show, per-doctor timetables (appointments only, or with walk-in breaks), doctor on-duty switch, past visits, and (hospital admin only) Users. A `doctor` login sees only its own patients.
 - **Admin console** (`apps/admin`, Hello Sahay `admin` login): overview, hospitals, hospital logins, payments, calls with transcripts, Care plan subscribers. Subscription and arrival-fee lines, priced by each hospital's `plan` (tiers in `docs/BUSINESS.md`) are derived from the partner flag and arrived appointments; counter walk-ins carry no fee.
 
 ## 3. The "verified, cited, never from model memory" rule
@@ -113,17 +113,18 @@ All under `/api/v1`; `GET /health` also at the root. JSON in and out. "Open" mea
 
 | Group | Endpoints | Auth |
 |---|---|---|
-| Facilities | `GET /facilities?lat&lng&department&scheme`, `GET /facilities/{id}/slots?date&department` | open |
-| Real hospitals | `GET /places/nearby-hospitals?lat&lng&limit` (OpenStreetMap, CMCHIS tags, cached 1 h per ~1 km cell) | open |
-| Booking | `POST /appointments`, `PATCH /appointments/{id}` (reschedule, cancel, arrived, complete, no_show), `POST /appointments/walk-in`, `GET /appointments?date&history`, `GET /patients/{phone}/appointments` | open to book / reschedule / cancel; Desk token for arrived, complete, no_show, list, walk-in |
+| Facilities | `GET /facilities?lat&lng&department&scheme&kind&partner_only&max_km&nearest_first&use_demo_distance`, `GET /places/geocode?q`, `GET /facilities/{id}/slots?date&department` | open |
+| Place search ("Where are you?") | `GET /places/search?q` (OpenStreetMap: Nominatim exact matches plus Photon spelling-tolerant ones, cached in memory) | built |
+| Real hospitals | `GET /places/nearby-hospitals?lat&lng&limit` (OpenStreetMap Overpass with a Nominatim fallback, CMCHIS tags, cached 1 h per ~1 km cell) | open |
+| Booking | `POST /appointments`, `PATCH /appointments/{id}` (reschedule, cancel, arrived, start, complete, no_show), `POST/GET/PATCH /walk-ins`, `PUT /doctors/{id}/schedule`, `POST /schedule/preview`, `GET /appointments?date&history`, `GET /patients/{phone}/appointments` | open to book / reschedule / cancel; Desk token for arrived, complete, no_show, list, walk-in |
 | Patients | `GET /patients/{phone}` (registered, name, village, `location_live`), `PUT /patients/{phone}/location`, `PUT /patients/me` | open / patient token |
 | Auth | `POST /auth/login` (Desk or admin), `POST /auth/otp/request`, `POST /auth/otp/verify` | open |
 | Chat | `POST /chat {message, lang}` → `{answer, citations[], safety_flag, grounded}`, `GET /advisories?lang` | open |
-| Medicines | `GET /medicines/search?q=`, `POST /medicines/scan {image}` | patient token |
+| Medicines | `GET /places/jan-aushadhi?lat=&lng=` (nearest Jan Aushadhi stores from OpenStreetMap, no token), `GET /medicines/suggest?q=` (type-ahead, tolerates misspellings), `GET /medicines/search?q=` (falls back to the closest spelling, returns `corrected_to`), `POST /medicines/scan {image}` | patient token |
 | Family and Care plan | `GET/POST /family`, `PUT/DELETE /family/{id}`, `GET /care/me`, `POST /care/pay`, `DELETE /care/plans/{id}`, `GET /care/parents` | patient token |
 | Reminders and alerts | `GET/POST /reminders`, `PUT/DELETE /reminders/{id}`, `POST /reminders/{id}/taken`, `GET /notifications`, `POST /notifications/read` | patient token |
 | Config | `GET /config/contacts` (helpline, emergency desk, hospital call number, 108, 112) | open |
-| Calls | `POST /calls` (accepts `trace`), `GET /calls`, `GET /handoffs`, `PATCH /calls/{id}` (`callback_done`), `GET /calls/{id}/trace` | `POST` open; rest Desk or admin token |
+| Calls | `POST /calls` (accepts `trace`), `GET /calls`, `GET /handoffs`, `PATCH /calls/{id}` (`callback_done`, `severity`), `GET /calls/{id}/trace` | `POST` open; rest Desk or admin token |
 | Doctors and users | `GET /doctors?date`, `PATCH /doctors/{id}` (`on_duty`), `GET/POST /users`, `PATCH /users/{id}` | Desk token; users: hospital admin or `admin` |
 | Admin | `GET /admin/overview`, `/admin/hospitals`, `/admin/payments`, `/admin/premium`, `/admin/calls` | `admin` token |
 | Live | `WS /live/desk/{facility_id}?token=` pushes `{type:"appointment"}` and `{type:"call"}` | Desk token for that facility |
@@ -174,7 +175,7 @@ Conventions: appointment JSON is `{id, status, source, reason_text, arrived_at, 
 | Scheme cover | Tamil Nadu CMCHIS empanelment list (`data/schemes/cmchis_hospitals.json`) | PM-JAY has no open per-hospital list; tagged together because Tamil Nadu runs both on one list |
 | Generics + price | PMBI Jan Aushadhi list (`data/medicines/janaushadhi_mrp.csv`) | Official |
 | Brand → composition + market price | Public Indian medicine dataset (`data/medicines/brands.csv.gz`, 246k rows), see `data/medicines/SOURCES.md` | Demo use; **no live scraping** of pharmacy sites |
-| Real hospitals | OpenStreetMap (Nominatim) | Live lookup |
+| Real hospitals | OpenStreetMap: Overpass radius query, Nominatim as the fallback | Live lookup |
 | Demo facilities, doctors, slots | `data/seed/` (Chengalpattu district, 10 facilities) | Labelled **DEMO DATA** |
 
 ## 11. Team and tool split

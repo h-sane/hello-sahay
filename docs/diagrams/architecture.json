@@ -9,7 +9,7 @@
       "url": "https://github.com/h-sane/hello-sahay.git",
       "provider": "github",
       "link_mode": "web",
-      "revision": "d824cd97eac1006c7e5298f5a011348b820ee834"
+      "revision": "e687d29a0d55156f0663dfffb98e1acebfe95d21"
     }
   },
   "components": [
@@ -372,7 +372,7 @@
       "id": "osm",
       "type": "external",
       "label": "OpenStreetMap",
-      "sublabel": "nearby hospitals",
+      "sublabel": "hospitals, area lookup",
       "pos": [
         930,
         600
@@ -576,7 +576,7 @@
       "id": "api-to-osm",
       "from": "api",
       "to": "osm",
-      "label": "places",
+      "label": "places, areas",
       "variant": "dashed"
     },
     {
@@ -594,7 +594,8 @@
       "items": [
         "Phone call to Exotel, then wss through Caddy to the phone bridge, then one CallSession shared with the browser call page",
         "With lang=auto Sarvam hears Tamil, Hindi, English, Malayalam, Kannada and Telugu and speaks all but English and Hindi, which Polly speaks",
-        "The model acts only through tool calls to the same API the apps use, so a booking shows on the Desk live"
+        "The model acts only through tool calls to the same API the apps use, so a booking shows on the Desk live; it reads severity (mild, moderate, serious) and is offered clinics, hospitals under 3 km, or 108",
+        "Language choice first, then a disclaimer in that language; government hospitals are information only"
       ]
     },
     {
@@ -610,7 +611,7 @@
       "dot": "amber",
       "title": "Demo wiring, honestly",
       "items": [
-        "One demo hospital, Sunrise Nursing Home, receives every booking and call",
+        "One demo hospital, Sunrise Nursing Home, receives every private-hospital booking and call; 15 demo partner clinics sit at fixed distances from any caller",
         "WhatsApp texts on book, reschedule and cancel need a live token; the Care plan checkout is a demo until Razorpay keys are set",
         "Hospitals pay by plan: Clinic 999, Nursing home 2,499, Hospital 4,999 a month plus 30 to 50 per arrival"
       ]

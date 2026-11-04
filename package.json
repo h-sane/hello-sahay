@@ -5,6 +5,8 @@
     "dev": "npm --prefix apps/patient-web run dev",
     "dev:patient": "npm --prefix apps/patient-web run dev",
     "dev:desk": "npm --prefix apps/desk run dev",
-    "build": "npm --prefix apps/patient-web run build"
+    "dev:sathi": "npm --prefix apps/sathi-mobile run dev",
+    "build": "npm --prefix apps/patient-web run build",
+    "build:sathi": "npm --prefix apps/sathi-mobile run build"
   }
 }
