@@ -959,7 +959,8 @@ def test_a_caller_who_skips_the_language_question_and_describes_the_problem_stil
         return s
 
     s = asyncio.run(go())
-    assert spoken(s) == [prompts.AFTER_LANGUAGE["en"], "Which area are you in?", "Which area are you in?"]
+    # the sentence already told the problem, so the disclaimer is not followed by "what is troubling you?"
+    assert spoken(s) == [prompts.DISCLAIMER["en"], "Which area are you in?", "Which area are you in?"]
 
 
 def test_the_disclaimer_is_said_only_once_and_a_call_with_a_fixed_language_opens_with_it_in_the_greeting():
@@ -1045,3 +1046,90 @@ def test_a_place_the_map_does_not_know_but_the_speech_to_text_garbled_is_matched
     assert "hospitals" in out and (state["lat"], state["lng"]) == place_for("Tambaram")
     out, _ = _find(_places_api(HOSPITALS), {"heard": ["Qzxwv"]}, village="Qzxwv")
     assert out["error"] == "area_not_found"
+
+
+def test_slots_show_several_days_and_a_ruled_out_day_stays_ruled_out():
+    slots = [_slot(1, "Dr A", 9, 1), _slot(2, "Dr A", 10, 1), _slot(3, "Dr A", 9, 2), _slot(4, "Dr A", 9, 3), _slot(5, "Dr A", 11, 1)]
+
+    async def go():
+        t = Tools(_slots_api(slots), "en", {})
+        first = await t.call("get_slots", {"facility_id": 7, "department": "General Medicine"})
+        later = await t.call("get_slots", {"facility_id": 7, "department": "General Medicine", "avoid_dates": [_day(1)]})
+        again = await t.call("get_slots", {"facility_id": 7, "department": "General Medicine"})  # the model forgot the rule
+        return first, later, again
+
+    first, later, again = asyncio.run(go())
+    assert [s["slot_id"] for s in first["slots"]] == [1, 3, 4] and len(first["days_with_slots"]) == 3
+    assert [s["slot_id"] for s in later["slots"]] == [3, 4] and [s["slot_id"] for s in again["slots"]] == [3, 4]
+
+
+def test_a_day_with_no_slot_names_the_days_that_are_free_instead_of_refusing():
+    slots = [_slot(1, "Dr A", 9, 1), _slot(2, "Dr A", 9, 3)]
+    out = _get_slots(slots, date=_day(2))
+    assert out["result"] == "none_that_day" and len(out["days_with_slots"]) == 2
+    assert [s["slot_id"] for s in _get_slots(slots, date=_day(3))["slots"]] == [2]
+
+
+def _day(offset):
+    from datetime import datetime, timedelta
+    from pipeline.tools import IST
+    return (datetime.now(IST) + timedelta(days=offset)).date().isoformat()
+
+
+def test_addresses_are_spoken_short_and_distances_say_what_they_mean():
+    from pipeline.tools import distance_text, short_address
+    assert short_address("Right of Admission Block, Zone 15 Sholinganallur, Chennai, Chennai Metropolitan Area, "
+                         "Sholinganallur, Chennai District, Tamil Nadu, 600097, India") ==         "Right of Admission Block, Zone 15 Sholinganallur, Chennai"
+    assert distance_text(0.8) == "800 metres" and distance_text(2.4) == "2.4 km" and distance_text(None) is None
+
+
+def test_the_same_list_twice_tells_the_model_not_to_read_it_again():
+    def api(req):
+        if req.url.path.endswith("/facilities"):
+            return httpx.Response(200, json=[{"id": 11, "name": "Sri Murugan Family Clinic", "distance_km": 0.8,
+                                              "departments": ["General Medicine"]}])
+        return httpx.Response(404)
+
+    async def go():
+        t = Tools(httpx.AsyncClient(base_url="http://api", transport=httpx.MockTransport(api)), "en",
+                  {"profile": {"live": True, "lat": 13.0, "lng": 80.2, "place": "Adyar"}})
+        args = {"reason": "headache", "severity": "mild", "use_live_location": True}
+        return await t.call("find_facilities", args), await t.call("find_facilities", args)
+
+    first, second = asyncio.run(go())
+    assert "already_listed" not in first and second["already_listed"] and second["clinics"][0]["id"] == 11
+
+
+def test_an_existing_appointment_is_put_in_front_of_the_model_after_the_disclaimer():
+    from pipeline import prompts
+    from datetime import datetime, timedelta, timezone
+    start = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+
+    def api(req):
+        if req.url.path.endswith("/appointments"):
+            return httpx.Response(200, json=[{"status": "booked", "hospital_label": None, "slot": {"start": start},
+                                              "doctor": {"name": "Dr Ravi"}, "facility": {"name": "Sunrise Nursing Home"}}])
+        return httpx.Response(404)
+
+    async def go():
+        s, _, _ = make_session(lambda *a: None, [])
+        s._http = httpx.AsyncClient(base_url="http://api", transport=httpx.MockTransport(api))
+        s.state["phone"] = "09876543210"
+        await s._load_profile()
+        return s
+
+    s = asyncio.run(go())
+    block = prompts.caller_block(s.state)
+    assert "already have an appointment" in block and "Dr Ravi" in block and "Sunrise Nursing Home" in block
+
+
+def test_hindi_replies_say_near_you_not_you_have_for_nearby_places():
+    async def agent(system, messages, tools):
+        return "आपके पास तीन क्लीनिक हैं। आपके पास दवा है।"
+
+    async def go():
+        s, _, _ = make_session(agent, [], lang="hi")
+        await s._turn("सिर में दर्द है")
+        return s
+
+    assert spoken(asyncio.run(go()))[-1] == "आपके नज़दीक तीन क्लीनिक हैं। आपके पास दवा है।"

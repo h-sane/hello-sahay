@@ -28,7 +28,7 @@ from .languages import language_named
 from .llm import run_agent
 from .sarvam import CODES as SARVAM_LANGS, SarvamStt, synthesize as synthesize_sarvam
 from .stt import TranscribeStt
-from .tools import Tools, nearest_place
+from .tools import Tools, calendar, nearest_place, when
 from .trace import Trace
 from .tts import synthesize
 
@@ -54,6 +54,8 @@ _CLOSING = re.compile(r"thank|bye|that's all|that is all|nothing else|no thanks|
                       r"धन्यवाद|शुक्रिया|अलविदा|बाय|और कुछ नहीं|बस इतना|"
                       r"നന്ദി|ഇനി ഒന്നുമില്ല|മതി$|ബൈ$|ಧನ್ಯವಾದ|ಥ್ಯಾಂಕ್ಸ್|ಬೇರೇನೂ ಬೇಡ|ಸಾಕು$|ಬಾಯ್$|"
                       r"ధన్యవాదాలు|థ్యాంక్స్|ఇంకేమీ వద్దు|చాలు$|బై$", re.I)
+# "आपके पास तीन क्लीनिक हैं" means "you own three clinics"; the model keeps writing it for "three clinics near you"
+_HI_NEARBY = re.compile(r"आपके पास(?= (?:एक|दो|तीन|चार|\d))")
 CLOSING_MAX_WORDS = 6  # a longer sentence is a new request that merely contains a thanks
 
 
@@ -235,6 +237,7 @@ class CallSession:
             log.exception("could not prewarm the model")
 
     def _system_prompt(self) -> str:
+        self.state["today"], self.state["calendar"] = calendar()
         return prompts.SYSTEM.format(language=prompts.LANG_NAME[self.lang], caller=prompts.caller_block(self.state))
 
     def _switch_language(self, lang: str) -> None:
@@ -247,6 +250,7 @@ class CallSession:
         phone = self.state.get("phone")
         if not phone:
             return
+        await self._load_existing_appointment(phone)
         try:
             r = await self._http.get(f"/patients/{phone}")
             r.raise_for_status()
@@ -263,6 +267,24 @@ class CallSession:
         if self.state["profile"]["name"]:
             self.state.setdefault("name", self.state["profile"]["name"])
         log.info("caller is registered; live location %s", live)
+
+    async def _load_existing_appointment(self, phone: str) -> None:
+        """The caller's next booked appointment, if any: the model asks about it right after the disclaimer."""
+        try:
+            r = await self._http.get(f"/patients/{phone}/appointments")
+            r.raise_for_status()
+            rows = r.json()
+        except Exception:
+            log.exception("could not look up the caller's appointments")
+            return
+        now = datetime.now(timezone.utc)
+        upcoming = [a for a in rows if a["status"] == "booked" and datetime.fromisoformat(a["slot"]["start"]) > now]
+        if upcoming:
+            a = min(upcoming, key=lambda a: a["slot"]["start"])
+            self.state["existing"] = {"doctor": a["doctor"]["name"], "facility": a.get("hospital_label") or a["facility"]["name"],
+                                      "when": when(a["slot"]["start"])}
+            self._tools.facts.append(json.dumps(self.state["existing"], ensure_ascii=False))  # the model may name them
+            self.trace.add("existing_appointment", **self.state["existing"])
 
     async def _beep(self) -> None:
         if self.out_rate not in _BEEPS:
@@ -371,7 +393,7 @@ class CallSession:
         """The model's reply, with a spoken "one moment" if it takes too long."""
         filler = asyncio.create_task(self._filler())
         try:
-            return await self._grounded_reply()
+            return _HI_NEARBY.sub("आपके नज़दीक", await self._grounded_reply()) if self.lang == "hi" else await self._grounded_reply()
         finally:
             if self._filling:
                 await filler  # let the sentence finish; the reply is queued behind it
@@ -422,9 +444,10 @@ class CallSession:
             heard = named or (self._last_detected if self._last_detected in prompts.LANG_NAME else None)
             if heard and heard != self.lang:
                 self._switch_language(heard)
-            await self._say(prompts.AFTER_LANGUAGE[self.lang], lat, t0)
             if named or len(text.split()) < MIN_WORDS_TO_SWITCH:
+                await self._say(prompts.AFTER_LANGUAGE[self.lang], lat, t0)
                 return  # only a language was said; the problem comes next turn
+            await self._say(prompts.DISCLAIMER[self.lang], lat, t0)  # the sentence already told the problem: do not ask for it
         note = ""
         if gate.flag == "symptom":
             await self._say(gate.reply, lat, t0, lang=gate_lang)

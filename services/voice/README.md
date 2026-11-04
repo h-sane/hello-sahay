@@ -48,14 +48,18 @@ Twilio: Console → Home → Make a voice call → Receive a call → Custom. Ex
 ## Call flow (rewritten 2026-11-04, severity routing)
 
 1. **Welcome and language.** On the phone (`lang=auto`) the caller hears "Hello, welcome to Hello Sahay. For English, say
-   English." and one line per other language, then "Please speak after the beep" and a beep. The beep is generated in
-   `session._beep`; the mic stays muted until it has played. The caller's first sentence answers the question: the
-   language's name in any script (`pipeline/languages.py`) or, failing that, the language the speech-to-text detected.
-2. **Disclaimer in their language.** `prompts.AFTER_LANGUAGE[lang]`: the call is transcribed, no medical advice, call 108
-   in an emergency, then "What is troubling you?". It is said once; a caller who skips the language question and
-   describes the problem still hears it first. A call with a fixed language (browser page, `lang=hi`) gets the same text
-   in `prompts.GREETING`, preceded by a welcome. The emergency check runs before this step, so a first sentence like
-   "chest pain" is never held up by it.
+   English." and one line per other language, then "After the beep, tell us in your own language what is troubling you"
+   and a beep. The beep is generated in `session._beep`; the mic stays muted until it has played. A patient normally just
+   describes the problem, so the first sentence gives **both** the language and the reason: the language's name in any
+   script (`pipeline/languages.py`) or, failing that, the language the speech-to-text detected.
+2. **Disclaimer in their language.** `prompts.DISCLAIMER[lang]`: the call is transcribed, no medical advice, call 108 in an
+   emergency. When the first sentence already told the problem, the disclaimer is followed straight by the model's answer
+   (the problem is never asked again); only a caller who just named a language also hears "What is troubling you?"
+   (`prompts.AFTER_LANGUAGE`). A call with a fixed language (browser page, `lang=hi`) gets the same text in
+   `prompts.GREETING`. The emergency check runs before this step, so "chest pain" is never held up by it.
+2b. **Existing appointment.** On connect the number is looked up (`GET /patients/{phone}/appointments`). If it has an
+   upcoming booked appointment, the model says it once right after the disclaimer and asks "details, or something new?"
+   (`prompts.caller_block`, step 0). Changing or cancelling goes to a person (`handoff_to_human`).
 3. **Reason, then severity.** The model reads the caller's own words (slang and regional words included) and sets
    `severity` to mild, moderate or serious on `find_facilities`. This is not a diagnosis; it only decides what is offered
    first, and the tag is saved on the call (`call.severity`) where Sahay Desk and the admin console can correct it. If it
@@ -142,3 +146,19 @@ local API, then read the call with `call_trace.py latest --base <that API>`.
   carrier.
 - A turn slower than 3 s says "one moment please". Polly, Bedrock and Sarvam requests that stall start a second attempt
   (`hedge.py`); boto3 requests time out in 15 s.
+
+
+## Dynamic behaviour (2026-11-05, from real call 165)
+
+- **Rules the caller gives stick.** `get_slots` takes `date` and `avoid_dates` (the model gets today's date and the next
+  seven days with their dates in the caller block); avoided days are remembered in `state["avoid_dates"]` even if the model
+  forgets them. It offers up to three slots spread over different days and returns `days_with_slots`, so "no slot on
+  Friday" is only said when the tool says so. If a place has nothing that suits and the caller said any clinic is fine, the
+  model moves to the next listed clinic.
+- **No repeated lists.** The second identical `find_facilities` result carries `already_listed` and tells the model not to
+  read it again (the ids stay in the result so it can still book).
+- **Short, natural speech.** Addresses are cut to three meaningful parts (`tools.short_address`: no pincode, district,
+  state or country) and only given on request; distances come as `distance_text` ("800 metres", "2.4 km"); Hindi
+  "आपके पास तीन ..." (you own three) is rewritten to "आपके नज़दीक" in `session._think`.
+- Replay a conversation against the real Nova model with a stubbed API by copying the pattern in `test_pipeline.py`
+  (`make_session`) and calling `session._turn(text)` per caller sentence.

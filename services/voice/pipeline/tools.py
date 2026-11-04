@@ -9,6 +9,7 @@ import difflib
 import json
 import logging
 import math
+import re
 import time
 from datetime import datetime, timedelta, timezone
 
@@ -27,6 +28,7 @@ NOT_NAMES = {"", "anonymous", "unknown", "patient", "caller", "user", "na", "non
 # A whole city or state is no place to find a hospital near; the caller must name an area in it.
 GENERIC_AREAS = {"chennai", "madras", "tamilnadu", "kerala", "karnataka", "andhrapradesh", "telangana", "india",
                  "bangalore", "bengaluru", "hyderabad", "coimbatore", "madurai"}
+SLOTS_OFFERED = 3  # slots read out in one answer
 SLOT_DAYS = 7  # how far ahead a caller's doctor or time wish is searched
 TIME_WINDOW_MIN = 45  # a slot this close to the preferred time counts as that time
 NEARBY_TIMEOUT_S = 25  # the first real-hospital lookup for an area goes to OpenStreetMap; later ones are cached
@@ -89,6 +91,32 @@ def when(iso: str) -> str:
     return datetime.fromisoformat(iso).astimezone(IST).strftime("%A %d %B, %I:%M %p")
 
 
+def calendar() -> tuple[str, str]:
+    """Today and the next week with their dates, so the model can turn "Friday" into a date for get_slots."""
+    today = datetime.now(IST).date()
+    days = [today + timedelta(days=i) for i in range(1, 8)]
+    return today.strftime("%A %Y-%m-%d"), ", ".join(d.strftime("%A %Y-%m-%d") for d in days)
+
+
+_ADDRESS_NOISE = re.compile(r"^(india|tamil nadu|kerala|karnataka|telangana|andhra pradesh|\d{6}|.*metropolitan area|.*district)$", re.I)
+
+
+def short_address(address: str, parts: int = 3) -> str:
+    """The first few meaningful parts of an OpenStreetMap address: no pincode, district, state or country."""
+    kept: list[str] = []
+    for part in (p.strip() for p in (address or "").split(",")):
+        if part and not _ADDRESS_NOISE.match(part) and part.lower() not in (k.lower() for k in kept):
+            kept.append(part)
+    return ", ".join(kept[:parts])
+
+
+def distance_text(km) -> str | None:
+    """"800 metres" under a kilometre, otherwise "2.4 km": said as written, so the reply stays checkable against the tool."""
+    if km is None:
+        return None
+    return f"{round(km * 20) * 50} metres" if km < 1 else f"{km:g} km"
+
+
 def _obj(props: dict, required: list[str]) -> dict:
     return {"json": {"type": "object", "properties": props, "required": required}}
 
@@ -118,7 +146,9 @@ TOOL_SPECS = [
                              "department": {**_S, "description": "The department in the chosen place's entry from find_facilities"},
                              "doctor_name": {**_S, "description": "Preferred doctor, only if the caller named one; it is a preference, not a requirement"},
                              "preferred_time": {**_S, "description": "Preferred time as 24-hour HH:MM, only if the caller gave one"},
-                             "date": {**_S, "description": "YYYY-MM-DD, only if the caller asked for a particular day"}},
+                             "date": {**_S, "description": "YYYY-MM-DD, only if the caller asked for a particular day"},
+                             "avoid_dates": {"type": "array", "items": _S,
+                                             "description": "YYYY-MM-DD days the caller ruled out (\"not Thursday\"); they stay ruled out"}},
                             ["facility_id", "department"])}},
     {"toolSpec": {
         "name": "book_appointment",
@@ -142,6 +172,16 @@ TOOL_SPECS = [
 ]
 
 
+def _spread(pool: list[dict], local, even: bool, n: int = SLOTS_OFFERED) -> list[dict]:
+    """The slots to read out: when nothing narrows the choice, the earliest on each of the first days, so the caller
+    hears more than one day; otherwise simply the first few."""
+    if not even:
+        return pool[:n]
+    first_each = list({local(s).date(): s for s in reversed(pool)}.values())[::-1][:n]
+    rest = [s for s in pool if s not in first_each]
+    return sorted((first_each + rest)[:n], key=lambda s: s["start"])
+
+
 class Tools:
     def __init__(self, http: httpx.AsyncClient, lang: str, state: dict, on_language=None):
         self.http, self.lang, self.state = http, lang, state
@@ -149,6 +189,7 @@ class Tools:
         self.facts: list[str] = []  # every tool result, so replies can be checked against them
         self._listed: dict[str, dict] = {}  # places named to the caller so far, by name
         self._clinic_by_id: dict[int, dict] = {}
+        self._told: set[tuple] = set()  # (list kind, area) already read to the caller
 
     async def call(self, name: str, args: dict) -> dict:
         fn = getattr(self, "t_" + name, None)
@@ -193,6 +234,7 @@ class Tools:
         out = []
         for f in rows[:OFFERED]:
             v = {"id": f["id"], "name": f["name"], "address": "", "distance_km": f["distance_km"],
+                 "distance_text": distance_text(f["distance_km"]),
                  "is_government": False, "can_book": True,
                  "department": department if department in f["departments"] else DEFAULT_DEPARTMENT}
             self._listed[f["name"]] = self._clinic_by_id[f["id"]] = v
@@ -202,7 +244,8 @@ class Tools:
     def _view(self, h: dict, bookable_id: int | None, department: str) -> dict:
         """A real hospital as the model sees it. Government ones, and every one in an emergency, are information only."""
         gov = h.get("kind") in GOVERNMENT_KINDS
-        v = {"name": h["name"], "address": h.get("address") or "", "distance_km": h.get("distance_km"),
+        v = {"name": h["name"], "address": short_address(h.get("address") or ""), "distance_km": h.get("distance_km"),
+             "distance_text": distance_text(h.get("distance_km")),
              "is_government": gov, "pmjay": bool(h.get("pmjay")), "cmchis": bool(h.get("cmchis"))}
         if gov or bookable_id is None:
             v.update(can_book=False, note="information only: cannot be booked")
@@ -277,6 +320,20 @@ class Tools:
     async def t_find_facilities(self, reason: str, severity: str, village: str | None = None,
                                 use_live_location: bool = False, show: str | None = None,
                                 hospital_name: str | None = None) -> dict:
+        out = await self._find_facilities(reason, severity, village, use_live_location, show, hospital_name)
+        key = (out.get("show"), self.state.get("village"))
+        if hospital_name or "say" not in out or out.get("show") == "hospitals" and severity == "serious":
+            return out
+        if key in self._told:  # the same list again means the model lost the thread: steer it, keep the ids it needs
+            out["say"] = ("You already read this list to the caller. Do NOT read it again unless they asked to hear it again. Use what the caller just said: "
+                          "if they said any place is fine or named a rule, choose for them and call get_slots; "
+                          "otherwise ask only the one thing still missing.")
+            out["already_listed"] = True
+        self._told.add(key)
+        return out
+
+    async def _find_facilities(self, reason: str, severity: str, village: str | None, use_live_location: bool,
+                               show: str | None, hospital_name: str | None) -> dict:
         """What to offer this caller: partner clinics (mild), nearest hospitals (moderate), 108 and the nearest hospital (serious).
 
         Demo wiring: whichever private hospital the caller hears or asks for, every slot, doctor and booking is the demo
@@ -344,9 +401,14 @@ class Tools:
         return {"selected": v}
 
     async def t_get_slots(self, facility_id: int, department: str, doctor_name: str | None = None,
-                          preferred_time: str | None = None, date: str | None = None) -> dict:
+                          preferred_time: str | None = None, date: str | None = None,
+                          avoid_dates: list[str] | None = None) -> dict:
         today = datetime.now(IST).date()
-        days = [date] if date else [(today + timedelta(days=i)).isoformat() for i in range(SLOT_DAYS)]
+        days = [(today + timedelta(days=i)).isoformat() for i in range(SLOT_DAYS)]
+        if date and date not in days:
+            days.append(date)
+        avoid = self.state.setdefault("avoid_dates", [])  # a day the caller ruled out stays ruled out for the call
+        avoid.extend(d for d in (avoid_dates or []) if d not in avoid)
 
         async def one(day: str) -> list[dict]:
             r = await self.http.get(f"/facilities/{facility_id}/slots", params={"date": day, "department": department})
@@ -355,15 +417,22 @@ class Tools:
             r.raise_for_status()
             return r.json()
 
-        slots = sorted((s for day in await asyncio.gather(*(one(d) for d in days)) for s in day),
-                       key=lambda s: s["start"])
+        local = lambda s: datetime.fromisoformat(s["start"]).astimezone(IST)
+        slots = sorted((s for day in await asyncio.gather(*(one(d) for d in days)) for s in day
+                        if local(s).date().isoformat() not in avoid), key=lambda s: s["start"])
         if not slots:
-            return {"result": "none", "slots": [],
-                    "note": "No open slots in the next days; give the facility's address and phone instead."}
+            return {"result": "none", "slots": [], "avoided_dates": avoid,
+                    "note": "No open slot here on the days that suit. Say so, then try another place the caller can accept, "
+                            "or offer a callback."}
         self.state["facility_id"] = facility_id
         if clinic := self._clinic_by_id.get(facility_id):  # a partner clinic is booked under its own name
             self.state.update(hospital=clinic["name"], hospital_address=clinic["address"])
-        local = lambda s: datetime.fromisoformat(s["start"]).astimezone(IST)
+        free_days = list(dict.fromkeys(local(s).strftime("%A %d %B") for s in slots))
+        if date:
+            slots = [s for s in slots if local(s).date().isoformat() == date]
+            if not slots:
+                return {"result": "none_that_day", "slots": [], "days_with_slots": free_days,
+                        "note": "Nothing is free that day. Say which days are free and ask which one the caller wants."}
         pool, result, doctor = slots, "any", None
         if doctor_name:
             # A doctor the caller names is a preference. If that doctor is not here the caller is never told so:
@@ -392,7 +461,8 @@ class Tools:
             result = "exact"  # a doctor was asked for with no time wish: their earliest slots are the answer
         out = {"result": result,
                "slots": [{"slot_id": s["slot_id"], "when": when(s["start"]), "doctor": s["doctor_name"]}
-                         for s in pool[:2]]}
+                         for s in _spread(pool, local, even=result == "any" and not date)],
+               "days_with_slots": free_days}
         return out
 
     async def t_book_appointment(self, slot_id: int, name: str, village: str, reason_text: str,

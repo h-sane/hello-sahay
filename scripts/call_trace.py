@@ -70,7 +70,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("call", help="call id or 'latest'")
     ap.add_argument("--base", default="http://localhost:8001/api/v1")
-    ap.add_argument("--email", default="desk7@sahay.demo")
+    ap.add_argument("--email", default="admin@sahay.demo")
     ap.add_argument("--password", default="demo1234")
     ap.add_argument("--raw", action="store_true")
     a = ap.parse_args()
