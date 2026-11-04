@@ -239,12 +239,14 @@ class Tools:
 
     def _said_by_caller(self, place: str, profile: dict) -> bool:
         """The model once picked an area it had read in its own instructions. In an all-Latin call the place must be
-        one the caller said (near misses count: speech-to-text spells names its own way); an app profile's place and an
-        area found earlier also count. A call in a native script is not checked: the model transliterates there."""
+        one the caller said (near misses count: speech-to-text spells names its own way). An area found earlier counts, and
+        so does the app profile's saved village when the caller's last words are a short answer ("yes") to being asked
+        about it. A call in a native script is not checked: the model transliterates there."""
         heard = self.state.get("heard") or []
         if not heard or not all(t.isascii() for t in heard):
             return True
-        known = {_squash(x) for x in (profile.get("village"), profile.get("place"), self.state.get("village")) if x}
+        short_answer = len(heard[-1].split()) <= 3
+        known = {_squash(x) for x in (self.state.get("village"), profile.get("village") if short_answer else None) if x}
         key = _squash(place)
         if key in known:
             return True

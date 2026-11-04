@@ -1021,6 +1021,8 @@ def test_an_area_the_caller_said_passes_even_when_speech_to_text_spells_it_diffe
 
 
 def test_the_saved_village_from_the_app_profile_counts_as_said_and_native_script_calls_are_not_checked():
-    state = {"heard": ["yes"], "profile": {"village": "Paranur"}}
+    state = {"heard": ["I have fever since morning", "yes"], "profile": {"village": "Paranur"}}
     assert "hospitals" in _find(_places_api(HOSPITALS), state, village="Paranur")[0]
+    unasked = {"heard": ["I have fever since morning and a headache"], "profile": {"village": "Paranur"}}
+    assert _find(_places_api(HOSPITALS), unasked, village="Paranur")[0]["error"] == "location_needed"  # it must ask first
     assert "hospitals" in _find(_places_api(HOSPITALS), {"heard": ["எனக்கு காய்ச்சல்"]}, village="Paranur")[0]
