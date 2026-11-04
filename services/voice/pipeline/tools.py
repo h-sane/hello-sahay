@@ -1,6 +1,7 @@
 """Bedrock tools. Each one calls the backend API over HTTP; the model never sees anything else.
 
 The department comes from the fixed keyword table (data/seed/department_keywords.csv), not from the model.
+The model only reads the caller's severity; what is offered for it (clinics, hospitals, information only) is fixed here.
 """
 import asyncio
 import csv
@@ -14,12 +15,17 @@ from datetime import datetime, timedelta, timezone
 import httpx
 
 from . import config
-from .gate import REPLIES, check
 
 log = logging.getLogger("sahay.tools")
 IST = timezone(timedelta(hours=5, minutes=30))
 DEFAULT_DEPARTMENT = "General Medicine"
-DEFAULT_PLACE = (12.6830, 79.9770)  # Chengalpattu town centre
+CLINIC_RADIUS_KM = 15  # a partner clinic farther than this is not "nearby"
+SHOW_FOR = {"mild": "clinics", "moderate": "hospitals", "serious": "hospitals"}  # what each severity is offered first
+SHOWS = ("clinics", "hospitals", "free_government")
+NOT_NAMES = {"", "anonymous", "unknown", "patient", "caller", "user", "na", "none", "name", "notgiven"}
+# A whole city or state is no place to find a hospital near; the caller must name an area in it.
+GENERIC_AREAS = {"chennai", "madras", "tamilnadu", "kerala", "karnataka", "andhrapradesh", "telangana", "india",
+                 "bangalore", "bengaluru", "hyderabad", "coimbatore", "madurai"}
 SLOT_DAYS = 7  # how far ahead a caller's doctor or time wish is searched
 TIME_WINDOW_MIN = 45  # a slot this close to the preferred time counts as that time
 NEARBY_TIMEOUT_S = 25  # the first real-hospital lookup for an area goes to OpenStreetMap; later ones are cached
@@ -59,14 +65,15 @@ def best_match(query: str, names: list[str], cutoff: float = 0.6) -> str | None:
     return by_key[close[0]] if close else None
 
 
-def place_for(village: str) -> tuple[float, float]:
+def place_for(village: str) -> tuple[float, float] | None:
+    """Coordinates of a place in the local table, or None: the caller's area is then looked up on OpenStreetMap."""
     names = {_squash(name): (lat, lng) for name, lat, lng in _PLACES}
     v = _squash(village)
     for name, coords in names.items():
         if v and (name in v or v in name):
             return coords
     close = difflib.get_close_matches(v, names, n=1, cutoff=0.7)
-    return names[close[0]] if close else DEFAULT_PLACE
+    return names[close[0]] if close else None
 
 
 def nearest_place(lat: float, lng: float, within_km: float = 25.0) -> str | None:
@@ -89,23 +96,25 @@ _S = {"type": "string"}
 TOOL_SPECS = [
     {"toolSpec": {
         "name": "find_facilities",
-        "description": "Find the nearest real hospital for the caller's location and reason. Returns the recommended "
-                       "hospital and, if different, the nearest free government hospital. Every hospital it returns "
-                       "can be booked.",
-        "inputSchema": _obj({"village": {**_S, "description": "Village or town the caller said; leave out when use_live_location is true"},
+        "description": "Places for the caller's reason and location. mild: partner clinics (bookable); moderate: the nearest "
+                       "hospitals; serious: the nearest hospital to go to now (information only). Government hospitals are "
+                       "never bookable. Use show to switch lists when the caller asks, and hospital_name when they pick a place.",
+        "inputSchema": _obj({"reason": {**_S, "description": "Reason for the visit in English, in the caller's meaning (translate it), e.g. \"mild fever and headache\""},
+                             "severity": {"type": "string", "enum": ["mild", "moderate", "serious"],
+                                          "description": "Your reading of how urgent the caller's words are; not a diagnosis"},
+                             "village": {**_S, "description": "Specific area, village or landmark the caller said, written in English letters (e.g. Broadway, Mannady); leave out when use_live_location is true"},
                              "use_live_location": {"type": "boolean",
                                                    "description": "True once the caller confirmed the live location from the app"},
-                             "reason": {**_S, "description": "Reason for the visit in the caller's own words"},
-                             "hospital_name": {**_S, "description": "Only if the caller asked for a specific hospital, exactly as they said it"},
-                             "scheme": {"type": "string", "enum": ["pmjay", "cmchis"],
-                                        "description": "Only if the caller has this scheme card"}},
-                            ["reason"])}},
+                             "show": {"type": "string", "enum": list(SHOWS),
+                                      "description": "Only when the caller asks for clinics, hospitals or only the free government hospitals"},
+                             "hospital_name": {**_S, "description": "Only when the caller picked or asked for a specific hospital or clinic: the name as listed by this tool (English letters), or as the caller said it if it was never listed"}},
+                            ["reason", "severity"])}},
     {"toolSpec": {
         "name": "get_slots",
-        "description": "Open appointment slots at a partner facility, honouring a preferred doctor and time. "
+        "description": "Open appointment slots at a bookable place from find_facilities, honouring a preferred doctor and time. "
                        "The result field says how well the request matched.",
         "inputSchema": _obj({"facility_id": {"type": "integer"},
-                             "department": {**_S, "description": "The department returned by find_facilities"},
+                             "department": {**_S, "description": "The department in the chosen place's entry from find_facilities"},
                              "doctor_name": {**_S, "description": "Preferred doctor, only if the caller named one; it is a preference, not a requirement"},
                              "preferred_time": {**_S, "description": "Preferred time as 24-hour HH:MM, only if the caller gave one"},
                              "date": {**_S, "description": "YYYY-MM-DD, only if the caller asked for a particular day"}},
@@ -129,10 +138,6 @@ TOOL_SPECS = [
         "name": "handoff_to_human",
         "description": "Put the call in the human queue when you cannot help or the caller asks for a person.",
         "inputSchema": _obj({"reason": _S}, ["reason"])}},
-    {"toolSpec": {
-        "name": "emergency_redirect",
-        "description": "Call this if the caller describes a medical emergency. Then say the returned text exactly.",
-        "inputSchema": _obj({}, [])}},
 ]
 
 
@@ -141,6 +146,8 @@ class Tools:
         self.http, self.lang, self.state = http, lang, state
         self.on_language = on_language  # set only when the call detects its language and may switch it
         self.facts: list[str] = []  # every tool result, so replies can be checked against them
+        self._listed: dict[str, dict] = {}  # places named to the caller so far, by name
+        self._clinic_by_id: dict[int, dict] = {}
 
     async def call(self, name: str, args: dict) -> dict:
         fn = getattr(self, "t_" + name, None)
@@ -157,10 +164,10 @@ class Tools:
         self.facts.append(json.dumps(out, ensure_ascii=False))
         return out
 
-    async def _nearby(self, lat: float, lng: float) -> list[dict]:
+    async def _nearby(self, lat: float, lng: float, limit: int = 6) -> list[dict]:
         """Real hospitals around a point (OpenStreetMap through the API), nearest first; [] when the lookup fails."""
         try:
-            r = await self.http.get("/places/nearby-hospitals", params={"lat": lat, "lng": lng, "limit": 6},
+            r = await self.http.get("/places/nearby-hospitals", params={"lat": lat, "lng": lng, "limit": limit},
                                     timeout=NEARBY_TIMEOUT_S)
             r.raise_for_status()
             return r.json()
@@ -168,52 +175,134 @@ class Tools:
             log.warning("nearby hospital lookup failed", exc_info=True)
             return []
 
-    async def t_find_facilities(self, reason: str, village: str | None = None, use_live_location: bool = False,
-                                hospital_name: str | None = None, scheme: str | None = None) -> dict:
-        """Name the real nearest hospital; the booking behind it goes to the one demo hospital (Sahay Desk).
+    async def _clinics(self, lat: float, lng: float, department: str) -> list[dict]:
+        """The two nearest partner clinics (Sahay Desk clinics only); clinics that run the department come first."""
+        try:
+            r = await self.http.get("/facilities", params={"lat": lat, "lng": lng, "kind": "clinic", "partner_only": "true",
+                                                           "max_km": CLINIC_RADIUS_KM, "nearest_first": "true", "limit": 6})
+            r.raise_for_status()
+            rows = sorted(r.json(), key=lambda f: department not in f["departments"])
+        except (httpx.HTTPError, ValueError):
+            log.warning("clinic lookup failed", exc_info=True)
+            return []
+        out = []
+        for f in rows[:2]:
+            v = {"id": f["id"], "name": f["name"], "address": f["address"] or "", "distance_km": f["distance_km"],
+                 "is_government": False, "can_book": True,
+                 "department": department if department in f["departments"] else DEFAULT_DEPARTMENT}
+            self._listed[f["name"]] = self._clinic_by_id[f["id"]] = v
+            out.append(v)
+        return out
 
-        Demo wiring: whichever hospital the caller hears or asks for, every slot, doctor and booking is the demo
-        hospital's, so the demo Desk shows all of it. Real data stops at the hospital's name, distance and address.
-        """
+    def _view(self, h: dict, bookable_id: int | None, department: str) -> dict:
+        """A real hospital as the model sees it. Government ones, and every one in an emergency, are information only."""
+        gov = h.get("kind") in GOVERNMENT_KINDS
+        v = {"name": h["name"], "address": h.get("address") or "", "distance_km": h.get("distance_km"),
+             "is_government": gov, "pmjay": bool(h.get("pmjay")), "cmchis": bool(h.get("cmchis"))}
+        if gov or bookable_id is None:
+            v.update(can_book=False, note="information only: cannot be booked")
+        else:
+            v.update(id=bookable_id, can_book=True, department=department)
+        self._listed[h["name"]] = v
+        return v
+
+    async def _locate(self, village: str | None, use_live_location: bool) -> tuple[tuple | None, dict | None]:
+        """((lat, lng, label), None) for the caller's area, or (None, an error for the model to act on)."""
         profile = self.state.get("profile") or {}
         if use_live_location and profile.get("live"):
-            lat, lng, village = profile["lat"], profile["lng"], profile.get("place") or "your location"
-        else:
-            village = village or ""
-            if not village.strip():
-                return {"error": "location_needed", "say": "Ask the caller for their village or town first."}
-            lat, lng = place_for(village)
-        department = department_for(reason)
-        hospitals = await self._nearby(lat, lng)
+            return (profile["lat"], profile["lng"], profile.get("place") or "your location"), None
+        if not (village or "").strip():
+            if "lat" in self.state:  # found on an earlier call of this tool
+                return (self.state["lat"], self.state["lng"], self.state.get("village") or "your area"), None
+            return None, {"error": "location_needed", "say": "Ask the caller for their specific area, village or landmark first."}
+        too_general = {"error": "area_too_general",
+                       "say": "That is a whole city or district. Ask for the specific area in it, such as a locality or landmark."}
+        if _squash(village) in GENERIC_AREAS:
+            return None, too_general
+        coords = place_for(village)
+        if coords is None:
+            try:
+                r = await self.http.get("/places/geocode", params={"q": village}, timeout=NEARBY_TIMEOUT_S)
+                r.raise_for_status()
+                g = r.json()
+            except (httpx.HTTPError, ValueError):
+                log.warning("area lookup failed", exc_info=True)
+                return None, {"error": "area_lookup_failed", "say": "Say sorry, then ask for a nearby well known area."}
+            if not g.get("found"):
+                return None, too_general if g.get("reason") == "too_general" else {
+                    "error": "area_not_found", "say": "That area was not found. Ask for a nearby well known area or landmark."}
+            coords = (g["lat"], g["lng"])
+        return (*coords, village.strip()), None
+
+    async def _demo_id(self, hospitals: list[dict]) -> int | None:
+        """Demo wiring: every private hospital the caller hears books into the one demo hospital's Desk."""
         demo_id = next((h["book_facility_id"] for h in hospitals if h.get("book_facility_id")), None)
-        if demo_id is None:  # lookup down or empty: fall back to the demo hospital under its own name
+        if demo_id is None:
             r = await self.http.get("/facilities", params={"limit": 100})
             r.raise_for_status()
-            demo = min((f for f in r.json() if f["is_partner"]), key=lambda f: f["id"], default=None)
+            demo = min((f for f in r.json() if f["is_partner"] and f["type"] != "clinic"), key=lambda f: f["id"], default=None)
+            demo_id = demo["id"] if demo else None
+        return demo_id
+
+    async def t_find_facilities(self, reason: str, severity: str, village: str | None = None,
+                                use_live_location: bool = False, show: str | None = None,
+                                hospital_name: str | None = None) -> dict:
+        """What to offer this caller: partner clinics (mild), nearest hospitals (moderate), 108 and the nearest hospital (serious).
+
+        Demo wiring: whichever private hospital the caller hears or asks for, every slot, doctor and booking is the demo
+        hospital's, so the demo Desk shows all of it. Partner clinics are real Desk facilities with their own doctors.
+        """
+        if severity not in SHOW_FOR:
+            return {"error": "severity must be mild, moderate or serious"}
+        where, error = await self._locate(village, use_live_location)
+        if error:
+            return error
+        lat, lng, place = where
+        department = department_for(reason)
+        self.state.update(severity=severity, reason=reason, department=department, village=place, lat=lat, lng=lng)
+        show = "hospitals" if severity == "serious" else show if show in SHOWS else SHOW_FOR[severity]
+        out: dict = {"severity": severity, "show": show}
+        if show == "clinics" and not hospital_name:
+            clinics = await self._clinics(lat, lng, department)
+            if clinics:
+                return {**out, "clinics": clinics}
+            out.update(show="hospitals", note="No partner clinic is near this area. Say so, then offer the hospitals below.")
+        hospitals = await self._nearby(lat, lng, 10)
+        if hospital_name:
+            return await self._pick(hospital_name, hospitals, department)
+        if severity == "serious":
+            self.state.update(emergency=True, handoff=True, emergency_shown=True,
+                              handoff_reason="serious: told to call 108 and given the nearest hospital")
+            return {**out, "hospitals": [self._view(h, None, department) for h in hospitals[:2]],
+                    "say": "Tell the caller to call 108 now or go to the first hospital, with its name, distance and address. "
+                           "Say a person from the team will call back. Nothing else."}
+        if show == "free_government":
+            free = [h for h in hospitals if h.get("kind") in GOVERNMENT_KINDS][:2]
+            return {**out, "free_government_hospitals": [self._view(h, None, department) for h in free],
+                    **({} if free else {"note": "No government hospital was found nearby."})}
+        demo_id = await self._demo_id(hospitals)
+        if not hospitals:  # lookup down or empty: the demo hospital is named under its own name
+            r = await self.http.get("/facilities", params={"limit": 100})
+            r.raise_for_status()
+            demo = next((f for f in r.json() if f["id"] == demo_id), None)
             if demo is None:
-                return {"department": department, "error": "no hospital can take bookings right now; offer a callback"}
-            demo_id = demo["id"]
+                return {**out, "error": "no hospital can take bookings right now; offer a callback"}
             hospitals = [{"name": demo["name"], "address": demo["address"], "kind": "private", "distance_km": None}]
-        self.state.update(village=village, reason=reason, department=department, facility_id=demo_id)
+        return {**out, "hospitals": [self._view(h, demo_id, department) for h in hospitals[:2]]}
 
-        def view(h: dict) -> dict:
-            return {"id": demo_id, "name": h["name"], "address": h.get("address") or "", "distance_km": h.get("distance_km"),
-                    "is_government": h.get("kind") in GOVERNMENT_KINDS, "can_book": True,
-                    "pmjay": bool(h.get("pmjay")), "cmchis": bool(h.get("cmchis"))}
-
-        if hospital_name:  # a hospital the caller named is accepted as said, even if it is not on the list
+    async def _pick(self, hospital_name: str, hospitals: list[dict], department: str) -> dict:
+        """The caller chose a place. A listed clinic or hospital is taken as listed; any other name is accepted as said."""
+        known = best_match(hospital_name, list(self._listed))
+        if known:
+            v = self._listed[known]
+        else:
             name = best_match(hospital_name, [h["name"] for h in hospitals])
-            chosen = next((h for h in hospitals if h["name"] == name),
-                          {"name": hospital_name.strip(), "address": "", "distance_km": None, "kind": "hospital"})
-            self.state.update(hospital=chosen["name"], hospital_address=chosen.get("address") or "")
-            return {"department": department, "recommended": view(chosen)}
-        best = hospitals[0]
-        self.state.update(hospital=best["name"], hospital_address=best.get("address") or "")
-        out: dict = {"department": department, "recommended": view(best)}
-        free = next((h for h in hospitals if h.get("kind") in GOVERNMENT_KINDS), None)
-        if free and free["name"] != best["name"]:  # free government options are shown before private ones
-            out["free_government_option"] = view(free)
-        return out
+            h = next((h for h in hospitals if h["name"] == name),
+                     {"name": hospital_name.strip(), "address": "", "distance_km": None, "kind": "hospital"})
+            v = self._view(h, await self._demo_id(hospitals), department)
+        if v["can_book"]:
+            self.state.update(hospital=v["name"], hospital_address=v["address"], facility_id=v["id"])
+        return {"selected": v}
 
     async def t_get_slots(self, facility_id: int, department: str, doctor_name: str | None = None,
                           preferred_time: str | None = None, date: str | None = None) -> dict:
@@ -233,6 +322,8 @@ class Tools:
             return {"result": "none", "slots": [],
                     "note": "No open slots in the next days; give the facility's address and phone instead."}
         self.state["facility_id"] = facility_id
+        if clinic := self._clinic_by_id.get(facility_id):  # a partner clinic is booked under its own name
+            self.state.update(hospital=clinic["name"], hospital_address=clinic["address"])
         local = lambda s: datetime.fromisoformat(s["start"]).astimezone(IST)
         pool, result, doctor = slots, "any", None
         if doctor_name:
@@ -267,6 +358,8 @@ class Tools:
 
     async def t_book_appointment(self, slot_id: int, name: str, village: str, reason_text: str,
                                  phone: str | None = None) -> dict:
+        if _squash(name) in NOT_NAMES:  # the model must ask; a made-up name would sit on a real Desk
+            return {"error": "name_needed", "say": "You do not have the caller's name yet. Ask for it, then book."}
         phone = self.state.get("phone") or phone  # the number the call came from beats a dictated one
         if not phone:
             return {"error": "invalid_details", "say": "The phone number is missing; ask for it."}
@@ -305,11 +398,3 @@ class Tools:
     async def t_handoff_to_human(self, reason: str) -> dict:
         self.state.update(handoff=True, handoff_reason=reason)
         return {"status": "queued", "say": "Tell the caller a person from the team will call them back."}
-
-    async def t_emergency_redirect(self) -> dict:
-        # the deterministic gate decides emergencies; a model judgement alone must not end a call
-        text = self.state.get("last_text", "")
-        if not any(check(text, lang).flag == "emergency" for lang in REPLIES["emergency"]):
-            return {"status": "not_an_emergency", "say": "The safety check found no emergency. Do not mention one; continue the booking steps."}
-        self.state["emergency"] = True
-        return {"say_exactly": REPLIES["emergency"][self.lang]}

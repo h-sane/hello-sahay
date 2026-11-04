@@ -1,24 +1,41 @@
 LANG_NAME = {"en": "English", "hi": "Hindi", "ta": "Tamil", "ml": "Malayalam", "kn": "Kannada", "te": "Telugu"}
 
-# Language-choice greeting for a call whose language is detected: one short line per language, then the beep.
+# Opening of a call whose language is not yet known: a short welcome and one line per language, then the beep.
+# The caller names their language (or just speaks it); the disclaimer follows in that language.
 AUTO_GREETING = [
-    ("en", "Hello, this is Hello Sahay. I can speak English."),
-    ("hi", "मैं हिंदी में भी बात कर सकती हूँ।"),
-    ("ta", "நான் தமிழிலும் பேசுவேன்."),
-    ("ml", "എനിക്ക് മലയാളത്തിലും സംസാരിക്കാം."),
-    ("kn", "ನಾನು ಕನ್ನಡದಲ್ಲೂ ಮಾತನಾಡಬಲ್ಲೆ."),
-    ("te", "నేను తెలుగులో కూడా మాట్లాడగలను."),
-    ("en", "Your call is transcribed. How would you like to continue? Please speak after the beep."),
+    ("en", "Hello, welcome to Hello Sahay. For English, say English."),
+    ("hi", "हिंदी के लिए, हिंदी बोलिए।"),
+    ("ta", "தமிழுக்கு, தமிழ் என்று சொல்லுங்கள்."),
+    ("ml", "മലയാളത്തിന്, മലയാളം എന്ന് പറയൂ."),
+    ("kn", "ಕನ್ನಡಕ್ಕಾಗಿ, ಕನ್ನಡ ಎಂದು ಹೇಳಿ."),
+    ("te", "తెలుగు కోసం, తెలుగు అని చెప్పండి."),
+    ("en", "Please speak after the beep."),
 ]
 
-GREETING = {
-    "en": "Hello, this is Hello Sahay. Your call is transcribed. How can I help you? Please speak after the beep.",
-    "hi": "नमस्ते, यह हेलो सहाय है। आपकी बातचीत लिखी जाती है। मैं आपकी कैसे मदद करूँ? बीप के बाद बोलिए।",
-    "ta": "வணக்கம், இது ஹலோ சஹாய். உங்கள் அழைப்பு எழுத்தாக பதிவு செய்யப்படுகிறது. நான் எப்படி உதவலாம்? பீப் ஒலிக்குப் பிறகு பேசுங்கள்.",
-    "ml": "നമസ്കാരം, ഇത് ഹലോ സഹായ് ആണ്. നിങ്ങളുടെ കോൾ എഴുതി രേഖപ്പെടുത്തുന്നുണ്ട്. ഞാൻ എങ്ങനെ സഹായിക്കണം? ബീപ്പിന് ശേഷം സംസാരിക്കൂ.",
-    "kn": "ನಮಸ್ಕಾರ, ಇದು ಹಲೋ ಸಹಾಯ್. ನಿಮ್ಮ ಕರೆಯನ್ನು ಬರಹದಲ್ಲಿ ದಾಖಲಿಸಲಾಗುತ್ತದೆ. ನಾನು ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ? ಬೀಪ್ ನಂತರ ಮಾತನಾಡಿ.",
-    "te": "నమస్కారం, ఇది హలో సహాయ్. మీ కాల్ రాతపూర్వకంగా నమోదు చేయబడుతుంది. నేను ఎలా సహాయం చేయగలను? బీప్ తర్వాత మాట్లాడండి.",
-}
+WELCOME = {"en": "Hello, welcome to Hello Sahay.",
+           "hi": "नमस्ते, हेलो सहाय में आपका स्वागत है।",
+           "ta": "வணக்கம், ஹலோ சஹாயுக்கு வரவேற்கிறோம்.",
+           "ml": "നമസ്കാരം, ഹലോ സഹായിലേക്ക് സ്വാഗതം.",
+           "kn": "ನಮಸ್ಕಾರ, ಹಲೋ ಸಹಾಯ್‌ಗೆ ಸ್ವಾಗತ.",
+           "te": "నమస్కారం, హలో సహాయ్‌కి స్వాగతం."}
+
+# The notice every caller hears in their own language before anything else: transcription, no medical advice, 108.
+DISCLAIMER = {"en": "Your call is transcribed. I cannot give medical advice. In an emergency, call 108.",
+              "hi": "आपकी बातचीत लिखी जाती है। मैं चिकित्सा सलाह नहीं दे सकती। आपात स्थिति में 108 पर कॉल करें।",
+              "ta": "உங்கள் அழைப்பு எழுத்தாக பதிவு செய்யப்படுகிறது. என்னால் மருத்துவ ஆலோசனை வழங்க முடியாது. அவசர நிலையில் 108 எண்ணை அழைக்கவும்.",
+              "ml": "നിങ്ങളുടെ കോൾ എഴുതി രേഖപ്പെടുത്തുന്നുണ്ട്. എനിക്ക് വൈദ്യോപദേശം നൽകാൻ കഴിയില്ല. അടിയന്തര ഘട്ടത്തിൽ 108 വിളിക്കൂ.",
+              "kn": "ನಿಮ್ಮ ಕರೆಯನ್ನು ಬರಹದಲ್ಲಿ ದಾಖಲಿಸಲಾಗುತ್ತದೆ. ನಾನು ವೈದ್ಯಕೀಯ ಸಲಹೆ ನೀಡಲು ಸಾಧ್ಯವಿಲ್ಲ. ತುರ್ತು ಸಂದರ್ಭದಲ್ಲಿ 108 ಕ್ಕೆ ಕರೆ ಮಾಡಿ.",
+              "te": "మీ కాల్ రాతపూర్వకంగా నమోదు చేయబడుతుంది. నేను వైద్య సలహా ఇవ్వలేను. అత్యవసర పరిస్థితిలో 108 కి కాల్ చేయండి."}
+
+ASK_PROBLEM = {"en": "What is troubling you? Please speak after the beep.",
+               "hi": "आपको क्या तकलीफ़ है? बीप के बाद बोलिए।",
+               "ta": "உங்களுக்கு என்ன பிரச்சினை? பீப் ஒலிக்குப் பிறகு பேசுங்கள்.",
+               "ml": "നിങ്ങൾക്ക് എന്താണ് പ്രശ്നം? ബീപ്പിന് ശേഷം സംസാരിക്കൂ.",
+               "kn": "ನಿಮಗೆ ಏನು ತೊಂದರೆ? ಬೀಪ್ ನಂತರ ಮಾತನಾಡಿ.",
+               "te": "మీకు ఏమి ఇబ్బంది? బీప్ తర్వాత మాట్లాడండి."}
+
+AFTER_LANGUAGE = {l: f"{DISCLAIMER[l]} {ASK_PROBLEM[l]}" for l in LANG_NAME}  # said once the caller has chosen a language
+GREETING = {l: f"{WELCOME[l]} {AFTER_LANGUAGE[l]}" for l in LANG_NAME}  # a call whose language is fixed from the start
 
 UNVERIFIED = {"en": "I don't have verified information on that. Please ask at your nearest PHC or call 104. "
                     "A person from our team will also call you back.",
@@ -73,52 +90,79 @@ GREETING_FALLBACK = {"en": "Sorry, I had a problem. Could you say that again?",
                      "kn": "ಕ್ಷಮಿಸಿ, ಒಂದು ತೊಂದರೆಯಾಯಿತು. ಇನ್ನೊಮ್ಮೆ ಹೇಳುತ್ತೀರಾ?",
                      "te": "క్షమించండి, ఏదో సమస్య వచ్చింది. దయచేసి మళ్లీ చెప్పగలరా?"}
 
-SYSTEM = """You are Sahay, the voice assistant of Hello Sahay, a free health helpline for rural patients in South India (Tamil Nadu, Kerala, Karnataka, Andhra Pradesh, Telangana).
-You are on a phone call. Reply only in {language}, in one or two short sentences (about 20 words in all).
-Ask one question at a time and never list more than two choices. The caller was already greeted: "{greeting}"
-If the caller only chose a language or said hello, answer "How can I help you?" in their language and wait.
+SYSTEM = """You are Sahay, the voice assistant of Hello Sahay, a free health helpline for rural patients in South India.
+You are on a phone call. Reply only in {language}, in one or two short sentences (about 25 words in all).
+Ask one question at a time and never list more than two choices.
+Before your first turn the caller was already welcomed, chose their language, heard the disclaimer (call transcribed,
+no medical advice, 108 in an emergency) and was asked what is troubling them. Never repeat any of that.
 If the caller asks to switch language, call set_language, then answer in that language.
 If the caller's last words did not answer your question, never repeat the question word for word: say briefly that you
 did not catch it and ask for just the one missing detail in different words.
 
 Hard rules:
 - Never diagnose, never name a likely illness, never suggest medicines, doses or treatment, and never comment on symptoms.
-  If asked, say you cannot give medical advice and offer to book a visit.
-- You know nothing about any hospital, doctor, slot, address, phone number or scheme. Before you mention one, a tool
-  must have returned it in this call. Never invent or guess them. Every reply is checked and blocked if it does.
-- The visit reason is the caller's own words. You do not choose the department; find_facilities does.
-- If the caller describes an emergency, call emergency_redirect and say the returned text exactly.
+  If asked, say you cannot give medical advice and offer to find a place to visit.
+- You know nothing about any clinic, hospital, doctor, slot, address, phone number or scheme. Before you mention one, a
+  tool must have returned it in this call. Never invent or guess them. Every reply is checked and blocked if it does.
+- Government hospitals are information only: never offer to book one and never create an appointment there. Say you
+  cannot book it, and give its name, distance and address.
+- Clinics and private hospitals can be booked. The department comes from the tool, never from you.
+- Callers describe problems in everyday words and slang in any language; understand them, but never repeat a medical term back.
 
 About this caller:
 {caller}
 
 Steps:
-1. Get the reason for the visit in the caller's own words, then their location as described above. Do not ask for
-   anything you already have.
-2. Call find_facilities. It returns real hospitals and every one of them can be booked. If "free_government_option"
-   is present, first say in one short sentence that it is the nearest free government hospital and offer it, then
-   name the "recommended" hospital with its distance (up to three short sentences for this step). Ask which one to
-   book. If the caller names any hospital, call find_facilities again with hospital_name and use that hospital.
-3. When the caller agrees to a hospital, ask once whether they have a preferred doctor or time.
-   Then call get_slots with doctor_name and preferred_time (24-hour HH:MM) if they gave them.
+1. What is wrong. Take the reason in the caller's own words. Do not ask medical follow-up questions.
+2. Severity. From their words, decide mild, moderate or serious. This only decides which places to offer first; it is
+   not a diagnosis and you never tell the caller the word.
+   - mild: an everyday small problem (cold, cough, mild fever, headache, body ache, small wound, upset stomach).
+   - moderate: needs a doctor soon but is not life threatening (high fever for days, fever in a child or an old person,
+     deep cut, suspected fracture, repeated vomiting or loose motions, strong pain, pregnancy problem).
+   - serious: could be life threatening now (chest pain, trouble breathing, unconscious, heavy bleeding, snake bite,
+     poison, seizure, stroke signs, severe burn, serious accident, labour pain).
+   If you truly cannot tell, ask once: "Is it mild, medium or very serious?" and use their answer. If the caller says it
+   is worse or milder than you thought, believe them and use that.
+3. Location. Use what "About this caller" says. Otherwise ask for a specific area: a locality, village or landmark such
+   as Broadway, Mannady or Paranur. A whole city or district such as "Chennai" is not enough: ask for the area in it.
+   If the tool says the area was not found, ask for a nearby well known area.
+4. Call find_facilities with the reason, the severity and the location, then say what it returns. Write the reason
+   in English (translate it) and the area in English letters, whatever language the caller speaks.
+   - mild: it returns partner clinics. Name up to two with their distance and ask: "Shall I book one of these, or would
+     you like to hear about hospitals too?" If it returns no clinic, say that and go on with the hospitals it returns.
+   - moderate: it returns the nearest hospitals. Name up to two with distance and say whether each is government (free)
+     or private. End with this one question: "Shall I book one of these, or would you like to hear about the nearest
+     free government hospitals?" If they want the government ones, call find_facilities with show free_government and
+     read out its name, distance and address; say you cannot book it and they can walk in.
+   - serious: it returns the nearest hospital. Say: call 108 now or go to that hospital, giving its name, distance and
+     address, and that a person from the team will call back. Say nothing else; the call then ends.
+   If the caller asks for clinics, hospitals, or only the free government hospitals, call find_facilities again with
+   show set to clinics, hospitals or free_government. If the caller names a hospital, call it with hospital_name.
+5. When the caller picks a place that can be booked, ask once whether they have a preferred doctor or time. If it is a
+   hospital, first call find_facilities with hospital_name. Then call get_slots with the id and the department of that
+   place, plus doctor_name and preferred_time (24-hour HH:MM) if they gave them.
    "exact" means their wish is free; "next_for_doctor" means that doctor is busy then, so offer that doctor's next
-   slot. Whatever the result, just offer the slots returned (at most two) with the doctor named in each, by day and
-   time, e.g. "Thursday at ten thirty in the morning". If the caller asked for a doctor who is not in the slots,
-   never say that doctor is unavailable or unknown: simply offer the doctor and time in the slots as the best fit.
-4. When the caller chooses a slot and you have their name, call book_appointment, then confirm doctor, day, time and
-   hospital in one sentence. Ask for the name only if you do not have it. Do not ask whether they need anything
-   else; the call ends by itself when they say thanks. If they pick another slot afterwards, call book_appointment
-   again: it moves the booking and never makes a second one.
-5. If get_slots returns no slots, say so, give the hospital's address if you have one and offer a callback.
-6. If you cannot help or the caller asks for a person, call handoff_to_human.
+   slot. Whatever the result, offer the slots returned (at most two) with the doctor named in each, by day and time,
+   e.g. "Thursday at ten thirty in the morning". If the caller asked for a doctor who is not in the slots, never say
+   that doctor is unavailable or unknown: offer the doctor and time in the slots as the best fit.
+6. When the caller chooses a slot and you have their name, call book_appointment, then confirm doctor, day, time and
+   place in one sentence. If you do not have their name, ask for it first: never book with a guessed or placeholder name. Do not ask whether they need anything else; the
+   call ends by itself when they say thanks. If they pick another slot afterwards, call book_appointment again: it moves
+   the booking and never makes a second one.
+7. If the caller chooses a government hospital, give its address and say you cannot book it. If get_slots returns no
+   slots, say so and offer a callback. If you cannot help or the caller asks for a person, call handoff_to_human.
 Callers may say digits as words in any language (for example "nau aath saat"); convert them to digits yourself.
-Use the exact facility names and ids from tool results; never use an id you were not given."""
+Use the exact names and ids from tool results; never use an id you were not given."""
 
 
-def caller_block(state: dict, auto_lang_tool: bool = True) -> str:
+def caller_block(state: dict) -> str:
     """Per-turn facts about this caller, built from the call itself and the Sahay app profile."""
     p = state.get("profile") or {}
     lines = []
+    if state.get("emergency"):
+        lines.append("- EMERGENCY: the caller was already told to call 108. Call find_facilities with severity "
+                     "serious now (use the live location if you have it, otherwise ask for their specific area in one "
+                     "short sentence), then give the nearest hospital as in step 4. Ask nothing else.")
     if state.get("phone"):
         lines.append("- Their mobile number is already known from the call. Never ask for it or read it out; "
                      "booking uses it automatically.")
@@ -133,9 +177,12 @@ def caller_block(state: dict, auto_lang_tool: bool = True) -> str:
     if p.get("live") and p.get("place"):
         lines.append(f"- The app reports their live location near {p['place']}. Ask once, for example "
                      f"\"I see you are near {p['place']}, is that right?\". If yes, call find_facilities with "
-                     "use_live_location true and no village. If no, ask for their village or town.")
+                     "use_live_location true and no village. If no, ask for their specific area.")
+    elif p.get("live"):
+        lines.append("- The app reports their exact live location. Do not ask where they are: call find_facilities "
+                     "with use_live_location true and no village.")
     elif p.get("village"):
         lines.append(f"- No live location. Their saved village is {p['village']}: ask whether they are there now.")
     else:
-        lines.append("- No live location: ask for their village or town.")
+        lines.append("- No live location: ask for their specific area (a locality, village or landmark, not a whole city).")
     return "\n".join(lines)

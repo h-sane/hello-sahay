@@ -22,5 +22,12 @@ def ungrounded(reply: str, known: list[str]) -> list[str]:
     pool_digits, pool_lower = _digits(pool), pool.lower()
     bad = [n for n in re.findall(r"\d+", reply)
            if len(n) >= 3 and n not in ALLOWED and n not in pool_digits]
-    bad += [m.group(1) for m in _NAME.finditer(reply) if m.group(1).lower() not in pool_lower]
+    bad += [m.group(1) for m in _NAME.finditer(reply) if not _named_in(m.group(1), pool_lower)]
     return bad
+
+
+def _named_in(name: str, pool_lower: str) -> bool:
+    """A sentence often starts with a stray capital ("Visit Sri Rajan Hospital", "The Government Hospital"): the name
+    is backed up if it, or what is left after dropping leading words, appears in a tool result."""
+    words = name.split()
+    return any(" ".join(words[i:]).lower() in pool_lower for i in range(max(1, len(words) - 1)))
