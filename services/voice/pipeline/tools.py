@@ -66,14 +66,14 @@ def best_match(query: str, names: list[str], cutoff: float = 0.6) -> str | None:
     return by_key[close[0]] if close else None
 
 
-def place_for(village: str) -> tuple[float, float] | None:
+def place_for(village: str, cutoff: float = 0.7) -> tuple[float, float] | None:
     """Coordinates of a place in the local table, or None: the caller's area is then looked up on OpenStreetMap."""
     names = {_squash(name): (lat, lng) for name, lat, lng in _PLACES}
     v = _squash(village)
     for name, coords in names.items():
         if v and (name in v or v in name):
             return coords
-    close = difflib.get_close_matches(v, names, n=1, cutoff=0.7)
+    close = difflib.get_close_matches(v, names, n=1, cutoff=cutoff)
     return names[close[0]] if close else None
 
 
@@ -236,6 +236,9 @@ class Tools:
             except (httpx.HTTPError, ValueError):
                 log.warning("area lookup failed", exc_info=True)
                 return None, {"error": "area_lookup_failed", "say": "Say sorry, then ask for a nearby well known area."}
+            if not g.get("found") and g.get("reason") != "too_general":
+                coords = place_for(village, cutoff=0.6)  # last resort: speech-to-text heard "Sambran" for Tambaram
+                g = {"found": True, "lat": coords[0], "lng": coords[1]} if coords else g
             if not g.get("found"):
                 return None, too_general if g.get("reason") == "too_general" else {
                     "error": "area_not_found", "say": "That area was not found. Ask for a nearby well known area or landmark."}

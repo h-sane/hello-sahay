@@ -1037,3 +1037,11 @@ def test_with_no_hospital_within_three_km_the_two_nearest_are_offered_with_a_not
     far = [_hospital("Far Hospital", "private", 4.0), _hospital("Farther Hospital", "private", 6.0), _hospital("Farthest Hospital", "private", 9.0)]
     out, _ = _find(_places_api(far))
     assert [h["name"] for h in out["hospitals"]] == ["Far Hospital", "Farther Hospital"] and "3 km" in out["note"]
+
+
+def test_a_place_the_map_does_not_know_but_the_speech_to_text_garbled_is_matched_to_the_local_table_last():
+    state = {"heard": ["I have fever", "Sambran"]}
+    out, state = _find(_places_api(HOSPITALS), state, village="Sambran")
+    assert "hospitals" in out and (state["lat"], state["lng"]) == place_for("Tambaram")
+    out, _ = _find(_places_api(HOSPITALS), {"heard": ["Qzxwv"]}, village="Qzxwv")
+    assert out["error"] == "area_not_found"
