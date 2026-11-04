@@ -47,6 +47,7 @@ def init_db() -> None:
                     "ALTER TABLE call ADD COLUMN IF NOT EXISTS callback_done boolean NOT NULL DEFAULT false",
                     "ALTER TABLE call ADD COLUMN IF NOT EXISTS trace json",
                     "ALTER TABLE call ADD COLUMN IF NOT EXISTS severity varchar(10)",
+                    "ALTER TABLE facility ADD COLUMN IF NOT EXISTS demo_distance_km double precision",
                     # the old single 'desk' role split into per-person roles
                     "UPDATE desk_user SET role = 'doctor' WHERE role = 'desk' AND doctor_id IS NOT NULL",
                     "UPDATE desk_user SET role = 'hospital_admin' WHERE role = 'desk'"):

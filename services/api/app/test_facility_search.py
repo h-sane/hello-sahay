@@ -30,7 +30,7 @@ ROWS = [_f(1, "Sunrise Nursing Home", "private", 12.69, 79.98), _f(2, "Govt Hosp
 
 def _call(**kw):
     args = dict(lat=None, lng=None, department=None, scheme=None, kind=None, partner_only=False, max_km=None,
-                nearest_first=False, limit=20, session=Rows(ROWS))
+                nearest_first=False, use_demo_distance=False, limit=20, session=Rows(ROWS))
     return list_facilities(**{**args, **kw})
 
 
@@ -82,3 +82,15 @@ def test_a_map_outage_is_a_503_not_a_wrong_place(monkeypatch):
     with pytest.raises(HTTPException) as e:
         places.geocode("Kolathur")
     assert e.value.status_code == 503
+
+
+def test_prototype_clinics_are_that_far_from_any_caller_so_three_are_under_three_km_anywhere():
+    clinics = [_f(10 + i, f"Clinic {i}", "clinic", 13.0 + i, 80.0, departments=("General Medicine",)) for i in range(5)]
+    for f, km in zip(clinics, (0.8, 1.6, 2.4, 3.6, 4.2)):
+        f.demo_distance_km = km
+    for lat, lng in ((12.92, 80.12), (11.0, 77.0), (13.09, 80.28)):  # Tambaram, Coimbatore, George Town
+        out = _call(session=Rows(clinics), lat=lat, lng=lng, kind="clinic", partner_only=True, max_km=3,
+                    nearest_first=True, use_demo_distance=True)
+        assert [f["distance_km"] for f in out] == [0.8, 1.6, 2.4]
+    real = _call(session=Rows(clinics), lat=13.0, lng=80.0, kind="clinic", max_km=3, nearest_first=True)
+    assert [f["name"] for f in real] == ["Clinic 0"]  # without the flag the real coordinates decide

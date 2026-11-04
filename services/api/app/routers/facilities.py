@@ -31,6 +31,7 @@ def list_facilities(
     partner_only: bool = False,
     max_km: float | None = Query(None, gt=0),
     nearest_first: bool = False,
+    use_demo_distance: bool = Query(False, description="prototype: a facility with demo_distance_km is that far from any caller"),
     limit: int = Query(20, ge=1, le=100),
     session: Session = Depends(get_session),
 ):
@@ -45,12 +46,13 @@ def list_facilities(
         if (kind and f.type.lower() != kind.lower()) or (partner_only and not f.is_partner):
             continue
         near = lat is not None and f.lat is not None and f.lng is not None
+        demo = use_demo_distance and f.demo_distance_km is not None
         out.append({
             "id": f.id, "name": f.name, "type": f.type, "address": f.address,
             "lat": f.lat, "lng": f.lng, "phone": f.phone, "hours": f.hours,
             "departments": f.departments or [], "pmjay": f.pmjay, "cmchis": f.cmchis,
             "is_partner": f.is_partner, "is_government": f.type in GOVERNMENT_TYPES,
-            "distance_km": round(_km(lat, lng, f.lat, f.lng), 1) if near else None,
+            "distance_km": f.demo_distance_km if demo else round(_km(lat, lng, f.lat, f.lng), 1) if near else None,
         })
     if max_km is not None:
         out = [r for r in out if r["distance_km"] is not None and r["distance_km"] <= max_km]

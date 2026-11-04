@@ -374,15 +374,16 @@ HOSPITALS = [_hospital("Rao Nursing Home", "private", 1.2), _hospital("Governmen
              _hospital("Lotus Family Hospital", "private", 5.0)]
 
 
-def test_a_mild_problem_is_offered_the_two_nearest_partner_clinics_that_can_be_booked():
+def test_a_mild_problem_is_offered_up_to_three_partner_clinics_that_can_be_booked_without_a_street_address():
     seen = []
-    api = _places_api(HOSPITALS, clinics=[_clinic(21, "Velan Clinic", 1.1), _clinic(22, "Anbu Health Clinic", 2.0),
-                                          _clinic(23, "Lakshmi Family Clinic", 3.0)], seen=seen)
+    api = _places_api(HOSPITALS, clinics=[_clinic(21, "Velan Clinic", 0.8), _clinic(22, "Anbu Health Clinic", 1.6),
+                                          _clinic(23, "Lakshmi Family Clinic", 2.4), _clinic(24, "Fourth Clinic", 2.9)], seen=seen)
     out, state = _find(api, severity="mild")
-    assert [c["name"] for c in out["clinics"]] == ["Velan Clinic", "Anbu Health Clinic"] and "hospitals" not in out
-    assert all(c["can_book"] and c["department"] == "General Medicine" for c in out["clinics"])
+    assert [c["name"] for c in out["clinics"]] == ["Velan Clinic", "Anbu Health Clinic", "Lakshmi Family Clinic"] and "hospitals" not in out
+    assert all(c["can_book"] and c["department"] == "General Medicine" and c["address"] == "" for c in out["clinics"])
     clinic_query = next(q for path, q in seen if path.endswith("/facilities"))
-    assert clinic_query["partner_only"] == "true" and clinic_query["kind"] == "clinic" and clinic_query["max_km"] == "15"
+    assert clinic_query["partner_only"] == "true" and clinic_query["kind"] == "clinic" and clinic_query["max_km"] == "3"
+    assert clinic_query["use_demo_distance"] == "true"  # prototype: fixed distances, wherever the caller is
     assert state["severity"] == "mild" and "emergency" not in state
 
 
@@ -396,12 +397,16 @@ def test_a_clinic_with_the_needed_department_comes_before_a_nearer_one_without_i
 def test_with_no_partner_clinic_nearby_a_mild_caller_is_given_the_hospitals_with_a_note():
     out, _ = _find(_places_api(HOSPITALS), severity="mild")
     assert "clinics" not in out and "No partner clinic" in out["note"] and out["show"] == "hospitals"
-    assert [h["name"] for h in out["hospitals"]] == ["Rao Nursing Home", "Government Hospital Chengalpattu"]
+    assert [h["name"] for h in out["hospitals"]] == ["Rao Nursing Home"]  # only the one within 3 km
 
 
-def test_a_moderate_problem_gets_the_two_nearest_hospitals_and_the_government_one_is_information_only():
-    out, state = _find(_places_api(HOSPITALS, clinics=[_clinic(21, "Velan Clinic", 1.1)]))
-    private, government = out["hospitals"]
+def test_a_moderate_problem_gets_the_hospitals_within_three_km_and_the_government_one_is_information_only():
+    close = [_hospital("Rao Nursing Home", "private", 1.2), _hospital("Government Hospital Chengalpattu", "government", 2.0),
+             _hospital("Lotus Family Hospital", "private", 2.9), _hospital("Far Hospital", "private", 3.1)]
+    out, state = _find(_places_api(close, clinics=[_clinic(21, "Velan Clinic", 1.1)]))
+    assert [h["name"] for h in out["hospitals"]] == ["Rao Nursing Home", "Government Hospital Chengalpattu", "Lotus Family Hospital"]
+    assert "note" not in out
+    private, government, _ = out["hospitals"]
     assert private["can_book"] and private["id"] == 7 and private["department"] == "General Medicine"
     assert government["is_government"] and government["can_book"] is False and "id" not in government
     assert "clinics" not in out and "facility_id" not in state  # nothing is chosen until the caller picks
@@ -1026,3 +1031,9 @@ def test_the_saved_village_from_the_app_profile_counts_as_said_and_native_script
     unasked = {"heard": ["I have fever since morning and a headache"], "profile": {"village": "Paranur"}}
     assert _find(_places_api(HOSPITALS), unasked, village="Paranur")[0]["error"] == "location_needed"  # it must ask first
     assert "hospitals" in _find(_places_api(HOSPITALS), {"heard": ["எனக்கு காய்ச்சல்"]}, village="Paranur")[0]
+
+
+def test_with_no_hospital_within_three_km_the_two_nearest_are_offered_with_a_note():
+    far = [_hospital("Far Hospital", "private", 4.0), _hospital("Farther Hospital", "private", 6.0), _hospital("Farthest Hospital", "private", 9.0)]
+    out, _ = _find(_places_api(far))
+    assert [h["name"] for h in out["hospitals"]] == ["Far Hospital", "Farther Hospital"] and "3 km" in out["note"]

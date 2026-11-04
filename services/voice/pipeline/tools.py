@@ -19,7 +19,8 @@ from . import config
 log = logging.getLogger("sahay.tools")
 IST = timezone(timedelta(hours=5, minutes=30))
 DEFAULT_DEPARTMENT = "General Medicine"
-CLINIC_RADIUS_KM = 15  # a partner clinic farther than this is not "nearby"
+NEARBY_KM = 3  # prototype: the clinics (their demo distances) and the hospitals offered are the ones this close
+OFFERED = 3  # how many clinics or hospitals are named in one answer
 SHOW_FOR = {"mild": "clinics", "moderate": "hospitals", "serious": "hospitals"}  # what each severity is offered first
 SHOWS = ("clinics", "hospitals", "free_government")
 NOT_NAMES = {"", "anonymous", "unknown", "patient", "caller", "user", "na", "none", "name", "notgiven"}
@@ -176,18 +177,22 @@ class Tools:
             return []
 
     async def _clinics(self, lat: float, lng: float, department: str) -> list[dict]:
-        """The two nearest partner clinics (Sahay Desk clinics only); clinics that run the department come first."""
+        """The partner clinics within NEARBY_KM, nearest first; clinics that run the department come first.
+
+        Prototype wiring: each seeded clinic has a fixed distance from any caller (facility.demo_distance_km), so the
+        same few clinics are near wherever the call comes from, and their seeded street address is not spoken.
+        """
         try:
             r = await self.http.get("/facilities", params={"lat": lat, "lng": lng, "kind": "clinic", "partner_only": "true",
-                                                           "max_km": CLINIC_RADIUS_KM, "nearest_first": "true", "limit": 6})
+                                                           "max_km": NEARBY_KM, "nearest_first": "true", "use_demo_distance": "true", "limit": 10})
             r.raise_for_status()
             rows = sorted(r.json(), key=lambda f: department not in f["departments"])
         except (httpx.HTTPError, ValueError):
             log.warning("clinic lookup failed", exc_info=True)
             return []
         out = []
-        for f in rows[:2]:
-            v = {"id": f["id"], "name": f["name"], "address": f["address"] or "", "distance_km": f["distance_km"],
+        for f in rows[:OFFERED]:
+            v = {"id": f["id"], "name": f["name"], "address": "", "distance_km": f["distance_km"],
                  "is_government": False, "can_book": True,
                  "department": department if department in f["departments"] else DEFAULT_DEPARTMENT}
             self._listed[f["name"]] = self._clinic_by_id[f["id"]] = v
@@ -288,7 +293,7 @@ class Tools:
             clinics = await self._clinics(lat, lng, department)
             if clinics:
                 return {**out, "clinics": clinics,
-                        "say": "Name them with their distance. Then end with this one question, in the caller's language: "
+                        "say": "Name them (at most three) with their distance. Then end with this one question, in the caller's language: "
                                "\"Shall I book one of these, or would you like to hear about hospitals too?\""}
             out.update(show="hospitals", note="No partner clinic is near this area. Say so, then offer the hospitals below.")
         hospitals = await self._nearby(lat, lng, 10)
@@ -313,7 +318,10 @@ class Tools:
             if demo is None:
                 return {**out, "error": "no hospital can take bookings right now; offer a callback"}
             hospitals = [{"name": demo["name"], "address": demo["address"], "kind": "private", "distance_km": None}]
-        return {**out, "hospitals": [self._view(h, demo_id, department) for h in hospitals[:2]],
+        near = [h for h in hospitals if (h.get("distance_km") or 0) <= NEARBY_KM]
+        shown = near[:OFFERED] or hospitals[:2]  # none within NEARBY_KM: the two nearest, so the caller still gets somewhere
+        return {**out, "hospitals": [self._view(h, demo_id, department) for h in shown],
+                **({} if near else {"note": f"None is within {NEARBY_KM} km; say these are the nearest."}),
                 "say": "Name them with distance and say which is government (free) and which is private. Then end with this one "
                        "question, in the caller's language: \"Shall I book one of these, or would you like to hear about the "
                        "nearest free government hospitals?\""}

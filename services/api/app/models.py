@@ -42,6 +42,8 @@ class Facility(Base):
     cmchis: Mapped[bool] = mapped_column(Boolean, default=False)
     is_partner: Mapped[bool] = mapped_column(Boolean, default=False)
     plan: Mapped[str | None] = mapped_column(String(30))
+    # Prototype: how far a caller is told this partner is, wherever the caller is (see GET /facilities use_demo_distance).
+    demo_distance_km: Mapped[float | None] = mapped_column(Float)
 
 
 class Doctor(Base):
