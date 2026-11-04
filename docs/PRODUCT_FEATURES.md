@@ -23,12 +23,12 @@ Behind all five: one **backend API** (`services/api/`, FastAPI + PostgreSQL/pgve
 
 ## 1. Hello Sahay helpline (voice)
 
-Languages: Tamil, Hindi, English, Malayalam, Kannada (the last two added 2026-11-04: Sarvam speech on the helpline, verified with synthetic callers; the patient app screens and Ask Sahay chat answers follow, checked on an Android emulator; none of it on a real phone; the Kannada and Malayalam wording is machine-written and needs a native speaker's read). Not an emergency service. Phone number 080-472-90138 (Exotel); also the browser call.
+Languages: Tamil, Hindi, English, Malayalam, Kannada, Telugu (the last three added 2026-11-04: Sarvam speech on the helpline, verified with synthetic callers; the patient app screens and Ask Sahay chat answers follow, checked on an Android emulator; none of it on a real phone; the Kannada and Malayalam wording is machine-written and needs a native speaker's read). Not an emergency service. Phone number 080-472-90138 (Exotel); also the browser call.
 
 | Feature | Detail | Tier | Card | Status |
 |---|---|---|---|---|
 | Call-start notice and language | Short greeting saying the call is transcribed, then a beep; with `lang=auto` the first sentence sets the language, later changes need a whole sentence in another script | P0 | P1-5, P1-6 | Built (spoken language detection replaced "press 1 / 2 / 3") |
-| Speech in, speech out | Sarvam hears Tamil, Malayalam, Kannada and `lang=auto` calls; Transcribe hears English/Hindi browser calls; Polly speaks English/Hindi, Sarvam speaks Tamil, Malayalam and Kannada | P0 | P1-5, P1-6 | Built |
+| Speech in, speech out | Sarvam hears Tamil, Malayalam, Kannada, Telugu and `lang=auto` calls; Transcribe hears English/Hindi browser calls; Polly speaks English/Hindi, Sarvam speaks Tamil, Malayalam, Kannada and Telugu | P0 | P1-5, P1-6 | Built |
 | Emergency gate | Runs before the model on every utterance in all three languages; says "Call 108 / 112", flags the call, queues a human callback | P0 | P1-4, P1-7 | Built |
 | Find a facility | Real nearest hospital (OpenStreetMap) as the recommendation, plus the nearest government one when different | P0 | P1-5 | Built |
 | "Which hospital takes my card" | `check_scheme_coverage` against Tamil Nadu's CMCHIS list | P0 | P1-5 | Built (PM-JAY has no open per-hospital list; tagged together with CMCHIS) |

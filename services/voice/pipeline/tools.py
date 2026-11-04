@@ -124,7 +124,7 @@ TOOL_SPECS = [
     {"toolSpec": {
         "name": "set_language",
         "description": "Switch the rest of the call to the language the caller asked for.",
-        "inputSchema": _obj({"language": {"type": "string", "enum": ["en", "hi", "ta", "ml", "kn"]}}, ["language"])}},
+        "inputSchema": _obj({"language": {"type": "string", "enum": ["en", "hi", "ta", "ml", "kn", "te"]}}, ["language"])}},
     {"toolSpec": {
         "name": "handoff_to_human",
         "description": "Put the call in the human queue when you cannot help or the caller asks for a person.",
@@ -291,7 +291,7 @@ class Tools:
                 "doctor": a["doctor"]["name"], "when": when(a["slot"]["start"])}
 
     async def t_set_language(self, language: str) -> dict:
-        if self.on_language is None or language not in ("en", "hi", "ta", "ml", "kn"):
+        if self.on_language is None or language not in ("en", "hi", "ta", "ml", "kn", "te"):
             return {"error": "language cannot be changed on this call"}
         self.on_language(language)
         return {"language": language, "say": "Answer from now on in the new language."}

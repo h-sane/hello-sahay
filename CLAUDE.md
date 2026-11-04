@@ -43,6 +43,8 @@ issue per task card. Voice (2026-10-14): `services/voice` runs the English/Hindi
 
 **Malayalam and Kannada on the helpline (2026-11-04):** the voice agent now speaks and understands Malayalam and Kannada (Sarvam `ml-IN`/`kn-IN`, auto-detected with Tamil, Hindi and English): spoken lines, emergency and symptom word lists, WhatsApp texts and the `ml`/`kn` language value on calls and patients. Patient app and chat answers followed on 2026-11-04 (all five languages on every screen, Ask Sahay `kn`/`ml`; see the patient-web README). Verified with synthetic callers through the phone bridge and with pytest; not on a real phone. Feature 1 of the Dexathon improvement list.
 
+**Telugu on the helpline (2026-11-04):** same path as Malayalam and Kannada: Sarvam `te-IN` speech in and out, auto-detected, every spoken line, emergency and symptom word lists, WhatsApp texts, digit words, and `te` accepted on calls, patients and bookings. Verified with pytest only; no synthetic or real call yet. Patient app, chat and Sahay Desk language pickers are unchanged.
+
 **Local setup:** `docker compose up -d` (Postgres on host port **5433**), copy
 `.env.example` to `.env`, then `python scripts/check_setup.py` (needs boto3 and
 psycopg or psycopg2) to confirm DB, Bedrock, embeddings, Polly and Transcribe.

@@ -1,9 +1,9 @@
 """Phone bridge: a phone call in, the voice pipeline (CallSession) behind it.
 
 Run from services/voice: python -m uvicorn telephony.phone_bridge:app --app-dir services/voice --port 8000
-Exotel (Indian number): Voicebot applet URL wss://<tunnel>/exotel?lang=en|hi|ta|ml|kn;
+Exotel (Indian number): Voicebot applet URL wss://<tunnel>/exotel?lang=en|hi|ta|ml|kn|te;
 audio is 8 kHz 16-bit PCM, base64; outbound frames must be a multiple of 320 bytes and >= 100 ms.
-Twilio (US number): the "A call comes in" webhook is POST /incoming?lang=en|hi|ta|ml|kn|auto on the tunnel;
+Twilio (US number): the "A call comes in" webhook is POST /incoming?lang=en|hi|ta|ml|kn|te|auto on the tunnel;
 audio is 8 kHz mu-law, base64, 20 ms frames. Python 3.13+ needs `pip install audioop-lts`.
 """
 import asyncio
@@ -21,7 +21,7 @@ from pipeline.session import CallSession
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
 log = logging.getLogger("sahay.bridge")
-LANGS = {"en", "hi", "ta", "ml", "kn", "auto"}
+LANGS = {"en", "hi", "ta", "ml", "kn", "te", "auto"}
 RATE = 8000  # both carriers; Transcribe and Polly accept 8 kHz directly
 TWILIO_FRAME = 160  # 20 ms of mu-law
 EXOTEL_CHUNK = 320  # 20 ms of 8 kHz 16-bit mono; outbound frames must be a multiple of this

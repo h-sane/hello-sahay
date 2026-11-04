@@ -1,4 +1,4 @@
-"""Tamil, Malayalam and Kannada speech via Sarvam: saarika:v2.5 speech-to-text and bulbul:v3 text-to-speech (both request/response)."""
+"""Tamil, Malayalam, Kannada and Telugu speech via Sarvam: saarika:v2.5 speech-to-text and bulbul:v3 text-to-speech (both request/response)."""
 import asyncio
 import audioop
 import base64
@@ -20,7 +20,7 @@ MAX_SPEECH_RMS = 3000  # the adaptive bar never rises above this; real callers m
 MIN_SPEECH_S = 0.25  # an utterance with less loud audio than this is a click or a distant voice, never sent
 QUIET_S = 0.6  # silence after speech that closes an utterance
 MAX_S = 20.0
-CODES = {"ta": "ta-IN", "ml": "ml-IN", "kn": "kn-IN"}
+CODES = {"ta": "ta-IN", "ml": "ml-IN", "kn": "kn-IN", "te": "te-IN"}
 
 
 _key = 0  # index of the key in use; moves on when Sarvam says that key is out of credit or rate-limited

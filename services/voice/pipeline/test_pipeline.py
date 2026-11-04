@@ -653,12 +653,12 @@ def test_malayalam_and_kannada_have_every_spoken_line_and_use_sarvam_for_speech(
     from pipeline import llm, prompts
     from pipeline.sarvam import CODES, SarvamStt
 
-    assert set(CODES) == {"ta", "ml", "kn"}
+    assert set(CODES) == {"ta", "ml", "kn", "te"}
     for table in (prompts.GREETING, prompts.UNVERIFIED, prompts.FILLER, prompts.UNCLEAR, prompts.GIVE_UP,
                   prompts.GOODBYE, prompts.GREETING_FALLBACK, llm.FALLBACK, REPLIES["emergency"], REPLIES["symptom"]):
-        assert {"ml", "kn"} <= set(table), table
-    assert {"ml", "kn"} <= {code for code, _ in prompts.AUTO_GREETING}
-    for lang in ("ml", "kn"):
+        assert {"ml", "kn", "te"} <= set(table), table
+    assert {"ml", "kn", "te"} <= {code for code, _ in prompts.AUTO_GREETING}
+    for lang in ("ml", "kn", "te"):
         async def nothing(*a):
             return None
 
@@ -668,6 +668,7 @@ def test_malayalam_and_kannada_have_every_spoken_line_and_use_sarvam_for_speech(
 
 def test_an_emergency_in_malayalam_or_kannada_is_answered_in_that_language_without_the_model():
     for lang, text in (("ml", "അച്ഛന് നെഞ്ചുവേദന ഉണ്ട്"), ("kn", "ಅಪ್ಪನಿಗೆ ಎದೆ ನೋವು ಬರುತ್ತಿದೆ"),
+                       ("te", "నాన్నకు ఛాతి నొప్పి వస్తోంది"),
                        ("ta", "நெஞ்சு வலி")):
         posted: list = []
 
@@ -689,6 +690,7 @@ def test_a_malayalam_or_kannada_sentence_moves_an_auto_call_and_the_script_check
     assert _clean("എനിക്ക് പനി ഉണ്ട് doctor") == "എനിക്ക് പനി ഉണ്ട് doctor"
     assert _clean("ನನಗೆ ಜ್ವರ ಇದೆ") == "ನನಗೆ ಜ್ವರ ಇದೆ"
     assert _in_script("എനിക്ക് പനി ഉണ്ട്", "ml") and _in_script("ನನಗೆ ಜ್ವರ ಇದೆ", "kn")
+    assert _clean("నాకు జ్వరం ఉంది") == "నాకు జ్వరం ఉంది" and _in_script("నాకు జ్వరం ఉంది", "te")
     assert not _in_script("fever since two days", "ml")
 
     async def go():
@@ -700,15 +702,19 @@ def test_a_malayalam_or_kannada_sentence_moves_an_auto_call_and_the_script_check
         a = s.lang
         s._stt.detected = "kn"
         await s._on_result("ನನಗೆ ಎರಡು ದಿನದಿಂದ ಜ್ವರ ಇದೆ", True)
-        return a, s.lang
+        b = s.lang
+        s._stt.detected = "te"
+        await s._on_result("నాకు రెండు రోజులుగా జ్వరం ఉంది", True)
+        return a, b, s.lang
 
-    assert asyncio.run(go()) == ("ml", "kn")
+    assert asyncio.run(go()) == ("ml", "kn", "te")
 
 
 def test_dictated_digit_words_in_malayalam_and_kannada_become_digits():
     from pipeline.digits import digits_from_words as d
     assert d("ഒമ്പത് എട്ട് ഏഴ് ആറ് അഞ്ച്") == "98765"
     assert d("ಒಂಬತ್ತು ಎಂಟು ಏಳು ಆರು ಐದು") == "98765"
+    assert d("తొమ్మిది ఎనిమిది ఏడు ఆరు ఐదు") == "98765"
 
 
 def test_sarvam_moves_to_the_next_key_when_one_is_out_of_credit_and_stays_on_it(monkeypatch):
