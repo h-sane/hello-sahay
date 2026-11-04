@@ -27,7 +27,7 @@ def get_session():
 
 def init_db() -> None:
     """Create the pgvector extension and every table. Safe to call repeatedly."""
-    from . import models  # noqa: F401  (registers tables on Base.metadata)
+    from . import models, models_patient_app, models_sathi  # noqa: F401  (registers tables on Base.metadata)
 
     with engine.begin() as conn:
         conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
