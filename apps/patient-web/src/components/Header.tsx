@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, Globe, HeartPulse, WifiOff } from 'lucide-react';
+import { Activity, Globe, WifiOff } from 'lucide-react';
 import { Language } from '../types';
 import { languageMeta } from '../translations';
 import { pick } from './ui';
@@ -30,10 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-40 border-b-2 border-slate-200 bg-white">
       <div className="mx-auto flex h-16 max-w-xl items-center justify-between gap-1.5 sm:gap-2 px-2.5 sm:px-3">
         <button onClick={onNavigateHome} className="flex min-h-12 items-center gap-1.5 shrink-0" aria-label="Hello Sahay">
-          <span className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-teal-800 text-white">
-            <HeartPulse className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden />
-          </span>
-          <span className="hidden text-xl sm:text-2xl font-extrabold text-teal-950 min-[520px]:inline">Sahay</span>
+          <img src="/logo-mark.webp" alt="" className="h-12 w-12 rounded-xl" />
         </button>
         <div className="flex items-center gap-1.5 sm:gap-2">
           {!isOnline && (

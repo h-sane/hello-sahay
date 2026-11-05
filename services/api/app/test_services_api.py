@@ -86,7 +86,7 @@ def _book(client, patient, helper_id, day, slot="morning", category=CARE):
 
 def test_providers_are_verified_and_never_carry_a_phone(client):
     rows = client.get(f"{API}/services/providers", params={"category": CARE}).json()
-    assert len(rows) >= 4
+    assert len(rows) == 4 and all(r["name"] != "Ramesh Kumar" for r in rows)  # the try-out login is not listed
     assert all("phone" not in r for r in rows)
     assert all(r["rate_label"] for r in rows)
     assert client.get(f"{API}/services/providers", params={"category": "Nonsense"}).json() == []

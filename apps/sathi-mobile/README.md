@@ -24,3 +24,7 @@ cd android; .\gradlew.bat assembleRelease -PreactNativeArchitectures=arm64-v8a
 - Requests refresh every 30 seconds while the app is open. There is no push notification yet.
 - A newly registered helper is "pending" and cannot be booked until their `id_status` is set to `verified`. There is no screen for that yet.
 - The ID document picker is optional; nothing is uploaded or stored.
+
+## Logo
+
+The app logo is `public/logo-mark.webp` (header and sign-in screen), `public/favicon.png`, and the Android launcher icons and splash in `android/app/src/main/res/` (`mipmap-*`, `drawable*/splash.png`), all cut from the supplied logo artwork.

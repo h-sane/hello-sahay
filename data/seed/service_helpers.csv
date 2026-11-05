@@ -1,17 +1,17 @@
 # DEMO DATA: fictional Sahay Sathi helpers shown in the patient app's Services tab. Phones +919000000101 onward are not real numbers.
 phone,name,gender,category,rating,completed_count,experience_years,languages,description,photo,rate_amount,rate_label
-+919000000101,Sister Priya Rani,female,Personal Caretaker,4.9,142,8,Tamil|English,Certified ANM Nurse & Senior Caretaker. Post-surgery & Elder Care,/images/personal-care-taker.png,750,₹750 / day
-+919000000102,Sister Anitha Mary,female,Personal Caretaker,4.8,98,5,Tamil|Telugu,Geriatric & Bedside Care Attendant. Mobility & Daily Vitals,/images/caretaker-anitha.png,750,₹750 / day
-+919000000103,Babu Sundaram,male,Personal Caretaker,4.9,116,6,Tamil|Hindi|English,"Male Patient Attendant & Physical Support. Wheelchair, Bath & Night Duty",/images/caretaker-babu.png,750,₹750 / day
-+919000000104,Kavitha R.,female,Personal Caretaker,4.8,75,4,Tamil,"Diabetic & Medication Care Attendant. Insulin, Diet & BP Check",/images/caretaker-kavitha.png,750,₹750 / day
-+919000000105,Radha Murugan,female,House Cleaning,4.9,185,7,Tamil,Patient Room & Deep Sanitization Lead. Hospital Grade Sanitization,/images/house-cleaning.png,3999,"₹3,999 / month"
-+919000000106,Selvi Kumar,female,House Cleaning,4.8,130,5,Tamil|Telugu,Washroom & Kitchen Disinfection Specialist. Eco-friendly Safe Materials,/images/cleaner-selvi.png,3999,"₹3,999 / month"
-+919000000107,Munusamy P.,male,House Cleaning,4.8,92,6,Tamil,Floor Scrubbing & Dust Removal Specialist. Full Home Moisture Care,/images/cleaner-munusamy.png,3999,"₹3,999 / month"
-+919000000108,Deepak Shanmugam,male,House Cleaning,4.9,110,4,Tamil|English,Post-Discharge Home Sanitization Lead. Infection Prevention Protocol,/images/cleaner-deepak.png,3999,"₹3,999 / month"
-+919000000109,Karthik Vijay,male,Technical Support,4.9,210,6,Tamil|English|Hindi,"Senior Medical Device & Mobile Technician. BP, O2 Monitors & Glucometers",/images/technical-support.png,299,₹299 / visit
-+919000000110,Suresh Kumar,male,Technical Support,4.8,145,5,Tamil|English|Telugu,"Home Wi-Fi, Router & Tele-consult Specialist. Fast Internet Setup for Video Consults",/images/tech-suresh.png,299,₹299 / visit
-+919000000111,Meena Sundaram,female,Technical Support,4.9,128,5,Tamil|English|Hindi,"Smartphone Health Apps & Video Calling Tutor. Patient WhatsApp, Health Apps & Tech Tutor",/images/tech-meena.png,299,₹299 / visit
-+919000000112,Shalini Ramesh,female,Technical Support,4.8,104,4,Tamil|English,"Digital BP, Glucometer & Hearing Aid Setup. Medical Equipment & Battery Calibration",/images/tech-shalini.png,299,₹299 / visit
++919000000101,Sister Priya Rani,female,Personal Caretaker,4.9,142,8,Tamil|English,Certified ANM Nurse & Senior Caretaker. Post-surgery & Elder Care,/images/personal-care-taker.webp,750,₹750 / day
++919000000102,Sister Anitha Mary,female,Personal Caretaker,4.8,98,5,Tamil|Telugu,Geriatric & Bedside Care Attendant. Mobility & Daily Vitals,/images/caretaker-anitha.webp,750,₹750 / day
++919000000103,Babu Sundaram,male,Personal Caretaker,4.9,116,6,Tamil|Hindi|English,"Male Patient Attendant & Physical Support. Wheelchair, Bath & Night Duty",/images/caretaker-babu.webp,750,₹750 / day
++919000000104,Kavitha R.,female,Personal Caretaker,4.8,75,4,Tamil,"Diabetic & Medication Care Attendant. Insulin, Diet & BP Check",/images/caretaker-kavitha.webp,750,₹750 / day
++919000000105,Radha Murugan,female,House Cleaning,4.9,185,7,Tamil,Patient Room & Deep Sanitization Lead. Hospital Grade Sanitization,/images/house-cleaning.webp,3999,"₹3,999 / month"
++919000000106,Selvi Kumar,female,House Cleaning,4.8,130,5,Tamil|Telugu,Washroom & Kitchen Disinfection Specialist. Eco-friendly Safe Materials,/images/cleaner-selvi.webp,3999,"₹3,999 / month"
++919000000107,Munusamy P.,male,House Cleaning,4.8,92,6,Tamil,Floor Scrubbing & Dust Removal Specialist. Full Home Moisture Care,/images/cleaner-munusamy.webp,3999,"₹3,999 / month"
++919000000108,Deepak Shanmugam,male,House Cleaning,4.9,110,4,Tamil|English,Post-Discharge Home Sanitization Lead. Infection Prevention Protocol,/images/cleaner-deepak.webp,3999,"₹3,999 / month"
++919000000109,Karthik Vijay,male,Technical Support,4.9,210,6,Tamil|English|Hindi,"Senior Medical Device & Mobile Technician. BP, O2 Monitors & Glucometers",/images/technical-support.webp,299,₹299 / visit
++919000000110,Suresh Kumar,male,Technical Support,4.8,145,5,Tamil|English|Telugu,"Home Wi-Fi, Router & Tele-consult Specialist. Fast Internet Setup for Video Consults",/images/tech-suresh.webp,299,₹299 / visit
++919000000111,Meena Sundaram,female,Technical Support,4.9,128,5,Tamil|English|Hindi,"Smartphone Health Apps & Video Calling Tutor. Patient WhatsApp, Health Apps & Tech Tutor",/images/tech-meena.webp,299,₹299 / visit
++919000000112,Shalini Ramesh,female,Technical Support,4.8,104,4,Tamil|English,"Digital BP, Glucometer & Hearing Aid Setup. Medical Equipment & Battery Calibration",/images/tech-shalini.webp,299,₹299 / visit
 +919000000113,Ramesh V. - Wheelchair & Hospital Escort,male,Care Support,4.9,160,5,Tamil|English,"Patient Clinic Transport & Escort Companion. Patient clinic visits, ambulance standby & walking support",,350,₹350 / trip
 +919000000114,Geetha K. - Night Attendant Coordinator,female,Care Support,4.9,120,5,Tamil,"Overnight Elderly Care & Vitals Watch. Bedside night assistance, water, medicine & washroom help",,850,₹850 / night
 +919000000115,Saravanan P. - Medicine & Lab Courier,male,Care Support,4.8,230,5,Tamil,Jan Aushadhi Medicine Pickup & Blood Sample Drop. Fast 45-min prescription pickup from government & private shops,,99,₹99 / delivery

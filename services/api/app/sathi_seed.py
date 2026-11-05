@@ -42,6 +42,7 @@ def ensure_demo_helpers(session: Session, csv_path: Path = SEED_CSV) -> int:
         if existing is not None:
             if existing.is_demo and existing.password_hash is None:
                 existing.password_hash = password_hash
+            existing.profile_photo_url = r["photo"] or None  # moves already-seeded databases to the current image files
             continue
         session.add(Helper(
             phone=r["phone"], name=r["name"], gender=r["gender"], is_demo=True, id_status="verified",

@@ -106,7 +106,7 @@ const CATEGORIES_DATA: ServiceCategory[] = [
         'പരിശോധിച്ചുറപ്പിച്ച പരിചാരകർ',
       ],
     },
-    image: '/images/personal-care-taker.png',
+    image: '/images/personal-care-taker.webp',
     priceEstimate: {
       en: '₹750 / day',
       hi: '₹750 / दिन',
@@ -179,7 +179,7 @@ const CATEGORIES_DATA: ServiceCategory[] = [
         'പരിശീലനം ലഭിച്ച ജീവനക്കാർ',
       ],
     },
-    image: '/images/house-cleaning.png',
+    image: '/images/house-cleaning.webp',
     priceEstimate: {
       en: '₹3,999 / month',
       hi: '₹3,999 / महीना',
@@ -252,7 +252,7 @@ const CATEGORIES_DATA: ServiceCategory[] = [
         'ലളിതമായ സാങ്കേതിക മാർഗ്ഗനിർദ്ദേശം',
       ],
     },
-    image: '/images/technical-support.png',
+    image: '/images/technical-support.webp',
     priceEstimate: {
       en: '₹299 / visit',
       hi: '₹299 / विज़िट',

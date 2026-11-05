@@ -17,6 +17,7 @@ from ..db import get_session
 from ..models import Patient
 from ..models_sathi import Helper, HelperNotification, ServiceBooking
 from ..sathi_catalog import CATEGORY_RATE
+from ..sathi_seed import DEMO_HELPER_PHONE
 from .care import me, notify
 
 router = APIRouter(prefix="/services")
@@ -55,7 +56,7 @@ def _provider(h: Helper, category: str) -> dict[str, Any]:
 @router.get("/providers")
 def providers(category: str = Query(max_length=100), session: Session = Depends(get_session)):
     """Helpers whose ID has been checked and who offer this service, best rated first."""
-    rows = session.scalars(select(Helper).where(Helper.id_status == "verified")
+    rows = session.scalars(select(Helper).where(Helper.id_status == "verified", Helper.phone != DEMO_HELPER_PHONE)  # the Sahay Sathi try-out login is not a listed helper
                            .order_by(Helper.rating.desc(), Helper.completed_count.desc())).all()
     return [_provider(h, category) for h in rows if category in (h.categories or [])]
 

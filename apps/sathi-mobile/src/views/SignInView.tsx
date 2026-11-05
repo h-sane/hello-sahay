@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, Phone, ShieldCheck, Users } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, Phone, ShieldCheck } from 'lucide-react';
 import { HelperProfile } from '../types';
 import { sathiApi } from '../services/api';
 
@@ -82,9 +82,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
     <div className="min-h-screen bg-[#F8FAF9] flex flex-col justify-between p-4 max-w-md mx-auto">
       {/* Top Branding Header matching reference design */}
       <div className="pt-8 pb-3 text-center">
-        <div className="w-14 h-14 rounded-full bg-[#274236] text-white mx-auto flex items-center justify-center shadow-md mb-2.5">
-          <Users className="w-7 h-7 text-white" />
-        </div>
+        <img src="/logo-mark.webp" alt="" className="w-20 h-20 rounded-2xl mx-auto shadow-md mb-2.5" />
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Sahay Sathi</h1>
         <p className="text-sm text-slate-500 mt-0.5 max-w-xs mx-auto">
           Service Provider Application for Hello Sahay

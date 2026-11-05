@@ -31,3 +31,7 @@ Full screen-to-endpoint map: `docs/FRONTEND_INTEGRATION.md`. Kept on the device 
 Not available yet, shown honestly: WhatsApp confirmation (needs keys), real payment for the Care plan (demo payment), sign-in code by SMS (shown on screen).
 
 `npm run lint` type-checks the project.
+
+## Logo
+
+The app logo is `public/logo-mark.webp` (header), `public/favicon.png`, and the Android launcher icons and splash in `android/app/src/main/res/` (`mipmap-*`, `drawable*/splash.png`), all cut from the supplied logo artwork.
